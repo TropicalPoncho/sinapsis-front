@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Launch Next.js App",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": ["run", "dev"],
+        "port": 9229,
+        "cwd": "${workspaceFolder}",
+        "program": "${workspaceFolder}/${input:entryFile}",
+        "console": "integratedTerminal"
+      }
+    ],
+    "inputs": [
+      {
+        "type": "promptString",
+        "id": "entryFile",
+        "description": "Enter the path to the entry file (e.g., src/app/page.tsx)"
+      }
+    ]
+  }

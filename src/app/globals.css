@@ -1,6 +1,10 @@
+@import "../styles/style.css";
+@import "../styles/index.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 
 :root {
   --background: #ffffff;
