@@ -88,6 +88,15 @@ Estas no son preferencias de estilo. Cada una existe por una decisión registrad
 
 - **El motor no importa React y React no importa THREE.** Un solo archivo de puente. Ya se
   intentó al revés en la rama `task/Refactor-en-React` y falló.
+- **El canvas es fondo permanente y nunca se desmonta.** Vive por encima del router; las rutas
+  son overlays flotantes. Montar el canvas dentro de una página rompe la continuidad 3D, que es
+  el producto. Hay una sola instancia del motor en toda la app — la "mini-red" de la galería es
+  este mismo canvas con la cámara encuadrada, no una segunda instancia.
+- **El puente es bidireccional.** React le pasa al motor el área segura del viewport; el motor
+  reporta dónde quedó en pantalla el nodo enfocado. Ninguna de las dos direcciones se saltea
+  poniendo al otro a adivinar.
+- **Navegar es coreografía, no paralelismo.** Un cambio de ruta secuencia Vista, animación de
+  cámara y overlay. Las animaciones de cámara tienen que ser esperables desde afuera.
 - **`dimensionId` no existe.** La distancia de un nodo a la raíz se calcula en el traversal de
   la Vista, nunca se persiste ni se cachea como fuente de verdad.
 - **`viz_params` guarda escalares, jamás GLSL ni código.** Si un nodo pudiera traer su propio

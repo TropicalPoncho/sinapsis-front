@@ -109,6 +109,9 @@ en Notion y son la fuente de verdad funcional:
 - **Tech stack**: Postgres único como fuente de verdad; Strapi autohosteado encima del mismo Postgres
 - **Arquitectura**: el motor 3D es vanilla y no importa React; React no importa THREE.
   Un único archivo de puente entre ambos
+- **Arquitectura**: el canvas 3D es fondo full-screen permanente y nunca se desmonta.
+  Vive por encima del router; las rutas son overlays flotantes sobre un espacio 3D continuo.
+  Toda acción de la UI va acompañada de una animación 3D — no son sistemas independientes
 - **Performance**: la red 3D tiene que ir fluida en dispositivos de gama media (RNF-03 de la ERS).
   El techo real es la GPU, no la base: hoy cada nodo es un draw call
 - **Datos**: los parámetros visuales del nodo son escalares en la base, nunca código.
@@ -130,6 +133,10 @@ en Notion y son la fuente de verdad funcional:
 | `incluirRaiz` como campo de Vista | Ya existe enterrado como `hideRoot`; subirlo a la Vista es lo que habilita "las obras del artista sin el artista" | — Pending |
 | Web de Tropical = página de perfil de un ESPACIO | Si sale sin código especial, prueba que el modelo sirve para cualquier productora o centro cultural | — Pending |
 | Instancing diferido hasta medir | El techo de render se estima pero no se midió; optimizar antes de medir es adivinar | — Pending |
+| Strapi en `strapi/` del mismo repo, no en `sinapsis-back` | `.planning/` vive acá y la fase 2 toca schema, Strapi y endpoint a la vez; con dos repos cada commit se parte y GSD trackea uno solo. Dónde vive el archivo es independiente de que el proceso corra aparte | — Pending |
+| Canvas persistente bajo el router, páginas como overlays | El canvas es el corazón del sistema, no un componente de una página. Montarlo por ruta cortaría la continuidad 3D que es el producto. Además elimina la segunda instancia del motor que parecía necesitar la galería | — Pending |
+| El puente React↔motor es bidireccional | React le pasa el área segura del viewport para que la cámara encuadre el nodo fuera del panel; el motor reporta dónde quedó el nodo en pantalla para ubicar el scrim. Ya existe a medias como `aimAtNode` devolviendo `izq`/`der` | — Pending |
+| Contrato `Vista` definido antes que las fases 2 y 3 | Las dos corren en paralelo y las dos dependen de esa forma; sin un tipo compartido divergen y hay que remendar en la fase 4 | — Pending |
 
 ## Evolution
 
