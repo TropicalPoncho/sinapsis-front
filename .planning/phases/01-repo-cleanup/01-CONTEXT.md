@@ -119,12 +119,30 @@ export type TipoVinculo =
 export type Transicion = 'reemplazo' | 'filtrado' | 'aditivo'
 export type ModoOrden = 'grafo' | 'geo' | 'aleatorio'
 
+// INSPIRO es dirigido: "obras que me inspiraron" y "obras que inspiré"
+// son consultas distintas y deben poder pedirse por separado.
+export type Direccion = 'sale' | 'entra' | 'ambas'
+
+// Campos nombrados a propósito. NO es un lenguaje de consultas:
+// se agrega un campo cuando hace falta un filtro concreto.
+// "eventos futuros" = fechaDesde: hoy. "pasados" = fechaHasta: hoy.
+export interface FiltroAtributos {
+  fechaDesde?: string      // ISO 8601
+  fechaHasta?: string      // ISO 8601
+  disciplinas?: string[]
+  locationIds?: string[]
+}
+
 export interface Vista {
   raiz: string | null            // null = vista global
   profundidad: number            // saltos desde la raíz
   filtroNodeTypes: NodeType[]
   filtroVinculos: TipoVinculo[]
+  filtroRoles?: string[]         // "solo donde fui DJ" — vacío/ausente = todos
+  direccion: Direccion
+  filtroAtributos?: FiltroAtributos
   incluirRaiz: boolean           // false = el subgrafo excluye la raíz
+  limite?: number                // tope de nodos; protege el render de nodos muy conectados
   modoOrden: ModoOrden
 }
 
@@ -132,9 +150,18 @@ export interface NodoGrafo {
   id: string
   nodeType: NodeType
   label: string
+  // Máximo 200 caracteres. El tope no es estilo: es lo que mantiene
+  // enviable el dump de topología. Sin él, prosa larga en cientos de
+  // nodos lo lleva a varios MB.
+  descripcionBreve?: string
   thumb?: string
   vizParams: VizParams
   isStub: boolean
+  // Escalares filtrables. Viajan en el dump porque el cliente filtra
+  // por ellos sin volver al servidor.
+  fecha?: string                 // ISO 8601 — creación, o fecha del evento
+  disciplina?: string
+  locationId?: string
 }
 
 // Escalares únicamente. Si esto pudiera contener GLSL, instancing queda
@@ -147,12 +174,19 @@ export interface VizParams {
   seed?: number
 }
 
+// Tipado en tres niveles, y cada uno vive en un lugar distinto por peso:
+//   1. tipoVinculo — estructural, define cómo se traversa. Va en el dump.
+//   2. rol         — semántico y filtrable ("director de arte", "dj",
+//                    y para INSPIRO también: "cita directa", "homenaje").
+//                    Vocabulario distinto por tipo, mismo campo. Va en el dump.
+//   3. descripcion — prosa para leer, NO filtrable. NO va en el dump:
+//                    se pide al abrir el vínculo, igual que metadata del nodo.
 export interface VinculoGrafo {
   id: string
   origen: string
   destino: string
   tipoVinculo: TipoVinculo
-  rol?: string
+  rol?: string                   // corto, filtrable
 }
 
 export interface Subgrafo {

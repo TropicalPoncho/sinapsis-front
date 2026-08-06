@@ -19,21 +19,23 @@ La data la carga el dueño por Strapi; no hay autenticación ni carga por artist
 ### Datos
 
 - [ ] **DATA-01**: Existe un schema Postgres con tablas `nodos` y `vinculos` que refleja el modelo de la ERS, sin ningún campo `dimensionId`
-- [ ] **DATA-02**: `nodos` tiene columnas livianas (`id`, `node_type`, `label`, `thumb`, `viz_params`, `is_stub`, `location_id`) más un `metadata jsonb` para la ficha técnica, y el grafo se consulta sin traer `metadata`
+- [ ] **DATA-02**: `nodos` tiene columnas livianas (`id`, `node_type`, `label`, `descripcion_breve`, `thumb`, `viz_params`, `is_stub`, `fecha`, `disciplina`, `location_id`) más un `metadata jsonb` para la ficha técnica, y la topología se consulta sin traer `metadata`
 - [ ] **DATA-03**: `viz_params` guarda únicamente escalares (forma, color, velocidad, ruido, semilla) — nunca fragmentos de GLSL ni código
-- [ ] **DATA-04**: `vinculos` tiene `tipo_vinculo` como enum de strings nombrados y `rol` como texto libre aplicable a cualquier tipo, sin valor `CUSTOM` en el enum
+- [ ] **DATA-04**: `vinculos` tiene `tipo_vinculo` como enum de strings nombrados, `rol` como texto corto filtrable aplicable a cualquier tipo, y `descripcion` como texto largo que **no** viaja en la topología — sin valor `CUSTOM` en el enum
 - [ ] **DATA-05**: Strapi autohosteado corre sobre ese mismo Postgres y permite crear, editar y borrar nodos y vínculos desde su panel
 - [ ] **DATA-06**: La data actual de Mongo (`config/dumps/` de `collectiveConscience`) queda migrada al modelo nuevo, con los `neuronType` y `synapseType` numéricos traducidos a los enums nombrados
 - [ ] **DATA-07**: El tipo `concept` del modelo viejo no se migra — se descarta con las categorías del sitio institucional
+- [ ] **DATA-08**: `descripcion_breve` está limitada a 200 caracteres a nivel de base — el tope es lo que mantiene enviable el dump de topología
 
 ### Vista
 
-- [ ] **VIST-01**: Dado un nodo raíz, una profundidad y filtros de `nodeType` y `tipo_vinculo`, el sistema devuelve el subgrafo correspondiente
+- [ ] **VIST-01**: `resolverVista(adyacencia, vista)` es una función pura, sin framework y sin acceso a base de datos, que dado un nodo raíz devuelve el subgrafo aplicando profundidad, `filtroNodeTypes`, `filtroVinculos`, `filtroRoles`, `direccion`, `filtroAtributos` y `limite`
 - [ ] **VIST-02**: La Vista acepta `incluirRaiz` y, en `false`, devuelve el subgrafo sin el nodo raíz
-- [ ] **VIST-03**: Dado un conjunto de nodos ya cargados, el sistema devuelve sus vecinos a un salto excluyendo los que ya están, para expandir la red al explorar
-- [ ] **VIST-04**: La topología del grafo se mantiene en memoria en el proceso Node y se sirve desde ahí, sin ida y vuelta a la base por salto
-- [ ] **VIST-05**: La Vista se resuelve por un endpoint propio de Strapi, de modo que Postgres tenga una sola puerta de acceso
+- [ ] **VIST-03**: Dado un conjunto de nodos ya cargados, la misma función devuelve sus vecinos a un salto excluyendo los que ya están, para expandir la red al explorar sin pedir nada al servidor
+- [ ] **VIST-04**: El cliente recibe la topología una vez, construye el índice de adyacencia en memoria y resuelve todas las Vistas localmente — explorar no dispara peticiones de red
+- [ ] **VIST-05**: Strapi expone un endpoint que dumpea la topología (nodos livianos + vínculos) con dos consultas sin joins, y decide qué entra en ese dump — es el único punto que toca Postgres
 - [ ] **VIST-06**: Ninguna dimensión ni nivel de nodo se persiste — la distancia a la raíz se calcula siempre en el traversal
+- [ ] **VIST-07**: `resolverVista` no importa nada del browser ni de Strapi, de modo que la misma función pueda ejecutarse en el servidor el día que la topología no entre en el cliente
 
 ### Motor
 
@@ -132,6 +134,8 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | VIST-04 | Phase 2 | Pending |
 | VIST-05 | Phase 2 | Pending |
 | VIST-06 | Phase 2 | Pending |
+| VIST-07 | Phase 2 | Pending |
+| DATA-08 | Phase 2 | Pending |
 | MOTR-01 | Phase 3 | Pending |
 | MOTR-02 | Phase 3 | Pending |
 | MOTR-03 | Phase 3 | Pending |
@@ -154,8 +158,8 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | UI-07 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 38 total
-- Mapped to phases: 38
+- v1 requirements: 40 total
+- Mapped to phases: 40
 - Unmapped: 0 ✓
 
 ---

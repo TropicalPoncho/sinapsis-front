@@ -52,12 +52,14 @@ Plans:
 ### Phase 2: Data & Vista Backend
 **Goal**: Postgres holds the nodo/vínculo model with no `dimensionId`, Strapi runs on top of it as the single write door, the old Mongo data is migrated in, and a Vista endpoint serves subgraphs by traversal — kept in memory, not re-queried per hop.
 **Depends on**: Phase 1
-**Requirements**: DATA-01, DATA-02, DATA-03, DATA-04, DATA-05, DATA-06, DATA-07, VIST-01, VIST-02, VIST-03, VIST-04, VIST-05, VIST-06
+**Requirements**: DATA-01, DATA-02, DATA-03, DATA-04, DATA-05, DATA-06, DATA-07, DATA-08, VIST-01, VIST-02, VIST-03, VIST-04, VIST-05, VIST-06, VIST-07
 **Success Criteria** (what must be TRUE):
   1. A Postgres schema exists with `nodos` (light columns plus a `metadata jsonb`, `viz_params` holding only scalars) and `vinculos` (`tipo_vinculo` enum without `CUSTOM`, free-text `rol`) tables matching the ERS model — no `dimensionId` field anywhere, and graph queries don't pull `metadata`.
   2. Strapi is running against that same Postgres, and nodos/vínculos can be created, edited, and deleted from its admin panel.
   3. The Mongo dumps from `collectiveConscience` are migrated into the new schema, with `neuronType`/`synapseType` translated to the named enums and the `concept` type dropped.
-  4. Calling the Vista endpoint with a root node, depth, and `nodeType`/`tipo_vinculo` filters returns the correct subgraph, honoring `incluirRaiz` and able to return only the un-loaded neighbors of an already-loaded node set — served from an in-memory graph, not a per-hop database round trip, through Strapi as the only entry point to Postgres.
+  4. Strapi exposes one endpoint that dumps the topology — light nodes plus links — with two joinless queries, and it is the only thing that touches Postgres.
+  5. `resolverVista(adyacencia, vista)` is a pure, framework-free, database-free function that resolves a Vista by depth, `filtroNodeTypes`, `filtroVinculos`, `filtroRoles`, `direccion`, `filtroAtributos`, `limite` and `incluirRaiz`, and returns only the un-loaded neighbours of an already-loaded set when asked for depth 1.
+  6. The client fetches the topology once, builds the adjacency index in memory and resolves every Vista locally — exploring the network fires no network requests. The same function is importable server-side unchanged, for the day the topology stops fitting in the browser.
 **Plans**: TBD
 
 ### Phase 3: 3D Engine
