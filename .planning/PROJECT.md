@@ -122,24 +122,24 @@ en Notion y son la fuente de verdad funcional:
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Repo existente `sinapsis-front`, no uno nuevo | Ya tiene el andamio de Next y `threeObjects/` portado; crear un tercero es trabajo sin ganancia | — Pending |
-| `.planning/` versionado en `sinapsis-front` | El modo multi-repo de GSD fuerza planning local sin versionar; mover después es un `git mv` | — Pending |
+| Repo existente `sinapsis-front`, no uno nuevo | Ya tiene el andamio de Next y `threeObjects/` portado; crear un tercero es trabajo sin ganancia | ✓ Validado en Fase 1 — el repo quedó limpio y compilando |
+| `.planning/` versionado en `sinapsis-front` | El modo multi-repo de GSD fuerza planning local sin versionar; mover después es un `git mv` | ✓ Validado en Fase 1 |
 | Postgres único, sin Neo4j | La exploración por frontera son saltos de profundidad 1 (joins indexados); búsqueda y geo son nativos de Postgres; dos bases = drift sin transacción compartida | — Pending |
 | La topología vive en el cliente, no en el servidor | La topología es idéntica para todos; la Vista es de cada uno. A escala v1 el grafo entero son ~225KB de JSON, así que entra en el browser con margen. Explorar queda instantáneo, sin round trip por salto. El cruce donde conviene mover el traversal al servidor es ~20-50k nodos | — Pending |
 | `resolverVista` es una función pura sin framework | Corre en el browser hoy y en el servidor el día que la topología no entre en el cliente, sin reescribirse. No es preparar el futuro: es una función sin dependencias que se puede ejecutar en los dos lados | — Pending |
 | Postgres nunca traversa | Hace dos scans sin joins para dumpear la topología; el recorrido es un BFS sobre un Map de adyacencia. Por eso ninguna base de grafos aportaba: esa parte no la hace una base, la hace una estructura en memoria | — Pending |
 | Tipado de vínculos en tres niveles | `tipoVinculo` estructural (cómo se traversa), `rol` semántico y filtrable ("dj", "cita directa"), `descripcion` narrativa. Los dos primeros viajan en la topología; el tercero se pide al abrir el vínculo | — Pending |
-| Motor 3D vanilla, sin react-three-fiber | El motor es imperativo (uniforms mutables, registry por tipo); r3f obliga a un wrapper por objeto. Ya falló en este repo | — Pending |
+| Motor 3D vanilla, sin react-three-fiber | El motor es imperativo (uniforms mutables, registry por tipo); r3f obliga a un wrapper por objeto. Ya falló en este repo | ✓ Validado en Fase 1 — `src/engine/` no importa React |
 | `tipoVinculo` (enum) + `rol` (texto libre) como ejes separados | El enum define cómo se traversa; el rol es el matiz humano. Autor de pintura, director de arte y dj son todos `COLABORO_EN` con rol distinto | — Pending |
 | La Vista es la URL | Reemplaza `dimension`, `state.level` y `previousNetworkSnapshot`; regala historial de N niveles, deep links y vistas compartibles | — Pending |
 | Transición separada de la consulta | Cualquier Vista alcanzable con cualquier transición; hoy están atadas y por eso entrar a una sub-red obliga al fundido a negro | — Pending |
 | `incluirRaiz` como campo de Vista | Ya existe enterrado como `hideRoot`; subirlo a la Vista es lo que habilita "las obras del artista sin el artista" | — Pending |
 | Web de Tropical = página de perfil de un ESPACIO | Si sale sin código especial, prueba que el modelo sirve para cualquier productora o centro cultural | — Pending |
 | Instancing diferido hasta medir | El techo de render se estima pero no se midió; optimizar antes de medir es adivinar | — Pending |
-| Strapi en `strapi/` del mismo repo, no en `sinapsis-back` | `.planning/` vive acá y la fase 2 toca schema, Strapi y endpoint a la vez; con dos repos cada commit se parte y GSD trackea uno solo. Dónde vive el archivo es independiente de que el proceso corra aparte | — Pending |
+| Strapi en `strapi/` del mismo repo, no en `sinapsis-back` | `.planning/` vive acá y la fase 2 toca schema, Strapi y endpoint a la vez; con dos repos cada commit se parte y GSD trackea uno solo. Dónde vive el archivo es independiente de que el proceso corra aparte | ✓ Validado en Fase 1 — `strapi/` con su propio `package.json`, sin workspaces |
 | Canvas persistente bajo el router, páginas como overlays | El canvas es el corazón del sistema, no un componente de una página. Montarlo por ruta cortaría la continuidad 3D que es el producto. Además elimina la segunda instancia del motor que parecía necesitar la galería | — Pending |
 | El puente React↔motor es bidireccional | React le pasa el área segura del viewport para que la cámara encuadre el nodo fuera del panel; el motor reporta dónde quedó el nodo en pantalla para ubicar el scrim. Ya existe a medias como `aimAtNode` devolviendo `izq`/`der` | — Pending |
-| Contrato `Vista` definido antes que las fases 2 y 3 | Las dos corren en paralelo y las dos dependen de esa forma; sin un tipo compartido divergen y hay que remendar en la fase 4 | — Pending |
+| Contrato `Vista` definido antes que las fases 2 y 3 | Las dos corren en paralelo y las dos dependen de esa forma; sin un tipo compartido divergen y hay que remendar en la fase 4 | ✓ Validado en Fase 1 — `src/types/vista.ts`, 12 tipos |
 
 ## Evolution
 
@@ -159,4 +159,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-06 after initialization*
+*Last updated: 2026-08-06 after Phase 1 (Repo Cleanup) — REPO-01..05 complete*

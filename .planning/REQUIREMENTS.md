@@ -12,9 +12,9 @@ La data la carga el dueño por Strapi; no hay autenticación ni carga por artist
 
 - [x] **REPO-01**: El repo arranca sin rastros del intento con `react-force-graph-3d` — borrados `mundo.js`, `mundo2.js`, `NetworkContext` y los componentes del intento, y la dependencia fuera del `package.json`
 - [x] **REPO-02**: Las dependencias (Next, React, three, TypeScript) están en versiones vigentes y `npm run build` pasa limpio
-- [ ] **REPO-03**: `src/engine/` contiene los `threeObjects/`, `cameraController`, `animationManager` y `constants` copiados desde `collectiveConscience`, incluidos `crossedLines`, `linkThreeObject`, `threeGlobal` y `background`
+- [x] **REPO-03**: `src/engine/` contiene los `threeObjects/`, `cameraController`, `animationManager` y `constants` copiados desde `collectiveConscience`, incluidos `crossedLines`, `linkThreeObject`, `threeGlobal` y `background`
 - [x] **REPO-04**: Existe un tipo `Vista` en TypeScript como contrato compartido —campos, transiciones y forma del subgrafo devuelto— que consumen tanto el backend de Vista como el motor, de modo que las fases 2 y 3 no diverjan al desarrollarse en paralelo
-- [ ] **REPO-05**: Strapi vive en `strapi/` dentro de este repo, con su propio `package.json`, y `docker-compose.yml` levanta Postgres para desarrollo
+- [x] **REPO-05**: Strapi vive en `strapi/` dentro de este repo, con su propio `package.json`, y `docker-compose.yml` levanta Postgres para desarrollo
 
 ### Datos
 
@@ -118,9 +118,9 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 |-------------|-------|--------|
 | REPO-01 | Phase 1 | Complete |
 | REPO-02 | Phase 1 | Complete |
-| REPO-03 | Phase 1 | Pending |
+| REPO-03 | Phase 1 | Complete |
 | REPO-04 | Phase 1 | Complete |
-| REPO-05 | Phase 1 | Pending |
+| REPO-05 | Phase 1 | Complete |
 | DATA-01 | Phase 2 | Pending |
 | DATA-02 | Phase 2 | Pending |
 | DATA-03 | Phase 2 | Pending |
