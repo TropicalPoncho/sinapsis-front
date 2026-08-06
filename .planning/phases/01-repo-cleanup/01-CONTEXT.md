@@ -83,6 +83,11 @@ Copy into `src/engine/`:
 - `graph/constants.js`
 - `graph/background.js`
 - `graph/utils.js` — `animationManager` and the graph code import from it
+- `shaders/noise.js` — imported by `fireThreeObject`, `lightsThreeObject`, `perlinThreeObject`,
+  `twistThreeObject` and `waveLineThreeObject`. Omitting it breaks five of the node types.
+- `Utils.js` (the one at `src/client/Utils.js`, distinct from `graph/utils.js`) —
+  `background.js` calls `Utils.generateHeight()` at two places. It is live code, not a stale
+  import: deleting the import line breaks the background at runtime.
 
 Do **not** copy `graph/mundo.js`, `graph/dataLoader.js`, or `graph/graphManager.js`. Those carry
 the `dimensionId` model that this project replaces. Phase 3 writes their replacement.
