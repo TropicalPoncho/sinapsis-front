@@ -1,0 +1,152 @@
+# Sinápsis
+
+## What This Is
+
+Red social para artistas y obra colectiva, visualizada como una red neuronal 3D navegable.
+Cada artista, obra, serie, espacio cultural y evento es un **nodo**; cada colaboración es un
+**vínculo**. Está pensada para artistas, productoras, centros culturales y curadores que
+quieren mostrar su trabajo y hacer visible con quién lo hicieron.
+
+El descubrimiento es el producto: se explora siguiendo vínculos, no scrolleando un feed.
+
+## Core Value
+
+Que la red se pueda mirar desde cualquier punto de vista sin cambiar el modelo de datos.
+La misma red tiene que poder mostrarse centrada en un artista, en una obra, en un espacio
+o de forma global — y eso es configuración de una **Vista**, nunca un campo del nodo.
+
+## Requirements
+
+### Validated
+
+Capacidades ya probadas en producción en `collectiveConscience` (tropicalponcho.art).
+Se migran, no se reinventan.
+
+- ✓ Renderizado 3D de nodos con shaders GLSL propios por tipo de objeto — existente
+- ✓ Registry de tipos de objeto 3D con auto-registro por convención (`ThreeObjectManager`) — existente
+- ✓ Layout de fuerzas, picking y hover sobre el grafo (`3d-force-graph`) — existente
+- ✓ Control de cámara: aim a nodo, vuelta a vista general, resize (`CameraController`) — existente
+- ✓ Transiciones de red con fundido a negro y zoom (`AnimationManager`) — existente
+- ✓ Liberación de geometrías/materiales/texturas al recambiar la red — existente
+
+### Active
+
+Milestone 1 — motor, Vistas y la web de Tropical Poncho como primer consumidor.
+
+- [ ] Schema Postgres `nodos` / `vinculos` según el modelo de la ERS, sin `dimensionId`
+- [ ] Strapi autohosteado sobre ese Postgres para cargar y editar la data
+- [ ] Migración de la data actual de Mongo (`config/dumps/`) al modelo nuevo
+- [ ] Endpoint de Vista: dado raíz + profundidad + filtros, devuelve el subgrafo
+- [ ] `incluirRaiz` como parámetro de Vista, no como caso especial del código
+- [ ] `SinapsisEngine`: motor 3D vanilla con `setVista(vista, {transicion})` y `on()`
+- [ ] Tres transiciones: `reemplazo`, `filtrado`, `aditivo`
+- [ ] La Vista vive en la URL — el botón atrás del browser es el stack de navegación
+- [ ] UI Next: home global, página de nodo ESPACIO, página de nodo OBRA
+- [ ] Menú lateral renderizado desde la misma data que el grafo
+- [ ] tropicalponcho.art funcionando como página de perfil del ESPACIO Tropical Poncho
+
+### Out of Scope
+
+**Diferido a milestone 2** (decisión de alcance, no de valor):
+
+- Autenticación OAuth y registro por invitación — en M1 la data la carga el dueño por Strapi
+- Carga de obras por artistas, subida de material audiovisual, permisos y moderación
+- Flujo de aceptación/rechazo de vínculos (`estado: PENDIENTE`) — sin usuarios no hay quién acepte
+- Nodos STUB e invitación por email a colaboradores no registrados
+- Búsqueda por nombre y filtros por disciplina/geografía
+- Series como agrupación curatorial navegable
+
+**Descartado con razón** (no volver a proponerlo sin dato nuevo):
+
+- Neo4j o cualquier base de grafos — la exploración por frontera es una secuencia de saltos
+  de profundidad 1, que es un join indexado; el traversal profundo no está en el roadmap.
+  Dos bases significan escrituras sin transacción compartida y drift garantizado.
+- `react-three-fiber` o cualquier wrapper React sobre THREE — ya se intentó en la rama
+  `task/Refactor-en-React` de este repo y falló. El motor es imperativo por diseño.
+- Monorepo o paquete npm para el motor — un solo consumidor, no hay nada que compartir
+- `CUSTOM` en el enum de tipo de vínculo — un tipo libre no se puede traversar ni filtrar;
+  el escape hatch es el campo `rol`, que es texto libre
+- Segunda base de datos para la "data profunda" del nodo — es una columna `jsonb`
+- Instancing y LOD — se difiere hasta medir el techo real de render, no antes
+- Modo AR (`aframe` / `ar.js`) — es del prototipo viejo, no está en la ERS
+
+## Context
+
+**De dónde viene esto.** Existe `collectiveConscience`, el sitio institucional de la productora
+Tropical Poncho, en producción. Es un prototipo Express + Mongo + jQuery + Materialize con un
+motor 3D propio que funciona bien. Ese motor es lo único que se rescata; el resto es de otro
+producto y se queda donde está — el sitio sigue vivo y no se toca.
+
+**Este repo.** `sinapsis-front` ya existía (feb–may 2025): Next 15 + React 19 + TS + Tailwind,
+con `threeObjects/` ya copiado. Contiene además un intento fallido de integrar el motor vía
+`react-force-graph-3d`, en la rama `task/Refactor-en-React` con cambios sin commitear. Ese
+intento se descarta pero la rama queda intacta. La copia de `threeObjects/` de este repo está
+desactualizada respecto a la de `collectiveConscience` (le faltan `crossedLines`, `linkThreeObject`,
+`threeGlobal`, `background`): la fuente de verdad es la de `collectiveConscience`.
+
+**La deuda técnica central.** El prototipo usa `dimensionId` como campo persistente del nodo para
+decidir en qué nivel se muestra. Eso rompe apenas el mismo nodo tiene que aparecer en niveles
+distintos según desde dónde se lo mire. En el código vive en `dataLoader.insertNetworkByDimension`,
+`mundo.dimension`, `mundo.goIntoNeuron` y `state.level` de `index.js`. No es un refactor: se
+reemplaza por el traversal de la Vista.
+
+**El dolor concreto que hay que resolver.** Entrar a una sub-red (tocar OBRAS y ver las obras de
+Tropical) hoy es un solo camino hardcodeado: fundido a negro + reemplazo total + menú lateral.
+El tipo de carga viaja como atributo HTML de un botón (`loadType`) hasta `loadNext()`, y el
+"volver" tiene un solo slot de snapshot, o sea que solo se puede retroceder un nivel. Se necesita
+poder elegir entre mostrar la sub-red reemplazando, filtrando en el lugar o sumando nodos — y
+que eso sea independiente de qué nodos se traen.
+
+**Documentación de producto.** La ERS completa, el modelo de grafo y los ADRs de data model viven
+en Notion y son la fuente de verdad funcional:
+- ERS: https://app.notion.com/p/3533d6cb9a588140a0f1f6c029ac160e
+- Modelo de grafo y visualización: https://app.notion.com/p/3543d6cb9a588182998ad5462e20f491
+- Architecture Decisions — Data Model: https://app.notion.com/p/3553d6cb9a5881249f41f248261752aa
+
+## Constraints
+
+- **Tech stack**: Next 15 + React 19 + TypeScript + Tailwind — ya está en el repo, no se reabre
+- **Tech stack**: Postgres único como fuente de verdad; Strapi autohosteado encima del mismo Postgres
+- **Arquitectura**: el motor 3D es vanilla y no importa React; React no importa THREE.
+  Un único archivo de puente entre ambos
+- **Performance**: la red 3D tiene que ir fluida en dispositivos de gama media (RNF-03 de la ERS).
+  El techo real es la GPU, no la base: hoy cada nodo es un draw call
+- **Datos**: los parámetros visuales del nodo son escalares en la base, nunca código.
+  Si un nodo pudiera traer GLSL propio, instancing queda descartado para siempre
+- **Compatibilidad**: `collectiveConscience` sigue en producción y no se modifica
+
+## Key Decisions
+
+| Decision | Rationale | Outcome |
+|----------|-----------|---------|
+| Repo existente `sinapsis-front`, no uno nuevo | Ya tiene el andamio de Next y `threeObjects/` portado; crear un tercero es trabajo sin ganancia | — Pending |
+| `.planning/` versionado en `sinapsis-front` | El modo multi-repo de GSD fuerza planning local sin versionar; mover después es un `git mv` | — Pending |
+| Postgres único, sin Neo4j | La exploración por frontera son saltos de profundidad 1 (joins indexados); búsqueda y geo son nativos de Postgres; dos bases = drift sin transacción compartida | — Pending |
+| Topología del grafo en RAM en el proceso Node | A esta escala entra en memoria; sirve igual para expansión por frontera y para algoritmos generativos futuros, sin round trip ni segunda base | — Pending |
+| Motor 3D vanilla, sin react-three-fiber | El motor es imperativo (uniforms mutables, registry por tipo); r3f obliga a un wrapper por objeto. Ya falló en este repo | — Pending |
+| `tipoVinculo` (enum) + `rol` (texto libre) como ejes separados | El enum define cómo se traversa; el rol es el matiz humano. Autor de pintura, director de arte y dj son todos `COLABORO_EN` con rol distinto | — Pending |
+| La Vista es la URL | Reemplaza `dimension`, `state.level` y `previousNetworkSnapshot`; regala historial de N niveles, deep links y vistas compartibles | — Pending |
+| Transición separada de la consulta | Cualquier Vista alcanzable con cualquier transición; hoy están atadas y por eso entrar a una sub-red obliga al fundido a negro | — Pending |
+| `incluirRaiz` como campo de Vista | Ya existe enterrado como `hideRoot`; subirlo a la Vista es lo que habilita "las obras del artista sin el artista" | — Pending |
+| Web de Tropical = página de perfil de un ESPACIO | Si sale sin código especial, prueba que el modelo sirve para cualquier productora o centro cultural | — Pending |
+| Instancing diferido hasta medir | El techo de render se estima pero no se midió; optimizar antes de medir es adivinar | — Pending |
+
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (via `/gsd:transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd:complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
+---
+*Last updated: 2026-08-06 after initialization*
