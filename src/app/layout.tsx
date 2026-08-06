@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
-import "./globals.css";
 
-import FloatingMenu from "./components/floatingMenu.js";
+import "./globals.css";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -21,13 +20,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${roboto.className} antialiased text-center`}
-      >
-        <FloatingMenu />
-        <main>
-          {children}
-        </main>
+      <body className={`${roboto.className} antialiased text-center`}>
+        {children}
       </body>
     </html>
   );
