@@ -213,17 +213,3 @@ export class ThreeObjectManager {
         console.log('Todos los objetos Three.js han sido liberados');
     }
 }
-
-// Auto-register all ThreeObject subclasses found in this directory
-const modules = import.meta.glob('./*ThreeObject.js', { eager: true });
-
-for (const path in modules) {
-    const module = modules[path];
-    // Iterate over exports to find classes extending ThreeObject (or just having a static type)
-    for (const key in module) {
-        const ExportedClass = module[key];
-        if (ExportedClass && ExportedClass.type) {
-             ThreeObjectManager.registerType(ExportedClass.type, ExportedClass);
-        }
-    }
-}
