@@ -105,17 +105,45 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 
 ## Traceability
 
-Se completa durante la creación del roadmap.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| — | — | Pendiente de roadmap |
+| REPO-01 | Phase 1 | Pending |
+| REPO-02 | Phase 1 | Pending |
+| REPO-03 | Phase 1 | Pending |
+| DATA-01 | Phase 2 | Pending |
+| DATA-02 | Phase 2 | Pending |
+| DATA-03 | Phase 2 | Pending |
+| DATA-04 | Phase 2 | Pending |
+| DATA-05 | Phase 2 | Pending |
+| DATA-06 | Phase 2 | Pending |
+| DATA-07 | Phase 2 | Pending |
+| VIST-01 | Phase 2 | Pending |
+| VIST-02 | Phase 2 | Pending |
+| VIST-03 | Phase 2 | Pending |
+| VIST-04 | Phase 2 | Pending |
+| VIST-05 | Phase 2 | Pending |
+| VIST-06 | Phase 2 | Pending |
+| MOTR-01 | Phase 3 | Pending |
+| MOTR-02 | Phase 3 | Pending |
+| MOTR-03 | Phase 3 | Pending |
+| MOTR-04 | Phase 3 | Pending |
+| MOTR-05 | Phase 3 | Pending |
+| MOTR-06 | Phase 3 | Pending |
+| MOTR-07 | Phase 3 | Pending |
+| PERF-01 | Phase 3 | Pending |
+| UI-01 | Phase 4 | Pending |
+| UI-02 | Phase 4 | Pending |
+| UI-03 | Phase 4 | Pending |
+| UI-04 | Phase 4 | Pending |
+| UI-05 | Phase 4 | Pending |
+| UI-06 | Phase 4 | Pending |
+| UI-07 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 31 total
-- Mapped to phases: 0
-- Unmapped: 31 ⚠️ (se resuelve al crear el roadmap)
+- Mapped to phases: 31
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-08-06*
-*Last updated: 2026-08-06 after initial definition*
+*Last updated: 2026-08-06 after roadmap creation*
