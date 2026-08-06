@@ -41,7 +41,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `src/engine/` contains `threeObjects/`, `cameraController`, `animationManager`, and `constants` copied from collectiveConscience, including `crossedLines`, `linkThreeObject`, `threeGlobal`, and `background`.
   4. A TypeScript `Vista` type exists as the shared contract — its fields, the three transitions, and the shape of the returned subgraph — and both the Vista backend and the engine are expected to import it rather than restate it.
   5. `strapi/` exists with its own `package.json`, and `docker-compose.yml` brings up Postgres for local development.
-**Plans**: TBD
+**Plans**: 4 plans in 2 waves
+
+Plans:
+- [ ] 01-01-PLAN.md — Delete the react-force-graph-3d attempt, settle tsconfig, bring dependencies current (wave 1)
+- [ ] 01-02-PLAN.md — Copy the engine into `src/engine/`, replace `import.meta.glob` with an explicit barrel (wave 2)
+- [ ] 01-03-PLAN.md — Write the shared `Vista` contract at `src/types/vista.ts` (wave 2)
+- [ ] 01-04-PLAN.md — Carve out `strapi/` and bring up Postgres via `docker-compose.yml` (wave 2)
 
 ### Phase 2: Data & Vista Backend
 **Goal**: Postgres holds the nodo/vínculo model with no `dimensionId`, Strapi runs on top of it as the single write door, the old Mongo data is migrated in, and a Vista endpoint serves subgraphs by traversal — kept in memory, not re-queried per hop.
@@ -99,7 +105,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 (2 and 3 can run in p
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Repo Cleanup | 0/? | Not started | - |
+| 1. Repo Cleanup | 0/4 | Planned | - |
 | 2. Data & Vista Backend | 0/? | Not started | - |
 | 3. 3D Engine | 0/? | Not started | - |
 | 4. UI & Navigation | 0/? | Not started | - |
