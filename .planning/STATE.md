@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-08-06T18:43:49.986Z"
+stopped_at: Completed 01-03-PLAN.md
+last_updated: "2026-08-06T18:49:14.678Z"
 last_activity: 2026-08-06
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-08-06)
 ## Current Position
 
 Phase: 01 (repo-cleanup) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-08-06
 
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01 P01 | 12 | 3 tasks | 32 files |
+| Phase 01 P03 | 6 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,7 @@ Recent decisions affecting current work:
 - Roadmap: UI-07 is isolated in its own final phase (5) because it depends on real migrated data (DATA-06, Phase 2) and is the milestone's proof point.
 - [Phase 01]: three bumped to current (^0.185.1) instead of pinned to 0.147 — smaller diff, avoids three-custom-shader-material peer conflict
 - [Phase 01]: tsconfig.json settled once in plan 01 (@/types/* alias, strapi/ excluded) so plans 02/03/04 never touch it
+- [Phase 01]: Vista contract (src/types/vista.ts) locked verbatim from CONTEXT.md: twelve types, zero runtime values, shared by Phase 2 and Phase 3
 
 ### Pending Todos
 
@@ -77,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-06T18:43:49.976Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-08-06T18:49:14.666Z
+Stopped at: Completed 01-03-PLAN.md
 Resume file: None

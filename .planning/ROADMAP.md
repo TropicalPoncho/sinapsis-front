@@ -46,7 +46,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01-PLAN.md — Delete the react-force-graph-3d attempt, settle tsconfig, bring dependencies current (wave 1)
 - [ ] 01-02-PLAN.md — Copy the engine into `src/engine/`, replace `import.meta.glob` with an explicit barrel (wave 2)
-- [ ] 01-03-PLAN.md — Write the shared `Vista` contract at `src/types/vista.ts` (wave 2)
+- [x] 01-03-PLAN.md — Write the shared `Vista` contract at `src/types/vista.ts` (wave 2)
 - [ ] 01-04-PLAN.md — Carve out `strapi/` and bring up Postgres via `docker-compose.yml` (wave 2)
 
 ### Phase 2: Data & Vista Backend
