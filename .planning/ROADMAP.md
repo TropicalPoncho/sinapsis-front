@@ -23,7 +23,7 @@ React↔engine bridge are settled in Phase 1 and Phase 3 rather than discovered 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Repo Cleanup** - Remove the failed react-force-graph-3d attempt, update dependencies, land the engine source from collectiveConscience, carve out `strapi/`, define the shared `Vista` contract
+- [x] **Phase 1: Repo Cleanup** (2026-08-06) - Remove the failed react-force-graph-3d attempt, update dependencies, land the engine source from collectiveConscience, carve out `strapi/`, define the shared `Vista` contract
 - [ ] **Phase 2: Data & Vista Backend** - Postgres schema, Strapi admin, Mongo migration, and the Vista subgraph endpoint
 - [ ] **Phase 3: 3D Engine** - SinapsisEngine with its three transitions, React-free, measured for its render ceiling
 - [ ] **Phase 4: UI & Navigation** - Persistent canvas above the router, Next.js routes as overlays (home, ESPACIO, OBRA), URL-driven navigation choreographed with camera moves, data-driven menu
@@ -107,7 +107,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 (2 and 3 can run in p
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Repo Cleanup | 0/4 | Planned | - |
+| 1. Repo Cleanup | 4/4 | Complete | 2026-08-06 |
 | 2. Data & Vista Backend | 0/? | Not started | - |
 | 3. 3D Engine | 0/? | Not started | - |
 | 4. UI & Navigation | 0/? | Not started | - |
