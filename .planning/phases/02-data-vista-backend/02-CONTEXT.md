@@ -1,7 +1,36 @@
 # Phase 2: Data & Vista Backend - Context
 
 **Gathered:** 2026-08-06
-**Status:** Ready for planning (two open research questions — see `<open_questions>`)
+**Status:** Ready for planning
+
+> ## ⛔ DECISIÓN QUE INVALIDA PARTE DE ESTE DOCUMENTO — 2026-08-06
+>
+> **Strapi queda fuera del proyecto.** Las dos preguntas abiertas de research se resolvieron
+> escalándolas al dueño, y la respuesta fue sacarlo. `strapi/` fue borrado del repo.
+>
+> **Por qué:** Strapi 5 sincroniza el schema en cada boot y no tiene opt-out confiable
+> (`forceMigration: false` no funciona en Postgres — issue #15027, cerrado "not planned"),
+> impone `document_id`/`published_at`/`locale` a toda tabla que administra, y su propia
+> documentación advierte pérdida de datos contra bases preexistentes. El modelo Nodo/Vínculo
+> es el activo central del proyecto y no puede tener su DDL autorado por un CMS. Súmese que
+> el dataset de v1 son ~50 nodos ya curados en planilla, y que la UI de carga hay que
+> construirla igual para que los artistas suban sus obras en v2.
+>
+> **Qué cambia en esta fase:**
+> - El schema lo gobiernan **migraciones SQL versionadas en el repo**. Foreign keys y CHECK
+>   reales, sin columnas de bookkeeping ajenas al modelo.
+> - El endpoint de topología es un **route handler de Next**, no una ruta custom de Strapi.
+>   Es lo único que toca Postgres.
+> - La carga y edición de data en v1 es el **pipeline de CSV** que este documento ya describe
+>   (script → CSV → corrección en planilla → import). Ese pipeline no dependía de Strapi.
+> - `docker-compose.yml` sigue vivo: Postgres se sigue levantando igual, ahora con usuario y
+>   base `sinapsis`.
+>
+> **Qué sigue siendo válido de este documento y de `02-RESEARCH.md`:** todo lo relativo a la
+> migración (D-01, D-06, D-08), el cap de 200 caracteres de `descripcion_breve` como CHECK
+> de base (D-15), la forma de la data de origen, y el diseño del traversal. `02-RESEARCH.md`
+> se conserva sin editar como registro de la investigación que llevó a esta decisión — pero
+> su recomendación primaria (que Strapi autore el DDL) **está descartada**.
 
 <domain>
 ## Phase Boundary

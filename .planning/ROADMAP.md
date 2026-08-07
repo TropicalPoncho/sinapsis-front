@@ -24,7 +24,7 @@ React↔engine bridge are settled in Phase 1 and Phase 3 rather than discovered 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Repo Cleanup** (2026-08-06) - Remove the failed react-force-graph-3d attempt, update dependencies, land the engine source from collectiveConscience, carve out `strapi/`, define the shared `Vista` contract
-- [ ] **Phase 2: Data & Vista Backend** - Postgres schema, Strapi admin, Mongo migration, and the Vista subgraph endpoint
+- [ ] **Phase 2: Data & Vista Backend** - Postgres schema owned by SQL migrations, CSV-curated data import, and the topology endpoint plus `resolverVista`
 - [ ] **Phase 3: 3D Engine** - SinapsisEngine with its three transitions, React-free, measured for its render ceiling
 - [ ] **Phase 4: UI & Navigation** - Persistent canvas above the router, Next.js routes as overlays (home, ESPACIO, OBRA), URL-driven navigation choreographed with camera moves, data-driven menu
 - [ ] **Phase 5: Tropical Poncho Launch** - tropicalponcho.art live as the ESPACIO profile page, on real migrated data, no special-cased code
@@ -50,14 +50,14 @@ Plans:
 - [x] 01-04-PLAN.md — Carve out `strapi/` and bring up Postgres via `docker-compose.yml` (wave 2)
 
 ### Phase 2: Data & Vista Backend
-**Goal**: Postgres holds the nodo/vínculo model with no `dimensionId`, Strapi runs on top of it as the single write door, the old Mongo data is migrated in, and a Vista endpoint serves subgraphs by traversal — kept in memory, not re-queried per hop.
+**Goal**: Postgres holds the nodo/vínculo model with no `dimensionId`, under a schema this repo owns through plain SQL migrations, the old Mongo data is curated in and the topology is served for the client to traverse locally.
 **Depends on**: Phase 1
 **Requirements**: DATA-01, DATA-02, DATA-03, DATA-04, DATA-05, DATA-06, DATA-07, DATA-08, VIST-01, VIST-02, VIST-03, VIST-04, VIST-05, VIST-06, VIST-07
 **Success Criteria** (what must be TRUE):
   1. A Postgres schema exists with `nodos` (light columns plus a `metadata jsonb`, `viz_params` holding only scalars) and `vinculos` (`tipo_vinculo` enum without `CUSTOM`, free-text `rol`) tables matching the ERS model — no `dimensionId` field anywhere, and graph queries don't pull `metadata`.
-  2. Strapi is running against that same Postgres, and nodos/vínculos can be created, edited, and deleted from its admin panel.
+  2. The schema is defined by versioned SQL migrations in this repo — real foreign keys and CHECK constraints, no tool-imposed bookkeeping columns, and no external service with authority to alter the DDL.
   3. The Mongo dumps from `collectiveConscience` are migrated into the new schema, with `neuronType`/`synapseType` translated to the named enums and the `concept` type dropped.
-  4. Strapi exposes one endpoint that dumps the topology — light nodes plus links — with two joinless queries, and it is the only thing that touches Postgres.
+  4. One Next route handler dumps the topology — light nodes plus links — with two joinless queries, and it is the only thing that touches Postgres.
   5. `resolverVista(adyacencia, vista)` is a pure, framework-free, database-free function that resolves a Vista by depth, `filtroNodeTypes`, `filtroVinculos`, `filtroRoles`, `direccion`, `filtroAtributos`, `limite` and `incluirRaiz`, and returns only the un-loaded neighbours of an already-loaded set when asked for depth 1.
   6. The client fetches the topology once, builds the adjacency index in memory and resolves every Vista locally — exploring the network fires no network requests. The same function is importable server-side unchanged, for the day the topology stops fitting in the browser.
 **Plans**: TBD

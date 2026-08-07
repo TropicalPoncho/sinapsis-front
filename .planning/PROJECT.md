@@ -34,7 +34,7 @@ Se migran, no se reinventan.
 Milestone 1 — motor, Vistas y la web de Tropical Poncho como primer consumidor.
 
 - [ ] Schema Postgres `nodos` / `vinculos` según el modelo de la ERS, sin `dimensionId`
-- [ ] Strapi autohosteado sobre ese Postgres para cargar y editar la data
+- [ ] Migraciones SQL versionadas como única autoridad sobre el schema
 - [ ] Migración de la data actual de Mongo (`config/dumps/`) al modelo nuevo
 - [ ] Endpoint de Vista: dado raíz + profundidad + filtros, devuelve el subgrafo
 - [ ] `incluirRaiz` como parámetro de Vista, no como caso especial del código
@@ -49,7 +49,7 @@ Milestone 1 — motor, Vistas y la web de Tropical Poncho como primer consumidor
 
 **Diferido a milestone 2** (decisión de alcance, no de valor):
 
-- Autenticación OAuth y registro por invitación — en M1 la data la carga el dueño por Strapi
+- Autenticación OAuth y registro por invitación — en M1 la data la carga el dueño por un pipeline de CSV
 - Carga de obras por artistas, subida de material audiovisual, permisos y moderación
 - Flujo de aceptación/rechazo de vínculos (`estado: PENDIENTE`) — sin usuarios no hay quién acepte
 - Nodos STUB e invitación por email a colaboradores no registrados
@@ -106,7 +106,7 @@ en Notion y son la fuente de verdad funcional:
 ## Constraints
 
 - **Tech stack**: Next 15 + React 19 + TypeScript + Tailwind — ya está en el repo, no se reabre
-- **Tech stack**: Postgres único como fuente de verdad; Strapi autohosteado encima del mismo Postgres
+- **Tech stack**: Postgres único como fuente de verdad, con el schema gobernado por migraciones SQL de este repo. Ninguna herramienta externa autora el DDL
 - **Arquitectura**: el motor 3D es vanilla y no importa React; React no importa THREE.
   Un único archivo de puente entre ambos
 - **Arquitectura**: el canvas 3D es fondo full-screen permanente y nunca se desmonta.
@@ -136,7 +136,9 @@ en Notion y son la fuente de verdad funcional:
 | `incluirRaiz` como campo de Vista | Ya existe enterrado como `hideRoot`; subirlo a la Vista es lo que habilita "las obras del artista sin el artista" | — Pending |
 | Web de Tropical = página de perfil de un ESPACIO | Si sale sin código especial, prueba que el modelo sirve para cualquier productora o centro cultural | — Pending |
 | Instancing diferido hasta medir | El techo de render se estima pero no se midió; optimizar antes de medir es adivinar | — Pending |
-| Strapi en `strapi/` del mismo repo, no en `sinapsis-back` | `.planning/` vive acá y la fase 2 toca schema, Strapi y endpoint a la vez; con dos repos cada commit se parte y GSD trackea uno solo. Dónde vive el archivo es independiente de que el proceso corra aparte | ✓ Validado en Fase 1 — `strapi/` con su propio `package.json`, sin workspaces |
+| ~~Strapi en `strapi/` del mismo repo~~ → **descartado** | Se implementó en Fase 1 y se revirtió el 2026-08-06. Strapi 5 sincroniza el schema en cada boot sin opt-out confiable (`forceMigration: false` no funciona en Postgres, issue #15027 cerrado "not planned"), impone `document_id`/`published_at`/`locale` a toda tabla que administra, y sus propios docs advierten pérdida de datos contra bases preexistentes. El schema Nodo/Vínculo es el activo central del proyecto: no puede ser autorado por un CMS | ⚠️ Revertido — la decisión original no ponderó el costo sobre el DDL |
+| El schema lo gobiernan migraciones SQL del repo | Foreign keys y CHECK reales, sin columnas de bookkeeping ajenas. El dataset de v1 son ~50 nodos curados en planilla, así que un panel de administración no se justifica; y la UI de carga hay que construirla igual para que los artistas suban sus obras en v2 | — Pending |
+| La arquitectura queda Next + Postgres | Sin el CMS, el endpoint de topología es un route handler de Next con dos `SELECT`. Como la topología vive en el cliente, no hay estado en memoria del servidor y funciona incluso serverless | — Pending |
 | Canvas persistente bajo el router, páginas como overlays | El canvas es el corazón del sistema, no un componente de una página. Montarlo por ruta cortaría la continuidad 3D que es el producto. Además elimina la segunda instancia del motor que parecía necesitar la galería | — Pending |
 | El puente React↔motor es bidireccional | React le pasa el área segura del viewport para que la cámara encuadre el nodo fuera del panel; el motor reporta dónde quedó el nodo en pantalla para ubicar el scrim. Ya existe a medias como `aimAtNode` devolviendo `izq`/`der` | — Pending |
 | Contrato `Vista` definido antes que las fases 2 y 3 | Las dos corren en paralelo y las dos dependen de esa forma; sin un tipo compartido divergen y hay que remendar en la fase 4 | ✓ Validado en Fase 1 — `src/types/vista.ts`, 12 tipos |

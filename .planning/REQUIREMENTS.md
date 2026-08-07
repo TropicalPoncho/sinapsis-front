@@ -6,7 +6,7 @@
 ## v1 Requirements
 
 Milestone 1 — motor, Vistas y la web de Tropical Poncho como primer consumidor.
-La data la carga el dueño por Strapi; no hay autenticación ni carga por artistas.
+La data la carga el dueño por un pipeline de CSV versionado; no hay autenticación ni carga por artistas.
 
 ### Repositorio
 
@@ -14,7 +14,7 @@ La data la carga el dueño por Strapi; no hay autenticación ni carga por artist
 - [x] **REPO-02**: Las dependencias (Next, React, three, TypeScript) están en versiones vigentes y `npm run build` pasa limpio
 - [x] **REPO-03**: `src/engine/` contiene los `threeObjects/`, `cameraController`, `animationManager` y `constants` copiados desde `collectiveConscience`, incluidos `crossedLines`, `linkThreeObject`, `threeGlobal` y `background`
 - [x] **REPO-04**: Existe un tipo `Vista` en TypeScript como contrato compartido —campos, transiciones y forma del subgrafo devuelto— que consumen tanto el backend de Vista como el motor, de modo que las fases 2 y 3 no diverjan al desarrollarse en paralelo
-- [x] **REPO-05**: Strapi vive en `strapi/` dentro de este repo, con su propio `package.json`, y `docker-compose.yml` levanta Postgres para desarrollo
+- [x] **REPO-05**: ~~Strapi vive en `strapi/` dentro de este repo~~ — **revertido el 2026-08-06**. Se cumplió en Fase 1 y luego se descartó: Strapi 5 gobierna el DDL de toda tabla que administra y no tiene opt-out confiable. Sobrevive la parte útil: `docker-compose.yml` levanta Postgres para desarrollo
 
 ### Datos
 
@@ -22,7 +22,7 @@ La data la carga el dueño por Strapi; no hay autenticación ni carga por artist
 - [ ] **DATA-02**: `nodos` tiene columnas livianas (`id`, `node_type`, `label`, `descripcion_breve`, `thumb`, `viz_params`, `is_stub`, `fecha`, `disciplina`, `location_id`) más un `metadata jsonb` para la ficha técnica, y la topología se consulta sin traer `metadata`
 - [ ] **DATA-03**: `viz_params` guarda únicamente escalares (forma, color, velocidad, ruido, semilla) — nunca fragmentos de GLSL ni código
 - [ ] **DATA-04**: `vinculos` tiene `tipo_vinculo` como enum de strings nombrados, `rol` como texto corto filtrable aplicable a cualquier tipo, y `descripcion` como texto largo que **no** viaja en la topología — sin valor `CUSTOM` en el enum
-- [ ] **DATA-05**: Strapi autohosteado corre sobre ese mismo Postgres y permite crear, editar y borrar nodos y vínculos desde su panel
+- [ ] **DATA-05**: El schema lo gobiernan migraciones SQL versionadas en el repo — ninguna herramienta externa autora ni altera el DDL, y las tablas no cargan columnas de bookkeeping ajenas al modelo
 - [ ] **DATA-06**: La data actual de Mongo (`config/dumps/` de `collectiveConscience`) queda migrada al modelo nuevo, con los `neuronType` y `synapseType` numéricos traducidos a los enums nombrados
 - [ ] **DATA-07**: El tipo `concept` del modelo viejo no se migra — se descarta con las categorías del sitio institucional
 - [ ] **DATA-08**: `descripcion_breve` está limitada a 200 caracteres a nivel de base — el tope es lo que mantiene enviable el dump de topología
@@ -33,9 +33,9 @@ La data la carga el dueño por Strapi; no hay autenticación ni carga por artist
 - [ ] **VIST-02**: La Vista acepta `incluirRaiz` y, en `false`, devuelve el subgrafo sin el nodo raíz
 - [ ] **VIST-03**: Dado un conjunto de nodos ya cargados, la misma función devuelve sus vecinos a un salto excluyendo los que ya están, para expandir la red al explorar sin pedir nada al servidor
 - [ ] **VIST-04**: El cliente recibe la topología una vez, construye el índice de adyacencia en memoria y resuelve todas las Vistas localmente — explorar no dispara peticiones de red
-- [ ] **VIST-05**: Strapi expone un endpoint que dumpea la topología (nodos livianos + vínculos) con dos consultas sin joins, y decide qué entra en ese dump — es el único punto que toca Postgres
+- [ ] **VIST-05**: Un route handler de Next expone la topología (nodos livianos + vínculos) con dos consultas sin joins, y decide qué entra en ese dump — es el único punto que toca Postgres
 - [ ] **VIST-06**: Ninguna dimensión ni nivel de nodo se persiste — la distancia a la raíz se calcula siempre en el traversal
-- [ ] **VIST-07**: `resolverVista` no importa nada del browser ni de Strapi, de modo que la misma función pueda ejecutarse en el servidor el día que la topología no entre en el cliente
+- [ ] **VIST-07**: `resolverVista` no importa nada del browser ni del framework, de modo que la misma función pueda ejecutarse en el servidor el día que la topología no entre en el cliente
 
 ### Motor
 
@@ -102,7 +102,8 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 
 | Feature | Reason |
 |---------|--------|
-| Neo4j o cualquier base de grafos | La exploración por frontera son saltos de profundidad 1, que es un join indexado. Dos bases significan escrituras sin transacción compartida y drift garantizado. Se revisa si la topología supera el millón de aristas o si hacen falta caminos ponderados en el request path |
+| Neo4j o cualquier base de grafos | El traversal no lo hace ninguna base: lo hace un BFS sobre un Map de adyacencia en memoria. Postgres solo dumpea la topología con dos scans sin joins. Se revisa si la topología supera el millón de aristas o si hacen falta caminos ponderados en el request path |
+| Strapi, o cualquier CMS que autore el DDL | Strapi 5 sincroniza el schema en cada boot sin opt-out confiable (`forceMigration: false` no funciona en Postgres, issue #15027 cerrado "not planned"), impone `document_id`/`published_at`/`locale` a toda tabla, y sus propios docs advierten pérdida de datos contra bases preexistentes. El schema es el activo central del proyecto. Además el dataset de v1 son ~50 nodos curados en planilla, y la UI de carga hay que construirla igual para v2 |
 | `react-three-fiber` o wrappers React sobre THREE | El motor es imperativo por diseño (uniforms mutables, registry por tipo). Ya se intentó en la rama `task/Refactor-en-React` de este repo y falló |
 | Segunda base para la "data profunda" del nodo | Es una columna `jsonb` en la misma tabla. Dos bases obligan a sincronizar sin transacción |
 | `CUSTOM` en el enum de tipo de vínculo | Un tipo libre no se puede traversar ni filtrar desde la Vista. El escape hatch es el campo `rol` |

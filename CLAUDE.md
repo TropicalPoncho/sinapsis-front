@@ -17,7 +17,7 @@ o de forma global — y eso es configuración de una **Vista**, nunca un campo d
 ### Constraints
 
 - **Tech stack**: Next 15 + React 19 + TypeScript + Tailwind — ya está en el repo, no se reabre
-- **Tech stack**: Postgres único como fuente de verdad; Strapi autohosteado encima del mismo Postgres
+- **Tech stack**: Postgres único como fuente de verdad, con el schema gobernado por migraciones SQL de este repo. Ninguna herramienta externa autora el DDL
 - **Arquitectura**: el motor 3D es vanilla y no importa React; React no importa THREE.
   Un único archivo de puente entre ambos
 - **Performance**: la red 3D tiene que ir fluida en dispositivos de gama media (RNF-03 de la ERS).

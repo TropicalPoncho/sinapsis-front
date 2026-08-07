@@ -3,15 +3,15 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: strapi
-      POSTGRES_PASSWORD: strapi
-      POSTGRES_DB: strapi
+      POSTGRES_USER: sinapsis
+      POSTGRES_PASSWORD: sinapsis
+      POSTGRES_DB: sinapsis
     ports:
       - "5432:5432"
     volumes:
       - sinapsis_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U strapi"]
+      test: ["CMD-SHELL", "pg_isready -U sinapsis"]
       interval: 5s
       timeout: 5s
       retries: 5
