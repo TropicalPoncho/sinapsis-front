@@ -18,14 +18,14 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 
 ### Datos
 
-- [ ] **DATA-01**: Existe un schema Postgres con tablas `nodos` y `vinculos` que refleja el modelo de la ERS, sin ningún campo `dimensionId`
-- [ ] **DATA-02**: `nodos` tiene columnas livianas (`id`, `node_type`, `label`, `descripcion_breve`, `thumb`, `viz_params`, `is_stub`, `fecha`, `disciplina`, `location_id`) más un `metadata jsonb` para la ficha técnica, y la topología se consulta sin traer `metadata`
-- [ ] **DATA-03**: `viz_params` guarda únicamente escalares (forma, color, velocidad, ruido, semilla) — nunca fragmentos de GLSL ni código
-- [ ] **DATA-04**: `vinculos` tiene `tipo_vinculo` como enum de strings nombrados, `rol` como texto corto filtrable aplicable a cualquier tipo, y `descripcion` como texto largo que **no** viaja en la topología — sin valor `CUSTOM` en el enum
-- [ ] **DATA-05**: El schema lo gobiernan migraciones SQL versionadas en el repo — ninguna herramienta externa autora ni altera el DDL, y las tablas no cargan columnas de bookkeeping ajenas al modelo
+- [x] **DATA-01**: Existe un schema Postgres con tablas `nodos` y `vinculos` que refleja el modelo de la ERS, sin ningún campo `dimensionId`
+- [x] **DATA-02**: `nodos` tiene columnas livianas (`id`, `node_type`, `label`, `descripcion_breve`, `thumb`, `viz_params`, `is_stub`, `fecha`, `disciplina`, `location_id`) más un `metadata jsonb` para la ficha técnica, y la topología se consulta sin traer `metadata`
+- [x] **DATA-03**: `viz_params` guarda únicamente escalares (forma, color, velocidad, ruido, semilla) — nunca fragmentos de GLSL ni código
+- [x] **DATA-04**: `vinculos` tiene `tipo_vinculo` como enum de strings nombrados, `rol` como texto corto filtrable aplicable a cualquier tipo, y `descripcion` como texto largo que **no** viaja en la topología — sin valor `CUSTOM` en el enum
+- [x] **DATA-05**: El schema lo gobiernan migraciones SQL versionadas en el repo — ninguna herramienta externa autora ni altera el DDL, y las tablas no cargan columnas de bookkeeping ajenas al modelo
 - [ ] **DATA-06**: La data actual de Mongo (`config/dumps/` de `collectiveConscience`) queda migrada al modelo nuevo, con los `neuronType` y `synapseType` numéricos traducidos a los enums nombrados
 - [ ] **DATA-07**: El tipo `concept` del modelo viejo no se migra — se descarta con las categorías del sitio institucional
-- [ ] **DATA-08**: `descripcion_breve` está limitada a 200 caracteres a nivel de base — el tope es lo que mantiene enviable el dump de topología
+- [x] **DATA-08**: `descripcion_breve` está limitada a 200 caracteres a nivel de base — el tope es lo que mantiene enviable el dump de topología
 
 ### Vista
 
@@ -34,7 +34,7 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 - [ ] **VIST-03**: Dado un conjunto de nodos ya cargados, la misma función devuelve sus vecinos a un salto excluyendo los que ya están, para expandir la red al explorar sin pedir nada al servidor
 - [ ] **VIST-04**: El cliente recibe la topología una vez, construye el índice de adyacencia en memoria y resuelve todas las Vistas localmente — explorar no dispara peticiones de red
 - [ ] **VIST-05**: Un route handler de Next expone la topología (nodos livianos + vínculos) con dos consultas sin joins, y decide qué entra en ese dump — es el único punto que toca Postgres
-- [ ] **VIST-06**: Ninguna dimensión ni nivel de nodo se persiste — la distancia a la raíz se calcula siempre en el traversal
+- [x] **VIST-06**: Ninguna dimensión ni nivel de nodo se persiste — la distancia a la raíz se calcula siempre en el traversal
 - [ ] **VIST-07**: `resolverVista` no importa nada del browser ni del framework, de modo que la misma función pueda ejecutarse en el servidor el día que la topología no entre en el cliente
 
 ### Motor
@@ -122,11 +122,11 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | REPO-03 | Phase 1 | Complete |
 | REPO-04 | Phase 1 | Complete |
 | REPO-05 | Phase 1 | Complete |
-| DATA-01 | Phase 2 | Pending |
-| DATA-02 | Phase 2 | Pending |
-| DATA-03 | Phase 2 | Pending |
-| DATA-04 | Phase 2 | Pending |
-| DATA-05 | Phase 2 | Pending |
+| DATA-01 | Phase 2 | Complete |
+| DATA-02 | Phase 2 | Complete |
+| DATA-03 | Phase 2 | Complete |
+| DATA-04 | Phase 2 | Complete |
+| DATA-05 | Phase 2 | Complete |
 | DATA-06 | Phase 2 | Pending |
 | DATA-07 | Phase 2 | Pending |
 | VIST-01 | Phase 2 | Pending |
@@ -134,9 +134,9 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | VIST-03 | Phase 2 | Pending |
 | VIST-04 | Phase 2 | Pending |
 | VIST-05 | Phase 2 | Pending |
-| VIST-06 | Phase 2 | Pending |
+| VIST-06 | Phase 2 | Complete |
 | VIST-07 | Phase 2 | Pending |
-| DATA-08 | Phase 2 | Pending |
+| DATA-08 | Phase 2 | Complete |
 | MOTR-01 | Phase 3 | Pending |
 | MOTR-02 | Phase 3 | Pending |
 | MOTR-03 | Phase 3 | Pending |

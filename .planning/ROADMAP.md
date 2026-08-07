@@ -63,7 +63,7 @@ Plans:
 **Plans**: 5 plans in 4 waves
 
 Plans:
-- [ ] 02-01-PLAN.md — Schema Postgres, runner de migraciones SQL y las CHECK que hacen cumplir los invariantes (wave 1)
+- [x] 02-01-PLAN.md — Schema Postgres, runner de migraciones SQL y las CHECK que hacen cumplir los invariantes (wave 1)
 - [ ] 02-02-PLAN.md — `resolverVista` y el índice de adyacencia, puros y con test runnable (wave 2)
 - [ ] 02-03-PLAN.md — Primera pasada de la migración: dump de Mongo a CSV de curaduría (wave 2)
 - [ ] 02-04-PLAN.md — Route handler de topología con dos SELECT sin joins y carga única en el cliente (wave 3)
