@@ -60,7 +60,14 @@ Plans:
   4. One Next route handler dumps the topology — light nodes plus links — with two joinless queries, and it is the only thing that touches Postgres.
   5. `resolverVista(adyacencia, vista)` is a pure, framework-free, database-free function that resolves a Vista by depth, `filtroNodeTypes`, `filtroVinculos`, `filtroRoles`, `direccion`, `filtroAtributos`, `limite` and `incluirRaiz`, and returns only the un-loaded neighbours of an already-loaded set when asked for depth 1.
   6. The client fetches the topology once, builds the adjacency index in memory and resolves every Vista locally — exploring the network fires no network requests. The same function is importable server-side unchanged, for the day the topology stops fitting in the browser.
-**Plans**: TBD
+**Plans**: 5 plans in 4 waves
+
+Plans:
+- [ ] 02-01-PLAN.md — Schema Postgres, runner de migraciones SQL y las CHECK que hacen cumplir los invariantes (wave 1)
+- [ ] 02-02-PLAN.md — `resolverVista` y el índice de adyacencia, puros y con test runnable (wave 2)
+- [ ] 02-03-PLAN.md — Primera pasada de la migración: dump de Mongo a CSV de curaduría (wave 2)
+- [ ] 02-04-PLAN.md — Route handler de topología con dos SELECT sin joins y carga única en el cliente (wave 3)
+- [ ] 02-05-PLAN.md — Curaduría de tipos en planilla y segunda pasada: CSV corregido a Postgres (wave 4)
 
 ### Phase 3: 3D Engine
 **Goal**: `SinapsisEngine` renders and transitions between any Vista independent of React, cleans up after itself, and its real render ceiling is measured and written down.
