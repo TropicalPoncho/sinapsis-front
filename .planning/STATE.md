@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-08-07T19:50:36.459Z"
-last_activity: 2026-08-07
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-08-08T04:40:00.000Z"
+last_activity: 2026-08-08
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 9
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-08-06)
 ## Current Position
 
 Phase: 02 (data-vista-backend) — EXECUTING
-Plan: 3 of 5
-Status: Ready to execute
-Last activity: 2026-08-07
+Plan: 4 of 5 (Wave 2 complete: 02-02, 02-03)
+Status: Ready to execute Wave 3 (02-04)
+Last activity: 2026-08-08
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P03 | 6 | 1 tasks | 1 files |
 | Phase 02 P01 | 15 | 3 tasks | 7 files |
 | Phase 02 P03 | 20 | 2 tasks | 4 files |
+| Phase 02 P02 | ~50 | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,8 @@ Recent decisions affecting current work:
 - [Phase 01]: Vista contract (src/types/vista.ts) locked verbatim from CONTEXT.md: twelve types, zero runtime values, shared by Phase 2 and Phase 3
 - [Phase 02]: Lowered viz_params string-length CHECK cap from 64 to 32 chars — the plan's own GLSL-rejection test fragment (48 chars) passed the 64-char version; 32 still fits every legitimate VizParams string
 - [Phase 02]: CSV curation pipeline hand-rolls RFC 4180 parsing (no dependency) - format has one writer, one reader
+- [Phase 02]: resolverVista's third param `yaCargados` resolves VIST-03 with the same BFS as a rooted Vista (depth 1 + incluirRaiz:false over that set) — no special-case code path
+- [Phase 02]: Fixed off-by-one relative path to collectiveConscience dump in plans 02-03/02-05 before execution (`../collectiveConscience` -> `../../collectiveConscience`, verified against actual repo layout)
 
 ### Pending Todos
 
@@ -83,6 +86,11 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-07T19:50:36.450Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-08-08T04:40:00.000Z
+Stopped at: Completed 02-02-PLAN.md (Wave 2 done: 02-02 + 02-03)
 Resume file: None
+
+Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's
+implementation but before committing/summarizing. The orchestrator verified the completed work
+against the plan's acceptance criteria directly (all passed) and committed/summarized it manually
+— no re-implementation happened. See 02-02-SUMMARY.md "Deviations" for detail.

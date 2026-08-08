@@ -29,13 +29,13 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 
 ### Vista
 
-- [ ] **VIST-01**: `resolverVista(adyacencia, vista)` es una función pura, sin framework y sin acceso a base de datos, que dado un nodo raíz devuelve el subgrafo aplicando profundidad, `filtroNodeTypes`, `filtroVinculos`, `filtroRoles`, `direccion`, `filtroAtributos` y `limite`
-- [ ] **VIST-02**: La Vista acepta `incluirRaiz` y, en `false`, devuelve el subgrafo sin el nodo raíz
-- [ ] **VIST-03**: Dado un conjunto de nodos ya cargados, la misma función devuelve sus vecinos a un salto excluyendo los que ya están, para expandir la red al explorar sin pedir nada al servidor
+- [x] **VIST-01**: `resolverVista(adyacencia, vista)` es una función pura, sin framework y sin acceso a base de datos, que dado un nodo raíz devuelve el subgrafo aplicando profundidad, `filtroNodeTypes`, `filtroVinculos`, `filtroRoles`, `direccion`, `filtroAtributos` y `limite`
+- [x] **VIST-02**: La Vista acepta `incluirRaiz` y, en `false`, devuelve el subgrafo sin el nodo raíz
+- [x] **VIST-03**: Dado un conjunto de nodos ya cargados, la misma función devuelve sus vecinos a un salto excluyendo los que ya están, para expandir la red al explorar sin pedir nada al servidor
 - [ ] **VIST-04**: El cliente recibe la topología una vez, construye el índice de adyacencia en memoria y resuelve todas las Vistas localmente — explorar no dispara peticiones de red
 - [ ] **VIST-05**: Un route handler de Next expone la topología (nodos livianos + vínculos) con dos consultas sin joins, y decide qué entra en ese dump — es el único punto que toca Postgres
 - [x] **VIST-06**: Ninguna dimensión ni nivel de nodo se persiste — la distancia a la raíz se calcula siempre en el traversal
-- [ ] **VIST-07**: `resolverVista` no importa nada del browser ni del framework, de modo que la misma función pueda ejecutarse en el servidor el día que la topología no entre en el cliente
+- [x] **VIST-07**: `resolverVista` no importa nada del browser ni del framework, de modo que la misma función pueda ejecutarse en el servidor el día que la topología no entre en el cliente
 
 ### Motor
 
@@ -129,13 +129,13 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | DATA-05 | Phase 2 | Complete |
 | DATA-06 | Phase 2 | Complete |
 | DATA-07 | Phase 2 | Complete |
-| VIST-01 | Phase 2 | Pending |
-| VIST-02 | Phase 2 | Pending |
-| VIST-03 | Phase 2 | Pending |
+| VIST-01 | Phase 2 | Complete |
+| VIST-02 | Phase 2 | Complete |
+| VIST-03 | Phase 2 | Complete |
 | VIST-04 | Phase 2 | Pending |
 | VIST-05 | Phase 2 | Pending |
 | VIST-06 | Phase 2 | Complete |
-| VIST-07 | Phase 2 | Pending |
+| VIST-07 | Phase 2 | Complete |
 | DATA-08 | Phase 2 | Complete |
 | MOTR-01 | Phase 3 | Pending |
 | MOTR-02 | Phase 3 | Pending |
