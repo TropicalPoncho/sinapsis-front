@@ -3,15 +3,15 @@
 
 **Sinápsis**
 
-Red social para artistas y obra colectiva, visualizada como una red neuronal 3D navegable.
-Cada artista, obra, serie, espacio cultural y evento es un **nodo**; cada colaboración es un
-**vínculo**. Está pensada para artistas, productoras, centros culturales y curadores que
+Red social para creadxrs y obra colectiva, visualizada como una red neuronal 3D navegable.
+Cada creadxr, obra, agrupación y evento es un **nodo**; cada colaboración es un
+**vínculo**. Está pensada para creadxrs, productoras, centros culturales y curadores que
 quieren mostrar su trabajo y hacer visible con quién lo hicieron.
 
 El descubrimiento es el producto: se explora siguiendo vínculos, no scrolleando un feed.
 
 **Core Value:** Que la red se pueda mirar desde cualquier punto de vista sin cambiar el modelo de datos.
-La misma red tiene que poder mostrarse centrada en un artista, en una obra, en un espacio
+La misma red tiene que poder mostrarse centrada en una entidad, en una obra, en un espacio
 o de forma global — y eso es configuración de una **Vista**, nunca un campo del nodo.
 
 ### Constraints
@@ -105,5 +105,16 @@ Estas no son preferencias de estilo. Cada una existe por una decisión registrad
   `reemplazo`, `filtrado` o `aditivo`. Atarlas es el bug que se está viniendo a arreglar.
 - **La Vista vive en la URL.** No se reintroduce un stack de navegación propio ni snapshots.
 - **`CUSTOM` no entra en el enum de `tipo_vinculo`.** El escape hatch es el campo `rol`.
+- **`nodeType` tiene cuatro valores y no se agregan más.** ENTIDAD, OBRA, EVENTO, AGRUPACION. Si
+  aparece la necesidad de "un tipo nuevo" —banda, sello, podcast, área— es un `subtipo`, que es
+  vocabulario abierto en su propia tabla. `nodeType` es cómo se comporta el nodo, no cómo se llama.
+- **El Usuario no es un nodo y no aparece en el grafo.** Es la cuenta privada; controla N
+  entidades públicas. Que las facetas de una persona estén vinculadas entre sí es decisión de
+  quien las controla, nunca un efecto automático del modelo.
+- **La pertenencia es una arista.** Ningún nodo tiene "pertenece a". Si aparece esa columna, se
+  perdió la capacidad de que algo sea de dos dueños a la vez.
+- **Los permisos nunca van en `vinculos`.** Los vínculos son contenido público que viaja en el
+  dump de topología. La autorización va en su propia tabla, privada.
+- **Se dice "creadxr", no "artista".** En la UI y en los documentos.
 - **Una sola base.** Postgres es la fuente de verdad; el `metadata jsonb` es la "data profunda".
 - **`collectiveConscience` se lee, no se toca.** Sigue en producción como sitio de la productora.

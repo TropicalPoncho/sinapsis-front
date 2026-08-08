@@ -9,13 +9,13 @@ import type { Vista, Subgrafo, NodoGrafo, VinculoGrafo } from '@/types/vista'
 const vp = { shape: 'Marble', color: '#6EE7B7' }
 
 const nodos: NodoGrafo[] = [
-  { id: 'e1', nodeType: 'ESPACIO', label: 'Tropical Poncho', vizParams: vp, isStub: false, fecha: '2022-01-01', disciplina: 'gestion' },
-  { id: 'a1', nodeType: 'ARTISTA', label: 'Rama', vizParams: vp, isStub: false, fecha: '2022-06-01', disciplina: 'musica', locationId: 'ar-ba' },
-  { id: 'a2', nodeType: 'ARTISTA', label: 'Mechi', vizParams: vp, isStub: false, fecha: '2023-01-01', disciplina: 'poesia', locationId: 'ar-rn' },
-  { id: 'a3', nodeType: 'ARTISTA', label: 'Pau', vizParams: vp, isStub: false, disciplina: 'poesia' },
-  { id: 'o1', nodeType: 'OBRA', label: 'Obra Uno', vizParams: vp, isStub: false, fecha: '2023-05-01', disciplina: 'musica' },
-  { id: 'o2', nodeType: 'OBRA', label: 'Obra Dos', vizParams: vp, isStub: false, fecha: '2024-05-01', disciplina: 'musica' },
-  { id: 's1', nodeType: 'SERIE', label: 'Serie Uno', vizParams: vp, isStub: false, fecha: '2024-06-01' },
+  { id: 'e1', nodeType: 'ENTIDAD', subtipo: 'productora', label: 'Tropical Poncho', vizParams: vp, isStub: false, fecha: '2022-01-01', disciplina: 'gestion' },
+  { id: 'a1', nodeType: 'ENTIDAD', subtipo: 'persona', label: 'Rama', vizParams: vp, isStub: false, fecha: '2022-06-01', disciplina: 'musica', locationId: 'ar-ba' },
+  { id: 'a2', nodeType: 'ENTIDAD', subtipo: 'persona', label: 'Mechi', vizParams: vp, isStub: false, fecha: '2023-01-01', disciplina: 'poesia', locationId: 'ar-rn' },
+  { id: 'a3', nodeType: 'ENTIDAD', subtipo: 'duo', label: 'Pau', vizParams: vp, isStub: false, disciplina: 'poesia' },
+  { id: 'o1', nodeType: 'OBRA', subtipo: 'cancion', label: 'Obra Uno', vizParams: vp, isStub: false, fecha: '2023-05-01', disciplina: 'musica' },
+  { id: 'o2', nodeType: 'OBRA', subtipo: 'cancion', label: 'Obra Dos', vizParams: vp, isStub: false, fecha: '2024-05-01', disciplina: 'musica' },
+  { id: 's1', nodeType: 'AGRUPACION', subtipo: 'serie', label: 'Serie Uno', vizParams: vp, isStub: false, fecha: '2024-06-01' },
 ]
 
 const vinculos: VinculoGrafo[] = [

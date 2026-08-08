@@ -24,13 +24,22 @@ const DESCARTE_LITERAL = new Set([
   'Vinyls DJ Sets', 'VINYLS DJ SETs',
 ])
 
-const RE_ESPACIO = /productora|centro cultural|sello|galer/i
+// Primera pasada: conjetura, no verdad. Lo que sale de acá se corrige a mano en la planilla
+// y el CSV corregido es el registro durable. `subtipo` sale casi siempre 'persona' a propósito:
+// distinguir una banda de una persona por el nombre no es confiable, y una conjetura silenciosa
+// es peor que una obvia — la columna ref_revisar existe para eso.
+const RE_PRODUCTORA = /productora/i
+const RE_CENTRO = /centro cultural|galer/i
+const RE_SELLO = /sello/i
 const RE_EVENTO = /festival|fiesta|ciclo|session/i
 
-function adivinarNodeType(n: DumpNodo): string {
-  if (RE_ESPACIO.test(n.info?.sub ?? '')) return 'ESPACIO'
-  if (RE_EVENTO.test(n.name ?? '')) return 'EVENTO'
-  return 'ARTISTA'
+function adivinarTipo(n: DumpNodo): { nodeType: string; subtipo: string } {
+  const sub = n.info?.sub ?? ''
+  if (RE_PRODUCTORA.test(sub)) return { nodeType: 'ENTIDAD', subtipo: 'productora' }
+  if (RE_CENTRO.test(sub)) return { nodeType: 'ENTIDAD', subtipo: 'centro_cultural' }
+  if (RE_SELLO.test(sub)) return { nodeType: 'ENTIDAD', subtipo: 'sello' }
+  if (RE_EVENTO.test(n.name ?? '')) return { nodeType: 'EVENTO', subtipo: 'funcion' }
+  return { nodeType: 'ENTIDAD', subtipo: 'persona' }
 }
 
 function aFecha(n: DumpNodo): string {
@@ -69,7 +78,7 @@ const descartarPorId = new Map<string, boolean>()
 
 const filasNodos = conNombre.map((n) => {
   const id = n._id.$oid
-  const nodeType = adivinarNodeType(n)
+  const { nodeType, subtipo } = adivinarTipo(n)
   nodeTypePorId.set(id, nodeType)
 
   const sinContexto = !n.info && !n.imgPath
@@ -81,6 +90,8 @@ const filasNodos = conNombre.map((n) => {
     id,
     descartar: descartar ? 'si' : '',
     node_type: nodeType,
+    subtipo,
+    ref_revisar: subtipo === 'persona' ? 'REVISAR: subtipo conjeturado por defecto' : '',
     label: n.name!,
     descripcion_breve: n.info?.sub ?? '',
     disciplina: '',
@@ -119,8 +130,8 @@ const outDir = path.resolve(process.cwd(), 'data/curaduria')
 fs.mkdirSync(outDir, { recursive: true })
 
 const columnasNodos = [
-  'id', 'descartar', 'node_type', 'label', 'descripcion_breve', 'disciplina', 'is_stub',
-  'fecha', 'thumb', 'ref_sub', 'ref_bio_len', 'ref_grado_entrada', 'ref_grado_salida',
+  'id', 'descartar', 'node_type', 'subtipo', 'label', 'descripcion_breve', 'disciplina', 'is_stub',
+  'fecha', 'thumb', 'ref_sub', 'ref_bio_len', 'ref_grado_entrada', 'ref_grado_salida', 'ref_revisar',
 ]
 const columnasVinculos = [
   'id', 'descartar', 'origen', 'destino', 'tipo_vinculo', 'rol',

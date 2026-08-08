@@ -6,7 +6,7 @@
 ## v1 Requirements
 
 Milestone 1 — motor, Vistas y la web de Tropical Poncho como primer consumidor.
-La data la carga el dueño por un pipeline de CSV versionado; no hay autenticación ni carga por artistas.
+La data la carga el dueño por un pipeline de CSV versionado; no hay autenticación ni carga por creadxrs.
 
 ### Repositorio
 
@@ -19,7 +19,9 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 ### Datos
 
 - [x] **DATA-01**: Existe un schema Postgres con tablas `nodos` y `vinculos` que refleja el modelo de la ERS, sin ningún campo `dimensionId`
-- [x] **DATA-02**: `nodos` tiene columnas livianas (`id`, `node_type`, `label`, `descripcion_breve`, `thumb`, `viz_params`, `is_stub`, `fecha`, `disciplina`, `location_id`) más un `metadata jsonb` para la ficha técnica, y la topología se consulta sin traer `metadata`
+- [x] **DATA-02**: `nodos` tiene columnas livianas (`id`, `node_type`, `subtipo`, `label`, `descripcion_breve`, `thumb`, `viz_params`, `is_stub`, `fecha`, `disciplina`, `location_id`, `created_by`) más un `metadata jsonb` para la ficha técnica, y la topología se consulta sin traer `metadata`
+- [x] **DATA-09**: `nodeType` tiene exactamente cuatro valores estructurales —ENTIDAD, OBRA, EVENTO, AGRUPACION— y el nombre de la cosa (banda, dúo, colectivo, productora, centro cultural, serie, área, podcast) vive en `subtipo`, con vocabulario abierto validado contra la tabla `subtipos`
+- [x] **DATA-10**: `nodos` y `vinculos` tienen `created_by` para auditoría, nullable y sin FK hasta que exista `usuarios`
 - [x] **DATA-03**: `viz_params` guarda únicamente escalares (forma, color, velocidad, ruido, semilla) — nunca fragmentos de GLSL ni código
 - [x] **DATA-04**: `vinculos` tiene `tipo_vinculo` como enum de strings nombrados, `rol` como texto corto filtrable aplicable a cualquier tipo, y `descripcion` como texto largo que **no** viaja en la topología — sin valor `CUSTOM` en el enum
 - [x] **DATA-05**: El schema lo gobiernan migraciones SQL versionadas en el repo — ninguna herramienta externa autora ni altera el DDL, y las tablas no cargan columnas de bookkeeping ajenas al modelo
@@ -53,11 +55,11 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 
 - [ ] **UI-01**: El visitante ve una red 3D global al entrar y puede navegarla con mouse en escritorio y gestos en mobile
 - [ ] **UI-02**: Al tocar un nodo, el visitante ve su información y puede seguir explorando desde sus vínculos
-- [ ] **UI-03**: Existe una página de nodo ESPACIO que muestra la red de ese espacio y sus obras producidas
-- [ ] **UI-04**: Existe una página de nodo OBRA que muestra su ficha y los artistas que colaboraron en ella
+- [ ] **UI-03**: Existe una página de nodo ENTIDAD que muestra la red de esa entidad y sus obras producidas
+- [ ] **UI-04**: Existe una página de nodo OBRA que muestra su ficha y lxs creadxrs que colaboraron en ella
 - [ ] **UI-05**: La Vista activa está reflejada en la URL, de modo que el botón atrás del navegador retrocede por el historial de vistas y una vista se puede compartir por link
 - [ ] **UI-06**: El menú de navegación se renderiza desde la misma data que alimenta el grafo, sin construcción imperativa aparte
-- [ ] **UI-07**: tropicalponcho.art funciona como la página de perfil del nodo ESPACIO Tropical Poncho, sin código específico para ese nodo
+- [ ] **UI-07**: tropicalponcho.art funciona como la página de perfil del nodo ENTIDAD Tropical Poncho (subtipo `productora`), sin código específico para ese nodo
 - [ ] **UI-08**: El canvas 3D se monta una sola vez por encima del router y sobrevive a los cambios de ruta sin remontarse — el contenido de cada ruta flota encima
 - [ ] **UI-09**: Al enfocar un nodo, el panel de información aparece con scrim sobre la zona de texto y la zona donde quedó la neurona se mantiene transparente — izquierda en escritorio, arriba en mobile
 - [ ] **UI-10**: Un cambio de ruta secuencia el cambio de Vista, la animación de cámara y la aparición del overlay, en vez de dispararlos a la vez
@@ -72,28 +74,28 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 
 ### Autenticación
 
-- **AUTH-01**: El artista se registra con un código de invitación válido
-- **AUTH-02**: El artista inicia sesión con Google o Instagram vía OAuth 2.0
+- **AUTH-01**: Lx creadxr se registra con un código de invitación válido
+- **AUTH-02**: Lx creadxr inicia sesión con Google o Instagram vía OAuth 2.0
 - **AUTH-03**: Al registrarse se le crea una neurona esférica de color aleatorio
-- **AUTH-04**: El artista personaliza el color de su neurona desde su perfil
+- **AUTH-04**: Lx creadxr personaliza el color de su neurona desde su perfil
 
 ### Carga de obras
 
-- **OBRA-01**: El artista crea una obra con título, descripción, fecha, disciplina y ficha técnica
-- **OBRA-02**: El artista sube imágenes y enlaza video de YouTube a una obra
-- **OBRA-03**: El artista agrupa obras bajo una serie mediante vínculos `COMPONE`
-- **OBRA-04**: El artista ve su galería con la mini-red arriba y la grilla de obras abajo
+- **OBRA-01**: Lx creadxr crea una obra con título, descripción, fecha, disciplina y ficha técnica
+- **OBRA-02**: Lx creadxr sube imágenes y enlaza video de YouTube a una obra
+- **OBRA-03**: Lx creadxr agrupa obras bajo una agrupación mediante vínculos `COMPONE`
+- **OBRA-04**: Lx creadxr ve su galería con la mini-red arriba y la grilla de obras abajo
 
 ### Vínculos entre usuarios
 
-- **VINC-01**: El artista propone un vínculo a un colaborador y este puede aceptarlo o rechazarlo
+- **VINC-01**: Lx creadxr propone un vínculo y quien lo recibe puede aceptarlo o rechazarlo
 - **VINC-02**: Un vínculo no aparece en la red pública hasta ser aceptado
-- **VINC-03**: El artista invita por email a un colaborador no registrado y se crea un nodo STUB
-- **VINC-04**: Al registrarse, el nodo STUB se convierte en perfil completo y sus vínculos quedan activos
+- **VINC-03**: Lx creadxr invita por email a alguien no registradx y se crea una ENTIDAD con `is_stub` en true
+- **VINC-04**: Al registrarse, esa entidad deja de ser stub, se convierte en perfil completo y sus vínculos quedan activos
 
 ### Descubrimiento
 
-- **BUSC-01**: El visitante busca por nombre de artista o de obra
+- **BUSC-01**: El visitante busca por nombre de entidad o de obra
 - **BUSC-02**: El visitante filtra la red por disciplina artística
 - **BUSC-03**: El visitante filtra la red por región geográfica
 - **BUSC-04**: El visitante sin sesión ve una red contextualizada por cercanía geográfica
@@ -137,6 +139,8 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | VIST-06 | Phase 2 | Complete |
 | VIST-07 | Phase 2 | Complete |
 | DATA-08 | Phase 2 | Complete |
+| DATA-09 | Phase 2 | Complete |
+| DATA-10 | Phase 2 | Complete |
 | MOTR-01 | Phase 3 | Pending |
 | MOTR-02 | Phase 3 | Pending |
 | MOTR-03 | Phase 3 | Pending |
@@ -159,8 +163,8 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | UI-07 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 40 total
-- Mapped to phases: 40
+- v1 requirements: 42 total
+- Mapped to phases: 42
 - Unmapped: 0 ✓
 
 ---

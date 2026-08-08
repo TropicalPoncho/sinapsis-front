@@ -7,20 +7,22 @@ import { leerCsv } from './csv.ts'
 
 const DUMP = '../../collectiveConscience/config/dumps/neurons_prod_23-10-05.json'
 
-const NODE_TYPES = new Set(['ARTISTA', 'OBRA', 'SERIE', 'ESPACIO', 'EVENTO', 'STUB'])
+const NODE_TYPES = new Set(['ENTIDAD', 'OBRA', 'EVENTO', 'AGRUPACION'])
 const TIPOS_VINCULO = new Set([
   'COMPONE', 'COLABORO_EN', 'CORREALIZO', 'PRODUJO', 'INTEGRA', 'INSPIRO', 'REGISTRO',
 ])
 
 // DATA-03: shape/color asignados por tipo, no migrados — el dump no tiene estilos que traducir (D-10).
 const VIZ_POR_TIPO: Record<string, { shape: string; color: string }> = {
-  ARTISTA: { shape: 'Marble', color: '#6EE7B7' },
+  ENTIDAD: { shape: 'Marble', color: '#6EE7B7' },
   OBRA: { shape: 'Perlin', color: '#F472B6' },
-  SERIE: { shape: 'Twist', color: '#FBBF24' },
-  ESPACIO: { shape: 'Fire', color: '#60A5FA' },
   EVENTO: { shape: 'Wave Line', color: '#A78BFA' },
-  STUB: { shape: 'Lines', color: '#6B7280' },
+  AGRUPACION: { shape: 'Twist', color: '#FBBF24' },
 }
+
+// ponytail: la forma se asigna por node_type, no por subtipo. Diferenciar visualmente una banda
+// de un centro cultural es curaduría visual, y hoy no hay con qué decidirla — se resuelve por
+// nodo cuando exista la personalización de neurona (RF-03).
 
 // Seed determinista por id (FNV-1a 32 bits, normalizada a [0,1) con tres decimales).
 // Sin fuente aleatoria: reimportar no puede reacomodar la animación de toda la red.
@@ -74,6 +76,11 @@ filasNodos.forEach((fila, i) => {
 
   if (!NODE_TYPES.has(fila.node_type)) {
     errores.push(`nodos.csv línea ${numeroFila}: node_type inválido "${fila.node_type}"`)
+  }
+  // El vocabulario válido lo impone la FK contra `subtipos`; acá solo se atrapa el vacío,
+  // que produciría un error de FK mucho menos legible.
+  if (fila.subtipo.trim() === '') {
+    errores.push(`nodos.csv línea ${numeroFila}: subtipo vacío`)
   }
   if (fila.label.trim() === '') {
     errores.push(`nodos.csv línea ${numeroFila}: label vacío`)
@@ -150,6 +157,7 @@ const nodosParaInsertar = nodosACargar.map((f) => {
   return {
     id: f.id,
     node_type: f.node_type,
+    subtipo: f.subtipo.trim(),
     label: f.label,
     descripcion_breve: f.descripcion_breve || null,
     disciplina: f.disciplina || null,
@@ -188,10 +196,10 @@ try {
   for (const n of nodosParaInsertar) {
     await client.query(
       `INSERT INTO nodos
-        (id, node_type, label, descripcion_breve, thumb, viz_params, is_stub, fecha, disciplina, metadata)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+        (id, node_type, subtipo, label, descripcion_breve, thumb, viz_params, is_stub, fecha, disciplina, metadata)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
       [
-        n.id, n.node_type, n.label, n.descripcion_breve, n.thumb,
+        n.id, n.node_type, n.subtipo, n.label, n.descripcion_breve, n.thumb,
         JSON.stringify(n.viz_params), n.is_stub, n.fecha, n.disciplina,
         JSON.stringify(n.metadata),
       ]

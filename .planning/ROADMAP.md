@@ -26,8 +26,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Repo Cleanup** (2026-08-06) - Remove the failed react-force-graph-3d attempt, update dependencies, land the engine source from collectiveConscience, carve out `strapi/`, define the shared `Vista` contract
 - [ ] **Phase 2: Data & Vista Backend** - Postgres schema owned by SQL migrations, CSV-curated data import, and the topology endpoint plus `resolverVista`
 - [ ] **Phase 3: 3D Engine** - SinapsisEngine with its three transitions, React-free, measured for its render ceiling
-- [ ] **Phase 4: UI & Navigation** - Persistent canvas above the router, Next.js routes as overlays (home, ESPACIO, OBRA), URL-driven navigation choreographed with camera moves, data-driven menu
-- [ ] **Phase 5: Tropical Poncho Launch** - tropicalponcho.art live as the ESPACIO profile page, on real migrated data, no special-cased code
+- [ ] **Phase 4: UI & Navigation** - Persistent canvas above the router, Next.js routes as overlays (home, ENTIDAD, OBRA), URL-driven navigation choreographed with camera moves, data-driven menu
+- [ ] **Phase 5: Tropical Poncho Launch** - tropicalponcho.art live as the ENTIDAD profile page, on real migrated data, no special-cased code
 
 ## Phase Details
 
@@ -52,7 +52,7 @@ Plans:
 ### Phase 2: Data & Vista Backend
 **Goal**: Postgres holds the nodo/vínculo model with no `dimensionId`, under a schema this repo owns through plain SQL migrations, the old Mongo data is curated in and the topology is served for the client to traverse locally.
 **Depends on**: Phase 1
-**Requirements**: DATA-01, DATA-02, DATA-03, DATA-04, DATA-05, DATA-06, DATA-07, DATA-08, VIST-01, VIST-02, VIST-03, VIST-04, VIST-05, VIST-06, VIST-07
+**Requirements**: DATA-01, DATA-02, DATA-03, DATA-04, DATA-05, DATA-06, DATA-07, DATA-08, DATA-09, DATA-10, VIST-01, VIST-02, VIST-03, VIST-04, VIST-05, VIST-06, VIST-07
 **Success Criteria** (what must be TRUE):
   1. A Postgres schema exists with `nodos` (light columns plus a `metadata jsonb`, `viz_params` holding only scalars) and `vinculos` (`tipo_vinculo` enum without `CUSTOM`, free-text `rol`) tables matching the ERS model — no `dimensionId` field anywhere, and graph queries don't pull `metadata`.
   2. The schema is defined by versioned SQL migrations in this repo — real foreign keys and CHECK constraints, no tool-imposed bookkeeping columns, and no external service with authority to alter the DDL.
@@ -88,9 +88,9 @@ Plans:
 **Requirements**: UI-01, UI-02, UI-03, UI-04, UI-05, UI-06, UI-08, UI-09, UI-10
 **Success Criteria** (what must be TRUE):
   1. Landing on the site shows a navigable 3D global network, usable by mouse on desktop and by gestures on mobile.
-  2. The canvas mounts once above the router and survives every route change without remounting — navigating between home, ESPACIO and OBRA never restarts the 3D scene.
+  2. The canvas mounts once above the router and survives every route change without remounting — navigating between home, ENTIDAD and OBRA never restarts the 3D scene.
   3. Tapping a node shows its information and lets the visitor keep exploring along its vínculos, with the panel scrimmed over the text side and the region holding the neuron left transparent — left on desktop, top on mobile.
-  4. An ESPACIO node page shows that espacio's network and the obras it produced; an OBRA node page shows its ficha técnica and the artists who collaborated on it.
+  4. An ENTIDAD node page shows that entity's network and the obras it produced; an OBRA node page shows its ficha técnica and the artists who collaborated on it.
   5. A route change sequences the Vista change, the camera animation and the overlay rather than firing them in parallel.
   6. The active Vista is reflected in the URL — the browser back button steps back through the Vista history, and a Vista link can be shared and reopened directly.
   7. The side nav menu is rendered from the same data feeding the graph, with no separate hardcoded menu structure.
@@ -98,11 +98,11 @@ Plans:
 **UI hint**: yes
 
 ### Phase 5: Tropical Poncho Launch
-**Goal**: tropicalponcho.art works as the live proof point that the model needs no special-casing — the ESPACIO profile page for Tropical Poncho, running on the real migrated production data.
+**Goal**: tropicalponcho.art works as the live proof point that the model needs no special-casing — the ENTIDAD profile page for Tropical Poncho, running on the real migrated production data.
 **Depends on**: Phase 2, Phase 4
 **Requirements**: UI-07
 **Success Criteria** (what must be TRUE):
-  1. Visiting tropicalponcho.art renders through the same ESPACIO page component and Vista logic as any other espacio node — no node-specific code path.
+  1. Visiting tropicalponcho.art renders through the same ENTIDAD page component and Vista logic as any other espacio node — no node-specific code path.
   2. The page's network and obras reflect the real data migrated in Phase 2, not fixtures.
 **Plans**: TBD
 **UI hint**: yes

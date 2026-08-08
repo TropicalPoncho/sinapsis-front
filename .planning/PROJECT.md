@@ -2,9 +2,9 @@
 
 ## What This Is
 
-Red social para artistas y obra colectiva, visualizada como una red neuronal 3D navegable.
-Cada artista, obra, serie, espacio cultural y evento es un **nodo**; cada colaboración es un
-**vínculo**. Está pensada para artistas, productoras, centros culturales y curadores que
+Red social para creadxrs y obra colectiva, visualizada como una red neuronal 3D navegable.
+Cada creadxr, obra, agrupación y evento es un **nodo**; cada colaboración es un
+**vínculo**. Está pensada para creadxrs, productoras, centros culturales y curadores que
 quieren mostrar su trabajo y hacer visible con quién lo hicieron.
 
 El descubrimiento es el producto: se explora siguiendo vínculos, no scrolleando un feed.
@@ -12,7 +12,7 @@ El descubrimiento es el producto: se explora siguiendo vínculos, no scrolleando
 ## Core Value
 
 Que la red se pueda mirar desde cualquier punto de vista sin cambiar el modelo de datos.
-La misma red tiene que poder mostrarse centrada en un artista, en una obra, en un espacio
+La misma red tiene que poder mostrarse centrada en una entidad, en una obra, en un espacio
 o de forma global — y eso es configuración de una **Vista**, nunca un campo del nodo.
 
 ## Requirements
@@ -41,20 +41,20 @@ Milestone 1 — motor, Vistas y la web de Tropical Poncho como primer consumidor
 - [ ] `SinapsisEngine`: motor 3D vanilla con `setVista(vista, {transicion})` y `on()`
 - [ ] Tres transiciones: `reemplazo`, `filtrado`, `aditivo`
 - [ ] La Vista vive en la URL — el botón atrás del browser es el stack de navegación
-- [ ] UI Next: home global, página de nodo ESPACIO, página de nodo OBRA
+- [ ] UI Next: home global, página de nodo ENTIDAD, página de nodo OBRA
 - [ ] Menú lateral renderizado desde la misma data que el grafo
-- [ ] tropicalponcho.art funcionando como página de perfil del ESPACIO Tropical Poncho
+- [ ] tropicalponcho.art funcionando como página de perfil de la ENTIDAD Tropical Poncho
 
 ### Out of Scope
 
 **Diferido a milestone 2** (decisión de alcance, no de valor):
 
 - Autenticación OAuth y registro por invitación — en M1 la data la carga el dueño por un pipeline de CSV
-- Carga de obras por artistas, subida de material audiovisual, permisos y moderación
+- Carga de obras por creadxrs, subida de material audiovisual, permisos y moderación
 - Flujo de aceptación/rechazo de vínculos (`estado: PENDIENTE`) — sin usuarios no hay quién acepte
-- Nodos STUB e invitación por email a colaboradores no registrados
+- Invitación por email a colaboradorxs no registradxs (entidades con `is_stub`)
 - Búsqueda por nombre y filtros por disciplina/geografía
-- Series como agrupación curatorial navegable
+- Agrupaciones (series, áreas, podcasts, ciclos) como pantalla curatorial navegable
 
 **Descartado con razón** (no volver a proponerlo sin dato nuevo):
 
@@ -129,12 +129,17 @@ en Notion y son la fuente de verdad funcional:
 | `resolverVista` es una función pura sin framework | Corre en el browser hoy y en el servidor el día que la topología no entre en el cliente, sin reescribirse. No es preparar el futuro: es una función sin dependencias que se puede ejecutar en los dos lados | — Pending |
 | Postgres nunca traversa | Hace dos scans sin joins para dumpear la topología; el recorrido es un BFS sobre un Map de adyacencia. Por eso ninguna base de grafos aportaba: esa parte no la hace una base, la hace una estructura en memoria | — Pending |
 | Tipado de vínculos en tres niveles | `tipoVinculo` estructural (cómo se traversa), `rol` semántico y filtrable ("dj", "cita directa"), `descripcion` narrativa. Los dos primeros viajan en la topología; el tercero se pide al abrir el vínculo | — Pending |
+| Cuatro `nodeType`, y el nombre de la cosa en `subtipo` | Mismo patrón de dos niveles que `tipoVinculo` + `rol`: una banda, un dúo, un colectivo y una productora se comportan idéntico en el grafo, lo que cambia es cómo se llaman. La lista de "qué tipo de cosa es" no termina nunca, así que no puede vivir en el schema. Se cae `ESPACIO` (lo distinguía tener lugar físico, y `locationId` ya es columna de todo nodo) y se cae `STUB` (es un estado, y ya está en `is_stub`) | — Pending |
+| `subtipo` es tabla, no texto libre ni CHECK | Es un campo filtrable: en texto libre "banda"/"Banda"/"bandas" fragmentan el filtro en silencio. Sumar un subtipo es un INSERT, no una migración | — Pending |
+| El Usuario no es un nodo; controla N entidades | El vínculo entre las facetas de una persona no puede ser público por defecto: mucha gente mantiene sus alias deliberadamente separados. La cuenta es privada, las entidades son las caras públicas, y que estén vinculadas entre sí es una decisión por vínculo. No hace falta un tipo `PERSONA`: la persona privada *es* el Usuario | — Pending |
+| La pertenencia es una arista, no un campo | Nada en el modelo tiene "pertenece a". Por eso el podcast puede ser de Rama y de Tropical a la vez, sin elegir: dos `PRODUJO` hacia el mismo nodo. En una jerarquía de carpetas habría que elegir | — Pending |
+| Los permisos van en tabla propia, no en el vínculo | Los vínculos son contenido público que viaja en el dump; los permisos no pueden serlo. Y no coinciden: contratar a alguien para administrar una productora es un permiso, no una colaboración artística. Misma forma relacional, otro grafo, privado. Esa tabla contesta además "qué entidades son mías" | — Pending |
 | Motor 3D vanilla, sin react-three-fiber | El motor es imperativo (uniforms mutables, registry por tipo); r3f obliga a un wrapper por objeto. Ya falló en este repo | ✓ Validado en Fase 1 — `src/engine/` no importa React |
 | `tipoVinculo` (enum) + `rol` (texto libre) como ejes separados | El enum define cómo se traversa; el rol es el matiz humano. Autor de pintura, director de arte y dj son todos `COLABORO_EN` con rol distinto | — Pending |
 | La Vista es la URL | Reemplaza `dimension`, `state.level` y `previousNetworkSnapshot`; regala historial de N niveles, deep links y vistas compartibles | — Pending |
 | Transición separada de la consulta | Cualquier Vista alcanzable con cualquier transición; hoy están atadas y por eso entrar a una sub-red obliga al fundido a negro | — Pending |
 | `incluirRaiz` como campo de Vista | Ya existe enterrado como `hideRoot`; subirlo a la Vista es lo que habilita "las obras del artista sin el artista" | — Pending |
-| Web de Tropical = página de perfil de un ESPACIO | Si sale sin código especial, prueba que el modelo sirve para cualquier productora o centro cultural | — Pending |
+| Web de Tropical = página de perfil de una ENTIDAD | Si sale sin código especial, prueba que el modelo sirve para cualquier productora o centro cultural | — Pending |
 | Instancing diferido hasta medir | El techo de render se estima pero no se midió; optimizar antes de medir es adivinar | — Pending |
 | ~~Strapi en `strapi/` del mismo repo~~ → **descartado** | Se implementó en Fase 1 y se revirtió el 2026-08-06. Strapi 5 sincroniza el schema en cada boot sin opt-out confiable (`forceMigration: false` no funciona en Postgres, issue #15027 cerrado "not planned"), impone `document_id`/`published_at`/`locale` a toda tabla que administra, y sus propios docs advierten pérdida de datos contra bases preexistentes. El schema Nodo/Vínculo es el activo central del proyecto: no puede ser autorado por un CMS | ⚠️ Revertido — la decisión original no ponderó el costo sobre el DDL |
 | El schema lo gobiernan migraciones SQL del repo | Foreign keys y CHECK reales, sin columnas de bookkeeping ajenas. El dataset de v1 son ~50 nodos curados en planilla, así que un panel de administración no se justifica; y la UI de carga hay que construirla igual para que los artistas suban sus obras en v2 | — Pending |

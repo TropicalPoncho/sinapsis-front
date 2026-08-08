@@ -22,9 +22,9 @@ Quién usa Sinápsis y con qué sistemas externos habla.
 flowchart TB
     visitante(["<b>Visitante</b><br/><i>Público, sin sesión</i>"])
     curador(["<b>Curador</b><br/><i>Dueño del sistema.<br/>Cura la data</i>"])
-    artista(["<b>Artista</b><br/><i>Sube sus propias obras</i>"])
+    artista(["<b>Creadxr</b><br/><i>Sube sus propias obras</i>"])
 
-    sinapsis["<b>SINÁPSIS</b><br/><br/>Red social de artistas y obra colectiva.<br/>Cada artista, obra, serie, espacio y evento<br/>es un nodo; cada colaboración, un vínculo.<br/>Se explora como una red neuronal 3D."]
+    sinapsis["<b>SINÁPSIS</b><br/><br/>Red social de creadxrs y obra colectiva.<br/>Cada artista, obra, serie, espacio y evento<br/>es un nodo; cada colaboración, un vínculo.<br/>Se explora como una red neuronal 3D."]
 
     youtube["<b>YouTube</b><br/><i>Reproductor embebido<br/>en la ficha de obra</i>"]
     oauth["<b>Google / Instagram</b><br/><i>OAuth 2.0</i>"]
@@ -50,7 +50,7 @@ flowchart TB
 ```
 
 **Nota sobre tropicalponcho.art:** no es un sistema aparte. Es un dominio que apunta a la página
-de perfil del nodo `ESPACIO` Tropical Poncho. Que funcione sin código específico es la prueba de
+de perfil del nodo `ENTIDAD` Tropical Poncho. Que funcione sin código específico es la prueba de
 que el modelo sirve para cualquier productora o centro cultural.
 
 ---
@@ -77,7 +77,7 @@ flowchart TB
         next["<b>Next.js</b><br/><i>Node</i><br/>SSR de las páginas de nodo<br/>+ el endpoint de topología."]
     end
 
-    pg[("<b>Postgres</b><br/><i>Schema gobernado por<br/>migraciones SQL del repo</i><br/>nodos · vinculos · metadata jsonb")]
+    pg[("<b>Postgres</b><br/><i>Schema gobernado por<br/>migraciones SQL del repo</i><br/>nodos · vinculos · subtipos · metadata jsonb")]
 
     carga["<b>Pipeline de carga</b><br/><i>scripts Node, corrida manual</i><br/>dump Mongo → CSV → planilla → import"]
 
@@ -131,7 +131,7 @@ El detalle de la pieza con más sustancia. `src/engine/` viene portado desde
 flowchart TB
     subgraph react["UI React — src/app/"]
         layout["<b>Layout raíz</b><br/>Monta el canvas UNA vez,<br/>por encima del router."]
-        rutas["<b>Rutas</b><br/>home · /espacio/[id] · /obra/[id]<br/>Overlays con scrim."]
+        rutas["<b>Rutas</b><br/>home · /entidad/[id] · /obra/[id]<br/>Overlays con scrim."]
         menu["<b>Menú</b><br/>Se renderiza de la misma data<br/>que alimenta al grafo."]
     end
 
@@ -205,8 +205,8 @@ flowchart TB
     pg[("<b>Postgres</b>")]
 
     subgraph tablas["Schema — migraciones SQL del repo"]
-        nodos["<b>nodos</b><br/>columnas livianas + metadata jsonb<br/>id · node_type · label · descripcion_breve<br/>thumb · viz_params · fecha · disciplina"]
-        vinculos["<b>vinculos</b><br/>origen · destino (FK reales)<br/>tipo_vinculo (enum) · rol · descripcion"]
+        nodos["<b>nodos</b><br/>columnas livianas + metadata jsonb<br/>id · node_type · subtipo · label · descripcion_breve<br/>thumb · viz_params · fecha · disciplina"]
+        vinculos["<b>vinculos</b><br/>origen · destino (FK reales)<br/>tipo_vinculo (enum) · rol · descripcion · created_by"]
     end
 
     topologia --> db
@@ -284,7 +284,7 @@ dispara nada.
 |---|---|
 | La topología deja de entrar en el navegador (~20-50k nodos) | `resolverVista` se muda al servidor. No se reescribe: es una función pura sin dependencias, por eso corre en los dos lados. El navegador pasa a pedir subgrafos en vez de la topología entera. |
 | Auth (v2) | Entra un contenedor de sesión y el endpoint de topología empieza a filtrar por `estado` del vínculo. |
-| Los artistas cargan sus obras (v2) | Entra una UI de carga en la app. Nunca un panel de CMS: el schema es del repo. |
+| Lxs creadxrs cargan sus obras (v2) | Entra una UI de carga en la app. Nunca un panel de CMS: el schema es del repo. |
 | El render toca su techo (ver PERF-01) | `ThreeObjectManager` gana una segunda implementación con `InstancedMesh`. Los nodos cercanos siguen siendo meshes individuales; el resto va instanciado. Por eso `viz_params` guarda escalares y nunca GLSL. |
 
 ---

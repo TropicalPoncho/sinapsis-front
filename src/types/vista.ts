@@ -1,4 +1,28 @@
-export type NodeType = 'ARTISTA' | 'OBRA' | 'SERIE' | 'ESPACIO' | 'EVENTO' | 'STUB'
+// Contrato compartido del grafo. Lo importan el endpoint de topología,
+// `resolverVista` y el motor 3D — nadie lo redeclara.
+//
+// El `Usuario` NO aparece acá y no es un nodo: es la cuenta privada, con su
+// login. Un usuario controla N entidades públicas ("Rama Cerratto",
+// "Cachengue Master", "Rayo Seco"), y que esas entidades estén vinculadas
+// entre sí en el grafo público es una decisión aparte de quien las controla —
+// hay quien mantiene sus alias deliberadamente separados.
+
+// Cuatro tipos, y solo cuatro. `nodeType` es lo ESTRUCTURAL: define cómo se
+// recorre y cómo se comporta el nodo. El nombre de la cosa —banda, dúo,
+// colectivo, productora, centro cultural, sello— es `subtipo`, vocabulario
+// abierto y filtrable. Es el mismo patrón de dos niveles que `tipoVinculo` + `rol`:
+// una banda y una productora se comportan idéntico en el grafo, cambia el nombre.
+//
+// No existe ESPACIO: lo único que lo distinguía era tener lugar físico, y
+// `locationId` ya es un campo de todo nodo. Un centro cultural es una ENTIDAD
+// con subtipo 'centro_cultural' y locationId puesto.
+//
+// No existe STUB: es un estado, y ya está como el booleano `isStub`.
+export type NodeType =
+  | 'ENTIDAD'      // tiene agencia: crea, produce, la integran. Persona, dúo, banda, colectivo, productora, centro cultural
+  | 'OBRA'         // algo hecho
+  | 'EVENTO'       // obra que ocurre en un tiempo y un lugar
+  | 'AGRUPACION'   // contenedor curatorial sin agencia propia: serie, área, podcast, ciclo, colección
 
 // Sin CUSTOM. Un vínculo de tipo libre no se puede traversar ni filtrar desde una Vista.
 // El escape hatch para el matiz es `rol` en el vínculo, no un tipo nuevo.
@@ -27,6 +51,7 @@ export interface Vista {
   raiz: string | null            // null = vista global
   profundidad: number            // saltos desde la raíz
   filtroNodeTypes: NodeType[]
+  filtroSubtipos?: string[]      // "solo bandas", "solo podcasts" — ausente = todos
   filtroVinculos: TipoVinculo[]
   filtroRoles?: string[]         // "solo donde fui DJ" — ausente = todos los roles
   direccion: Direccion
@@ -39,12 +64,19 @@ export interface Vista {
 export interface NodoGrafo {
   id: string
   nodeType: NodeType
+  // Vocabulario abierto y filtrable, validado contra la tabla `subtipos`.
+  // ENTIDAD: persona · duo · banda · colectivo · productora · centro_cultural · sello · proyecto
+  // OBRA: pintura · video · libro · cancion · episodio · instalacion
+  // EVENTO: concierto · muestra · funcion · conversatorio
+  // AGRUPACION: serie · area · podcast · ciclo · coleccion
+  subtipo: string
   label: string
   // Máximo 200 caracteres. El tope no es estilo: es lo que mantiene enviable
   // el dump de topología. Sin él, prosa larga en cientos de nodos lo lleva a varios MB.
   descripcionBreve?: string
   thumb?: string
   vizParams: VizParams
+  // true = creadxr invitadx que todavía no se registró
   isStub: boolean
   // Escalares filtrables. Viajan en el dump porque el cliente filtra por ellos
   // sin volver al servidor.

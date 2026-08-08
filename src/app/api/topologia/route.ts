@@ -14,6 +14,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 4 })
 interface FilaNodo {
   id: string
   node_type: NodoGrafo['nodeType']
+  subtipo: string
   label: string
   descripcion_breve: string | null
   thumb: string | null
@@ -36,6 +37,7 @@ function aNodoGrafo(f: FilaNodo): NodoGrafo {
   return {
     id: f.id,
     nodeType: f.node_type,
+    subtipo: f.subtipo,
     label: f.label,
     ...(f.descripcion_breve !== null && { descripcionBreve: f.descripcion_breve }),
     ...(f.thumb !== null && { thumb: f.thumb }),
@@ -62,7 +64,7 @@ export async function GET() {
     const [nodosRes, vinculosRes] = await Promise.all([
       // metadata queda afuera: es la data profunda (DATA-02), se pide al abrir el nodo.
       pool.query<FilaNodo>(
-        `SELECT id, node_type, label, descripcion_breve, thumb, viz_params,
+        `SELECT id, node_type, subtipo, label, descripcion_breve, thumb, viz_params,
                 is_stub, fecha, disciplina, location_id
          FROM nodos`,
       ),
