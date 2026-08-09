@@ -16,6 +16,10 @@ function pasaFiltroVinculo(vista: Vista, v: VinculoGrafo): boolean {
 
 function pasaFiltroNodo(vista: Vista, n: NodoGrafo): boolean {
   if (vista.filtroNodeTypes.length > 0 && !vista.filtroNodeTypes.includes(n.nodeType)) return false
+  // node_type es lo estructural; subtipo es el nombre de la cosa. "solo bandas" filtra acá.
+  if (vista.filtroSubtipos && vista.filtroSubtipos.length > 0) {
+    if (!vista.filtroSubtipos.includes(n.subtipo)) return false
+  }
   const fa = vista.filtroAtributos
   if (!fa) return true
   // Fechas ISO 8601 comparadas como string: el mismo formato ordena lexicográficamente

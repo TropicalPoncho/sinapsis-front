@@ -189,4 +189,17 @@ describe('resolverVista', () => {
       )
     }
   })
+
+  test('filtroSubtipos filtra por subtipo sin tocar node_type', () => {
+    const sub = resolverVista(ady, vista({ raiz: null, profundidad: 0, filtroSubtipos: ['productora'] }))
+    assert.deepEqual(ids(sub), ['e1'])
+  })
+
+  test('filtroSubtipos convive con filtroNodeTypes', () => {
+    const sub = resolverVista(
+      ady,
+      vista({ raiz: null, profundidad: 0, filtroNodeTypes: ['ENTIDAD'], filtroSubtipos: ['persona'] }),
+    )
+    assert.deepEqual(ids(sub), ['a1', 'a2'])
+  })
 })
