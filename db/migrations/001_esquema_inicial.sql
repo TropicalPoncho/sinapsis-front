@@ -42,6 +42,9 @@ INSERT INTO subtipos (codigo, node_type, label) VALUES
   ('centro_cultural', 'ENTIDAD',    'Centro cultural'),
   ('sello',           'ENTIDAD',    'Sello'),
   ('proyecto',        'ENTIDAD',    'Proyecto'),
+  -- Genérico: la obra existe pero todavía no se decidió de qué tipo es. Mejor un valor
+  -- honesto que forzar una categoría inventada en la migración.
+  ('obra',            'OBRA',       'Obra'),
   ('pintura',         'OBRA',       'Pintura'),
   ('video',           'OBRA',       'Video'),
   ('libro',           'OBRA',       'Libro'),

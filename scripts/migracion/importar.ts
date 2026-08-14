@@ -4,8 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import pg from 'pg'
 import { leerCsv } from './csv.ts'
-
-const DUMP = '../../collectiveConscience/config/dumps/neurons_prod_23-10-05.json'
+import { cargarFuentes, metadataPorId } from './dumps.ts'
 
 const NODE_TYPES = new Set(['ENTIDAD', 'OBRA', 'EVENTO', 'AGRUPACION'])
 const TIPOS_VINCULO = new Set([
@@ -36,23 +35,9 @@ function seedDeId(id: string): number {
   return Math.round(normalizado * 1000) / 1000
 }
 
-interface DumpNodo {
-  _id: { $oid: string }
-  nickName?: string
-  info?: { sub?: string; bio?: string; links?: unknown }
-  imgPath?: string
-  imgSize?: number
-  order?: number
-  graphVal?: number
-}
-
-const dumpPath = path.resolve(process.cwd(), DUMP)
-if (!fs.existsSync(dumpPath)) {
-  console.error(`No se encontró el dump en ${dumpPath}. ¿collectiveConscience está clonado al lado de este repo?`)
-  process.exit(1)
-}
-const dump: DumpNodo[] = JSON.parse(fs.readFileSync(dumpPath, 'utf8'))
-const dumpPorId = new Map(dump.map((n) => [n._id.$oid, n]))
+// La metadata sale de las dos fuentes, normalizada en dumps.ts — el mismo módulo que usa
+// el export, para que ambas pasadas vean exactamente lo mismo.
+const metadataDeFuentes = metadataPorId(cargarFuentes().nodos)
 
 const csvDir = path.resolve(process.cwd(), 'data/curaduria')
 const filasNodos = leerCsv(fs.readFileSync(path.join(csvDir, 'nodos.csv'), 'utf8'))
@@ -128,19 +113,9 @@ const vinculosACargar = filasVinculos.filter(
   (f) => !esSi(f.descartar) && nodosVivos.has(f.origen) && nodosVivos.has(f.destino)
 )
 
+// Un nodo escrito a mano en la planilla no está en ningún dump: metadata vacía, no es un error.
 function metadataDe(id: string): Record<string, unknown> {
-  const n = dumpPorId.get(id)
-  if (!n) return {}
-  const md: Record<string, unknown> = { mongoId: id }
-  if (n.nickName !== undefined) md.nickName = n.nickName
-  if (n.info?.sub !== undefined) md.sub = n.info.sub
-  if (n.info?.bio !== undefined) md.bio = n.info.bio
-  if (n.info?.links !== undefined) md.links = n.info.links
-  if (n.imgPath !== undefined) md.imgPath = n.imgPath
-  if (n.imgSize !== undefined) md.imgSize = n.imgSize
-  if (n.order !== undefined) md.order = n.order
-  if (n.graphVal !== undefined) md.graphVal = n.graphVal
-  return md
+  return metadataDeFuentes.get(id) ?? {}
 }
 
 const nodosParaInsertar = nodosACargar.map((f) => {
