@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-03-PLAN.md
-last_updated: "2026-08-15T21:59:59.286Z"
+stopped_at: Completed 03-04-PLAN.md
+last_updated: "2026-08-15T22:14:02.680Z"
 last_activity: 2026-08-15
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 15
-  completed_plans: 11
+  completed_plans: 12
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-08-06)
 ## Current Position
 
 Phase: 03 (3d-engine) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-08-15
 
@@ -61,6 +61,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P01 | 15min | 2 tasks | 3 files |
 | Phase 03 P02 | 25min | 2 tasks | 6 files |
 | Phase 03 P03 | 20min | 2 tasks | 4 files |
+| Phase 03 P04 | 35min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,7 @@ Recent decisions affecting current work:
 - [Phase 03]: encuadre.js: geometría pura sin imports para MOTR-08/10/11, consumida por cameraController
 - [Phase 03]: [Phase 03 P02]: esImagen derived purely from vizParams.shape === 'Image', never nodeType — keeps the Image special-case data-driven
 - [Phase 03]: [Phase 03 P03] cameraController.resize(): outerWidth/outerHeight -> innerWidth/innerHeight (Pitfall 1); filtrado/aditivo caen en reemplazo con TODO Plan 04 para no bloquear MOTR-06
+- [Phase 03]: [Phase 03 P04] filtrado/aditivo verificados headless contra d3-force-3d real (misma pieza que three-forcegraph reheat-ea) por ausencia de herramienta de browser en el ejecutor
 
 ### Pending Todos
 
@@ -119,8 +121,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-15T21:59:59.269Z
-Stopped at: Completed 03-03-PLAN.md
+Last session: 2026-08-15T22:13:56.925Z
+Stopped at: Completed 03-04-PLAN.md
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's

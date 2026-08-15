@@ -44,8 +44,8 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 - [x] **MOTR-01**: `SinapsisEngine` se monta sobre un elemento del DOM y expone `setVista(vista, { transicion })` y `on(evento, handler)` como única superficie pública
 - [x] **MOTR-02**: El motor no importa React y React no importa THREE — un solo archivo de puente entre ambos
 - [x] **MOTR-03**: La transición `reemplazo` cambia la red con fundido a negro y zoom, como el `goInto` actual
-- [ ] **MOTR-04**: La transición `filtrado` conserva las instancias y posiciones existentes y desvanece lo que queda fuera de la Vista
-- [ ] **MOTR-05**: La transición `aditivo` suma los nodos nuevos a los que ya están en pantalla
+- [x] **MOTR-04**: La transición `filtrado` conserva las instancias y posiciones existentes y desvanece lo que queda fuera de la Vista
+- [x] **MOTR-05**: La transición `aditivo` suma los nodos nuevos a los que ya están en pantalla
 - [x] **MOTR-06**: Cualquier Vista se puede alcanzar con cualquiera de las tres transiciones — la transición no está atada a la consulta
 - [x] **MOTR-07**: Al recambiar la red se liberan geometrías, materiales y texturas de los objetos que salen de escena
 - [x] **MOTR-08**: El motor recibe el área segura del viewport de forma **continua** —no una vez por ruta, porque el scroll la modifica— y encuadra el nodo enfocado dentro de ella
@@ -148,8 +148,8 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | MOTR-01 | Phase 3 | Complete |
 | MOTR-02 | Phase 3 | Complete |
 | MOTR-03 | Phase 3 | Complete |
-| MOTR-04 | Phase 3 | Pending |
-| MOTR-05 | Phase 3 | Pending |
+| MOTR-04 | Phase 3 | Complete |
+| MOTR-05 | Phase 3 | Complete |
 | MOTR-06 | Phase 3 | Complete |
 | MOTR-07 | Phase 3 | Complete |
 | MOTR-08 | Phase 3 | Complete |
