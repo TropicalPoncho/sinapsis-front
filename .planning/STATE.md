@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: paused
-stopped_at: 02-05 Task 2 checkpoint — awaiting owner decision on data source and NodeType taxonomy
-last_updated: "2026-08-08T05:15:00.000Z"
-last_activity: 2026-08-08
+status: executing
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-08-15T21:49:57.473Z"
+last_activity: 2026-08-15
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 9
-  completed_plans: 8
+  total_plans: 15
+  completed_plans: 9
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-06)
 
 **Core value:** Que la red se pueda mirar desde cualquier punto de vista sin cambiar el modelo de datos.
-**Current focus:** Phase 02 — data-vista-backend
+**Current focus:** Phase 03 — 3d-engine
 
 ## Current Position
 
-Phase: 02 (data-vista-backend) — PAUSED
-Plan: 02-05, Task 1/3 done, Task 2 (human checkpoint) blocked on a data/schema decision
-Status: Paused — owner is discussing NodeType taxonomy and migration data source in a separate conversation
-Last activity: 2026-08-08
+Phase: 03 (3d-engine) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
+Last activity: 2026-08-15
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -58,6 +58,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P03 | 20 | 2 tasks | 4 files |
 | Phase 02 P02 | ~50 | 3 tasks | 3 files |
 | Phase 02 P04 | 12min | 2 tasks | 2 files |
+| Phase 03 P01 | 15min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,7 @@ Recent decisions affecting current work:
 - [Phase 02]: CSV curation pipeline hand-rolls RFC 4180 parsing (no dependency) - format has one writer, one reader
 - [Phase 02]: resolverVista's third param `yaCargados` resolves VIST-03 with the same BFS as a rooted Vista (depth 1 + incluirRaiz:false over that set) — no special-case code path
 - [Phase 02]: Fixed off-by-one relative path to collectiveConscience dump in plans 02-03/02-05 before execution (`../collectiveConscience` -> `../../collectiveConscience`, verified against actual repo layout)
+- [Phase 03]: encuadre.js: geometría pura sin imports para MOTR-08/10/11, consumida por cameraController
 
 ### Pending Todos
 
@@ -87,20 +89,24 @@ None yet.
   source dump (`../../collectiveConscience/config/dumps/neurons_prod_23-10-05.json`, 251 rows / 80
   named) stale. He wants to base the migration on a more recent export first and merge this CSV's
   data in afterward.
+
   - The "newer" dump he initially pointed to, `neurons_prod_20250708.json` (35 rows), is **not**
     a fresher version of the same data — it's structurally different (`name`/`img`/`type`/`order`/
     `html`, no `neuronType`/`info.bio`) and looks like the current site's menu/section structure
     (`Nosotres`, `Obras`, `Audiovisuales`, `Editorial`, `Tecnología`, `Laboratorios`...), not an
     artist/work/event network dump. It cannot be swapped in for `neurons_prod_23-10-05.json`
     without its own mapping.
+
   - That menu structure raised a real schema question: whether `NodeType` (locked in
     `src/types/vista.ts` since Phase 1) needs a new value for organizational groupings ("Área") —
     `SERIE` is defined for grouping obras via `COMPONE`, not departments of a productora. Also
     raised: multi-owner vínculos (already supported — two `PRODUJO` rows from different nodes to
     the same target need no schema change) and whether `ARTISTA` already covers duos/collectives
     (naming question, not necessarily a schema gap).
+
   - No prior planning doc addresses this — confirmed by grepping `.planning/` for "Área",
     "colectivo", "dúo", "banda", "productora" before pausing.
+
   - Owner is continuing this discussion in a separate (older) conversation, not via `/gsd:discuss-phase`.
   - **Resume path:** once the owner settles on a data source and whether `NodeType` gains a new
     value, either continue `/gsd:execute-phase 02` (Task 2 checkpoint of plan 02-05) as-is, or
@@ -109,9 +115,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-08T05:15:00.000Z
-Stopped at: 02-05 Task 2 checkpoint (paused, not resolved — see Blockers/Concerns)
-Resume file: .planning/phases/02-data-vista-backend/02-05-PLAN.md
+Last session: 2026-08-15T21:49:57.468Z
+Stopped at: Completed 03-01-PLAN.md
+Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's
 implementation but before committing/summarizing. The orchestrator verified the completed work

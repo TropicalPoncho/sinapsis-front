@@ -48,10 +48,10 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 - [ ] **MOTR-05**: La transición `aditivo` suma los nodos nuevos a los que ya están en pantalla
 - [ ] **MOTR-06**: Cualquier Vista se puede alcanzar con cualquiera de las tres transiciones — la transición no está atada a la consulta
 - [ ] **MOTR-07**: Al recambiar la red se liberan geometrías, materiales y texturas de los objetos que salen de escena
-- [ ] **MOTR-08**: El motor recibe el área segura del viewport de forma **continua** —no una vez por ruta, porque el scroll la modifica— y encuadra el nodo enfocado dentro de ella
+- [x] **MOTR-08**: El motor recibe el área segura del viewport de forma **continua** —no una vez por ruta, porque el scroll la modifica— y encuadra el nodo enfocado dentro de ella
 - [ ] **MOTR-09**: Las animaciones de cámara son esperables desde afuera, de modo que un cambio de ruta pueda secuenciar animación y overlay en vez de dispararlos en paralelo
-- [ ] **MOTR-10**: El encuadre depende de `vizParams.shape`: un nodo `Image` entra **entero** en el área segura porque la imagen es la obra y recortarla la mutila; cualquier otra forma solo necesita que su centro caiga adentro, y que se derrame fuera del viewport es deseable
-- [ ] **MOTR-11**: Al enfocar un nodo, el motor elige el ángulo de cámara para que las aristas del nodo salgan hacia el lado libre del viewport y no crucen por detrás del panel de texto — el panel nunca cambia de lado
+- [x] **MOTR-10**: El encuadre depende de `vizParams.shape`: un nodo `Image` entra **entero** en el área segura porque la imagen es la obra y recortarla la mutila; cualquier otra forma solo necesita que su centro caiga adentro, y que se derrame fuera del viewport es deseable
+- [x] **MOTR-11**: Al enfocar un nodo, el motor elige el ángulo de cámara para que las aristas del nodo salgan hacia el lado libre del viewport y no crucen por detrás del panel de texto — el panel nunca cambia de lado
 - [ ] **MOTR-12**: El motor reporta por `on` la posición proyectada en pantalla del nodo enfocado, un punto, para anclar rótulos o conectores desde el panel
 
 ### Interfaz
@@ -152,10 +152,10 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | MOTR-05 | Phase 3 | Pending |
 | MOTR-06 | Phase 3 | Pending |
 | MOTR-07 | Phase 3 | Pending |
-| MOTR-08 | Phase 3 | Pending |
+| MOTR-08 | Phase 3 | Complete |
 | MOTR-09 | Phase 3 | Pending |
-| MOTR-10 | Phase 3 | Pending |
-| MOTR-11 | Phase 3 | Pending |
+| MOTR-10 | Phase 3 | Complete |
+| MOTR-11 | Phase 3 | Complete |
 | MOTR-12 | Phase 3 | Pending |
 | PERF-01 | Phase 3 | Pending |
 | UI-01 | Phase 4 | Pending |
