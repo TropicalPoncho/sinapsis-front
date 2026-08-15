@@ -92,7 +92,7 @@ export class ThreeObjectManager {
             }
             return objectInstance.mesh;
         } catch (error) {
-            console.log(error);
+            console.error(error);
           // Handle error during instantiation
         }
     }
@@ -152,8 +152,6 @@ export class ThreeObjectManager {
                 delete this._objectInstances[id];
             }
         });
-
-        console.log(`Liberados ${idsToRemove.length} objetos. Quedan ${Object.keys(this._objectInstances).length}`);
     }
 
     /**
@@ -168,8 +166,12 @@ export class ThreeObjectManager {
             mesh.children.forEach(child => this._disposeMesh(child));
         }
 
-        // Disponer geometría
-        if (mesh.geometry) {
+        // El geometryCache es estático y compartido entre instancias: disponer acá la geometría de
+        // un nodo que sale de escena rompería a todos los que quedan usando la misma clave.
+        // Materiales y texturas sí son por instancia y se disponen siempre.
+        // ponytail: el cache no se libera nunca — son ~15 geometrías, techo constante. Si algún día
+        // las claves dependen de datos del nodo (tamaño por nodo), acá va un refcount.
+        if (mesh.geometry && !ThreeObjectManager._esGeometriaCompartida(mesh.geometry)) {
             mesh.geometry.dispose();
         }
 
@@ -181,6 +183,14 @@ export class ThreeObjectManager {
                 this._disposeMaterial(mesh.material);
             }
         }
+    }
+
+    /**
+     * @private
+     */
+    static _esGeometriaCompartida(geometry) {
+        for (const g of ThreeObject.geometryCache.values()) if (g === geometry) return true;
+        return false;
     }
 
     /**
@@ -210,6 +220,5 @@ export class ThreeObjectManager {
             }
         });
         this._objectInstances = {};
-        console.log('Todos los objetos Three.js han sido liberados');
     }
 }
