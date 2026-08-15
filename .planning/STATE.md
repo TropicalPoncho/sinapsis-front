@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-08-15T21:49:57.473Z"
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-08-15T21:51:55.721Z"
 last_activity: 2026-08-15
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 15
-  completed_plans: 9
+  completed_plans: 10
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-08-06)
 ## Current Position
 
 Phase: 03 (3d-engine) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 Status: Ready to execute
 Last activity: 2026-08-15
 
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P02 | ~50 | 3 tasks | 3 files |
 | Phase 02 P04 | 12min | 2 tasks | 2 files |
 | Phase 03 P01 | 15min | 2 tasks | 3 files |
+| Phase 03 P02 | 25min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,7 @@ Recent decisions affecting current work:
 - [Phase 02]: resolverVista's third param `yaCargados` resolves VIST-03 with the same BFS as a rooted Vista (depth 1 + incluirRaiz:false over that set) — no special-case code path
 - [Phase 02]: Fixed off-by-one relative path to collectiveConscience dump in plans 02-03/02-05 before execution (`../collectiveConscience` -> `../../collectiveConscience`, verified against actual repo layout)
 - [Phase 03]: encuadre.js: geometría pura sin imports para MOTR-08/10/11, consumida por cameraController
+- [Phase 03]: [Phase 03 P02]: esImagen derived purely from vizParams.shape === 'Image', never nodeType — keeps the Image special-case data-driven
 
 ### Pending Todos
 
@@ -115,8 +117,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-15T21:49:57.468Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-08-15T21:51:47.017Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's

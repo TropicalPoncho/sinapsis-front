@@ -85,7 +85,7 @@ Plans:
 
 Plans:
 - [x] 03-01-PLAN.md — Geometria pura del encuadre y del angulo de orbita, testeada headless (wave 1)
-- [ ] 03-02-PLAN.md — Adaptador Subgrafo -> force-graph, fixtures, y liberacion sin romper el geometryCache (wave 1)
+- [x] 03-02-PLAN.md — Adaptador Subgrafo -> force-graph, fixtures, y liberacion sin romper el geometryCache (wave 1)
 - [ ] 03-03-PLAN.md — SinapsisEngine: montaje, `on`, `reemplazo`, la promesa, y el archivo puente (wave 2)
 - [ ] 03-04-PLAN.md — Transiciones `filtrado` y `aditivo` con pinning fx/fy/fz (wave 3)
 - [ ] 03-05-PLAN.md — Area segura continua, encuadre por `shape`, orbita por centroide y `nodeFocus` (wave 4)
