@@ -45,8 +45,8 @@ export class CameraController {
      */
     resize() {
         if (this.renderer && this.camera) {
-            const width = window.outerWidth;
-            const height = window.outerHeight;
+            const width = window.innerWidth;
+            const height = window.innerHeight;
             
             this.renderer.setSize(width, height);
             this.camera.aspect = width / height;
