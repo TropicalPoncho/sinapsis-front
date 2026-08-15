@@ -52,7 +52,7 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 - [x] **MOTR-09**: Las animaciones de cámara son esperables desde afuera, de modo que un cambio de ruta pueda secuenciar animación y overlay en vez de dispararlos en paralelo
 - [x] **MOTR-10**: El encuadre depende de `vizParams.shape`: un nodo `Image` entra **entero** en el área segura porque la imagen es la obra y recortarla la mutila; cualquier otra forma solo necesita que su centro caiga adentro, y que se derrame fuera del viewport es deseable
 - [x] **MOTR-11**: Al enfocar un nodo, el motor elige el ángulo de cámara para que las aristas del nodo salgan hacia el lado libre del viewport y no crucen por detrás del panel de texto — el panel nunca cambia de lado
-- [ ] **MOTR-12**: El motor reporta por `on` la posición proyectada en pantalla del nodo enfocado, un punto, para anclar rótulos o conectores desde el panel
+- [x] **MOTR-12**: El motor reporta por `on` la posición proyectada en pantalla del nodo enfocado, un punto, para anclar rótulos o conectores desde el panel
 
 ### Interfaz
 
@@ -156,7 +156,7 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | MOTR-09 | Phase 3 | Complete |
 | MOTR-10 | Phase 3 | Complete |
 | MOTR-11 | Phase 3 | Complete |
-| MOTR-12 | Phase 3 | Pending |
+| MOTR-12 | Phase 3 | Complete |
 | PERF-01 | Phase 3 | Pending |
 | UI-01 | Phase 4 | Pending |
 | UI-02 | Phase 4 | Pending |
