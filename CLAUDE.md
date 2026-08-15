@@ -116,5 +116,10 @@ Estas no son preferencias de estilo. Cada una existe por una decisión registrad
 - **Los permisos nunca van en `vinculos`.** Los vínculos son contenido público que viaja en el
   dump de topología. La autorización va en su propia tabla, privada.
 - **Se dice "creadxr", no "artista".** En la UI y en los documentos.
+- **`thumb` guarda una clave relativa, nunca una URL completa.** `obras/nudo.png`, no
+  `https://…/obras/nudo.png`. Hoy los assets se sirven desde `public/`; cuando lxs creadxrs
+  suban sus propias obras hará falta un bucket (R2, por egress cero), y con claves esa mudanza
+  es cambiar una constante de base en un solo lugar en vez de reescribir todas las filas.
+  Los nombres de archivo van en minúscula: el deploy corre en Linux y el desarrollo en Windows.
 - **Una sola base.** Postgres es la fuente de verdad; el `metadata jsonb` es la "data profunda".
 - **`collectiveConscience` se lee, no se toca.** Sigue en producción como sitio de la productora.

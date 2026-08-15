@@ -1,16 +1,16 @@
 id,descartar,node_type,subtipo,label,descripcion_breve,disciplina,is_stub,fecha,thumb,ref_fuente,ref_sub,ref_grado_entrada,ref_grado_salida,ref_revisar
 6335d5e37636ed5b3529c543,,OBRA,instalacion,SOMA BETA,,,si,2022-09-29,,red,,1,10,"REVISAR: idem SOMA: es obra, no entidad | REVISAR: ""SOMA BETA"" aparece en las dos fuentes con ids distintos — reconciliar"
-6335d5fa7636ed5b3529c545,,ENTIDAD,productora,Tropical Poncho,Productora de Experiencias Artísticas,,,2022-09-29,REVISAR:isologo_blanco.png,red,Productora de Experiencias Artísticas,0,9,
-63365a05349709fa31e2a492,,ENTIDAD,centro_cultural,Cultura Del Sur,Centro Cultural en Temperley,,,2022-09-30,REVISAR:isologo_culturadelsur.png,red,Centro Cultural en Temperley,1,0,
+6335d5fa7636ed5b3529c545,,ENTIDAD,productora,Tropical Poncho,Productora de Experiencias Artísticas,,,2022-09-29,entidades/tropical-poncho.png,red,Productora de Experiencias Artísticas,0,9,
+63365a05349709fa31e2a492,,ENTIDAD,centro_cultural,Cultura Del Sur,Centro Cultural en Temperley,,,2022-09-30,entidades/cultura-del-sur.png,red,Centro Cultural en Temperley,1,0,
 63365a24349709fa31e2a495,,ENTIDAD,persona,Ana Hagen,VINYL SET,,,2022-09-30,,red,VINYL SET,1,1,
 63365a2f349709fa31e2a498,,ENTIDAD,persona,Rama Cerratto,"Gestorx Cultural, Curadorx, DJ",,,2022-09-30,,red,"Gestorx Cultural, Curadorx, DJ",1,8,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Rama Cerratto"" aparece en las dos fuentes con ids distintos — reconciliar"
 63365a35349709fa31e2a49b,,ENTIDAD,persona,Mechi Botta,,,si,2022-09-30,,red,,2,5,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Mechi Botta"" aparece en las dos fuentes con ids distintos — reconciliar"
 63365a5a349709fa31e2a49e,,ENTIDAD,persona,Laura Trotta,,,si,2022-09-30,,red,,3,3,
-63365f80de8baa0e115c0e23,,ENTIDAD,proyecto,PROYECTOCOSO,Musica experimental,,,2022-09-30,REVISAR:isologo_proyectocoso.png,red,Musica experimental,1,5,REVISAR: musica experimental: proyecto o banda?
-6336611bde8baa0e115c0e29,,ENTIDAD,sello,RAYO SECO,"Sello y productora independiente y autogestiva. Difundimos música experimental y arte sonoro. Fiske Menuco, Río Negro, Arg.",,,2022-09-30,REVISAR:isologo_rayoseco.png,red,"Sello y productora independiente y autogestiva. Difundimos música experimental y arte sonoro. Fiske Menuco, Río Negro, Arg.",1,3,"la descripcion dice ""sello y productora""; vos lo mencionaste como duo — decidi cual"
+63365f80de8baa0e115c0e23,,ENTIDAD,proyecto,PROYECTOCOSO,Musica experimental,,,2022-09-30,entidades/proyectocoso.png,red,Musica experimental,1,5,REVISAR: musica experimental: proyecto o banda?
+6336611bde8baa0e115c0e29,,ENTIDAD,sello,RAYO SECO,"Sello y productora independiente y autogestiva. Difundimos música experimental y arte sonoro. Fiske Menuco, Río Negro, Arg.",,,2022-09-30,entidades/rayo-seco.png,red,"Sello y productora independiente y autogestiva. Difundimos música experimental y arte sonoro. Fiske Menuco, Río Negro, Arg.",1,3,"la descripcion dice ""sello y productora""; vos lo mencionaste como duo — decidi cual"
 63366372de8baa0e115c0e32,,ENTIDAD,persona,Claudia Brito,"Investigadora, creadora. Guio terapias y entrenamientos sensibles, docente y artista",,,2022-09-30,,red,"Investigadora, creadora. Guio terapias y entrenamientos sensibles, docente y artista",2,2,
 633f920b8610fbf9ba8ea7d2,,ENTIDAD,colectivo,Vuelos Del Sur,Danza Aerea,,,2022-10-07,,red,Danza Aerea,1,1,REVISAR: danza aerea: colectivo o proyecto?
-634102208610fbf9ba8ea7fd,,ENTIDAD,proyecto,MENOKO,LIVE SET,,,2022-10-07,REVISAR:isologo_menoko.png,red,LIVE SET,4,0,REVISAR: LIVE SET: alias de persona o proyecto?
+634102208610fbf9ba8ea7fd,,ENTIDAD,proyecto,MENOKO,LIVE SET,,,2022-10-07,entidades/menoko.png,red,LIVE SET,4,0,REVISAR: LIVE SET: alias de persona o proyecto?
 634e423754f7f464bb82c02f,,ENTIDAD,persona,Pau Gialdroni,,,si,2022-10-15,,red,,4,2,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Pau Gialdroni"" aparece en las dos fuentes con ids distintos — reconciliar"
 634e42a054f7f464bb82c032,si,ENTIDAD,persona,LIVE SETs,,,si,2022-10-15,,red,,1,3,
 634e42b554f7f464bb82c035,si,ENTIDAD,persona,Exposiciones,,,si,2022-10-15,,red,,1,1,"REVISAR: ""Exposiciones"" aparece en las dos fuentes con ids distintos — reconciliar"
@@ -45,10 +45,10 @@ id,descartar,node_type,subtipo,label,descripcion_breve,disciplina,is_stub,fecha,
 6363278ab63661e98b47ed16,,ENTIDAD,proyecto,E110101,,,si,2022-10-29,,red,,2,2,REVISAR: parece alias de live coding
 63632802b63661e98b47ed18,,ENTIDAD,persona,Gaby Sartoris,,,si,2022-10-29,,red,,1,4,
 63632829b63661e98b47ed1a,,ENTIDAD,persona,Chiri,,,si,2022-10-29,,red,,1,3,
-637de7398be52c754bc5346d,si,ENTIDAD,persona,In Session,,,,2022-11-23,REVISAR:isologo_insession.png,red,,2,2,
+637de7398be52c754bc5346d,si,ENTIDAD,persona,In Session,,,,2022-11-23,entidades/in-session.png,red,,2,2,
 63b4b176c7c53c60df6d576a,si,ENTIDAD,persona,tickets,,,si,2022-11-26,,red,,1,0,
 63b6144ad5cd16d6e43fe41f,,ENTIDAD,persona,Fede Fragas,,,si,2023-01-04,,red,,2,1,
-63bc55c9d5cd16d6e43fe43b,,ENTIDAD,centro_cultural,Detroit Classic Gallery,,,,2023-01-04,REVISAR:isologo_dcg.png,red,,3,1,"REVISAR: suena a galeria, no a persona"
+63bc55c9d5cd16d6e43fe43b,,ENTIDAD,centro_cultural,Detroit Classic Gallery,,,,2023-01-04,entidades/detroit-classic-gallery.png,red,,3,1,"REVISAR: suena a galeria, no a persona"
 63bc55f8d5cd16d6e43fe43d,,ENTIDAD,persona,Sol Ortega,,,si,2023-01-04,,red,,3,0,
 63bcae86292862f05c5dc736,,ENTIDAD,persona,Ludmila Di Pascuale,,,si,2023-01-09,,red,,1,1,
 63bcaead292862f05c5dc738,,ENTIDAD,persona,Pepi Lucero,,,si,2023-01-09,,red,,1,0,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Pepi Lucero"" aparece en las dos fuentes con ids distintos — reconciliar"
@@ -79,7 +79,7 @@ id,descartar,node_type,subtipo,label,descripcion_breve,disciplina,is_stub,fecha,
 649996ef3bfd6b676bb15926,si,ENTIDAD,persona,goljavi,,,si,2023-06-01,,red,,0,0,
 64c94cfd3bfd6b676bb15c5f,,ENTIDAD,persona,mar,,,si,2023-06-01,,red,,1,0,
 64fada1fe627cebf00a583c9,si,ENTIDAD,persona,Jdjd,,,si,2023-09-02,,red,,0,0,
-669a4715e1452d0f79a8deb9,,AGRUPACION,area,Nosotres,,,,,REVISAR:isologo_color.png,sitio,,0,0,"REVISAR: ""Nosotres"" es una sección del sitio, no un área de trabajo — descartar?"
+669a4715e1452d0f79a8deb9,,AGRUPACION,area,Nosotres,,,,,agrupaciones/nosotres.png,sitio,,0,0,"REVISAR: ""Nosotres"" es una sección del sitio, no un área de trabajo — descartar?"
 669a4715e1452d0f79a8deba,,AGRUPACION,area,Obras,"La consciencia de la percepción misma, como obra",,,,,sitio,"La consciencia de la percepción misma, como obra",0,11,
 669a4715e1452d0f79a8debb,,AGRUPACION,area,Audiovisuales,"La documentación de la obra, como materia prima de otra creación.",,,,,sitio,"La documentación de la obra, como materia prima de otra creación.",0,0,
 669a4715e1452d0f79a8debc,,AGRUPACION,area,Editorial,El formato editorial para expandir el arte en toda su complejidad.,,,,,sitio,El formato editorial para expandir el arte en toda su complejidad.,0,0,
@@ -91,12 +91,12 @@ id,descartar,node_type,subtipo,label,descripcion_breve,disciplina,is_stub,fecha,
 669a4715e1452d0f79a8dec4,,OBRA,obra,Tropical Posporno,Tropical Posporno,,,,,sitio,Tropical Posporno,1,0,
 669a4715e1452d0f79a8dec5,,OBRA,obra,SOMA beta,SOMAbeta,,,,,sitio,SOMAbeta,1,0,"REVISAR: ""SOMA beta"" aparece en las dos fuentes con ids distintos — reconciliar"
 669a4715e1452d0f79a8dec6,,OBRA,obra,SOMA,SOMA,,,,,sitio,SOMA,1,0,"REVISAR: ""SOMA"" aparece en las dos fuentes con ids distintos — reconciliar"
-669a4715e1452d0f79a8dec7,,OBRA,obra,NUDO,NUDO,,,,REVISAR:NUDO.png,sitio,NUDO,1,0,
-669a4715e1452d0f79a8dec8,,OBRA,obra,C.E.P.A.,C.E.P.A.,,,,REVISAR:CEPA.png,sitio,C.E.P.A.,1,0,
+669a4715e1452d0f79a8dec7,,OBRA,obra,NUDO,NUDO,,,,obras/nudo.png,sitio,NUDO,1,0,
+669a4715e1452d0f79a8dec8,,OBRA,obra,C.E.P.A.,C.E.P.A.,,,,obras/c-e-p-a.png,sitio,C.E.P.A.,1,0,
 669a4715e1452d0f79a8dec9,,OBRA,obra,Concierto Público #4 ft Tropical Poncho,CP,,,,,sitio,CP,1,0,
-669a4715e1452d0f79a8deca,,OBRA,obra,Tropical Posporno: Distopia,Distopia,,,,REVISAR:distopia.png,sitio,Distopia,1,0,
-669a4715e1452d0f79a8decb,,OBRA,obra,ESPORA,Encuentro para la promoción de la producción colectiva,,,,REVISAR:espora.png,sitio,Encuentro para la promoción de la producción colectiva,2,0,
-669a4715e1452d0f79a8decc,,OBRA,obra,WIP,,,,,REVISAR:WIP.png,sitio,,0,1,"REVISAR: sin dimensionId, tipo conjeturado"
+669a4715e1452d0f79a8deca,,OBRA,obra,Tropical Posporno: Distopia,Distopia,,,,obras/tropical-posporno-distopia.png,sitio,Distopia,1,0,
+669a4715e1452d0f79a8decb,,OBRA,obra,ESPORA,Encuentro para la promoción de la producción colectiva,,,,obras/espora.png,sitio,Encuentro para la promoción de la producción colectiva,2,0,
+669a4715e1452d0f79a8decc,,OBRA,obra,WIP,,,,,obras/wip.png,sitio,,0,1,"REVISAR: sin dimensionId, tipo conjeturado"
 669a4715e1452d0f79a8ded5,si,ENTIDAD,persona,Julieta Agriano,,,si,,,sitio,,0,0,
 669a4715e1452d0f79a8ded6,si,ENTIDAD,persona,Ep.Di,,,si,,,sitio,,0,0,
 669a4715e1452d0f79a8ded7,si,ENTIDAD,persona,Ari,,,si,,,sitio,,0,0,
