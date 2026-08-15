@@ -72,13 +72,14 @@ Plans:
 ### Phase 3: 3D Engine
 **Goal**: `SinapsisEngine` renders and transitions between any Vista independent of React, cleans up after itself, and its real render ceiling is measured and written down.
 **Depends on**: Phase 1
-**Requirements**: MOTR-01, MOTR-02, MOTR-03, MOTR-04, MOTR-05, MOTR-06, MOTR-07, MOTR-08, MOTR-09, PERF-01
+**Requirements**: MOTR-01, MOTR-02, MOTR-03, MOTR-04, MOTR-05, MOTR-06, MOTR-07, MOTR-08, MOTR-09, MOTR-10, MOTR-11, MOTR-12, PERF-01
 **Success Criteria** (what must be TRUE):
   1. `SinapsisEngine` mounts on a DOM element and exposes only `setVista(vista, { transicion })` and `on(evento, handler)` as public API — the engine imports no React, and only one bridge file imports both it and React.
   2. Feeding the engine a fixture Vista via `reemplazo` produces the fade-to-black-and-zoom swap, via `filtrado` keeps existing instances in place and fades out what's no longer in the Vista, and via `aditivo` adds the new nodes without disturbing what's already on screen — and any Vista can be driven by any of the three.
   3. Swapping to a new network releases the geometries, materials, and textures of the nodes that left the scene.
-  4. Given a safe-area rect, the engine frames the focused node inside it, and reports back through `on` which screen region that node occupies — the generalization of today's `aimAtNode` returning `izq`/`der`.
-  5. Camera animations are awaitable from outside, so a caller can sequence animation and overlay instead of firing both at once.
+  4. The engine accepts the safe-area rect **continuously** — scroll changes it, so it cannot be set once per route — and frames the focused node inside it. An `Image` node fits entirely within the rect; any other shape only needs its centre inside, and bleeding off-viewport is desirable.
+  5. On focus, the engine picks the camera angle so the node's edges radiate away from the occluded side, and reports the node's projected screen point through `on`. The panel never switches sides — this replaces today's `aimAtNode` returning `izq`/`der`.
+  6. Camera animations are awaitable from outside, so a caller can sequence animation and overlay instead of firing both at once.
   6. A documented number states how many nodes the engine sustains at 30fps on a mid-range device — measured both with a bare canvas and with an overlay covering most of the screen, which is the common case — along with draw calls per node.
 **Plans**: TBD
 

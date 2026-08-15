@@ -48,8 +48,11 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 - [ ] **MOTR-05**: La transición `aditivo` suma los nodos nuevos a los que ya están en pantalla
 - [ ] **MOTR-06**: Cualquier Vista se puede alcanzar con cualquiera de las tres transiciones — la transición no está atada a la consulta
 - [ ] **MOTR-07**: Al recambiar la red se liberan geometrías, materiales y texturas de los objetos que salen de escena
-- [ ] **MOTR-08**: El motor recibe un área segura del viewport y encuadra el nodo enfocado dentro de ella, y reporta por `on` la región de pantalla que ese nodo ocupa, para que la UI decida de qué lado poner el panel
+- [ ] **MOTR-08**: El motor recibe el área segura del viewport de forma **continua** —no una vez por ruta, porque el scroll la modifica— y encuadra el nodo enfocado dentro de ella
 - [ ] **MOTR-09**: Las animaciones de cámara son esperables desde afuera, de modo que un cambio de ruta pueda secuenciar animación y overlay en vez de dispararlos en paralelo
+- [ ] **MOTR-10**: El encuadre depende de `vizParams.shape`: un nodo `Image` entra **entero** en el área segura porque la imagen es la obra y recortarla la mutila; cualquier otra forma solo necesita que su centro caiga adentro, y que se derrame fuera del viewport es deseable
+- [ ] **MOTR-11**: Al enfocar un nodo, el motor elige el ángulo de cámara para que las aristas del nodo salgan hacia el lado libre del viewport y no crucen por detrás del panel de texto — el panel nunca cambia de lado
+- [ ] **MOTR-12**: El motor reporta por `on` la posición proyectada en pantalla del nodo enfocado, un punto, para anclar rótulos o conectores desde el panel
 
 ### Interfaz
 
@@ -61,7 +64,8 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 - [ ] **UI-06**: El menú de navegación se renderiza desde la misma data que alimenta el grafo, sin construcción imperativa aparte
 - [ ] **UI-07**: tropicalponcho.art funciona como la página de perfil del nodo ENTIDAD Tropical Poncho (subtipo `productora`), sin código específico para ese nodo
 - [ ] **UI-08**: El canvas 3D se monta una sola vez por encima del router y sobrevive a los cambios de ruta sin remontarse — el contenido de cada ruta flota encima
-- [ ] **UI-09**: Al enfocar un nodo, el panel de información aparece con scrim sobre la zona de texto y la zona donde quedó la neurona se mantiene transparente — izquierda en escritorio, arriba en mobile
+- [ ] **UI-09**: Al enfocar un nodo, el panel de información aparece **siempre del mismo lado** —izquierda en escritorio ocupando el 62% del ancho, banda inferior en mobile— con degradado hacia el canvas y no un corte duro, y el texto alineado a la izquierda
+- [ ] **UI-11**: La columna de texto se mantiene entre 620 y 680px aunque el panel sea más ancho: el panel crece como degradado, no como largo de línea
 - [ ] **UI-10**: Un cambio de ruta secuencia el cambio de Vista, la animación de cámara y la aparición del overlay, en vez de dispararlos a la vez
 
 ### Rendimiento
@@ -150,6 +154,9 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | MOTR-07 | Phase 3 | Pending |
 | MOTR-08 | Phase 3 | Pending |
 | MOTR-09 | Phase 3 | Pending |
+| MOTR-10 | Phase 3 | Pending |
+| MOTR-11 | Phase 3 | Pending |
+| MOTR-12 | Phase 3 | Pending |
 | PERF-01 | Phase 3 | Pending |
 | UI-01 | Phase 4 | Pending |
 | UI-02 | Phase 4 | Pending |
@@ -159,12 +166,13 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | UI-06 | Phase 4 | Pending |
 | UI-08 | Phase 4 | Pending |
 | UI-09 | Phase 4 | Pending |
+| UI-11 | Phase 4 | Pending |
 | UI-10 | Phase 4 | Pending |
 | UI-07 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 42 total
-- Mapped to phases: 42
+- v1 requirements: 46 total
+- Mapped to phases: 46
 - Unmapped: 0 ✓
 
 ---
