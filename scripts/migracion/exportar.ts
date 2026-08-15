@@ -16,7 +16,7 @@ const rutaVinculos = path.join(outDir, 'vinculos.csv')
 // Lo que edita la persona en la planilla. Si la fila ya existía, esto no se pisa.
 const CURADAS_NODO = [
   'descartar', 'node_type', 'subtipo', 'label', 'descripcion_breve',
-  'disciplina', 'is_stub', 'fecha', 'thumb',
+  'disciplina', 'is_stub', 'fecha', 'thumb', 'shape',
 ]
 const CURADAS_VINCULO = ['descartar', 'tipo_vinculo', 'rol']
 
@@ -83,6 +83,8 @@ const filasNodos = nodos.map((n) => {
     is_stub: !n.tieneContexto ? 'si' : '',
     fecha: n.fecha,
     thumb: n.imgPath ? `REVISAR:${n.imgPath}` : '',
+    // Vacío = el import elige por node_type. Con valor, manda esto.
+    shape: n.shape,
     ref_fuente: n.fuente,
     ref_sub: n.sub,
     ref_grado_entrada: String(gradoEntrada.get(n.id) ?? 0),
@@ -130,8 +132,8 @@ fs.mkdirSync(outDir, { recursive: true })
 
 const columnasNodos = [
   'id', 'descartar', 'node_type', 'subtipo', 'label', 'descripcion_breve', 'disciplina',
-  'is_stub', 'fecha', 'thumb', 'ref_fuente', 'ref_sub', 'ref_grado_entrada', 'ref_grado_salida',
-  'ref_revisar',
+  'is_stub', 'fecha', 'thumb', 'shape', 'ref_fuente', 'ref_sub', 'ref_grado_entrada',
+  'ref_grado_salida', 'ref_revisar',
 ]
 const columnasVinculos = [
   'id', 'descartar', 'origen', 'destino', 'tipo_vinculo', 'rol',

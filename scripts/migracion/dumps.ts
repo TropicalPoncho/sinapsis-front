@@ -30,6 +30,10 @@ export interface NodoFuente {
   tieneContexto: boolean // sin contexto y sin aristas ⇒ candidato a descartar
   nodeType: string
   subtipo: string
+  // Forma 3D elegida a mano en el sitio viejo. Es curaduría visual, no un dato derivable:
+  // SOMA, Tempistica y Kutral tienen shaders que expresan algo de la obra. Se conserva.
+  // Vacío ⇒ el import cae al default por node_type.
+  shape: string
   revisar: string
 }
 
@@ -197,6 +201,7 @@ export function cargarFuentes(): Cargado {
       tieneContexto: Boolean(n.info || n.imgPath),
       nodeType,
       subtipo,
+      shape: '', // el dump `red` no guardaba forma 3D
       revisar: subtipo === 'persona' ? 'REVISAR: subtipo conjeturado por defecto' : '',
     })
   }
@@ -245,6 +250,7 @@ export function cargarFuentes(): Cargado {
       tieneContexto: Boolean(n.html || n.img),
       nodeType,
       subtipo,
+      shape: n.type ?? '',
       revisar,
     })
   }

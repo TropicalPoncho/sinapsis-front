@@ -19,9 +19,17 @@ const VIZ_POR_TIPO: Record<string, { shape: string; color: string }> = {
   AGRUPACION: { shape: 'Twist', color: '#FBBF24' },
 }
 
-// ponytail: la forma se asigna por node_type, no por subtipo. Diferenciar visualmente una banda
-// de un centro cultural es curaduría visual, y hoy no hay con qué decidirla — se resuelve por
-// nodo cuando exista la personalización de neurona (RF-03).
+// Default por node_type. Es solo el piso: si la fila del CSV trae `shape`, esa manda — la forma
+// 3D es curaduría visual y varias obras la tienen elegida a mano (Kutral es Fire, Tempistica es
+// Twist, SOMA es Lights). Perderla por asignar por tipo sería borrar una decisión de autorx.
+
+// Los tipos que el motor tiene registrados con `static type`. Validar acá evita que un nombre
+// mal escrito llegue a runtime, donde ThreeObjectManager tira "Invalid ThreeObject Class type"
+// y el nodo simplemente no se dibuja.
+const SHAPES_VALIDAS = new Set([
+  'CrossedLines', 'Fire', 'Image', 'Lights', 'Lines', 'Marble', 'Noise', 'Particles',
+  'Perlin', 'Perlin Noise', 'SimpleText', 'Text', 'Twist', 'Wave Line',
+])
 
 // Seed determinista por id (FNV-1a 32 bits, normalizada a [0,1) con tres decimales).
 // Sin fuente aleatoria: reimportar no puede reacomodar la animación de toda la red.
@@ -66,6 +74,10 @@ filasNodos.forEach((fila, i) => {
   // que produciría un error de FK mucho menos legible.
   if (fila.subtipo.trim() === '') {
     errores.push(`nodos.csv línea ${numeroFila}: subtipo vacío`)
+  }
+  const shape = fila.shape?.trim() ?? ''
+  if (shape !== '' && !SHAPES_VALIDAS.has(shape)) {
+    errores.push(`nodos.csv línea ${numeroFila}: shape "${shape}" no está registrada en el motor`)
   }
   if (fila.label.trim() === '') {
     errores.push(`nodos.csv línea ${numeroFila}: label vacío`)
@@ -129,6 +141,7 @@ const nodosParaInsertar = nodosACargar.map((f) => {
     thumb = null
   }
   const viz = VIZ_POR_TIPO[f.node_type]
+  const shape = f.shape?.trim() || viz.shape
   return {
     id: f.id,
     node_type: f.node_type,
@@ -137,7 +150,7 @@ const nodosParaInsertar = nodosACargar.map((f) => {
     descripcion_breve: f.descripcion_breve || null,
     disciplina: f.disciplina || null,
     thumb,
-    viz_params: { shape: viz.shape, color: viz.color, speed: 1, noise: 0.5, seed: seedDeId(f.id) },
+    viz_params: { shape, color: viz.color, speed: 1, noise: 0.5, seed: seedDeId(f.id) },
     is_stub: esSi(f.is_stub),
     fecha: f.fecha.trim() === '' ? null : f.fecha,
     metadata: metadataDe(f.id),
