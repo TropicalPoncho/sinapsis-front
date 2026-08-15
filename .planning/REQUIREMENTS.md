@@ -41,15 +41,15 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 
 ### Motor
 
-- [ ] **MOTR-01**: `SinapsisEngine` se monta sobre un elemento del DOM y expone `setVista(vista, { transicion })` y `on(evento, handler)` como única superficie pública
-- [ ] **MOTR-02**: El motor no importa React y React no importa THREE — un solo archivo de puente entre ambos
-- [ ] **MOTR-03**: La transición `reemplazo` cambia la red con fundido a negro y zoom, como el `goInto` actual
+- [x] **MOTR-01**: `SinapsisEngine` se monta sobre un elemento del DOM y expone `setVista(vista, { transicion })` y `on(evento, handler)` como única superficie pública
+- [x] **MOTR-02**: El motor no importa React y React no importa THREE — un solo archivo de puente entre ambos
+- [x] **MOTR-03**: La transición `reemplazo` cambia la red con fundido a negro y zoom, como el `goInto` actual
 - [ ] **MOTR-04**: La transición `filtrado` conserva las instancias y posiciones existentes y desvanece lo que queda fuera de la Vista
 - [ ] **MOTR-05**: La transición `aditivo` suma los nodos nuevos a los que ya están en pantalla
-- [ ] **MOTR-06**: Cualquier Vista se puede alcanzar con cualquiera de las tres transiciones — la transición no está atada a la consulta
+- [x] **MOTR-06**: Cualquier Vista se puede alcanzar con cualquiera de las tres transiciones — la transición no está atada a la consulta
 - [x] **MOTR-07**: Al recambiar la red se liberan geometrías, materiales y texturas de los objetos que salen de escena
 - [x] **MOTR-08**: El motor recibe el área segura del viewport de forma **continua** —no una vez por ruta, porque el scroll la modifica— y encuadra el nodo enfocado dentro de ella
-- [ ] **MOTR-09**: Las animaciones de cámara son esperables desde afuera, de modo que un cambio de ruta pueda secuenciar animación y overlay en vez de dispararlos en paralelo
+- [x] **MOTR-09**: Las animaciones de cámara son esperables desde afuera, de modo que un cambio de ruta pueda secuenciar animación y overlay en vez de dispararlos en paralelo
 - [x] **MOTR-10**: El encuadre depende de `vizParams.shape`: un nodo `Image` entra **entero** en el área segura porque la imagen es la obra y recortarla la mutila; cualquier otra forma solo necesita que su centro caiga adentro, y que se derrame fuera del viewport es deseable
 - [x] **MOTR-11**: Al enfocar un nodo, el motor elige el ángulo de cámara para que las aristas del nodo salgan hacia el lado libre del viewport y no crucen por detrás del panel de texto — el panel nunca cambia de lado
 - [ ] **MOTR-12**: El motor reporta por `on` la posición proyectada en pantalla del nodo enfocado, un punto, para anclar rótulos o conectores desde el panel
@@ -145,15 +145,15 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | DATA-08 | Phase 2 | Complete |
 | DATA-09 | Phase 2 | Complete |
 | DATA-10 | Phase 2 | Complete |
-| MOTR-01 | Phase 3 | Pending |
-| MOTR-02 | Phase 3 | Pending |
-| MOTR-03 | Phase 3 | Pending |
+| MOTR-01 | Phase 3 | Complete |
+| MOTR-02 | Phase 3 | Complete |
+| MOTR-03 | Phase 3 | Complete |
 | MOTR-04 | Phase 3 | Pending |
 | MOTR-05 | Phase 3 | Pending |
-| MOTR-06 | Phase 3 | Pending |
+| MOTR-06 | Phase 3 | Complete |
 | MOTR-07 | Phase 3 | Complete |
 | MOTR-08 | Phase 3 | Complete |
-| MOTR-09 | Phase 3 | Pending |
+| MOTR-09 | Phase 3 | Complete |
 | MOTR-10 | Phase 3 | Complete |
 | MOTR-11 | Phase 3 | Complete |
 | MOTR-12 | Phase 3 | Pending |
