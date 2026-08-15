@@ -17,10 +17,27 @@ export default function CanvasSinapsis() {
     // Import dinámico para que el módulo del motor nunca se evalúe en el servidor (SSR).
     (async () => {
       const { SinapsisEngine } = await import('../engine/SinapsisEngine.js');
-      const { subgrafoDemo } = await import('../engine/fixtures/subgrafoDemo.js');
+      const { subgrafoDemo, subgrafoDemoFiltrado } = await import('../engine/fixtures/subgrafoDemo.js');
       if (!vivo || !ref.current) return;
       engine = new SinapsisEngine(ref.current);
       await engine.setVista(subgrafoDemo, { transicion: 'reemplazo' });
+
+      // ponytail: secuencia de verificación manual de las tres transiciones (Plan 04, Task 2),
+      // detrás de ?demo=transiciones para que no corra en cada carga. Se retira cuando el
+      // Plan 06 tenga su propia checklist visual.
+      if (vivo && new URLSearchParams(window.location.search).get('demo') === 'transiciones') {
+        const antes = new Map(
+          engine.graph.graphData().nodes.map((n: { id: string; x: number; y: number; z: number }) => [n.id, { x: n.x, y: n.y, z: n.z }])
+        );
+        await engine.setVista(subgrafoDemoFiltrado, { transicion: 'filtrado' });
+        const despues = engine.graph.graphData().nodes as { id: string; x: number; y: number; z: number }[];
+        console.table(
+          despues
+            .filter(n => antes.has(n.id))
+            .map(n => ({ id: n.id, ...antes.get(n.id), xDespues: n.x, yDespues: n.y, zDespues: n.z }))
+        );
+        await engine.setVista(subgrafoDemo, { transicion: 'aditivo' });
+      }
     })();
 
     return () => {

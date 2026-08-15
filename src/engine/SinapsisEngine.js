@@ -9,6 +9,7 @@ import { CameraController } from './graph/cameraController.js';
 import { AnimationManager } from './graph/animationManager.js';
 import { GLOBAL_DEFAULT_SETTINGS, ANIMATION_SETTINGS } from './graph/constants.js';
 import { adaptarSubgrafo } from './adaptador.js';
+import { clasificarCambio, pinear, fusionar, desvanecerYQuitar } from './graph/transiciones.js';
 
 export class SinapsisEngine {
     constructor(elemento, opciones = {}) {
@@ -87,12 +88,38 @@ export class SinapsisEngine {
         this._nodoEnfocado = nodoEnfocado ?? this._nodoEnfocado;
 
         switch (transicion) {
-            case 'filtrado':
-            case 'aditivo':
-            // TODO Plan 04: filtrado conserva instancias/posiciones (fx/fy/fz pinning),
-            // aditivo suma sin tocar lo existente. Hasta entonces caen en 'reemplazo' para
-            // que MOTR-06 (cualquier Vista con cualquier transición) no quede bloqueado
-            // por un throw.
+            case 'filtrado': {
+                // Conserva instancias/posiciones de lo que sigue en la Vista, desvanece y
+                // libera lo que sale. La transición sale sólo de `transicion`: no se mira
+                // el Subgrafo (raíz, profundidad) para decidir la rama (MOTR-06).
+                const actuales = this.graph.graphData().nodes;
+                const datos = adaptarSubgrafo(subgrafo);
+                const { quedan, salen, entran } = clasificarCambio(actuales, datos.nodes);
+                pinear(quedan); // sobreviven al reheat de graphData()
+                await desvanecerYQuitar(this.threeObjectManager, salen.map(n => n.id), ANIMATION_SETTINGS.FADE_DURATION);
+                this.graph.graphData({ nodes: fusionar(quedan, entran), links: datos.links });
+                this.threeObjectManager.disposeUnusedObjects(datos.nodes.map(n => n.id)); // MOTR-07
+                // ponytail: los nodos filtrados quedan pineados (no se llama soltarPin); si una
+                // Vista futura los necesita libres para volver a responder a fuerzas, ahí se
+                // llama `soltarPin` en `onEngineStop`.
+                this._emitir('vistaLista', { transicion, nodos: datos.nodes, entran, salen });
+                break;
+            }
+            case 'aditivo': {
+                // Suma nodos nuevos sin tocar lo existente: nada sale de escena, no hay dispose.
+                const actuales = this.graph.graphData().nodes;
+                const datos = adaptarSubgrafo(subgrafo);
+                const { entran } = clasificarCambio(actuales, datos.nodes);
+                pinear(actuales); // el esqueleto existente no se mueve
+                const linksPorId = new Map();
+                for (const l of this.graph.graphData().links) linksPorId.set(l.id, l);
+                for (const l of datos.links) linksPorId.set(l.id, l);
+                this.graph.graphData({ nodes: [...actuales, ...entran], links: [...linksPorId.values()] });
+                // Sin animación de entrada propia en esta fase: la promesa resuelve apenas
+                // graphData() termina de aplicarse — no hay fundido para 'aditivo' (CONTEXT.md).
+                this._emitir('vistaLista', { transicion, nodos: datos.nodes, entran, salen: [] });
+                break;
+            }
             case 'reemplazo':
             default: {
                 await this.animationManager.fadeOutCanvasToBlack(this._nodoEnfocado ?? null, ANIMATION_SETTINGS.FADE_DURATION);
