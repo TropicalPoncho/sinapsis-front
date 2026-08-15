@@ -65,13 +65,32 @@ export class SinapsisEngine {
         this._tick();
     }
 
+    // MOTR-08: el área segura se LEE cuadro a cuadro (pull) en vez de esperar que la UI la
+    // empuje — con el scroll cambiando el rect a cada frame, pull es más barato que 60 llamadas
+    // por segundo, y la superficie pública sigue siendo sólo `setVista`/`on`.
     _tick = () => {
+        const area = this.opciones.getAreaSegura?.() ?? this._areaSegura;
+        if (area) this.cameraController.applySafeArea(area, window.innerWidth, window.innerHeight);
         // No se dispara un segundo pintado del frame acá: 3d-force-graph ya corre su propio
         // loop (incluido tweenGroup.update()) y hacerlo de nuevo duplicaría los draw calls
         // que PERF-01 va a medir — ése era el bug de doble render de mundo.js.
         this.animationManager.animate(); // uniforms de shaders + links
+        this._emitirFocoSiSeMovio();
         this._raf = requestAnimationFrame(this._tick);
     };
+
+    // MOTR-12: un punto, no una región ni un lado — lo único que la UI necesita del nodo enfocado.
+    _emitirFocoSiSeMovio() {
+        const n = this._nodoEnfocado;
+        if (!n) return;
+        const p = this.graph.graph2ScreenCoords(n.x, n.y, n.z); // ya contempla el offset activo
+        // ponytail: se emite cuando el punto se movió más de 1px, que durante una animación de
+        // cámara son ~60 eventos/s. Si un consumidor re-renderiza de más, acá va un throttle.
+        if (!this._ultimoFoco || Math.abs(p.x - this._ultimoFoco.x) > 1 || Math.abs(p.y - this._ultimoFoco.y) > 1) {
+            this._ultimoFoco = p;
+            this._emitir('nodeFocus', { nodeId: n.id, screen: p });
+        }
+    }
 
     on(evento, handler) {
         (this._handlers[evento] ??= new Set()).add(handler);
@@ -85,7 +104,6 @@ export class SinapsisEngine {
     async setVista(subgrafo, { transicion = 'reemplazo', areaSegura, nodoEnfocado } = {}) {
         this._subgrafo = subgrafo;
         this._areaSegura = areaSegura ?? this._areaSegura;
-        this._nodoEnfocado = nodoEnfocado ?? this._nodoEnfocado;
 
         switch (transicion) {
             case 'filtrado': {
@@ -134,6 +152,20 @@ export class SinapsisEngine {
                 // fadeOutCanvasToBlack/fadeInCanvasFromBlack por debajo es exacto, no una
                 // aproximación — el tween de @tweenjs/tween.js termina justo en `ms`.
                 break;
+            }
+        }
+
+        // MOTR-09/12: el encuadre corre después de la transición, nunca en paralelo — la
+        // promesa de setVista resuelve recién cuando la cámara llegó. `nodoEnfocado` es un id;
+        // si no está en el Subgrafo recién aplicado, no enfoca y no emite — sin throw.
+        if (nodoEnfocado) {
+            const nodo = this.graph.graphData().nodes.find(n => n.id === nodoEnfocado);
+            const area = this.opciones.getAreaSegura?.() ?? this._areaSegura;
+            if (nodo && area) {
+                await this.cameraController.enfocarNodo(nodo, this.graph.graphData().nodes, area);
+                this._nodoEnfocado = nodo;
+                this._ultimoFoco = null; // fuerza la emisión de nodeFocus en el próximo frame
+                this._emitirFocoSiSeMovio();
             }
         }
     }
