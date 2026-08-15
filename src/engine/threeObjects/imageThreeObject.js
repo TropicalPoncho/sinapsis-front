@@ -17,7 +17,9 @@ export class ImageThreeObject extends ThreeObject  {
             return [size * factor, size * factor];
         };
 
-        const imgTexture = new THREE.TextureLoader().load(`images/${node.img}`, () => {
+        // node.img llega ya resuelto desde adaptador.js a partir de `thumb` (clave relativa
+        // bajo public/, p.ej. "obras/nudo.png"), no bajo una carpeta "images/".
+        const imgTexture = new THREE.TextureLoader().load(node.img, () => {
             imgTexture.colorSpace = THREE.SRGBColorSpace;
             const material = new THREE.SpriteMaterial({map: imgTexture, transparent: true, side: THREE.DoubleSide, alphaTest: 0.5 });
             const sprite = new THREE.Sprite(material);
