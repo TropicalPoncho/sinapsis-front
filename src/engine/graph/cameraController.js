@@ -1,5 +1,10 @@
 import { GLOBAL_DEFAULT_SETTINGS, ANIMATION_SETTINGS, CAMERA_SETTINGS } from './constants.js';
-import { getSide } from './utils.js';
+import {
+    offsetDeAreaSegura,
+    distanciaParaEncuadrar,
+    elegirLadoOrbit,
+    posicionCamaraParaFoco,
+} from './encuadre.js';
 
 /**
  * Controlador de cámara para el grafo 3D
@@ -55,56 +60,52 @@ export class CameraController {
     }
 
     /**
-     * Posiciona la cámara para apuntar a un nodo específico
-     * @param {Object} node - Nodo al que apuntar
-     * @returns {string} Lado desde donde se apunta ("izq" o "der")
+     * MOTR-08: traslada el frustum para que el área libre del viewport (la que no tapa el
+     * panel) quede centrada en `areaSegura`, sin rotar la cámara ni cambiar la distancia.
+     * Se re-aplica cuadro a cuadro con el tamaño actual del canvas — `setViewOffset` reescribe
+     * `camera.aspect` con `viewportW/viewportH`, así que un offset guardado con un tamaño viejo
+     * queda obsoleto apenas cambia la ventana.
      */
-    aimAtNode(node, animationDuration = ANIMATION_SETTINGS.CAMERA_TRANSITION_DURATION, distance = GLOBAL_DEFAULT_SETTINGS.aimDistance) {
-        const offsetX = GLOBAL_DEFAULT_SETTINGS.aimOffsetX;
-        const offsetY = GLOBAL_DEFAULT_SETTINGS.aimOffsetY;
+    applySafeArea(areaSegura, viewportW, viewportH) {
+        if (!areaSegura || !this.camera) return;
+        const o = offsetDeAreaSegura(areaSegura, viewportW, viewportH);
+        this.camera.setViewOffset(viewportW, viewportH, o.x, o.y, viewportW, viewportH);
+    }
 
-        let lookAt = { x: node.x, y: node.y, z: node.z };
-        let newPos;
-        let returnSide;
-        const center = (window.innerWidth < 800);
+    /** Saca el offset de frustum activo (vuelta a proyección centrada). */
+    clearSafeArea() {
+        this.camera?.clearViewOffset();
+    }
 
-        if(center){
-            newPos = { 
-                x: node.x, 
-                y: node.y + offsetY, 
-                z: node.z + distance 
-            };
-            lookAt.y = node.y - offsetY;
-            returnSide = "center";
-        } else if (node.x < 0) {
-            // Cámara a la izquierda
-            newPos = { 
-                x: node.x - offsetX, 
-                y: node.y, 
-                z: node.z + distance 
-            };
-            // Ajusta la posición del nodo para que esté en el centro
-            lookAt.x = node.x - offsetX;
-            returnSide = "izq";
-        } else {
-            // Cámara a la derecha
-            newPos = { 
-                x: node.x + offsetX, 
-                y: node.y, 
-                z: node.z + distance 
-            };
-            // Ajusta la posición del nodo para que esté en el centro
-            lookAt.x = node.x + offsetX;
-            returnSide = "der";
-        }
-
-        this.graph.cameraPosition(
-            newPos, // nueva posición de la cámara
-            lookAt, // hacia dónde mira
-            animationDuration // duración de la transición
-        );
-
-        return returnSide;
+    /**
+     * Encuadra un nodo: distancia por `shape` (MOTR-10, un `Image` entra entero) y ángulo de
+     * órbita elegido por el centroide del grafo para que el panel nunca tape aristas (MOTR-11).
+     * El `lookAt` es el nodo exacto — el descentrado hacia el área libre lo hace
+     * `applySafeArea`, no un corrimiento del punto de mira como hacía el encuadre viejo.
+     * ponytail: dos candidatos espejo en X elegidos por el centroide; si un nodo muy conectado
+     * sigue tirando aristas sobre el panel, proyectar cada vecino y elegir el mejor de N ángulos
+     * entra acá (ver 03-CONTEXT.md).
+     * @returns {Promise<void>} resuelve cuando el tween de la cámara termina.
+     */
+    enfocarNodo(nodo, nodos, areaSegura, duracion = ANIMATION_SETTINGS.CAMERA_TRANSITION_DURATION) {
+        const W = window.innerWidth, H = window.innerHeight;
+        const azimut = Math.atan2(GLOBAL_DEFAULT_SETTINGS.aimOffsetX, GLOBAL_DEFAULT_SETTINGS.aimDistance);
+        const rectW = W - areaSegura.left - areaSegura.right;
+        const rectH = H - areaSegura.top - areaSegura.bottom;
+        // El encuadre lo decide `shape` (dato curado), nunca `nodeType`. `esImagen` ya lo derivó
+        // el adaptador. Radio del sprite tomado de constants, no medido del mesh: la textura
+        // carga async y `Box3.setFromObject` sale vacío contra ella.
+        const distancia = nodo.esImagen
+            ? distanciaParaEncuadrar(GLOBAL_DEFAULT_SETTINGS.nodeSize * 2.1 / 2, rectW, rectH, H, this.camera.fov)
+            // hypot(50, 90) con este azimut reproduce la posición calibrada (±50, 0, 90) del
+            // encuadre viejo — las constantes no se tocaron a ciegas.
+            : Math.hypot(GLOBAL_DEFAULT_SETTINGS.aimOffsetX, GLOBAL_DEFAULT_SETTINGS.aimDistance);
+        const signo = elegirLadoOrbit(nodo, nodos, areaSegura, W, H, distancia, azimut);
+        const { pos, lookAt } = posicionCamaraParaFoco(nodo, signo, distancia, azimut);
+        this.graph.cameraPosition(pos, lookAt, duracion);
+        // cameraPosition no expone onComplete (verificado contra el source instalado): el tween
+        // de @tweenjs/tween.js termina exactamente en `duracion`, no es una aproximación.
+        return new Promise(r => setTimeout(r, duracion));
     }
 
     /**
@@ -122,17 +123,6 @@ export class CameraController {
             { x: 0, y: extra, z: 0 },
             animationDuration
         );
-    }
-
-    /**
-     * Determina el lado de un objeto respecto a la cámara
-     * @param {Object} camPosition - Posición de la cámara
-     * @param {Object} camDirection - Dirección de la cámara
-     * @param {Object} objPosition - Posición del objeto
-     * @returns {string} "izq" o "der"
-     */
-    getSide(camPosition, camDirection, objPosition) {
-        return getSide(camPosition, camDirection, objPosition);
     }
 
     /**
