@@ -81,7 +81,15 @@ Plans:
   5. On focus, the engine picks the camera angle so the node's edges radiate away from the occluded side, and reports the node's projected screen point through `on`. The panel never switches sides — this replaces today's `aimAtNode` returning `izq`/`der`.
   6. Camera animations are awaitable from outside, so a caller can sequence animation and overlay instead of firing both at once.
   6. A documented number states how many nodes the engine sustains at 30fps on a mid-range device — measured both with a bare canvas and with an overlay covering most of the screen, which is the common case — along with draw calls per node.
-**Plans**: TBD
+**Plans**: 6 plans in 5 waves
+
+Plans:
+- [ ] 03-01-PLAN.md — Geometria pura del encuadre y del angulo de orbita, testeada headless (wave 1)
+- [ ] 03-02-PLAN.md — Adaptador Subgrafo -> force-graph, fixtures, y liberacion sin romper el geometryCache (wave 1)
+- [ ] 03-03-PLAN.md — SinapsisEngine: montaje, `on`, `reemplazo`, la promesa, y el archivo puente (wave 2)
+- [ ] 03-04-PLAN.md — Transiciones `filtrado` y `aditivo` con pinning fx/fy/fz (wave 3)
+- [ ] 03-05-PLAN.md — Area segura continua, encuadre por `shape`, orbita por centroide y `nodeFocus` (wave 4)
+- [ ] 03-06-PLAN.md — Medicion PERF-01 en los dos escenarios y checklist visual de la fase (wave 5)
 
 ### Phase 4: UI & Navigation
 **Goal**: Visitors can explore the network in the browser end to end, over one continuous 3D space — the canvas is the persistent background, routes are overlays on top of it, and every navigation is choreographed with a camera move.
@@ -117,6 +125,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 (2 and 3 can run in p
 |-------|----------------|--------|-----------|
 | 1. Repo Cleanup | 4/4 | Complete | 2026-08-06 |
 | 2. Data & Vista Backend | 0/? | Not started | - |
-| 3. 3D Engine | 0/? | Not started | - |
+| 3. 3D Engine | 0/6 | Not started | - |
 | 4. UI & Navigation | 0/? | Not started | - |
 | 5. Tropical Poncho Launch | 0/? | Not started | - |
