@@ -27,16 +27,36 @@ export default function CanvasSinapsis() {
       const { SinapsisEngine } = await import('../engine/SinapsisEngine.js');
       const { subgrafoDemo, subgrafoDemoFiltrado } = await import('../engine/fixtures/subgrafoDemo.js');
       if (!vivo || !ref.current) return;
+
+      const params = new URLSearchParams(window.location.search);
+
+      // Rig de medición de PERF-01, detrás de query params — no es UI, es el aparato de
+      // medición. El panel real con su degradado (?overlay=1 acá) es UI-09 en la Fase 4.
+      if (params.get('overlay') === '1') {
+        const tapa = document.createElement('div');
+        tapa.style.cssText = 'position:fixed;inset:0 38% 0 0;background:#000;z-index:1';
+        document.body.appendChild(tapa);
+      }
+
       engine = new SinapsisEngine(ref.current, { getAreaSegura });
       // MOTR-12: log del punto proyectado — verificación manual (c) del Plan 05, no UI real.
       engine.on('nodeFocus', (f: { nodeId: string; screen: { x: number; y: number } }) => console.log('nodeFocus', f));
-      const foco = new URLSearchParams(window.location.search).get('foco') ?? undefined;
-      await engine.setVista(subgrafoDemo, { transicion: 'reemplazo', nodoEnfocado: foco });
+
+      if (params.get('perf') === '1') {
+        setInterval(() => console.log('perf', engine._perf()), 2000);
+      }
+
+      const nodosParam = params.get('nodos');
+      const vista = nodosParam
+        ? (await import('../engine/fixtures/subgrafoSintetico.js')).subgrafoSintetico(Number(nodosParam))
+        : subgrafoDemo;
+      const foco = params.get('foco') ?? undefined;
+      await engine.setVista(vista, { transicion: 'reemplazo', nodoEnfocado: foco });
 
       // ponytail: secuencia de verificación manual de las tres transiciones (Plan 04, Task 2),
       // detrás de ?demo=transiciones para que no corra en cada carga. Se retira cuando el
       // Plan 06 tenga su propia checklist visual.
-      if (vivo && new URLSearchParams(window.location.search).get('demo') === 'transiciones') {
+      if (vivo && params.get('demo') === 'transiciones') {
         const antes = new Map(
           engine.graph.graphData().nodes.map((n: { id: string; x: number; y: number; z: number }) => [n.id, { x: n.x, y: n.y, z: n.z }])
         );

@@ -18,6 +18,9 @@ export class SinapsisEngine {
         this._subgrafo = null;
         this._areaSegura = undefined;
         this._nodoEnfocado = null;
+        this._fps = 0;
+        this._fpsFrames = 0;
+        this._fpsVentanaInicio = performance.now();
 
         this.graph = ForceGraph3D({ controlType: 'orbit' })(elemento)
             .nodeLabel('name')
@@ -76,8 +79,38 @@ export class SinapsisEngine {
         // que PERF-01 va a medir — ése era el bug de doble render de mundo.js.
         this.animationManager.animate(); // uniforms de shaders + links
         this._emitirFocoSiSeMovio();
+        this._actualizarFps();
         this._raf = requestAnimationFrame(this._tick);
     };
+
+    // PERF-01: promedio móvil de ~1s, no un delta crudo por frame (demasiado ruidoso para leer).
+    _actualizarFps() {
+        this._fpsFrames++;
+        const ahora = performance.now();
+        const transcurrido = ahora - this._fpsVentanaInicio;
+        if (transcurrido >= 1000) {
+            this._fps = Math.round((this._fpsFrames * 1000) / transcurrido);
+            this._fpsFrames = 0;
+            this._fpsVentanaInicio = ahora;
+        }
+    }
+
+    // ponytail: método de debug, no parte de la superficie pública (que sigue siendo
+    // setVista/on/destruir). Existe para PERF-01 y para el día que haya que volver a medir.
+    // Barato: lee contadores que three ya mantiene.
+    _perf() {
+        const info = this.renderer.info;
+        const nodos = this.graph.graphData().nodes.length;
+        return {
+            fps: this._fps,
+            nodos,
+            drawCalls: info.render.calls,
+            drawCallsPorNodo: nodos ? info.render.calls / nodos : 0,
+            triangulos: info.render.triangles,
+            geometrias: info.memory.geometries,
+            texturas: info.memory.textures,
+        };
+    }
 
     // MOTR-12: un punto, no una región ni un lado — lo único que la UI necesita del nodo enfocado.
     _emitirFocoSiSeMovio() {
