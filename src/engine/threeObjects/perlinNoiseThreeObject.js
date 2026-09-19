@@ -10,7 +10,7 @@ export class PerlinNoiseThreeObject extends ThreeObject {
         super(node);
         
         this.uniforms = {
-            iResolution: { value: new THREE.Vector4() },
+            iResolution: { value: new THREE.Vector2(innerWidth, innerHeight) },
             iTime: { value: 0 },
         };
 
@@ -53,7 +53,8 @@ export class PerlinNoiseThreeObject extends ThreeObject {
             ` + match);
 
             shader.fragmentShader = shader.fragmentShader.replace(/vec4 diffuseColor.*;/, `
-                vec4 uv = (gl_FragCoord - 0.5 * iResolution.xy) / iResolution.y;
+                // ponytail: antes vec4 (gl_FragCoord - vec2, no compila) e iResolution sin asignar.
+                vec2 uv = (gl_FragCoord.xy - 0.5 * iResolution.xy) / iResolution.y;
 
                 // Time varying pixel color
                 //vec3 col = 0.5 + 0.5*cos(iTime+uv.xyx+vec3(0,2,4));
@@ -95,7 +96,8 @@ export class PerlinNoiseThreeObject extends ThreeObject {
     }
 
     animate(){
-        this.uniforms.iTime += 1;
+        // ponytail: era `iTime += 1` sobre el objeto {value}, que lo volvía un string y congelaba el shader
+        this.uniforms.iTime.value += 0.02;
     }
 
 }
