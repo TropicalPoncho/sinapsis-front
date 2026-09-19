@@ -125,28 +125,25 @@ export class PerlinThreeObject extends ThreeObject{
     }
 }
 
+// ponytail: CubeTexture síncrona con un canvas por cara. La versión anterior usaba
+// CubeTextureLoader con data URLs (carga asíncrona): el material podía renderizar antes de que
+// las 6 caras estuvieran cargadas y three subía texturas de 0x0 (warnings de WebGL
+// "texSubImage2D: no canvas" / "glTexStorage2D: dimensions not positive", checklist 03-06 #16).
 function createCubeMap(){
-    let images = [];
-
-    let c = document.createElement("canvas");
-    c.width = 4;
-    c.height = c.width;
-    let ctx = c.getContext("2d");
+    const caras = [];
     for (let i = 0; i < 6; i++) {
+      const c = document.createElement("canvas");
+      c.width = c.height = 4;
+      const ctx = c.getContext("2d");
       ctx.fillStyle = "#fff";
       ctx.fillRect(0, 0, c.width, c.height);
-
       for (let j = 0; j < (c.width * c.height) / 2; j++) {
         ctx.fillStyle = Math.random() < 0.5 ? "#a8a9ad" : "#646464";
-        ctx.fillRect(
-          Math.floor(Math.random() * c.width),
-          Math.floor(Math.random() * c.height),
-          2,
-          1
-        );
+        ctx.fillRect(Math.floor(Math.random() * c.width), Math.floor(Math.random() * c.height), 2, 1);
       }
-
-      images.push(c.toDataURL());
+      caras.push(c);
     }
-    return new THREE.CubeTextureLoader().load(images);
+    const cubo = new THREE.CubeTexture(caras);
+    cubo.needsUpdate = true;
+    return cubo;
 }

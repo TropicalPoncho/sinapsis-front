@@ -8,13 +8,14 @@ import { ThreeObjectManager } from '../threeObjects/ThreeObjectManager.js';
 // faltar de la medición (RESEARCH.md, "PERF-01 measurement").
 const THUMBS_IMAGEN = ['obras/nudo.png', 'obras/espora.png', 'obras/wip.png'];
 
-export function subgrafoSintetico(n, { proporcionImagen = 0.2, topologia = 'cadena', enlacesPorNodo = 1.5 } = {}) {
+export function subgrafoSintetico(n, { proporcionImagen = 0.2, topologia = 'cadena', enlacesPorNodo = 1.5, forma = '' } = {}) {
     const formas = Object.keys(ThreeObjectManager.getTypes()).filter((t) => t !== 'SinLink' && t !== 'Image');
-    const nImagenes = Math.round(n * proporcionImagen);
+    // `forma` fuerza una sola forma en todos los nodos (aislar un ThreeObject al medir/depurar).
+    const nImagenes = forma ? (forma === 'Image' ? n : 0) : Math.round(n * proporcionImagen);
 
     const nodos = Array.from({ length: n }, (_, i) => {
         const esImagen = i < nImagenes;
-        const shape = esImagen ? 'Image' : formas[i % formas.length];
+        const shape = esImagen ? 'Image' : (forma || formas[i % formas.length]);
         const nodo = {
             id: `sint-${i}`,
             nodeType: 'OBRA',

@@ -68,6 +68,7 @@ export default function CanvasSinapsis() {
         ? (await import('../engine/fixtures/subgrafoSintetico.js')).subgrafoSintetico(Number(nodosParam), {
             topologia: params.get('topologia') === 'hubs' ? 'hubs' : 'cadena',
             enlacesPorNodo: Number(params.get('enlaces') ?? 1.5),
+            forma: params.get('forma') ?? '',
           })
         : subgrafoDemo;
       const foco = params.get('foco') ?? undefined;

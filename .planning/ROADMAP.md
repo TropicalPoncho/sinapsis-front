@@ -89,7 +89,7 @@ Plans:
 - [x] 03-03-PLAN.md — SinapsisEngine: montaje, `on`, `reemplazo`, la promesa, y el archivo puente (wave 2)
 - [x] 03-04-PLAN.md — Transiciones `filtrado` y `aditivo` con pinning fx/fy/fz (wave 3)
 - [x] 03-05-PLAN.md — Area segura continua, encuadre por `shape`, orbita por centroide y `nodeFocus` (wave 4)
-- [ ] 03-06-PLAN.md — Medicion PERF-01 en los dos escenarios y checklist visual de la fase (wave 5)
+- [x] 03-06-PLAN.md — Medicion PERF-01 en los dos escenarios y checklist visual de la fase (wave 5)
 
 ### Phase 4: UI & Navigation
 **Goal**: Visitors can explore the network in the browser end to end, over one continuous 3D space — the canvas is the persistent background, routes are overlays on top of it, and every navigation is choreographed with a camera move.
@@ -125,6 +125,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 (2 and 3 can run in p
 |-------|----------------|--------|-----------|
 | 1. Repo Cleanup | 4/4 | Complete | 2026-08-06 |
 | 2. Data & Vista Backend | 0/? | Not started | - |
-| 3. 3D Engine | 0/6 | Not started | - |
+| 3. 3D Engine | 6/6 | In verification | - |
 | 4. UI & Navigation | 0/? | Not started | - |
 | 5. Tropical Poncho Launch | 0/? | Not started | - |
