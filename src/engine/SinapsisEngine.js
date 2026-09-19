@@ -10,7 +10,6 @@ import './threeObjects/registerTypes.js';        // efecto: registra los 15 tipo
 import { CameraController } from './graph/cameraController.js';
 import { AnimationManager } from './graph/animationManager.js';
 import { GLOBAL_DEFAULT_SETTINGS, ANIMATION_SETTINGS } from './graph/constants.js';
-import { escribirOnda } from './graph/ondaLink.js';
 import { adaptarSubgrafo } from './adaptador.js';
 import { clasificarCambio, pinear, fusionar, desvanecerYQuitar } from './graph/transiciones.js';
 
@@ -28,6 +27,9 @@ export class SinapsisEngine {
         this.graph = ForceGraph3D({ controlType: 'orbit' })(elemento)
             .nodeLabel('name')
             .numDimensions(3)
+            // Pre-simula la física antes del primer frame: el grafo nace ya asentado y encuadrable.
+            // ponytail: bloquea el hilo ~N ticks; con redes grandes (PERF-01) bajar o mover a worker.
+            .warmupTicks(150)
             .enableNodeDrag(true)
             .cameraPosition({ z: GLOBAL_DEFAULT_SETTINGS.cameraDistance });
 
@@ -78,12 +80,17 @@ export class SinapsisEngine {
 
         this.graph
             .nodeThreeObject(node => this.threeObjectManager.createObject(node))
-            .linkColor(() => '#ff44ff')
-            .linkOpacity(0.8)
-            // La onda se escribe sobre la línea default de la librería (probada correcta);
-            // reemplazar el mesh con linkThreeObject dejaba los links mal conectados.
+            .linkThreeObject(link => {
+                link.type = 'SinLink';
+                const objetoLink = this.threeObjectManager.createObject(link);
+                if (!objetoLink) return null; // createObject ya logueó el error del constructor
+                link._threeObj = objetoLink;
+                return objetoLink.mesh;
+            })
+            // El retorno `true` le dice a la librería que la geometría ya está actualizada
+            // (falsy => pisa el mesh con su línea recta de 2 puntos).
             .linkPositionUpdate((line, { start, end }, link) => {
-                escribirOnda(line, start, end, link.onda);
+                link._threeObj?.setPosition(start, end);
                 return true;
             })
             .onNodeHover(n => {

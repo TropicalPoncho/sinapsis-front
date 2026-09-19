@@ -95,12 +95,11 @@ export class AnimationManager {
             );
             extraDuration = 0.5
         } else {
-            // Efecto Zoom IN (entrar/explosión): Empezar lejos y acercarse
-            this.graph.cameraPosition(
-                { x: 1800, y: 1800, z: 1500 }, 
-                { x: 0, y: 0, z: 0 }
-            );
-            this.graph.zoomToFit(duration, 10);
+            // El grafo ya viene asentado (warmupTicks): se encuadra instantáneo MIENTRAS el
+            // overlay sigue negro, así aparece directo en zoom-to-fit, sin salto visible.
+            // El timeout deja que la librería procese graphData() antes de medir el bbox.
+            await new Promise(r => setTimeout(r, 50));
+            this.graph.zoomToFit(0, 10);
         }
 
         const fadeDuration = duration * extraDuration;
