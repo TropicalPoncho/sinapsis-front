@@ -59,6 +59,8 @@ export default function CanvasSinapsis() {
         }
       });
 
+      // Depuración desde la consola / herramientas: el motor queda accesible sólo con ?perf=1.
+      if (params.get('perf') === '1') (window as unknown as { __sinapsis: unknown }).__sinapsis = engine;
       if (params.get('perf') === '1') {
         setInterval(() => console.log('perf', engine._perf()), 2000);
       }

@@ -97,8 +97,20 @@ export class AnimationManager {
         } else {
             // El grafo ya viene asentado (warmupTicks): se encuadra instantáneo MIENTRAS el
             // overlay sigue negro, así aparece directo en zoom-to-fit, sin salto visible.
-            // El timeout deja que la librería procese graphData() antes de medir el bbox.
-            await new Promise(r => setTimeout(r, 50));
+            // getGraphBbox mide con matrixWorld: hasta que la librería procesa graphData() (crea
+            // los objetos de los nodos, diferido) y renderiza, todo está en el origen y el bbox
+            // sale diminuto — la cámara quedaba pegada a un solo nodo (UAT 03, test 1). Se espera
+            // a que TODOS los nodos tengan objeto y posición, más 2 frames, con tope de 30 s.
+            const listos = () => {
+                const nodos = this.graph.graphData().nodes;
+                return nodos.length > 0 && nodos.every(n => n.__threeObj && Number.isFinite(n.x));
+            };
+            const inicio = performance.now();
+            while (!listos() && performance.now() - inicio < 30000) await new Promise(r => setTimeout(r, 50));
+            const frame = () => new Promise(r => { requestAnimationFrame(() => r()); setTimeout(r, 300); });
+            await frame();
+            await frame();
+            this.graph.scene().updateMatrixWorld(true);
             this.graph.zoomToFit(0, 10);
         }
 
