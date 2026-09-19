@@ -67,5 +67,6 @@ export class LinesThreeObject extends ThreeObject {
         });
 
         this.mesh.add(new THREE.Line( geometry, shaderMaterial ));
+        this.agregarHitbox();
     }
 }

@@ -96,6 +96,7 @@ export class ParticlesThreeObject extends ThreeObject {
         group.add( this._linesMesh );
 
         this.mesh = group;
+        this.agregarHitbox(this.rHalf); // la nube de puntos es casi imposible de agarrar con el mouse
     }
 
     get particlesData() {

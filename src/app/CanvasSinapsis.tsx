@@ -73,22 +73,41 @@ export default function CanvasSinapsis() {
       const foco = params.get('foco') ?? undefined;
       await engine.setVista(vista, { transicion: 'reemplazo', nodoEnfocado: foco });
 
+      // Checklist punto 10 (MOTR-07): con ?nodos=800&demo=liberacion, reemplaza la red grande por
+      // la demo de 12 nodos y loguea geometrías/texturas antes y después. Aparato de medición.
+      if (vivo && params.get('demo') === 'liberacion') {
+        const antes = engine._perf();
+        await engine.setVista(subgrafoDemo, { transicion: 'reemplazo' });
+        setTimeout(() => console.table({ antes, despues: engine._perf() }), 1000);
+      }
+
       // ponytail: secuencia de verificación manual de las tres transiciones (Plan 04, Task 2),
       // detrás de ?demo=transiciones para que no corra en cada carga. Se retira cuando el
       // Plan 06 tenga su propia checklist visual.
       if (vivo && params.get('demo') === 'transiciones') {
-        const antes = new Map(
-          engine.graph.graphData().nodes.map((n: { id: string; x: number; y: number; z: number }) => [n.id, { x: n.x, y: n.y, z: n.z }])
-        );
+        type P = { id: string; x: number; y: number; z: number };
+        const pausa = () => new Promise(r => setTimeout(r, 3000)); // para poder mirar cada paso
+        const snapshot = () => new Map((engine.graph.graphData().nodes as P[]).map(n => [n.id, { x: n.x, y: n.y, z: n.z }]));
+        // Cuántos nodos que ya estaban se movieron: el veredicto de filtrado/aditivo (0 = OK).
+        const movidos = (antes: Map<string, { x: number; y: number; z: number }>) =>
+          (engine.graph.graphData().nodes as P[]).filter(n => {
+            const a = antes.get(n.id);
+            return a && (Math.abs(a.x - n.x) > 0.01 || Math.abs(a.y - n.y) > 0.01 || Math.abs(a.z - n.z) > 0.01);
+          }).length;
+
+        await pausa();
+        const antesFiltrado = snapshot();
         await engine.setVista(subgrafoDemoFiltrado, { transicion: 'filtrado' });
-        const despues = engine.graph.graphData().nodes as { id: string; x: number; y: number; z: number }[];
-        console.table(
-          despues
-            .filter(n => antes.has(n.id))
-            .map(n => ({ id: n.id, ...antes.get(n.id)!, xDespues: n.x, yDespues: n.y, zDespues: n.z }))
-        );
+        console.log(`FILTRADO: ${movidos(antesFiltrado)} nodos que seguían se movieron (esperado: 0)`);
+        await pausa();
+        const antesAditivo = snapshot();
         await engine.setVista(subgrafoDemo, { transicion: 'aditivo' });
+        console.log(`ADITIVO: ${movidos(antesAditivo)} nodos que ya estaban se movieron (esperado: 0)`);
       }
+
+      // Click = foco (hasta que la Fase 4 lo cambie por navegación de ruta): el motor sólo emite
+      // nodeClick; el puente decide qué hacer y le pide el foco vía setVista.
+      engine.on('nodeClick', (n: { id: string }) => engine.setVista(vista, { transicion: 'aditivo', nodoEnfocado: n.id }));
     })();
 
     return () => {

@@ -55,12 +55,7 @@ export function desvanecerYQuitar(threeObjectManager, ids, duracion) {
         .map(id => threeObjectManager._objectInstances[id]?.mesh)
         .filter(Boolean);
 
-    if (meshes.length === 0) {
-        threeObjectManager.disposeUnusedObjects(
-            Object.keys(threeObjectManager._objectInstances).filter(id => !ids.includes(id))
-        );
-        return Promise.resolve();
-    }
+    if (meshes.length === 0) return Promise.resolve();
 
     return new Promise(resolve => {
         let start = null;
@@ -72,9 +67,9 @@ export function desvanecerYQuitar(threeObjectManager, ids, duracion) {
             if (t < 1) {
                 requestAnimationFrame(step);
             } else {
-                const idsAConservar = Object.keys(threeObjectManager._objectInstances)
-                    .filter(id => !ids.includes(id));
-                threeObjectManager.disposeUnusedObjects(idsAConservar);
+                // Sólo desvanece: liberar acá dejaba objetos ya liberados en la escena hasta que la
+                // librería procesa graphData(), y el render los volvía a subir a la GPU. El
+                // motor libera después de ese procesamiento (SinapsisEngine._liberarTrasDigest).
                 resolve();
             }
         };

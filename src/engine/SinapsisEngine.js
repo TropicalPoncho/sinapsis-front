@@ -28,8 +28,8 @@ export class SinapsisEngine {
             .nodeLabel('name')
             .numDimensions(3)
             // Pre-simula la física antes del primer frame: el grafo nace ya asentado y encuadrable.
-            // ponytail: bloquea el hilo ~N ticks; con redes grandes (PERF-01) bajar o mover a worker.
-            .warmupTicks(150)
+            // ponytail: bloquea el hilo mientras corren los ticks (crece con los nodos, sin medir aún); la carga progresiva lo reemplazaría.
+            .warmupTicks(300)
             .enableNodeDrag(true)
             .cameraPosition({ z: GLOBAL_DEFAULT_SETTINGS.cameraDistance });
 
@@ -75,18 +75,20 @@ export class SinapsisEngine {
         this.threeObjectManager = new ThreeObjectManager({ animationType: 'Hover' });
         this.cameraController = new CameraController(this.graph, this.camera, this.renderer);
         this.cameraController.setupCamera();
-        // root cause I (03-06): fadeInCanvasFromBlack hace zoomToFit UNA vez, apenas arranca la
-        // física (nodos todavía amontonados en su spawn) — el grafo queda encuadrado diminuto
-        // para siempre. activateZoomToFit reencuadra cuando la física termina de asentarse
-        // (onEngineStop, cooldownTicks:100), sin tocar el encuadre de nodo enfocado (MOTR-08/09).
-        this.cameraController.activateZoomToFit();
+        // Sin activateZoomToFit: con warmupTicks(300) la física ya llega asentada y el encuadre
+        // se hace una vez, detrás del negro. Un zoomToFit al parar el motor pisaba, con retardo,
+        // el encuadre del nodo enfocado (checklist 03-06 #7/#11/#12).
         this.animationManager = new AnimationManager(this.graph, this.threeObjectManager, this.cameraController);
 
         this.graph
             .nodeThreeObject(node => {
                 const mesh = this.threeObjectManager.createObject(node);
                 // Escala visual del nodo: las fuerzas no la ven (no cambia el layout), sólo el tamaño en pantalla.
-                if (mesh && this.opciones.escalaNodos) mesh.scale.setScalar(this.opciones.escalaNodos);
+                const escala = this.opciones.escalaNodos ?? 1;
+                if (mesh) mesh.scale.setScalar(escala);
+                // Nodos que entran por filtrado/aditivo: aparecen creciendo desde 0 (la creación
+                // ocurre en el digest diferido de la librería, por eso se engancha acá).
+                if (mesh && this._idsEntrando?.delete(node.id)) this._aparecer(mesh, escala);
                 return mesh;
             })
             .linkThreeObject(link => {
@@ -151,6 +153,26 @@ export class SinapsisEngine {
         return GLOBAL_DEFAULT_SETTINGS.linkDistance * (1 + GLOBAL_DEFAULT_SETTINGS.linkDistanciaPorGrado * (Math.sqrt(g(link.source)) + Math.sqrt(g(link.target)) - 2));
     }
 
+    // graphData() se procesa diferido: hasta entonces los objetos viejos siguen en la escena. Si se
+    // liberan antes, el siguiente render los vuelve a subir a la GPU (fuga vista en el checklist
+    // 03-06 #10: 800 -> 12 nodos dejaba 257 texturas). Se libera recién después del procesamiento.
+    async _liberarTrasDigest(idsQueSeQuedan) {
+        await new Promise(r => setTimeout(r, 50));
+        this.threeObjectManager.disposeUnusedObjects(idsQueSeQuedan);
+    }
+
+    _aparecer(mesh, escala) {
+        const duracion = ANIMATION_SETTINGS.NODE_FADE_DURATION;
+        const inicio = performance.now();
+        mesh.scale.setScalar(0.001);
+        const paso = ahora => {
+            const t = Math.min((ahora - inicio) / duracion, 1);
+            mesh.scale.setScalar(Math.max(escala * t, 0.001));
+            if (t < 1) requestAnimationFrame(paso);
+        };
+        requestAnimationFrame(paso);
+    }
+
     // PERF-01: promedio móvil de ~1s, no un delta crudo por frame (demasiado ruidoso para leer).
     _actualizarFps() {
         this._fpsFrames++;
@@ -166,6 +188,28 @@ export class SinapsisEngine {
     // ponytail: método de debug, no parte de la superficie pública (que sigue siendo
     // setVista/on/destruir). Existe para PERF-01 y para el día que haya que volver a medir.
     // Barato: lee contadores que three ya mantiene.
+    // Qué hay vivo de verdad: sirve para distinguir una fuga (memoria de GPU > lo que la escena
+    // referencia) de objetos que la librería todavía no quitó de la escena.
+    _censoEscena() {
+        const texturas = new Set();
+        let objetos = 0;
+        this.scene.traverse(o => {
+            objetos++;
+            for (const m of [o.material].flat()) {
+                if (!m) continue;
+                for (const v of Object.values(m)) if (v?.isTexture) texturas.add(v);
+                for (const u of Object.values(m.uniforms ?? {})) if (u?.value?.isTexture) texturas.add(u.value);
+            }
+        });
+        // También las que las instancias tienen en sus uniforms (no cuelgan del material).
+        for (const inst of Object.values(this.threeObjectManager._objectInstances)) {
+            for (const g of [inst.uniforms, inst.localUniforms]) {
+                for (const u of Object.values(g ?? {})) if (u?.value?.isTexture) texturas.add(u.value);
+            }
+        }
+        return { objetosEscena: objetos, texturasEnEscena: texturas.size, instancias: Object.keys(this.threeObjectManager._objectInstances).length };
+    }
+
     _perf() {
         const info = this.renderer.info;
         const nodos = this.graph.graphData().nodes.length;
@@ -177,6 +221,7 @@ export class SinapsisEngine {
             triangulos: info.render.triangles,
             geometrias: info.memory.geometries,
             texturas: info.memory.textures,
+            ...this._censoEscena(),
         };
     }
 
@@ -215,9 +260,10 @@ export class SinapsisEngine {
                 const datos = adaptarSubgrafo(subgrafo);
                 const { quedan, salen, entran } = clasificarCambio(actuales, datos.nodes);
                 pinear(quedan); // sobreviven al reheat de graphData()
-                await desvanecerYQuitar(this.threeObjectManager, salen.map(n => n.id), ANIMATION_SETTINGS.FADE_DURATION);
+                this._idsEntrando = new Set(entran.map(n => n.id));
+                await desvanecerYQuitar(this.threeObjectManager, salen.map(n => n.id), ANIMATION_SETTINGS.NODE_FADE_DURATION);
                 this.graph.graphData({ nodes: fusionar(quedan, entran), links: datos.links });
-                this.threeObjectManager.disposeUnusedObjects(datos.nodes.map(n => n.id)); // MOTR-07
+                await this._liberarTrasDigest(datos.nodes.map(n => n.id)); // MOTR-07
                 // ponytail: los nodos filtrados quedan pineados (no se llama soltarPin); si una
                 // Vista futura los necesita libres para volver a responder a fuerzas, ahí se
                 // llama `soltarPin` en `onEngineStop`.
@@ -230,6 +276,7 @@ export class SinapsisEngine {
                 const datos = adaptarSubgrafo(subgrafo);
                 const { entran } = clasificarCambio(actuales, datos.nodes);
                 pinear(actuales); // el esqueleto existente no se mueve
+                this._idsEntrando = new Set(entran.map(n => n.id));
                 const linksPorId = new Map();
                 for (const l of this.graph.graphData().links) linksPorId.set(l.id, l);
                 for (const l of datos.links) linksPorId.set(l.id, l);
@@ -247,8 +294,8 @@ export class SinapsisEngine {
                 performance.mark('sinapsis:graphData:inicio'); // PERF-01: dónde se va el tiempo de carga
                 this.graph.graphData(datos);
                 performance.mark('sinapsis:graphData:fin');
-                this.threeObjectManager.disposeUnusedObjects(datos.nodes.map(n => n.id)); // MOTR-07
                 await this.animationManager.fadeInCanvasFromBlack(ANIMATION_SETTINGS.FADE_DURATION);
+                await this._liberarTrasDigest(datos.nodes.map(n => n.id)); // MOTR-07
                 this._emitir('vistaLista', { transicion, nodos: datos.nodes.length });
                 // La promesa resuelve recién acá, después del último await: eso es MOTR-09.
                 // `cameraPosition()` no expone `onComplete` (verificado contra el source

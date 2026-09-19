@@ -69,6 +69,17 @@ export class ThreeObject {
     }
 
     /**
+     * Esfera invisible que hace clickeable/hovereable una forma rala (puntos, líneas): el
+     * raycaster no mira `visible`, pero sí necesita un volumen que golpear.
+     */
+    agregarHitbox(radio = this.size) {
+        const geometria = ThreeObject.getSharedGeometry(`hitbox-${radio}`, () => new THREE.SphereGeometry(radio, 8, 6));
+        const hit = new THREE.Mesh(geometria, new THREE.MeshBasicMaterial());
+        hit.visible = false;
+        this.mesh.add(hit);
+    }
+
+    /**
      * Updates the ThreeObject.
      */
     animate() {

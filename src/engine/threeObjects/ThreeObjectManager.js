@@ -149,6 +149,7 @@ export class ThreeObjectManager {
                 if (objectInstance.mesh) {
                     this._disposeMesh(objectInstance.mesh);
                 }
+                ThreeObjectManager._disposeTexturasDeInstancia(objectInstance);
                 delete this._objectInstances[id];
             }
         });
@@ -194,6 +195,20 @@ export class ThreeObjectManager {
     }
 
     /**
+     * Texturas que la instancia guarda en sus propios uniforms (Marble las inyecta al shader por
+     * onBeforeCompile): no cuelgan del material, así que _disposeMaterial no las ve. Fuga vista
+     * en el checklist 03-06 #10: 800 -> 12 nodos dejaba ~250 texturas en GPU.
+     * @private
+     */
+    static _disposeTexturasDeInstancia(instancia) {
+        for (const grupo of [instancia.uniforms, instancia.localUniforms]) {
+            Object.values(grupo ?? {}).forEach(u => {
+                if (u?.value?.isTexture) u.value.dispose();
+            });
+        }
+    }
+
+    /**
      * Libera un material y sus texturas
      * @private
      */
@@ -207,6 +222,12 @@ export class ThreeObjectManager {
             }
         });
 
+        // Los ShaderMaterial guardan sus texturas en uniforms, no como propiedades del material
+        // (fuga vista en el checklist 03-06 #10: 458 -> 257 texturas tras liberar 800 nodos).
+        Object.values(material.uniforms ?? {}).forEach(u => {
+            if (u?.value?.isTexture) u.value.dispose();
+        });
+
         material.dispose();
     }
 
@@ -218,6 +239,7 @@ export class ThreeObjectManager {
             if (objectInstance.mesh) {
                 this._disposeMesh(objectInstance.mesh);
             }
+            ThreeObjectManager._disposeTexturasDeInstancia(objectInstance);
         });
         this._objectInstances = {};
     }
