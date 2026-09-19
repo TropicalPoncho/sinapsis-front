@@ -15,14 +15,13 @@ export class LinkThreeObject extends ThreeObject  {
         this.start = node.start || null;
         this.end = node.end || null;
 
-        const geometry = new THREE.BufferGeometry().setFromPoints([
-            new THREE.Vector3(0, 0, 0),
-            new THREE.Vector3(0, 0, 0)
-        ]);
+        // ponytail: pre-alocar con segments+1 puntos (mismo conteo que animate() escribe
+        // cada frame) para que setFromPoints() reuse el buffer en vez de excederlo
+        const initialPoints = Array.from({ length: this.segments + 1 }, () => new THREE.Vector3(0, 0, 0));
+        const geometry = new THREE.BufferGeometry().setFromPoints(initialPoints);
         const material = new THREE.LineBasicMaterial({ color: 0xff44ff, linewidth: 20, opacity: 0.8, transparent: true });
 
         this.mesh = new THREE.Line(geometry, material);
-
     }
 
     setPosition(start, end) {
@@ -52,7 +51,13 @@ export class LinkThreeObject extends ThreeObject  {
         for (let i = 0; i <= segments; i++) {
             const t = i / segments;
             const point = new THREE.Vector3().lerpVectors(startVec, endVec, t);
-            const offset = Math.sin(t * Math.PI * frequency + time * speed) * amplitude;
+            // ponytail: la onda viajera por sí sola no vale 0 en t=0/t=1 (depende de `time`),
+            // así que el link "flota" lejos de la posición real del nodo en vez de tocarla —
+            // se veía como líneas alineadas en grilla en vez de conectar cada nodo disperso
+            // (root cause de "los links estan raros", 03-06). El envelope sin(t*PI) fija los
+            // extremos en start/end exactos y sólo deja ondular el medio del link.
+            const envelope = Math.sin(t * Math.PI);
+            const offset = Math.sin(t * Math.PI * frequency + time * speed) * amplitude * envelope;
             point.addScaledVector(perpendicular, offset);
             points.push(point);
         }

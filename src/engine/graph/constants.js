@@ -9,7 +9,18 @@ export const GLOBAL_DEFAULT_SETTINGS = {
     aimOffsetZ: 70,
     activeNodeImg: true,
     imgSize: 90,
-    linkDistance: 180,
+    // root cause K (03-06) DESCARTADA por prueba directa: bajar a 30 (default real de
+    // d3-force-3d, node_modules/d3-force-3d/src/link.js:18) para intentar que la onda de
+    // LinkThreeObject se viera más — el usuario confirmó "no sirvió de nada y está todo pegado",
+    // empeoró el layout. Vuelto a 180. El misterio del "link recto sin animar" SIGUE ABIERTO,
+    // no era esto — no reintentar este approach.
+    linkDistance: 80,
+    // negativo repele, positivo atrae (root cause D, 03-06). Ni 0 ni el default de
+    // three-forcegraph (-60 en 3D, three-forcegraph.mjs:471) sirven acá: con 6 vecinos sin
+    // vínculo entre sí, sólo atados al hub por 'link', el charge es lo que separa el "ramo"
+    // completo — -30 lo infla más de lo que se ve en la referencia. -8 es un valor de tuning
+    // visual, ajustar a ojo si hace falta.
+    chargeStrength: -8,
     LINK_WIDTH: .1,
     LINK_OPACITY: 0.8,
     LINK_PARTICLE_WIDTH: 1,

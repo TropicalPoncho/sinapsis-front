@@ -3,11 +3,14 @@
 // `constructor`/`destruir`, que son ciclo de vida — existen porque el puente desmonta).
 // Nada del framework de UI, nada de `next/`: el elemento del DOM llega por parámetro.
 import ForceGraph3D from '3d-force-graph';
+import { resolveTHREE } from './threeObjects/threeGlobal.js';
+const THREE = resolveTHREE();
 import { ThreeObjectManager } from './threeObjects/ThreeObjectManager.js';
 import './threeObjects/registerTypes.js';        // efecto: registra los 15 tipos
 import { CameraController } from './graph/cameraController.js';
 import { AnimationManager } from './graph/animationManager.js';
 import { GLOBAL_DEFAULT_SETTINGS, ANIMATION_SETTINGS } from './graph/constants.js';
+import { escribirOnda } from './graph/ondaLink.js';
 import { adaptarSubgrafo } from './adaptador.js';
 import { clasificarCambio, pinear, fusionar, desvanecerYQuitar } from './graph/transiciones.js';
 
@@ -25,10 +28,35 @@ export class SinapsisEngine {
         this.graph = ForceGraph3D({ controlType: 'orbit' })(elemento)
             .nodeLabel('name')
             .numDimensions(3)
-            .cooldownTicks(100)
+            .enableNodeDrag(true)
             .cameraPosition({ z: GLOBAL_DEFAULT_SETTINGS.cameraDistance });
-        this.graph.d3Force('link').distance(() => GLOBAL_DEFAULT_SETTINGS.linkDistance);
-        this.graph.d3Force('charge').strength(10);
+
+        // ponytail: workaround de un bug ABIERTO de three.js (mrdoob/three.js#32116), no de
+        // nuestro código. 3d-force-graph, al terminar un drag, despacha un pointerup sintético
+        // (pointerType:'touch') para no dejar OrbitControls pegado. OrbitControls sólo puebla
+        // `_pointerPositions` para punteros touch reales — el puntero de mouse real queda en
+        // `_pointers` pero nunca en `_pointerPositions`, y onPointerUp lee `.x` de `undefined`
+        // -> crash (root cause B, 03-06). El primer guard devolvía un objeto plano {x:0,y:0}
+        // para keys ausentes, pero rompía OTRO camino real: `_trackPointer` (llamado desde
+        // onTouchStart) chequea `position === undefined` para decidir si crea un Vector2 propio;
+        // como nuestro objeto plano es truthy, nunca lo creaba, y el `position.set(...)` de
+        // abajo tiraba porque un objeto plano no tiene `.set()` (crash nuevo, causado por este
+        // mismo parche). Fix: memoizar un THREE.Vector2 real la primera vez que se lee una key
+        // ausente, guardado en el target — así _trackPointer nunca ve undefined inesperadamente
+        // (cae directo a position.set(), que sí existe) y onPointerUp sigue leyendo .x de un
+        // Vector2 real. Sacar este Proxy el día que se actualice three.js con el fix del issue.
+        const controls = this.graph.controls();
+        if (controls?._pointerPositions) {
+            controls._pointerPositions = new Proxy(controls._pointerPositions, {
+                get: (target, prop) => {
+                    if (!(prop in target)) target[prop] = new THREE.Vector2();
+                    return target[prop];
+                },
+            });
+        }
+        // Distancia por link: `link.distance` si viene, si no el default. La librería sólo
+        // aplica el override de charge/cooldown default (sin tocar) — ver 03-06 root cause D.
+        this.graph.d3Force('link').distance(link => link.distance ?? GLOBAL_DEFAULT_SETTINGS.linkDistance);
 
         // Se lee el accesor, nunca se le asigna encima: reemplazar `camera()` por una
         // instancia rompe `graph2ScreenCoords`/`screen2GraphCoords` (MOTR-12, Plan 05), que
@@ -41,19 +69,22 @@ export class SinapsisEngine {
         this.threeObjectManager = new ThreeObjectManager({ animationType: 'All' });
         this.cameraController = new CameraController(this.graph, this.camera, this.renderer);
         this.cameraController.setupCamera();
+        // root cause I (03-06): fadeInCanvasFromBlack hace zoomToFit UNA vez, apenas arranca la
+        // física (nodos todavía amontonados en su spawn) — el grafo queda encuadrado diminuto
+        // para siempre. activateZoomToFit reencuadra cuando la física termina de asentarse
+        // (onEngineStop, cooldownTicks:100), sin tocar el encuadre de nodo enfocado (MOTR-08/09).
+        this.cameraController.activateZoomToFit();
         this.animationManager = new AnimationManager(this.graph, this.threeObjectManager, this.cameraController);
 
         this.graph
             .nodeThreeObject(node => this.threeObjectManager.createObject(node))
-            .linkThreeObject(link => {
-                link.type = 'SinLink';
-                link.id ??= `${link.source?.id ?? link.source}-${link.target?.id ?? link.target}`;
-                const objetoLink = this.threeObjectManager.createObject(link);
-                link._threeObj = objetoLink;
-                return objetoLink.mesh;
-            })
+            .linkColor(() => '#ff44ff')
+            .linkOpacity(0.8)
+            // La onda se escribe sobre la línea default de la librería (probada correcta);
+            // reemplazar el mesh con linkThreeObject dejaba los links mal conectados.
             .linkPositionUpdate((line, { start, end }, link) => {
-                link._threeObj?.setPosition(start, end);
+                escribirOnda(line, start, end, link.onda);
+                return true;
             })
             .onNodeHover(n => {
                 this.animationManager.animateNode(n);
@@ -72,8 +103,13 @@ export class SinapsisEngine {
     // empuje — con el scroll cambiando el rect a cada frame, pull es más barato que 60 llamadas
     // por segundo, y la superficie pública sigue siendo sólo `setVista`/`on`.
     _tick = () => {
+        // MOTR-08 encuadra el NODO ENFOCADO dentro del área segura, no la vista general: sin
+        // nodo enfocado, applySafeArea comprimiría el overview entero dentro del área libre
+        // desde el primer frame (bug real de 03-06, la vista general no tiene por qué esquivar
+        // un panel que todavía no está mostrando nada de ese nodo).
         const area = this.opciones.getAreaSegura?.() ?? this._areaSegura;
-        if (area) this.cameraController.applySafeArea(area, window.innerWidth, window.innerHeight);
+        if (area && this._nodoEnfocado) this.cameraController.applySafeArea(area, window.innerWidth, window.innerHeight);
+        else this.cameraController.clearSafeArea();
         // No se dispara un segundo pintado del frame acá: 3d-force-graph ya corre su propio
         // loop (incluido tweenGroup.update()) y hacerlo de nuevo duplicaría los draw calls
         // que PERF-01 va a medir — ése era el bug de doble render de mundo.js.
@@ -195,8 +231,11 @@ export class SinapsisEngine {
             const nodo = this.graph.graphData().nodes.find(n => n.id === nodoEnfocado);
             const area = this.opciones.getAreaSegura?.() ?? this._areaSegura;
             if (nodo && area) {
-                await this.cameraController.enfocarNodo(nodo, this.graph.graphData().nodes, area);
+                // _nodoEnfocado se marca ANTES del await: _tick ya aplica applySafeArea durante
+                // el tween (no sólo al final), si no el frustum saltaría recién al terminar la
+                // animación en vez de acompañarla.
                 this._nodoEnfocado = nodo;
+                await this.cameraController.enfocarNodo(nodo, this.graph.graphData().nodes, area);
                 this._ultimoFoco = null; // fuerza la emisión de nodeFocus en el próximo frame
                 this._emitirFocoSiSeMovio();
             }

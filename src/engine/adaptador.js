@@ -45,6 +45,7 @@ export function adaptarSubgrafo(subgrafo, tiposValidos = ThreeObjectManager.getT
             tipoVinculo: vinculo.tipoVinculo,
         };
         if (vinculo.rol !== undefined) link.rol = vinculo.rol;
+        if (vinculo.distance !== undefined) link.distance = vinculo.distance;
         return link;
     });
 
