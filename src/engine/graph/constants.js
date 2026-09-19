@@ -14,7 +14,9 @@ export const GLOBAL_DEFAULT_SETTINGS = {
     // LinkThreeObject se viera más — el usuario confirmó "no sirvió de nada y está todo pegado",
     // empeoró el layout. Vuelto a 180. El misterio del "link recto sin animar" SIGUE ABIERTO,
     // no era esto — no reintentar este approach.
-    linkDistance: 80,
+    linkDistance: 140, // subido de 80: con redes densas (hubs) quedaba apretado; se reajusta con datos reales
+    // cuánto se alarga un link por cada raíz de grado de sus extremos (0 = distancia fija)
+    linkDistanciaPorGrado: 0.4,
     // negativo repele, positivo atrae (root cause D, 03-06). Ni 0 ni el default de
     // three-forcegraph (-60 en 3D, three-forcegraph.mjs:471) sirven acá: con 6 vecinos sin
     // vínculo entre sí, sólo atados al hub por 'link', el charge es lo que separa el "ramo"

@@ -38,9 +38,26 @@ export default function CanvasSinapsis() {
         document.body.appendChild(tapa);
       }
 
-      engine = new SinapsisEngine(ref.current, { getAreaSegura });
+      // Perillas de tuning visual por URL (?dist=&grado=&charge=&escala=), sin tocar código:
+      // dist/grado pisan las constantes del motor, charge y escala entran como opciones.
+      const num = (k: string) => (params.has(k) ? Number(params.get(k)) : undefined);
+      const { GLOBAL_DEFAULT_SETTINGS: ajustes } = await import('../engine/graph/constants.js');
+      if (num('dist') !== undefined) ajustes.linkDistance = num('dist')!;
+      if (num('grado') !== undefined) ajustes.linkDistanciaPorGrado = num('grado')!;
+
+      engine = new SinapsisEngine(ref.current, { getAreaSegura, charge: num('charge'), escalaNodos: num('escala') });
       // MOTR-12: log del punto proyectado — verificación manual (c) del Plan 05, no UI real.
       engine.on('nodeFocus', (f: { nodeId: string; screen: { x: number; y: number } }) => console.log('nodeFocus', f));
+
+      // Marca de "la red ya es visible": el LCP del navegador mide el título, no el WebGL.
+      // startTime es ms desde el inicio de la navegación; también visible en DevTools > Performance > Timings.
+      engine.on('vistaLista', () => {
+        const { startTime } = performance.mark('sinapsis:vistaLista');
+        if (params.get('perf') === '1') {
+          console.log('perf vistaLista (ms desde navegación)', Math.round(startTime));
+          console.table(performance.getEntriesByType('mark').filter(m => m.name.startsWith('sinapsis:')).map(m => ({ marca: m.name, ms: Math.round(m.startTime) })));
+        }
+      });
 
       if (params.get('perf') === '1') {
         setInterval(() => console.log('perf', engine._perf()), 2000);
@@ -48,7 +65,10 @@ export default function CanvasSinapsis() {
 
       const nodosParam = params.get('nodos');
       const vista = nodosParam
-        ? (await import('../engine/fixtures/subgrafoSintetico.js')).subgrafoSintetico(Number(nodosParam))
+        ? (await import('../engine/fixtures/subgrafoSintetico.js')).subgrafoSintetico(Number(nodosParam), {
+            topologia: params.get('topologia') === 'hubs' ? 'hubs' : 'cadena',
+            enlacesPorNodo: Number(params.get('enlaces') ?? 1.5),
+          })
         : subgrafoDemo;
       const foco = params.get('foco') ?? undefined;
       await engine.setVista(vista, { transicion: 'reemplazo', nodoEnfocado: foco });

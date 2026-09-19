@@ -56,9 +56,12 @@ export class SinapsisEngine {
                 },
             });
         }
-        // Distancia por link: `link.distance` si viene, si no el default. La librería sólo
-        // aplica el override de charge/cooldown default (sin tocar) — ver 03-06 root cause D.
-        this.graph.d3Force('link').distance(link => link.distance ?? GLOBAL_DEFAULT_SETTINGS.linkDistance);
+        // Perillas de tuning visual (llegan por query params desde el puente, ver CanvasSinapsis):
+        // charge = fuerza de repulsión; sin valor, queda el default de la librería.
+        if (opciones.charge !== undefined) this.graph.d3Force('charge').strength(opciones.charge);
+        // Distancia por link: `link.distance` si viene; si no, el default crece con el grado de
+        // los extremos, así los hubs con muchos vínculos tienen más espacio (ver _distanciaPorGrado).
+        this.graph.d3Force('link').distance(link => link.distance ?? this._distanciaPorGrado(link));
 
         // Se lee el accesor, nunca se le asigna encima: reemplazar `camera()` por una
         // instancia rompe `graph2ScreenCoords`/`screen2GraphCoords` (MOTR-12, Plan 05), que
@@ -68,7 +71,8 @@ export class SinapsisEngine {
         this.renderer = this.graph.renderer();
         this.scene = this.graph.scene();
 
-        this.threeObjectManager = new ThreeObjectManager({ animationType: 'All' });
+        // 'Hover' como en la web original: sólo se anima el nodo bajo el mouse (PERF-01).
+        this.threeObjectManager = new ThreeObjectManager({ animationType: 'Hover' });
         this.cameraController = new CameraController(this.graph, this.camera, this.renderer);
         this.cameraController.setupCamera();
         // root cause I (03-06): fadeInCanvasFromBlack hace zoomToFit UNA vez, apenas arranca la
@@ -79,7 +83,12 @@ export class SinapsisEngine {
         this.animationManager = new AnimationManager(this.graph, this.threeObjectManager, this.cameraController);
 
         this.graph
-            .nodeThreeObject(node => this.threeObjectManager.createObject(node))
+            .nodeThreeObject(node => {
+                const mesh = this.threeObjectManager.createObject(node);
+                // Escala visual del nodo: las fuerzas no la ven (no cambia el layout), sólo el tamaño en pantalla.
+                if (mesh && this.opciones.escalaNodos) mesh.scale.setScalar(this.opciones.escalaNodos);
+                return mesh;
+            })
             .linkThreeObject(link => {
                 link.type = 'SinLink';
                 const objetoLink = this.threeObjectManager.createObject(link);
@@ -125,6 +134,22 @@ export class SinapsisEngine {
         this._actualizarFps();
         this._raf = requestAnimationFrame(this._tick);
     };
+
+    // Grado (cantidad de vínculos) de cada nodo, cacheado por identidad del array de links: se
+    // recalcula solo cuando graphData() trae links nuevos. d3 llama a la distancia una vez por
+    // link al inicializar, no por tick, así que no pesa en el loop.
+    _distanciaPorGrado(link) {
+        const links = this.graph.graphData().links;
+        if (this._grados?.links !== links) {
+            const mapa = new Map();
+            for (const l of links) for (const e of [l.source, l.target]) mapa.set(e.id ?? e, (mapa.get(e.id ?? e) ?? 0) + 1);
+            this._grados = { links, mapa };
+        }
+        const g = e => this._grados.mapa.get(e.id ?? e) ?? 1;
+        // ponytail: raíz del grado y factor a ojo; un nodo de grado 1 con otro de grado 1 da la
+        // distancia base. Si la red real necesita otra curva, es esta línea (o `link.distance`).
+        return GLOBAL_DEFAULT_SETTINGS.linkDistance * (1 + GLOBAL_DEFAULT_SETTINGS.linkDistanciaPorGrado * (Math.sqrt(g(link.source)) + Math.sqrt(g(link.target)) - 2));
+    }
 
     // PERF-01: promedio móvil de ~1s, no un delta crudo por frame (demasiado ruidoso para leer).
     _actualizarFps() {
@@ -216,9 +241,12 @@ export class SinapsisEngine {
             }
             case 'reemplazo':
             default: {
-                await this.animationManager.fadeOutCanvasToBlack(this._nodoEnfocado ?? null, ANIMATION_SETTINGS.FADE_DURATION);
+                // Primera carga: no hay red que ocultar, el fundido de salida sólo agrega negro.
+                if (this.graph.graphData().nodes.length) await this.animationManager.fadeOutCanvasToBlack(this._nodoEnfocado ?? null, ANIMATION_SETTINGS.FADE_DURATION);
                 const datos = adaptarSubgrafo(subgrafo);
+                performance.mark('sinapsis:graphData:inicio'); // PERF-01: dónde se va el tiempo de carga
                 this.graph.graphData(datos);
+                performance.mark('sinapsis:graphData:fin');
                 this.threeObjectManager.disposeUnusedObjects(datos.nodes.map(n => n.id)); // MOTR-07
                 await this.animationManager.fadeInCanvasFromBlack(ANIMATION_SETTINGS.FADE_DURATION);
                 this._emitir('vistaLista', { transicion, nodos: datos.nodes.length });
