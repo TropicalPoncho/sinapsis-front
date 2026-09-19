@@ -66,10 +66,12 @@ export class CameraController {
      * `camera.aspect` con `viewportW/viewportH`, así que un offset guardado con un tamaño viejo
      * queda obsoleto apenas cambia la ventana.
      */
-    applySafeArea(areaSegura, viewportW, viewportH) {
+    applySafeArea(areaSegura, viewportW, viewportH, mezcla = 1) {
         if (!areaSegura || !this.camera) return;
+        // `mezcla` 0..1 escala el offset: el motor lo hace crecer junto con el tween de cámara
+        // para que el descentrado no aparezca de golpe antes del movimiento.
         const o = offsetDeAreaSegura(areaSegura, viewportW, viewportH);
-        this.camera.setViewOffset(viewportW, viewportH, o.x, o.y, viewportW, viewportH);
+        this.camera.setViewOffset(viewportW, viewportH, o.x * mezcla, o.y * mezcla, viewportW, viewportH);
     }
 
     /** Saca el offset de frustum activo (vuelta a proyección centrada). */

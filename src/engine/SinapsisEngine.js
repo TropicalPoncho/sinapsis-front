@@ -126,7 +126,15 @@ export class SinapsisEngine {
         // desde el primer frame (bug real de 03-06, la vista general no tiene por qué esquivar
         // un panel que todavía no está mostrando nada de ese nodo).
         const area = this.opciones.getAreaSegura?.() ?? this._areaSegura;
-        if (area && this._nodoEnfocado) this.cameraController.applySafeArea(area, window.innerWidth, window.innerHeight);
+        // El offset entra y sale de forma gradual (misma duración que el tween de cámara): aplicarlo
+        // de golpe movía toda la red unos píxeles antes de que la cámara empezara a acercarse.
+        const ahora = performance.now();
+        const paso = (ahora - (this._ultimoTick ?? ahora)) / ANIMATION_SETTINGS.CAMERA_TRANSITION_DURATION;
+        this._ultimoTick = ahora;
+        const objetivo = area && this._nodoEnfocado ? 1 : 0;
+        this._mezclaArea = Math.min(1, Math.max(0, (this._mezclaArea ?? 0) + (objetivo ? paso : -paso)));
+        const k = this._mezclaArea * this._mezclaArea * (3 - 2 * this._mezclaArea); // smoothstep
+        if (area && k > 0) this.cameraController.applySafeArea(area, window.innerWidth, window.innerHeight, k);
         else this.cameraController.clearSafeArea();
         // No se dispara un segundo pintado del frame acá: 3d-force-graph ya corre su propio
         // loop (incluido tweenGroup.update()) y hacerlo de nuevo duplicaría los draw calls
