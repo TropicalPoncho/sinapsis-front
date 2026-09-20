@@ -56,12 +56,12 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 
 ### Interfaz
 
-- [ ] **UI-01**: El visitante ve una red 3D global al entrar y puede navegarla con mouse en escritorio y gestos en mobile
-- [ ] **UI-02**: Al tocar un nodo, el visitante ve su información y puede seguir explorando desde sus vínculos
+- [x] **UI-01**: El visitante ve una red 3D global al entrar y puede navegarla con mouse en escritorio y gestos en mobile
+- [x] **UI-02**: Al tocar un nodo, el visitante ve su información y puede seguir explorando desde sus vínculos
 - [x] **UI-03**: Existe una página de nodo ENTIDAD que muestra la red de esa entidad y sus obras producidas
 - [x] **UI-04**: Existe una página de nodo OBRA que muestra su ficha y lxs creadxrs que colaboraron en ella
 - [x] **UI-05**: La Vista activa está reflejada en la URL, de modo que el botón atrás del navegador retrocede por el historial de vistas y una vista se puede compartir por link
-- [ ] **UI-06**: El menú de navegación se renderiza desde la misma data que alimenta el grafo, sin construcción imperativa aparte
+- [x] **UI-06**: El menú de navegación se renderiza desde la misma data que alimenta el grafo, sin construcción imperativa aparte
 - [ ] **UI-07**: tropicalponcho.art funciona como la página de perfil del nodo ENTIDAD Tropical Poncho (subtipo `productora`), sin código específico para ese nodo
 - [ ] **UI-08**: El canvas 3D se monta una sola vez por encima del router y sobrevive a los cambios de ruta sin remontarse — el contenido de cada ruta flota encima
 - [ ] **UI-09**: Al enfocar un nodo, el panel de información aparece **siempre del mismo lado** —izquierda en escritorio ocupando el 62% del ancho, banda inferior en mobile— con degradado hacia el canvas y no un corte duro, y el texto alineado a la izquierda
@@ -158,12 +158,12 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | MOTR-11 | Phase 3 | Complete |
 | MOTR-12 | Phase 3 | Complete |
 | PERF-01 | Phase 3 | Pending |
-| UI-01 | Phase 4 | Pending |
-| UI-02 | Phase 4 | Pending |
+| UI-01 | Phase 4 | Complete |
+| UI-02 | Phase 4 | Complete |
 | UI-03 | Phase 4 | Complete |
 | UI-04 | Phase 4 | Complete |
 | UI-05 | Phase 4 | Complete |
-| UI-06 | Phase 4 | Pending |
+| UI-06 | Phase 4 | Complete |
 | UI-08 | Phase 4 | Pending |
 | UI-09 | Phase 4 | Pending |
 | UI-11 | Phase 4 | Pending |

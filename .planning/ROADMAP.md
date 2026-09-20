@@ -108,7 +108,7 @@ Plans:
 Plans:
 - [x] 04-01-PLAN.md — Motor puede desenfocar, topologia.ts se recupera de fetch rechazado, fixtures y endpoint de detalle (wave 1)
 - [x] 04-02-PLAN.md — Slugs, gramatica de URL y logica de transicion/historial, puras y testeadas (wave 1)
-- [ ] 04-03-PLAN.md — Home sembrada, menus/creditos y registro de botones, puros y testeados (wave 1)
+- [x] 04-03-PLAN.md — Home sembrada, menus/creditos y registro de botones, puros y testeados (wave 1)
 - [ ] 04-04-PLAN.md — Shell en layout.tsx, puente CanvasSinapsis con cola y area segura desde el panel, rutas nulas (wave 2)
 - [ ] 04-05-PLAN.md — Overlay: estilos, panel de foco con degradado, botones por tipo, loader y errores (wave 3)
 - [ ] 04-06-PLAN.md — Menu superior, lateral y hamburguesa; ficha extendida de OBRA (wave 4)
