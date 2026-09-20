@@ -1,0 +1,19 @@
+{
+  "obra-nudo": {
+    "texto": "Nudo es una instalación que enlaza cuerpos y cables en una sola trama.\n\nSe montó por primera vez en una sala vacía, donde el público podía recorrerla en cualquier sentido.\n\nCada visita la reescribe: la obra es lo que queda entre las personas que la atravesaron.",
+    "galeria": [
+      { "thumb": "obras/nudo.png", "alt": "Nudo, vista general" },
+      { "thumb": "obras/espora.png", "alt": "Espora" },
+      { "thumb": "obras/c-e-p-a.png", "alt": "C E P A" },
+      { "thumb": "obras/wip.png", "alt": "WIP" }
+    ],
+    "enlaces": [
+      { "etiqueta": "Sitio de Tropical Poncho", "url": "https://tropicalponcho.art" },
+      { "etiqueta": "Registro", "url": "https://example.org/nudo" }
+    ],
+    "youtube": "dQw4w9WgXcQ"
+  },
+  "obra-espora": {
+    "texto": "Espora: una obra que se propaga."
+  }
+}
