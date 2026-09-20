@@ -1,21 +1,14 @@
 ---
-status: testing
+status: complete
 phase: 03-3d-engine
 source: [03-01-SUMMARY.md, 03-02-SUMMARY.md, 03-03-SUMMARY.md, 03-04-SUMMARY.md, 03-05-SUMMARY.md, 03-06-SUMMARY.md]
 started: 2026-09-19T22:00:00Z
-updated: 2026-09-19T22:00:00Z
+updated: 2026-09-20T12:00:00Z
 ---
 
 ## Current Test
-<!-- OVERWRITE each test - shows where we are -->
 
-number: 6
-name: Aristas hacia el lado libre
-expected: |
-  Abrir http://localhost:3002/?overlay=1&foco=<nodo> probando tropical-poncho, espora y
-  serie-uno. Las aristas del nodo enfocado salen hacia el lado libre (38% derecho) y no cruzan
-  por detrás de donde iría el panel; la cámara no queda 'detrás' de la red tapando el nodo.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -47,11 +40,13 @@ note: "anda bien; el usuario observó que al hacer click toda la red se corría 
 
 ### 6. Aristas hacia el lado libre
 expected: con ?overlay=1&foco=<nodo con vecinos> (probar tropical-poncho, espora y serie-uno), las aristas del nodo enfocado salen hacia el lado libre, sin cruzar por detrás de donde iría el panel
-result: [pending]
+result: pass
+note: "aprobado por el usuario. Las observaciones previas (nudo y espora, con la cámara 'detrás de la red') quedan como techo conocido del método por centroide de MOTR-11: elegirLadoOrbit elige entre dos candidatos espejo; la salida documentada es proyectar cada vecino y elegir el mejor de N ángulos."
 
 ### 7. Resize con nodo enfocado
 expected: con ?overlay=1&foco=nudo, cambiar el tamaño de la ventana mantiene el nodo encuadrado en el área libre
-result: [pending]
+result: pass
+note: "ya verificado por el usuario en el checklist 03-06 (#14: el encuadre se ajusta al redimensionar)"
 
 ### 8. Liberación de recursos al reemplazar
 expected: con ?nodos=800&demo=liberacion&perf=1, la tabla antes/después baja texturas (458 → ~10) y geometrías (~1364 → ~24), y los 12 nodos que quedan se ven bien, ninguno roto o en blanco
@@ -61,9 +56,9 @@ reason: confirmado por el usuario con datos en el checklist 03-06 (texturas 257 
 ## Summary
 
 total: 8
-passed: 6
+passed: 8
 issues: 0
-pending: 2
+pending: 0
 skipped: 0
 
 ## Gaps
