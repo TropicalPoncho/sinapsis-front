@@ -4,8 +4,8 @@
 // página, que es lo correcto para una red curada que cambia poco. El día que haya edición en vivo,
 // acá entra un ETag contra /api/topologia (D-19, D-20).
 
-import { construirAdyacencia } from './adyacencia'
-import type { Adyacencia } from './adyacencia'
+import { construirAdyacencia } from './adyacencia.ts'
+import type { Adyacencia } from './adyacencia.ts'
 import type { Subgrafo } from '@/types/vista'
 
 let pendiente: Promise<Adyacencia> | undefined
@@ -15,12 +15,16 @@ export function cargarAdyacencia(): Promise<Adyacencia> {
     pendiente = fetch('/api/topologia')
       .then((res) => {
         if (!res.ok) {
-          pendiente = undefined
           throw new Error(`topología: HTTP ${res.status}`)
         }
         return res.json() as Promise<Subgrafo>
       })
       .then(construirAdyacencia)
+      // Un rechazo (sin red, HTTP no-ok) no se cachea: el próximo llamador reintenta.
+      .catch((e) => {
+        pendiente = undefined
+        throw e
+      })
   }
   return pendiente
 }

@@ -255,6 +255,8 @@ export class SinapsisEngine {
         this._handlers[evento]?.forEach(h => h(payload));
     }
 
+    // nodoEnfocado: undefined no toca el foco, null desenfoca, un id enfoca.
+    // NO es reentrante: el puente serializa las llamadas (UI-10).
     async setVista(subgrafo, { transicion = 'reemplazo', areaSegura, nodoEnfocado } = {}) {
         this._subgrafo = subgrafo;
         this._areaSegura = areaSegura ?? this._areaSegura;
@@ -328,6 +330,16 @@ export class SinapsisEngine {
                 await this.cameraController.enfocarNodo(nodo, this.graph.graphData().nodes, area);
                 this._ultimoFoco = null; // fuerza la emisión de nodeFocus en el próximo frame
                 this._emitirFocoSiSeMovio();
+            }
+        } else if (nodoEnfocado === null) {
+            const habia = this._nodoEnfocado;
+            this._nodoEnfocado = null;
+            this._ultimoFoco = null;
+            // En 'reemplazo' el fundido ya reencuadra; en las demás se anima y se espera a mano
+            // porque backToBasicsView no devuelve promesa (MOTR-09).
+            if (habia && transicion !== 'reemplazo') {
+                this.cameraController.backToBasicsView();
+                await new Promise(r => setTimeout(r, ANIMATION_SETTINGS.CAMERA_TRANSITION_DURATION));
             }
         }
     }
