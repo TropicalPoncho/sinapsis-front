@@ -30,6 +30,7 @@
     background: linear-gradient(to top, rgba(0,0,0,var(--panel-alpha)) 0%, rgba(0,0,0,var(--panel-alpha)) 70%, rgba(0,0,0,0) 100%);
     transform: translateY(16px); touch-action: pan-y;
   }
+  .panel--visible { transform: none; }
   .panel--extendido { max-height: 70dvh; }
   .panel__botones { flex-direction: column; gap: 8px; }
   .panel__botones .bn { width: 100%; min-height: 44px; }
