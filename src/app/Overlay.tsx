@@ -12,6 +12,8 @@ import { botonesDe } from '../lib/red/botones.ts'
 import type { Boton } from '../lib/red/botones.ts'
 import { transicionEntrada } from '../lib/red/navegacion.ts'
 import type { Transicion } from '../types/vista.ts'
+import { agrupadoresDe, entidadDeMenu, nodosDeLaRed, padreDe } from '../lib/red/menus.ts'
+import { MenuLateral, MenuSuperior } from './Menus.tsx'
 
 export type Fase = 'cargando' | 'moviendo' | 'listo'
 
@@ -37,12 +39,30 @@ export default function Overlay({ estado, ady, idx, fase, error, panelRef, naveg
     ? ady.nodos.get(idx.idPorSlug.get(estado.enfocado) ?? '')
     : undefined
 
-  const subredVacia = useMemo(() => {
-    if (!ady || !idx || estado.red === null) return false
-    const redId = idx.idPorSlug.get(estado.red)
-    if (!redId) return false
-    return resolverVista(ady, vistaDe(estado, redId, ady.nodos.get(redId)?.nodeType)).nodos.length <= 1
-  }, [ady, idx, estado])
+  const redId = ady && idx && estado.red ? idx.idPorSlug.get(estado.red) ?? null : null
+  const enfocadoId = nodo?.id ?? null
+
+  const sub = useMemo(() => {
+    if (!ady || !redId) return null
+    return resolverVista(ady, vistaDe(estado, redId, ady.nodos.get(redId)?.nodeType))
+  }, [ady, redId, estado])
+  const subredVacia = sub !== null && sub.nodos.length <= 1
+
+  const entidadId = ady ? entidadDeMenu(ady, { redId, enfocadoId }) : null
+  const items = ady && entidadId ? agrupadoresDe(ady, entidadId) : []
+  const activoId = items.find((i) => i.id === redId)?.id ?? null
+  const padreId = ady && enfocadoId ? padreDe(ady, enfocadoId) : null
+  const lateral = sub !== null && redId !== null && estado.red !== null
+  const [lateralAbierto, setLateralAbierto] = useState(false)
+
+  const irA = (id: string, red: boolean) => {
+    const n = ady?.nodos.get(id)
+    const slug = idx?.slugPorId.get(id)
+    if (!n || !idx || !slug) return
+    setLateralAbierto(false)
+    if (red) navegar(urlDe(rutaDe(n, idx), { enfocado: slug, red: slug, prof: null, semilla: null }), 'reemplazo')
+    else navegar(urlDe(rutaDe(n, idx), { ...estado, enfocado: slug }), 'aditivo')
+  }
 
   const visible = fase === 'listo' && (nodo !== undefined || error !== null || subredVacia)
 
@@ -100,9 +120,27 @@ export default function Overlay({ estado, ady, idx, fase, error, panelRef, naveg
       <h1 className={'floatingTitle' + (estado.enfocado ? ' title-hidden' : '')}>Sinápsis</h1>
       {!estado.enfocado && <p className="home__bajada">Red social para creadxrs y obra colectiva</p>}
 
+      <MenuSuperior
+        items={items}
+        activoId={activoId}
+        padreId={padreId}
+        onElegir={(id) => irA(id, true)}
+        onHamburguesa={() => setLateralAbierto((a) => !a)}
+      />
+      {lateral && sub && redId && (
+        <MenuLateral
+          nodos={nodosDeLaRed(sub, redId)}
+          enfocadoId={enfocadoId}
+          abierto={lateralAbierto}
+          onElegir={(id) => irA(id, false)}
+          onVolver={volver}
+          onCerrar={() => setLateralAbierto(false)}
+        />
+      )}
+
       <aside
         ref={panelRef}
-        className={'panel' + (visible ? ' panel--visible' : '') + (abierto ? ' panel--extendido' : '')}
+        className={'panel' + (lateral ? ' panel--con-lateral' : '') + (visible ? ' panel--visible' : '') + (abierto ? ' panel--extendido' : '')}
         role="region"
         aria-labelledby="panel-nombre"
         aria-live="polite"
