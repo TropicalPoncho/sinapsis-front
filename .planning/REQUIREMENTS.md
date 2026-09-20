@@ -64,7 +64,7 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 - [x] **UI-06**: El menú de navegación se renderiza desde la misma data que alimenta el grafo, sin construcción imperativa aparte
 - [ ] **UI-07**: tropicalponcho.art funciona como la página de perfil del nodo ENTIDAD Tropical Poncho (subtipo `productora`), sin código específico para ese nodo
 - [x] **UI-08**: El canvas 3D se monta una sola vez por encima del router y sobrevive a los cambios de ruta sin remontarse — el contenido de cada ruta flota encima
-- [ ] **UI-09**: Al enfocar un nodo, el panel de información aparece **siempre del mismo lado** —izquierda en escritorio ocupando el 62% del ancho, banda inferior en mobile— con degradado hacia el canvas y no un corte duro, y el texto alineado a la izquierda
+- [x] **UI-09**: Al enfocar un nodo, el panel de información aparece **siempre del mismo lado** —izquierda en escritorio ocupando el 62% del ancho, banda inferior en mobile— con degradado hacia el canvas y no un corte duro, y el texto alineado a la izquierda
 - [ ] **UI-11**: La columna de texto se mantiene entre 620 y 680px aunque el panel sea más ancho: el panel crece como degradado, no como largo de línea
 - [x] **UI-10**: Un cambio de ruta secuencia el cambio de Vista, la animación de cámara y la aparición del overlay, en vez de dispararlos a la vez
 
@@ -165,7 +165,7 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | UI-05 | Phase 4 | Complete |
 | UI-06 | Phase 4 | Complete |
 | UI-08 | Phase 4 | Complete |
-| UI-09 | Phase 4 | Pending |
+| UI-09 | Phase 4 | Complete |
 | UI-11 | Phase 4 | Pending |
 | UI-10 | Phase 4 | Complete |
 | UI-07 | Phase 5 | Pending |
