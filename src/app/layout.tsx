@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import "./globals.css";
+import Shell from "./Shell";
 
 export const metadata: Metadata = {
   title: "Sinapsis",
@@ -13,8 +15,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`antialiased text-center`}>
+    <html lang="es">
+      <body className="antialiased">
+        <Suspense fallback={<div className="cargando" aria-hidden="true" />}>
+          <Shell />
+        </Suspense>
         {children}
       </body>
     </html>

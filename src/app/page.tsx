@@ -1,12 +1,5 @@
-import CanvasSinapsis from './CanvasSinapsis';
-
-// ponytail: ruta placeholder. El montaje definitivo del canvas es en layout.tsx, por encima
-// del router — eso es UI-08 en la Fase 4. Acá sólo se monta para poder ver el fixture.
-export default function IndexPage() {
-  return (
-    <>
-      <CanvasSinapsis />
-      <h1 className="floatingTitle">TROPICAL PONCHO</h1>
-    </>
-  );
+// La UI vive en el Shell persistente (layout). Esta ruta existe solo para links duros y NO debe
+// renderizar contenido: atrás mostraría la página equivocada.
+export default function Pagina() {
+  return null
 }
