@@ -1,0 +1,53 @@
+.overlay { position: fixed; inset: 0; pointer-events: none; }
+.overlay button, .overlay a, .overlay .panel__contenido { pointer-events: auto; }
+
+.panel {
+  position: fixed; z-index: 30; left: 0; top: 0; height: 100%; width: 62vw;
+  --panel-alpha: 0.55;
+  background: linear-gradient(to right, rgba(0,0,0,var(--panel-alpha)) 0%, rgba(0,0,0,var(--panel-alpha)) 70%, rgba(0,0,0,0) 100%);
+  opacity: 0; visibility: hidden; transform: translateX(-16px);
+  transition: opacity .6s, transform .6s, visibility 0s .6s;
+  text-align: left; overflow-y: auto; overscroll-behavior: contain;
+  padding: 48px 24px 24px;
+  pointer-events: none;
+}
+.panel--visible { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; pointer-events: auto; }
+.panel--con-lateral { padding-left: calc(200px + 48px); }
+.panel__contenido { animation: entra .3s ease-out; }
+@keyframes entra { from { opacity: 0; } to { opacity: 1; } }
+
+.panel__nombre { font-family: 'Briller', Gotham, sans-serif; font-size: 26px; font-weight: 400; line-height: 1.2; margin: 0; }
+.panel__subtipo { font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; color: rgba(255,255,255,.7); margin: 8px 0 0; }
+.panel__desc { font-family: Gotham, sans-serif; font-size: 14px; font-weight: 400; line-height: 1.5; max-width: 65ch; margin: 16px 0 0; }
+.panel__botones { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 32px; }
+.panel__hijos { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+
+.home__bajada { position: fixed; z-index: 10; top: 12%; left: 50%; transform: translateX(-50%); font-size: 18px; font-weight: 400; margin: 0; text-align: center; }
+
+@media (max-width: 800px) {
+  .panel {
+    top: auto; bottom: 0; width: 100%; height: auto; max-height: 45dvh; padding: 16px;
+    background: linear-gradient(to top, rgba(0,0,0,var(--panel-alpha)) 0%, rgba(0,0,0,var(--panel-alpha)) 70%, rgba(0,0,0,0) 100%);
+    transform: translateY(16px); touch-action: pan-y;
+  }
+  .panel--extendido { max-height: 70dvh; }
+  .panel__botones { flex-direction: column; gap: 8px; }
+  .panel__botones .bn { width: 100%; min-height: 44px; }
+}
+
+.cargando { position: fixed; inset: 0; z-index: 200; background: #0a0a0a; display: flex; align-items: center; justify-content: center; }
+.cargando__marca { font-family: 'Briller', Gotham, sans-serif; font-size: 36px; font-weight: 400; animation: pulso 1.5s ease-in-out infinite; }
+.cargando__barra { position: absolute; left: 0; bottom: 0; width: 100%; height: 2px; background: #FF0080; transform-origin: left; animation: barra 2s ease-in-out infinite; }
+.cargando--fuera { opacity: 0; visibility: hidden; transition: opacity .6s, visibility 0s .6s; }
+@keyframes pulso { from { opacity: .4; } to { opacity: 1; } }
+@keyframes barra { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+:where(.panel, .overlay) :is(button, a, .bn):focus-visible { outline: 2px solid #FF0080; outline-offset: 2px; }
+.panel__nombre:focus { outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .panel { transform: none; transition: opacity .2s, visibility 0s .2s; }
+  .panel--visible { transition-delay: 0s; }
+  .panel__contenido, .cargando__marca, .cargando__barra { animation: none; }
+  .bn:hover, .bn:hover::before { box-shadow: none; }
+}

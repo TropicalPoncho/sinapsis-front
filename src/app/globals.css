@@ -1,6 +1,7 @@
 @import "../styles/fonts.css";
 @import "../styles/style.css";
 @import "../styles/index.css";
+@import "../styles/overlay.css";
 
 @tailwind base;
 @tailwind components;
@@ -8,15 +9,8 @@
 
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0a0a0a;
+  --foreground: #ffffff;
 }
 
 body {
