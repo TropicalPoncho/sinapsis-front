@@ -103,7 +103,16 @@ Plans:
   5. A route change sequences the Vista change, the camera animation and the overlay rather than firing them in parallel.
   6. The active Vista is reflected in the URL — the browser back button steps back through the Vista history, and a Vista link can be shared and reopened directly.
   7. The side nav menu is rendered from the same data feeding the graph, with no separate hardcoded menu structure.
-**Plans**: TBD
+**Plans**: 7 plans in 5 waves
+
+Plans:
+- [ ] 04-01-PLAN.md — Motor puede desenfocar, topologia.ts se recupera de fetch rechazado, fixtures y endpoint de detalle (wave 1)
+- [ ] 04-02-PLAN.md — Slugs, gramatica de URL y logica de transicion/historial, puras y testeadas (wave 1)
+- [ ] 04-03-PLAN.md — Home sembrada, menus/creditos y registro de botones, puros y testeados (wave 1)
+- [ ] 04-04-PLAN.md — Shell en layout.tsx, puente CanvasSinapsis con cola y area segura desde el panel, rutas nulas (wave 2)
+- [ ] 04-05-PLAN.md — Overlay: estilos, panel de foco con degradado, botones por tipo, loader y errores (wave 3)
+- [ ] 04-06-PLAN.md — Menu superior, lateral y hamburguesa; ficha extendida de OBRA (wave 4)
+- [ ] 04-07-PLAN.md — Gates, smoke en navegador headless y UAT del dueno (wave 5)
 **UI hint**: yes
 
 ### Phase 5: Tropical Poncho Launch
@@ -126,5 +135,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 (2 and 3 can run in p
 | 1. Repo Cleanup | 4/4 | Complete | 2026-08-06 |
 | 2. Data & Vista Backend | 0/? | Not started | - |
 | 3. 3D Engine | 6/6 | Complete | 2026-09-20 |
-| 4. UI & Navigation | 0/? | Not started | - |
+| 4. UI & Navigation | 0/7 | Not started | - |
 | 5. Tropical Poncho Launch | 0/? | Not started | - |

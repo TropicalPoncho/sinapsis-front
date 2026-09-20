@@ -82,10 +82,20 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
 ### Coreografía
 - **D-16:** Transición por defecto al **entrar**: **ENTIDAD = filtrado, ÁREA (AGRUPACION) =
   reemplazo**. Es configurable: el dueño de la entidad podrá elegir otra. En M1 (sin auth) el
-  default vive en código y la elección por entidad es un campo del dato que el motor respeta;
-  la interfaz de edición del dueño es M2.
+  default vive **solo en código** (ver D-20); leer la elección por entidad del dato y la interfaz
+  de edición del dueño son M2.
 - **D-17:** Secuencia estricta: la **cámara llega y recién ahí aparece el panel** (UI-10).
 - **D-18:** **Volver = animación inversa** de la que se usó para entrar.
+
+### Decisiones tomadas tras la investigación (2026-09-20)
+- **D-19:** El **slug** de las URLs se **deriva del nombre** del nodo por ahora (`Tropical Poncho` a
+  `tropical-poncho`), marcado con `ponytail:`; renombrar un nodo cambia su URL. Pasa a columna
+  única cuando entre la curaduría real (02-05).
+- **D-20:** La **transición de entrada por entidad** (D-16) queda **solo en código** en M1
+  (entidad = filtrado, área = reemplazo); no se lee del dato hasta M2, con el editor del dueño.
+- **D-21:** Los vínculos **entidad a área** (6 áreas unidas a Tropical Poncho) que necesita el menú
+  D-09 **no existen en la curaduría actual**: la UI se desarrolla con **fixtures** que los incluyen, y
+  agregar esas aristas queda como tarea de 02-05 (en pausa).
 
 ### Claude's Discretion
 - Menú de arriba en la home social (contexto general, sin entidad en foco).
