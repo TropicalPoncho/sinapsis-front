@@ -3,6 +3,8 @@
 // ponytail: sin ETag, sin cache, sin revalidación. La topología de v1 son ~50 nodos, unos pocos
 // KB. Cuando el dump crezca o las ediciones tengan que verse sin recargar, acá entra un ETag.
 
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { Pool } from 'pg'
 import type { Subgrafo, NodoGrafo, VinculoGrafo } from '@/types/vista'
 
@@ -60,6 +62,11 @@ function aVinculoGrafo(f: FilaVinculo): VinculoGrafo {
 }
 
 export async function GET() {
+  // ponytail: fixture por env explícita, jamás fallback silencioso ante un error de la base
+  // (ocultaría una caída real); sale cuando 02-05 cargue las aristas reales Tropical Poncho -> área.
+  if (process.env.TOPOLOGIA_FIXTURE === '1') {
+    return Response.json(JSON.parse(await readFile(join(process.cwd(), 'src/lib/red/fixtures/topologia.json'), 'utf8')))
+  }
   try {
     const [nodosRes, vinculosRes] = await Promise.all([
       // metadata queda afuera: es la data profunda (DATA-02), se pide al abrir el nodo.

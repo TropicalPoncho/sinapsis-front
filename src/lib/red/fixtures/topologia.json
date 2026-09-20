@@ -1,0 +1,584 @@
+{
+  "nodos": [
+    {
+      "id": "tp",
+      "nodeType": "ENTIDAD",
+      "subtipo": "productora",
+      "label": "Tropical Poncho",
+      "vizParams": {
+        "shape": "Marble",
+        "color": "#ffffff"
+      },
+      "isStub": false,
+      "descripcionBreve": "Productora de Experiencias Artísticas"
+    },
+    {
+      "id": "area-concepto",
+      "nodeType": "AGRUPACION",
+      "subtipo": "area",
+      "label": "CONCEPTO",
+      "vizParams": {
+        "shape": "Noise",
+        "color": "#e6b422"
+      },
+      "isStub": false
+    },
+    {
+      "id": "area-obras",
+      "nodeType": "AGRUPACION",
+      "subtipo": "area",
+      "label": "OBRAS",
+      "vizParams": {
+        "shape": "Fire",
+        "color": "#e0457b"
+      },
+      "isStub": false
+    },
+    {
+      "id": "area-audiovisuales",
+      "nodeType": "AGRUPACION",
+      "subtipo": "area",
+      "label": "AUDIOVISUALES",
+      "vizParams": {
+        "shape": "Particles",
+        "color": "#3fa7d6"
+      },
+      "isStub": false
+    },
+    {
+      "id": "area-editorial",
+      "nodeType": "AGRUPACION",
+      "subtipo": "area",
+      "label": "EDITORIAL",
+      "vizParams": {
+        "shape": "Marble",
+        "color": "#59cd90"
+      },
+      "isStub": false
+    },
+    {
+      "id": "area-tecnologia",
+      "nodeType": "AGRUPACION",
+      "subtipo": "area",
+      "label": "TECNOLOGÍA",
+      "vizParams": {
+        "shape": "Noise",
+        "color": "#9b5de5"
+      },
+      "isStub": false
+    },
+    {
+      "id": "area-laboratorios",
+      "nodeType": "AGRUPACION",
+      "subtipo": "area",
+      "label": "LABORATORIOS",
+      "vizParams": {
+        "shape": "Fire",
+        "color": "#f18f01"
+      },
+      "isStub": false
+    },
+    {
+      "id": "obra-nudo",
+      "nodeType": "OBRA",
+      "subtipo": "instalacion",
+      "label": "Nudo",
+      "vizParams": {
+        "shape": "Particles",
+        "color": "#dd7755"
+      },
+      "isStub": false,
+      "descripcionBreve": "Obra de prueba Nudo",
+      "thumb": "obras/nudo.png"
+    },
+    {
+      "id": "obra-espora",
+      "nodeType": "OBRA",
+      "subtipo": "instalacion",
+      "label": "Espora",
+      "vizParams": {
+        "shape": "Marble",
+        "color": "#dd7755"
+      },
+      "isStub": false,
+      "descripcionBreve": "Obra de prueba Espora",
+      "thumb": "obras/espora.png"
+    },
+    {
+      "id": "obra-cepa",
+      "nodeType": "OBRA",
+      "subtipo": "instalacion",
+      "label": "C E P A",
+      "vizParams": {
+        "shape": "Noise",
+        "color": "#dd7755"
+      },
+      "isStub": false,
+      "descripcionBreve": "Obra de prueba C E P A",
+      "thumb": "obras/c-e-p-a.png"
+    },
+    {
+      "id": "obra-wip",
+      "nodeType": "OBRA",
+      "subtipo": "instalacion",
+      "label": "WIP",
+      "vizParams": {
+        "shape": "Fire",
+        "color": "#dd7755"
+      },
+      "isStub": false,
+      "descripcionBreve": "Obra de prueba WIP",
+      "thumb": "obras/wip.png"
+    },
+    {
+      "id": "obra-distopia",
+      "nodeType": "OBRA",
+      "subtipo": "instalacion",
+      "label": "Tropical Posporno Distopía",
+      "vizParams": {
+        "shape": "Particles",
+        "color": "#dd7755"
+      },
+      "isStub": false,
+      "descripcionBreve": "Obra de prueba Tropical Posporno Distopía",
+      "thumb": "obras/tropical-posporno-distopia.png"
+    },
+    {
+      "id": "obra-corto",
+      "nodeType": "OBRA",
+      "subtipo": "video",
+      "label": "Corto uno",
+      "vizParams": {
+        "shape": "Marble",
+        "color": "#dd7755"
+      },
+      "isStub": false,
+      "descripcionBreve": "Obra de prueba Corto uno"
+    },
+    {
+      "id": "obra-libro",
+      "nodeType": "OBRA",
+      "subtipo": "libro",
+      "label": "Libro uno",
+      "vizParams": {
+        "shape": "Noise",
+        "color": "#dd7755"
+      },
+      "isStub": false,
+      "descripcionBreve": "Obra de prueba Libro uno"
+    },
+    {
+      "id": "obra-sin-desc",
+      "nodeType": "OBRA",
+      "subtipo": "video",
+      "label": "Obra sin descripción",
+      "vizParams": {
+        "shape": "Fire",
+        "color": "#dd7755"
+      },
+      "isStub": false
+    },
+    {
+      "id": "creadxr-ana",
+      "nodeType": "ENTIDAD",
+      "subtipo": "persona",
+      "label": "Ana Ruiz",
+      "vizParams": {
+        "shape": "Particles",
+        "color": "#77bbee"
+      },
+      "isStub": false,
+      "descripcionBreve": "Creadxr de prueba"
+    },
+    {
+      "id": "creadxr-beto",
+      "nodeType": "ENTIDAD",
+      "subtipo": "persona",
+      "label": "Beto Sosa",
+      "vizParams": {
+        "shape": "Marble",
+        "color": "#77bbee"
+      },
+      "isStub": false,
+      "descripcionBreve": "Creadxr de prueba"
+    },
+    {
+      "id": "creadxr-cami",
+      "nodeType": "ENTIDAD",
+      "subtipo": "persona",
+      "label": "Cami Luna",
+      "vizParams": {
+        "shape": "Noise",
+        "color": "#77bbee"
+      },
+      "isStub": false,
+      "descripcionBreve": "Creadxr de prueba"
+    },
+    {
+      "id": "creadxr-duo-neon",
+      "nodeType": "ENTIDAD",
+      "subtipo": "duo",
+      "label": "Dúo Neón",
+      "vizParams": {
+        "shape": "Fire",
+        "color": "#77bbee"
+      },
+      "isStub": false,
+      "descripcionBreve": "Creadxr de prueba"
+    },
+    {
+      "id": "creadxr-banda-eco",
+      "nodeType": "ENTIDAD",
+      "subtipo": "banda",
+      "label": "Banda Eco",
+      "vizParams": {
+        "shape": "Particles",
+        "color": "#77bbee"
+      },
+      "isStub": false,
+      "descripcionBreve": "Creadxr de prueba"
+    },
+    {
+      "id": "creadxr-dani",
+      "nodeType": "ENTIDAD",
+      "subtipo": "persona",
+      "label": "Dani Paz",
+      "vizParams": {
+        "shape": "Marble",
+        "color": "#77bbee"
+      },
+      "isStub": false,
+      "descripcionBreve": "Creadxr de prueba"
+    },
+    {
+      "id": "creadxr-eli",
+      "nodeType": "ENTIDAD",
+      "subtipo": "persona",
+      "label": "Eli Vega",
+      "vizParams": {
+        "shape": "Noise",
+        "color": "#77bbee"
+      },
+      "isStub": false,
+      "descripcionBreve": "Creadxr de prueba"
+    },
+    {
+      "id": "creadxr-fede",
+      "nodeType": "ENTIDAD",
+      "subtipo": "persona",
+      "label": "Fede Roca",
+      "vizParams": {
+        "shape": "Fire",
+        "color": "#77bbee"
+      },
+      "isStub": false,
+      "descripcionBreve": "Creadxr de prueba"
+    },
+    {
+      "id": "creadxr-gabi",
+      "nodeType": "ENTIDAD",
+      "subtipo": "persona",
+      "label": "Gabi Mora",
+      "vizParams": {
+        "shape": "Particles",
+        "color": "#77bbee"
+      },
+      "isStub": false,
+      "descripcionBreve": "Creadxr de prueba"
+    },
+    {
+      "id": "creadxr-hugo",
+      "nodeType": "ENTIDAD",
+      "subtipo": "persona",
+      "label": "Hugo Ley",
+      "vizParams": {
+        "shape": "Marble",
+        "color": "#77bbee"
+      },
+      "isStub": false,
+      "descripcionBreve": "Creadxr de prueba"
+    },
+    {
+      "id": "creadxr-ines",
+      "nodeType": "ENTIDAD",
+      "subtipo": "persona",
+      "label": "Inés Sol",
+      "vizParams": {
+        "shape": "Noise",
+        "color": "#77bbee"
+      },
+      "isStub": false,
+      "descripcionBreve": "Creadxr de prueba"
+    },
+    {
+      "id": "creadxr-stub",
+      "nodeType": "ENTIDAD",
+      "subtipo": "persona",
+      "label": "Creadxr invitadx",
+      "vizParams": {
+        "shape": "Fire",
+        "color": "#77bbee"
+      },
+      "isStub": true
+    },
+    {
+      "id": "soma-beta-1",
+      "nodeType": "ENTIDAD",
+      "subtipo": "colectivo",
+      "label": "SOMA BETA",
+      "vizParams": {
+        "shape": "Particles",
+        "color": "#77bbee"
+      },
+      "isStub": false,
+      "descripcionBreve": "Colectivo"
+    },
+    {
+      "id": "soma-beta-2",
+      "nodeType": "ENTIDAD",
+      "subtipo": "colectivo",
+      "label": "SOMA beta",
+      "vizParams": {
+        "shape": "Marble",
+        "color": "#77bbee"
+      },
+      "isStub": false,
+      "descripcionBreve": "Colectivo, otro id"
+    },
+    {
+      "id": "evento-muestra",
+      "nodeType": "EVENTO",
+      "subtipo": "muestra",
+      "label": "Muestra de prueba",
+      "vizParams": {
+        "shape": "Noise",
+        "color": "#ffcc00"
+      },
+      "isStub": false,
+      "descripcionBreve": "Evento",
+      "fecha": "2024-05-10T00:00:00.000Z"
+    },
+    {
+      "id": "centro-cultural",
+      "nodeType": "ENTIDAD",
+      "subtipo": "centro_cultural",
+      "label": "Centro Cultural Prueba",
+      "vizParams": {
+        "shape": "Fire",
+        "color": "#66ddaa"
+      },
+      "isStub": false,
+      "descripcionBreve": "Espacio",
+      "locationId": "loc-1"
+    }
+  ],
+  "vinculos": [
+    {
+      "id": "v0",
+      "origen": "tp",
+      "destino": "area-concepto",
+      "tipoVinculo": "COMPONE"
+    },
+    {
+      "id": "v1",
+      "origen": "tp",
+      "destino": "area-obras",
+      "tipoVinculo": "COMPONE"
+    },
+    {
+      "id": "v2",
+      "origen": "tp",
+      "destino": "area-audiovisuales",
+      "tipoVinculo": "COMPONE"
+    },
+    {
+      "id": "v3",
+      "origen": "tp",
+      "destino": "area-editorial",
+      "tipoVinculo": "COMPONE"
+    },
+    {
+      "id": "v4",
+      "origen": "tp",
+      "destino": "area-tecnologia",
+      "tipoVinculo": "COMPONE"
+    },
+    {
+      "id": "v5",
+      "origen": "tp",
+      "destino": "area-laboratorios",
+      "tipoVinculo": "COMPONE"
+    },
+    {
+      "id": "v6",
+      "origen": "area-obras",
+      "destino": "obra-nudo",
+      "tipoVinculo": "COMPONE"
+    },
+    {
+      "id": "v7",
+      "origen": "area-obras",
+      "destino": "obra-espora",
+      "tipoVinculo": "COMPONE"
+    },
+    {
+      "id": "v8",
+      "origen": "area-obras",
+      "destino": "obra-cepa",
+      "tipoVinculo": "COMPONE"
+    },
+    {
+      "id": "v9",
+      "origen": "area-obras",
+      "destino": "obra-wip",
+      "tipoVinculo": "COMPONE"
+    },
+    {
+      "id": "v10",
+      "origen": "area-obras",
+      "destino": "obra-distopia",
+      "tipoVinculo": "COMPONE"
+    },
+    {
+      "id": "v11",
+      "origen": "area-audiovisuales",
+      "destino": "obra-corto",
+      "tipoVinculo": "COMPONE"
+    },
+    {
+      "id": "v12",
+      "origen": "area-editorial",
+      "destino": "obra-libro",
+      "tipoVinculo": "COMPONE"
+    },
+    {
+      "id": "v13",
+      "origen": "area-audiovisuales",
+      "destino": "obra-sin-desc",
+      "tipoVinculo": "COMPONE"
+    },
+    {
+      "id": "v14",
+      "origen": "creadxr-ana",
+      "destino": "obra-nudo",
+      "tipoVinculo": "COLABORO_EN",
+      "rol": "dirección"
+    },
+    {
+      "id": "v15",
+      "origen": "creadxr-beto",
+      "destino": "obra-nudo",
+      "tipoVinculo": "CORREALIZO",
+      "rol": "música"
+    },
+    {
+      "id": "v16",
+      "origen": "creadxr-cami",
+      "destino": "obra-nudo",
+      "tipoVinculo": "COLABORO_EN",
+      "rol": "arte"
+    },
+    {
+      "id": "v17",
+      "origen": "creadxr-duo-neon",
+      "destino": "obra-espora",
+      "tipoVinculo": "CORREALIZO",
+      "rol": "música"
+    },
+    {
+      "id": "v18",
+      "origen": "creadxr-banda-eco",
+      "destino": "obra-cepa",
+      "tipoVinculo": "COLABORO_EN",
+      "rol": "música"
+    },
+    {
+      "id": "v19",
+      "origen": "creadxr-dani",
+      "destino": "obra-wip",
+      "tipoVinculo": "CORREALIZO",
+      "rol": "dirección"
+    },
+    {
+      "id": "v20",
+      "origen": "creadxr-eli",
+      "destino": "obra-distopia",
+      "tipoVinculo": "COLABORO_EN",
+      "rol": "arte"
+    },
+    {
+      "id": "v21",
+      "origen": "creadxr-fede",
+      "destino": "obra-corto",
+      "tipoVinculo": "CORREALIZO",
+      "rol": "dirección"
+    },
+    {
+      "id": "v22",
+      "origen": "creadxr-ana",
+      "destino": "obra-libro",
+      "tipoVinculo": "COLABORO_EN",
+      "rol": "arte"
+    },
+    {
+      "id": "v23",
+      "origen": "creadxr-gabi",
+      "destino": "obra-sin-desc",
+      "tipoVinculo": "CORREALIZO",
+      "rol": "dirección"
+    },
+    {
+      "id": "v24",
+      "origen": "creadxr-hugo",
+      "destino": "obra-espora",
+      "tipoVinculo": "COLABORO_EN",
+      "rol": "arte"
+    },
+    {
+      "id": "v25",
+      "origen": "creadxr-ines",
+      "destino": "obra-distopia",
+      "tipoVinculo": "CORREALIZO",
+      "rol": "música"
+    },
+    {
+      "id": "v26",
+      "origen": "creadxr-stub",
+      "destino": "obra-espora",
+      "tipoVinculo": "COLABORO_EN",
+      "rol": "arte"
+    },
+    {
+      "id": "v27",
+      "origen": "soma-beta-1",
+      "destino": "obra-wip",
+      "tipoVinculo": "COLABORO_EN",
+      "rol": "música"
+    },
+    {
+      "id": "v28",
+      "origen": "soma-beta-2",
+      "destino": "obra-cepa",
+      "tipoVinculo": "COLABORO_EN",
+      "rol": "arte"
+    },
+    {
+      "id": "v29",
+      "origen": "obra-nudo",
+      "destino": "evento-muestra",
+      "tipoVinculo": "REGISTRO"
+    },
+    {
+      "id": "v30",
+      "origen": "centro-cultural",
+      "destino": "obra-nudo",
+      "tipoVinculo": "PRODUJO"
+    },
+    {
+      "id": "v31",
+      "origen": "tp",
+      "destino": "obra-nudo",
+      "tipoVinculo": "PRODUJO"
+    }
+  ]
+}
