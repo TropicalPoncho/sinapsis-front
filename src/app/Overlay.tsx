@@ -12,7 +12,8 @@ import { botonesDe } from '../lib/red/botones.ts'
 import type { Boton } from '../lib/red/botones.ts'
 import { transicionEntrada } from '../lib/red/navegacion.ts'
 import type { Transicion } from '../types/vista.ts'
-import { agrupadoresDe, entidadDeMenu, nodosDeLaRed, padreDe } from '../lib/red/menus.ts'
+import { agrupadoresDe, creditosDe, entidadDeMenu, nodosDeLaRed, padreDe } from '../lib/red/menus.ts'
+import { Ficha } from './Ficha.tsx'
 import { MenuLateral, MenuSuperior } from './Menus.tsx'
 
 export type Fase = 'cargando' | 'moviendo' | 'listo'
@@ -179,6 +180,15 @@ export default function Overlay({ estado, ady, idx, fase, error, panelRef, naveg
               )}
               {volverBtn}
             </div>
+            {abierto && ady && idx && (nodo.nodeType === 'OBRA' || nodo.nodeType === 'EVENTO') && (
+              <Ficha
+                key={nodo.id}
+                nodo={nodo}
+                creditos={creditosDe(ady, nodo.id)}
+                hrefDe={(id) => rutaDe(ady.nodos.get(id)!, idx)}
+                onEnfocar={(id) => irA(id, false)}
+              />
+            )}
           </div>
         ) : subredVacia ? (
           <div className="panel__contenido">
