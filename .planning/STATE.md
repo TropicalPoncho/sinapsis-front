@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-06-PLAN.md
-last_updated: "2026-09-19T21:30:00.000Z"
-last_activity: 2026-09-19
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-09-20T21:28:58.298Z"
+last_activity: 2026-09-20
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 15
-  completed_plans: 14
+  total_plans: 22
+  completed_plans: 15
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-06)
 
 **Core value:** Que la red se pueda mirar desde cualquier punto de vista sin cambiar el modelo de datos.
-**Current focus:** Phase 03 — 3d-engine
+**Current focus:** Phase 04 — ui-navigation
 
 ## Current Position
 
-Phase: 03 (3d-engine) — completa y verificada (UAT 8/8)
-Plan: 6 of 6 (completo)
-Status: Fase 3 completa; siguiente: Fase 4 (UI y navegación) o retomar 02-05
-Last activity: 2026-09-19
+Phase: 04 (ui-navigation) — EXECUTING
+Plan: 2 of 7
+Status: Ready to execute
+Last activity: 2026-09-20
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -64,6 +64,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P04 | 35min | 2 tasks | 4 files |
 | Phase 03 P05 | 30min | 2 tasks | 3 files |
 | Phase 03 P06 | (sesión larga de depuración) | 3 tasks | ~40 files |
+| Phase 04 P01 | 20min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,7 @@ Recent decisions affecting current work:
 - [Phase 03]: [Phase 03 P04] filtrado/aditivo verificados headless contra d3-force-3d real (misma pieza que three-forcegraph reheat-ea) por ausencia de herramienta de browser en el ejecutor
 - [Phase 03]: [Phase 03 P05] nodoEnfocado en setVista viaja como id, resuelto contra graphData().nodes tras la transición, nunca antes (respeta MOTR-06 y sólo enfoca lo que sobrevivió al recambio)
 - [Phase 03]: [Phase 03 P05] area segura entra por opcion del constructor, leida cada frame en _tick (pull) en vez de un setter; getSide/aimAtNode eliminados de cameraController
+- [Phase 04]: [04-01] setVista: nodoEnfocado undefined no toca el foco, null desenfoca
 
 ### Pending Todos
 
@@ -125,8 +127,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-08-15T22:21:34.468Z
-Stopped at: Completed 03-05-PLAN.md
+Last session: 2026-09-20T21:28:58.294Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's
