@@ -2,6 +2,7 @@ import { resolveTHREE } from './threeGlobal.js';
 const THREE = resolveTHREE();
 import {ThreeObject}  from './ThreeObject.js';
 import { noiseFS } from '../shaders/noise.js';
+import { frecuenciasDeColor } from './colorUtils.js';
 
 export class LightsThreeObject extends ThreeObject  {
 
@@ -10,11 +11,15 @@ export class LightsThreeObject extends ThreeObject  {
     constructor (node, config){
         super(node);
 
+        // colorR/colorG/colorB fijos (.9/0/.8) para todos los nodos: son la frecuencia de un
+        // pnoise() por canal, no un color literal, pero igual definían el mismo resultado visual
+        // siempre — ahora salen del color curado (frecuenciasDeColor).
+        const { colorR, colorG, colorB } = frecuenciasDeColor(node.color);
         this.localUniforms = {
             weight: { type: "f", value: 3 },
-            colorR: { type: "f", value: .9},
-            colorG: { type: "f", value: 0},
-            colorB: { type: "f", value: .8},
+            colorR: { type: "f", value: colorR },
+            colorG: { type: "f", value: colorG },
+            colorB: { type: "f", value: colorB },
             colorChange: { type: "f", value: 2},
         };
 
@@ -22,7 +27,8 @@ export class LightsThreeObject extends ThreeObject  {
             $.extend(this.localUniforms, node.style);
         }
 
-        this.speed = 0.009;
+        // Antes 0.009 hardcodeado acá pisaba lo que ya había puesto `super(node)` desde
+        // node.speed (viz_params.speed) — el nodo nunca podía tener su propia velocidad.
 
         const material = new THREE.ShaderMaterial( {
             uniforms: { ...this.localUniforms, ...this.globalUniforms, ...this.uniforms },

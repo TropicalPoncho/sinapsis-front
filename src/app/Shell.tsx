@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import CanvasSinapsis from './CanvasSinapsis'
 import Overlay from './Overlay'
+import DebugPanel from './DebugPanel'
 import type { Fase } from './Overlay'
 import { cargarAdyacencia, olvidarTopologia } from '../lib/vista/topologia.ts'
 import type { Adyacencia } from '../lib/vista/adyacencia.ts'
@@ -14,10 +15,12 @@ import { alPop, entradaValida } from '../lib/red/navegacion.ts'
 import type { Entrada } from '../lib/red/navegacion.ts'
 import type { Transicion } from '../types/vista.ts'
 
-const HOME: EstadoRed = { enfocado: null, red: null, prof: null, semilla: null }
+const HOME: EstadoRed = { enfocado: null, red: null, prof: null, semilla: null, raiz: null, puentes: null }
 
 export default function Shell() {
   const [ady, setAdy] = useState<Adyacencia | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [engine, setEngine] = useState<any>(null)
   const [errTopo, setErrTopo] = useState(false)
   const [fase, setFase] = useState<Fase>('cargando')
   const pathname = usePathname()
@@ -71,9 +74,10 @@ export default function Shell() {
   return (
     <>
       <CanvasSinapsis ady={ady} idx={idx} estado={estado} llegadaRef={llegadaRef} panelRef={panelRef}
-        onFase={setFase} onNodoClick={enfocar} />
+        onFase={setFase} onNodoClick={enfocar} onEngineReady={setEngine} />
       <Overlay estado={estado} ady={ady} idx={idx} fase={fase} error={error} panelRef={panelRef}
         navegar={navegar} volver={volver} reintentar={reintentar} />
+      {process.env.NODE_ENV !== 'production' && engine && <DebugPanel engine={engine} />}
     </>
   )
 }

@@ -1,9 +1,24 @@
 import { resolveTHREE } from './threeGlobal.js';
 const THREE = resolveTHREE();
 import {ThreeObject}  from './ThreeObject.js';
+import { parDeTonos } from './colorUtils.js';
 
 const heightMapURL = 'https://i.imgur.com/dMYV4cf.png'
 const displacementMapURL = 'https://i.imgur.com/L1pqRg9.jpeg'
+
+// ponytail: antes cada MarbleThreeObject creaba su propio TextureLoader y pedía las dos imágenes
+// de nuevo (N nodos Marble = 2N requests a imgur.com, sin cache). Cargarlas una sola vez acá y
+// compartir la instancia entre todos los nodos Marble de la sesión.
+let _texturas;
+function texturasMarmol() {
+    if (_texturas) return _texturas;
+    const heightMap = new THREE.TextureLoader().load(heightMapURL);
+    const displacementMap = new THREE.TextureLoader().load(displacementMapURL);
+    displacementMap.wrapS = displacementMap.wrapT = THREE.RepeatWrapping;
+    heightMap.minFilter = displacementMap.minFilter = THREE.NearestFilter;
+    _texturas = { heightMap, displacementMap };
+    return _texturas;
+}
 
 /**
  * Represents a 3D object with a marble texture.
@@ -32,26 +47,22 @@ export class MarbleThreeObject extends ThreeObject  {
         depth: 0.4,
         smoothing: 0.5,
         displacement: 0.8,
-        colorA: '#111111',
-        colorB: '#d719c7'
     };
 
     constructor (node, config){
         super(node);
+        // Antes fijo (#111111/#d719c7) para todos los nodos — ahora deriva del color curado.
+        const { claro, oscuro } = parDeTonos(node.color);
+        this.params.colorA = oscuro;
+        this.params.colorB = claro;
         const widthSegments = Math.max(8, Math.min(32, this.segmentWidth || 16));
         const heightSegments = Math.max(6, Math.min(24, this.segmentHeight || 12));
         const geometryKey = `marble-${this.size}-${widthSegments}-${heightSegments}`;
         const geometry = ThreeObject.getSharedGeometry(geometryKey, () => new THREE.SphereGeometry(this.size, widthSegments, heightSegments));
         const material = new THREE.MeshStandardMaterial({ roughness: this.params.roughness });
-        
-         // Load heightmap and displacement textures
-        const heightMap = new THREE.TextureLoader().load(heightMapURL);
-        const displacementMap = new THREE.TextureLoader().load(displacementMapURL);
-        displacementMap.wrapS = displacementMap.wrapT = THREE.RepeatWrapping
-        
-        // Prevent seam introduced by THREE.LinearFilter
-        heightMap.minFilter = displacementMap.minFilter = THREE.NearestFilter
-        
+
+        const { heightMap, displacementMap } = texturasMarmol();
+
         // Set up local uniforms object
         this.uniforms = {
             iterations: { value: this.params.iterations },
@@ -107,7 +118,10 @@ export class MarbleThreeObject extends ThreeObject  {
                  */
                 vec3 displacePoint(vec3 p, float strength) {
                     vec2 uv = equirectUv(normalize(p));
-                    vec2 scroll = vec2(time, 0.);
+                    // x8: time es chico a propósito ahora (speed compartido, bajado a pedido
+                    // para el resto de las formas) — sin este multiplicador el scroll de la
+                    // textura era casi imperceptible acá específicamente.
+                    vec2 scroll = vec2(time * 8.0, 0.);
                     vec3 displacementA = texture(displacementMap, uv + scroll).rgb; // Upright
                                 vec3 displacementB = texture(displacementMap, uv * FLIP - scroll).rgb; // Upside down
                     

@@ -3,6 +3,13 @@ const THREE = resolveTHREE();
 import {ThreeObject}  from './ThreeObject.js';
 import { noiseFS } from '../shaders/noise.js';
 
+// ponytail: un TextureLoader nuevo por instancia volvía a pedir el mismo /images/explosion.png
+// para cada nodo Fire (three.js no cachea por URL salvo THREE.Cache.enabled). Una sola carga.
+let _texturaExplosion;
+function texturaExplosion() {
+    return (_texturaExplosion ??= new THREE.TextureLoader().load('/images/explosion.png'));
+}
+
 export class FireThreeObject extends ThreeObject  {
 
     static type = 'Fire';
@@ -11,11 +18,11 @@ export class FireThreeObject extends ThreeObject  {
         super(node);
 
         this.localUniforms = {
-            tExplosion: { type: "t", value: new THREE.TextureLoader().load( '/images/explosion.png' ) },
+            tExplosion: { type: "t", value: texturaExplosion() },
             weight: { type: "f", value: 10 }
         };
 
-        this.speed = 0.009;
+        // Antes 0.009 hardcodeado acá pisaba node.speed (viz_params.speed) puesto por super(node).
 
         const material = new THREE.ShaderMaterial( {
             uniforms: {...this.globalUniforms, ...this.localUniforms},

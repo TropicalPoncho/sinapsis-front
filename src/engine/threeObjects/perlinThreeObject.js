@@ -4,7 +4,15 @@ const { Vector3 } = THREE;
 
 import { ThreeObject } from "./ThreeObject.js";
 import { noiseFS } from '../shaders/noise.js';
+import { parDeTonos } from './colorUtils.js';
 
+// ponytail: antes cada PerlinThreeObject creaba 6 canvases nuevos y los llenaba de píxeles al
+// azar para el envMap (N nodos Perlin = 6N canvases + fillRect en un loop) — es sólo textura de
+// ruido genérica, no hace falta una distinta por nodo. Una sola instancia, compartida.
+let _cubeMap;
+function cubeMapCompartido() {
+    return (_cubeMap ??= createCubeMap());
+}
 
 export class PerlinThreeObject extends ThreeObject{
 
@@ -12,15 +20,17 @@ export class PerlinThreeObject extends ThreeObject{
 
     constructor(node){
         super(node);
-        let cubeMap = createCubeMap();
+        const cubeMap = cubeMapCompartido();
 
         // <OBJECT>
         const detail = this.segmentWidth ?? 70;
         const geometryKey = `perlin-core-1-${detail}`;
         const g = ThreeObject.getSharedGeometry(geometryKey, () => new THREE.IcosahedronGeometry(1, detail));
+        // Antes fijo (#FF0074/#9900FF) para todos los nodos — ahora deriva del color curado.
+        const { claro, oscuro } = parDeTonos(node.color);
         let localUniforms = {
-            color1: {value: new THREE.Color(0xFF0074)}, 
-            color2: {value: new THREE.Color(0x9900FF)},
+            color1: {value: oscuro},
+            color2: {value: claro},
             bloom: {value: 0}
         }
 

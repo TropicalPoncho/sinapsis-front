@@ -7,6 +7,11 @@ import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
  */
 export class ThreeObject {
 
+    // Multiplicador global de velocidad de animación (todo lo que se anima vía `time`, no la
+    // posición del nodo en el layout). Vive acá, no por instancia, para poder ajustarlo en vivo
+    // desde el panel de debug sin recorrer cada objeto ya creado — ver SinapsisEngine.configurarAnimacion.
+    static multiplicadorVelocidad = 1;
+
     get type() { return this.constructor.type; }
 
     uniforms;
@@ -84,7 +89,7 @@ export class ThreeObject {
      */
     animate() {
         let t = ++this.counter;
-        this.globalUniforms.time.value = t * this.speed;
+        this.globalUniforms.time.value = t * this.speed * ThreeObject.multiplicadorVelocidad;
         // Do the other thing
     }
 

@@ -10,13 +10,21 @@ export class TwistThreeObject extends ThreeObject  {
     constructor (node, config){
         super(node);
 
+        // uBrightness fijo (0.5,0.5,0.5) para todos los nodos: el color cosPalette() del shader
+        // oscila alrededor de este valor, así que era el que de verdad definía el matiz visible —
+        // ahora sale del color curado. uContrast/uOscilation/uPhase quedan fijos: son el "carácter"
+        // del ciclo animado, no el color de fondo, y no todos combinan bien si varían al azar.
+        const c = new THREE.Color(node.color ?? 0xffffff);
+        // uFrequency/uNoiseDensity bajados (2->1, 4->2.5): con `time` avanzando cada frame, estas
+        // frecuencias multiplican el ritmo del distorsión — aunque `this.speed` esté bajo, con las
+        // originales el patrón igual se veía muy agitado (root de la queja "sigue tan rápida").
         this.uniforms = {
             uNoiseStrength: { type: "f", value: 4 },
-            uNoiseDensity: { type: "f", value: 4 },
+            uNoiseDensity: { type: "f", value: 2.5 },
             uIntensity: { type: "f", value: 1.5 },
-            uFrequency: { type: "f", value: 2 },
+            uFrequency: { type: "f", value: 1 },
             uAmplitude: { type: "f", value: 2 },
-            uBrightness: { value: new THREE.Vector3(0.5, 0.5, 0.5) },
+            uBrightness: { value: new THREE.Vector3(c.r, c.g, c.b) },
             uContrast: { value: new THREE.Vector3(0.5, 0.5, 0.5) },
             uOscilation: { value: new THREE.Vector3(2, 1, 0) },
             uPhase: { value: new THREE.Vector3(0.3, 0.6, 0.2) }

@@ -96,8 +96,10 @@ export class PerlinNoiseThreeObject extends ThreeObject {
     }
 
     animate(){
-        // ponytail: era `iTime += 1` sobre el objeto {value}, que lo volvía un string y congelaba el shader
-        this.uniforms.iTime.value += 0.02;
+        // ponytail: era `iTime += 1` sobre el objeto {value}, que lo volvía un string y congelaba el shader.
+        // 0.02 * this.speed (no `super.animate()`: este shape no usa globalUniforms.time) para que
+        // respete tanto el speed por nodo como el multiplicador global del panel de debug.
+        this.uniforms.iTime.value += 0.02 * this.speed * ThreeObject.multiplicadorVelocidad;
     }
 
 }

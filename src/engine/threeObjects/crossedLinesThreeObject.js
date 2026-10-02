@@ -16,7 +16,10 @@ export class CrossedLinesThreeObject extends ThreeObject {
 
     constructor (node, config){
         super(node);
-        const radius = node.radius ?? 40;
+        // Antes 40 hardcodeado, ignorando this.size (15, la base que usan el resto de las formas)
+        // — por eso se veía más grande que sus vecinos sin ningún curado real detrás (nada asigna
+        // node.radius todavía).
+        const radius = node.radius ?? this.size;
         this.radius = radius;
         const lineCount = node.lineCount ?? 70;
         const positions = new Float32Array(lineCount * 2 * 3);
@@ -49,6 +52,16 @@ export class CrossedLinesThreeObject extends ThreeObject {
         const group = new THREE.Group();
         group.add(new THREE.LineSegments(geometry, material));
         this.mesh = group;
+    }
+
+    // Antes no animaba nada (sin shader propio, `time` no lo tocaba nadie). Misma estructura que
+    // el resto: `super.animate()` avanza `globalUniforms.time` según speed/multiplicador
+    // compartidos, acá lo uso para rotar el grupo entero en vez de un uniform de shader.
+    animate(){
+        super.animate();
+        const t = this.globalUniforms.time.value;
+        this.mesh.rotation.y = t * 0.5;
+        this.mesh.rotation.x = t * 0.2;
     }
 
 }

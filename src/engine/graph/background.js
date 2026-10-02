@@ -1,288 +1,91 @@
-import * as THREE from 'three';
-import Utils from '../Utils.js'
-import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-export default class Background {
+import { resolveTHREE } from '../threeObjects/threeGlobal.js';
+const THREE = resolveTHREE();
+import Utils from '../Utils.js';
 
-    scene;
-    renderer;
-    camera;
+// Fondo de la escena, heredado de collectiveConscience (src/client/graph/background.js: color de
+// fondo + estrellas + una montaña de ruido comentada, renderizada como grilla de líneas sin
+// textura ni material sólido). Acá va reescrito y reconectado — el archivo viejo vivía en este
+// mismo repo pero nunca lo importaba nadie.
+// ponytail: heightmap bajado de 1024x1024 a 128x128 (~64x menos iteraciones de ruido y ~64x menos
+// vértices en la grilla) — la red de Sinápsis es mucho más chica que la escena original y un
+// decorado de fondo no necesita esa resolución; si algún día se ve "poligonoso" de cerca, subir
+// MUNDO_LADO.
+const ESTRELLAS = 4000;
+const RADIO_ESTRELLAS_MIN = 600;
+const RADIO_ESTRELLAS_MAX = 1400;
+const MUNDO_LADO = 128;
+const MONTANA_TAMANO = 2200;
+const MONTANA_INTENSIDAD = 5;
+// El pico más alto de la montaña nunca queda por encima de esta Y, sea cual sea el ruido que
+// haya tocado en esta corrida (alturas[i] sale de un Uint8Array, 0-255, así que el pico real
+// varía). Un offset fijo (como antes, -500) no alcanza: con intensidad 5 un pico de 255 sube
+// 1275 unidades y atraviesa la red, que vive mucho más arriba. Bien por debajo de donde el
+// layout de fuerzas suele extenderse (nodeSize 25, linkDistance ~140-200).
+const MONTANA_TECHO = -350;
 
-    // custom global variables
-    video;
-    videoImage; 
-    videoImageContext; 
-    videoTexture;
+export class Background {
+    constructor(scene) {
+        this.scene = scene;
+        this.objetos = [];
+        if (!scene) return;
 
-    backgroundColor = 0x111111;
-    mountainsHeight = -600;
+        scene.background = new THREE.Color(0x111111);
+        this._agregarEstrellas();
+        this._agregarMontana();
+    }
 
-    globalUniforms = {
-        bloom: {value: 0},
-        time: {value: 0},
-        aspect: {value: innerWidth / innerHeight}
-    };
- 
-    constructor(Mundo){
-
-        //Sizes:
-        const worldWidth = 1024, worldDepth = 1024,
-        worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
-
-        this.scene = Mundo.scene;
-        this.renderer = Mundo.renderer;
-        this.camera = Mundo.camera;
-
-        var vertexHeight = 1000,
-            planeDefinition = 200,
-            planeSize = 1245,
-            totalObjects = 1,
-            meshColor = "#005e97"; 
-
-        //this.scene.fog = new THREE.Fog(this.backgroundColor, 1, 300000);
-
-        // En AR no debemos poner background de color, debe ser transparente para ver la cámara
-        if(this.backgroundColor && this.scene && !Mundo.arActive){
-            this.scene.background = new THREE.Color( this.backgroundColor );
-        }
-
-        // En tu inicialización de la escena (por ejemplo, en el constructor de Mundo)
-        const starCount = 5000;
-        const geometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(starCount * 3);
-
-        for (let i = 0; i < starCount; i++) {
-            const r = 800 + Math.random() * 1200; // radio de la esfera de estrellas
-            const theta = Math.random() * 2 * Math.PI;
+    _agregarEstrellas() {
+        const posiciones = new Float32Array(ESTRELLAS * 3);
+        for (let i = 0; i < ESTRELLAS; i++) {
+            const r = RADIO_ESTRELLAS_MIN + Math.random() * (RADIO_ESTRELLAS_MAX - RADIO_ESTRELLAS_MIN);
+            const theta = Math.random() * Math.PI * 2;
             const phi = Math.acos(2 * Math.random() - 1);
-
-            positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-            positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-            positions[i * 3 + 2] = r * Math.cos(phi);
+            posiciones[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+            posiciones[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+            posiciones[i * 3 + 2] = r * Math.cos(phi);
         }
-
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-        const material = new THREE.PointsMaterial({
-            color: 0x8AE2C8,
-            size: 5,
-            sizeAttenuation: true,
-            transparent: true,
-            opacity: 0.8
-        });
-
-        const stars = new THREE.Points(geometry, material);
-        if(this.scene && !Mundo.arActive){
-            this.scene.add(stars); // Asegúrate de tener acceso a this.scene
-        }
-        
-        /* const axesHelper = new THREE. AxesHelper( 1000 );
-        /* this.scene.add( axesHelper ); */
-        
-        //Add video texture:
-        // create the video element
-        /* this.video = document.createElement( 'video' );
-        this.video.id = 'video';
-        this.video.type = ' video/ogg; codecs="theora, vorbis" ';
-        this.video.src = "/videos/fluidback.mp4";
-        this.video.loop = true;
-        this.video.muted = true;
-        this.video.load(); // must call after setting/changing source
-        var playPromise = this.video.play();
-
-        if (playPromise !== undefined) {
-            playPromise.then(_ => {
-                // Automatic playback started!
-                // Show playing UI.
-            })
-            .catch(error => {
-                // Auto-play was prevented
-                // Show paused UI.
-            });
-        }
-
-        this.videoImage = document.createElement( 'canvas' );
-        this.videoImage.width = 256;
-        this.videoImage.height = 256;
-
-        this.videoImageContext = this.videoImage.getContext( '2d' );
-        // background color if no video present
-        this.videoImageContext.fillStyle = '#233456';
-        this.videoImageContext.fillRect( 0, 0, this.videoImage.width, this.videoImage.height );
-
-        this.videoTexture = new THREE.Texture( this.videoImage );
-        this.videoTexture.minFilter = THREE.LinearFilter;
-        this.videoTexture.magFilter = THREE.LinearFilter;
-
-        
-
-        //Geometry
-        const geometry = new THREE.PlaneGeometry( 7500, 7500, worldWidth - 1, worldDepth - 1 );
-        geometry.rotateX( - Math.PI / 2 ); 
-        const data = Utils.generateHeight( worldWidth, worldDepth ); 
-        const vertices = geometry.attributes.position.array;
-        for ( let i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
-            vertices[ j + 1 ] = data[ i ] * 10;
-        }
-        
-        //Mesh
-        var movieMaterial = new THREE.MeshBasicMaterial( { map: this.videoTexture, overdraw: true, side:THREE.DoubleSide } );
-        let mesh = new THREE.Mesh( geometry, movieMaterial );
-        mesh.position.y = this.mountainsHeight;
-        this.scene.add( mesh );  */
-
-        //Add Plane:
-        /* var planeGeo = new THREE.PlaneGeometry(planeSize, planeSize, planeDefinition, planeDefinition);
-        var plane = new THREE.Mesh(planeGeo, new THREE.MeshBasicMaterial({
-            color: meshColor,
-            wireframe: true
-        })); */
-        /* 
-            plane.rotation.x -= Math.PI * .5;
-            plane.position.set = new THREE.Vector3( -10, -100, 0 );
-        */
-
-        /*Other Geometry
-        const piso = new THREE.PlaneGeometry( 5000, 5000, worldWidth - 1, worldDepth - 1 );
-        piso.rotateX( - Math.PI / 2 ); 
-        const data2 = Utils.generateHeight( worldWidth , worldDepth ); 
-        const vertices2 = piso.attributes.position.array;
-        for ( let i = 0, j = 0, l = vertices2.length; i < l; i ++, j += 3 ) {
-            vertices2[ j + 1 ] = data2[ i ] * 4; //Intensidad
-        }
-
-        let localUniforms = {
-            color1: {value: new THREE.Color(0x000000)}, 
-            color2: {value: new THREE.Color(0xEEEEEE)},
-        }
-        let m = new THREE.MeshStandardMaterial({
-            roughness: 0.125,
-            metalness: 0.875,
-            onBeforeCompile: shader => {
-                shader.uniforms.time = this.globalUniforms.time;
-                shader.uniforms.color1 = localUniforms.color1;
-                shader.uniforms.color2 = localUniforms.color2;
-                shader.vertexShader = `
-                varying vec3 rPos;
-                ${shader.vertexShader}
-                `.replace(
-                `#include <beginnormal_vertex>`,
-                `#include <beginnormal_vertex>
-                    vec3 p0 = position;
-                `
-                )
-                .replace(
-                `#include <begin_vertex>`,
-                `#include <begin_vertex>
-                    rPos = p0;
-                `
-                );
-                //console.log(shader.vertexShader);
-                shader.fragmentShader = `
-                varying vec3 rPos;
-                ${shader.fragmentShader}
-                `
-                .replace(
-                `#include <dithering_fragment>`,
-                `#include <dithering_fragment>
-                    
-                    float coord = length(rPos.xyz);
-
-                    // Compute anti-aliased world-space grid lines
-                    float line = abs(fract(coord - 0.5) - 0.5) / fwidth(coord);
-                
-                    // Just visualize the grid lines directly
-                    float color = 1.0 - min(line, 1.0);
-                
-                    // Apply gamma correction
-                    color = pow(color, 1.0 / 2.2);
-                    gl_FragColor = vec4(vec3(color), 1.0);
-                    
-                `
-                );
-                //console.log(shader.fragmentShader);
-            }
-        });
-        var pisoMesh = new THREE.Mesh(piso, m);
-        const wireframe = new THREE.WireframeGeometry( piso );
-        
-        const line = new THREE.LineSegments( wireframe );
-        line.material.depthTest = true;
-        line.material.opacity = 0.25;
-        line.material.transparent = true;
-        
-        line.position.y = this.mountainsHeight;
-        this.scene.add( line );
-        //this.scene.add( pisoMesh );
-/*         var piso2 = piso;
-        piso2.rotateX( - Math.PI / 2.5 ); 
-        const wireframe2 = new THREE.WireframeGeometry( piso );
-        const line2 = new THREE.LineSegments( wireframe2 );
-        line2.position.y = this.mountainsHeight * 2;
-        this.scene.add( line2 ); */
-        /* const loader = new FontLoader();
-        var scene = this.scene;
-        var height = this.mountainsHeight;
-        loader.load( '/fonts/Briller_Regular.json', function ( font ) {
-
-            const geometry = new TextGeometry( 'TROPICAL PONCHO', {
-                font: font,
-                size: 150,
-                height: 20,
-                curveSegments: 12,
-                bevelEnabled: true,
-                bevelThickness: 10,
-                bevelSize: 8,
-                bevelOffset: 0,
-                bevelSegments: 5
-            } );
-            var material = new THREE.MeshBasicMaterial( { overdraw: true, side:THREE.DoubleSide } );
-            let meshText = new THREE.Mesh( geometry, material );
-            //meshText.position.y = height * -2.5;
-            meshText.position.z = -8000;
-            meshText.position.x = -2000;
-            meshText.position.y = 2000;
-            scene.add( meshText );
-        } ); */
-
-        /* const axesHelper = new THREE.AxesHelper( 15000 );
-        this.scene.add( axesHelper ); */
-        //this.scene.remove(scene.getObjectByName('Light'));
+        const geometria = new THREE.BufferGeometry();
+        geometria.setAttribute('position', new THREE.BufferAttribute(posiciones, 3));
+        const estrellas = new THREE.Points(geometria, new THREE.PointsMaterial({
+            color: 0x8AE2C8, size: 5, sizeAttenuation: true, transparent: true, opacity: 0.8,
+        }));
+        this.scene.add(estrellas);
+        this.objetos.push(estrellas);
     }
 
-    animate(){
-        /* if ( this.video.readyState === this.video.HAVE_ENOUGH_DATA ) 
-        {
-            this.videoImageContext.drawImage( this.video, 0, 0 );
-            if ( this.videoTexture ) 
-            this.videoTexture.needsUpdate = true;
-        } */
+    // La "mesh con forma de montaña sin textura": PlaneGeometry desplazado por un heightmap de
+    // ruido (Utils.generateHeight, mismo algoritmo que collectiveConscience), dibujado como
+    // WireframeGeometry — nunca tuvo un material con color sólido ni mapa de textura, sólo líneas.
+    _agregarMontana() {
+        const geometria = new THREE.PlaneGeometry(MONTANA_TAMANO, MONTANA_TAMANO, MUNDO_LADO - 1, MUNDO_LADO - 1);
+        geometria.rotateX(-Math.PI / 2);
+        const alturas = Utils.generateHeight(MUNDO_LADO, MUNDO_LADO);
+        const vertices = geometria.attributes.position.array;
+        let picoMaximo = 0;
+        for (let i = 0, j = 0; i < alturas.length; i++, j += 3) {
+            const y = alturas[i] * MONTANA_INTENSIDAD;
+            vertices[j + 1] = y;
+            if (y > picoMaximo) picoMaximo = y;
+        }
+        const wireframe = new THREE.WireframeGeometry(geometria);
+        const linea = new THREE.LineSegments(wireframe, new THREE.LineBasicMaterial({
+            color: 0x578CCB, transparent: true, opacity: 0.25, depthTest: true,
+        }));
+        // Desplaza el mesh entero hacia abajo lo justo para que ni el pico más alto de esta
+        // corrida pase de MONTANA_TECHO — no un offset fijo adivinado.
+        linea.position.y = MONTANA_TECHO - picoMaximo;
+        this.scene.add(linea);
+        this.objetos.push(linea);
+        // La PlaneGeometry sin rotar/desplazar ya no hace falta una vez armado el wireframe.
+        geometria.dispose();
     }
-    
-}
 
-function createCubeMap(){
-    let images = [];
-
-    let c = document.createElement("canvas");
-    c.width = 4;
-    c.height = c.width;
-    let ctx = c.getContext("2d");
-    for (let i = 0; i < 6; i++) {
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(0, 0, c.width, c.height);
-
-      for (let j = 0; j < (c.width * c.height) / 2; j++) {
-        ctx.fillStyle = Math.random() < 0.5 ? "#a8a9ad" : "#646464";
-        ctx.fillRect(
-          Math.floor(Math.random() * c.width),
-          Math.floor(Math.random() * c.height),
-          2,
-          1
-        );
-      }
-
-      images.push(c.toDataURL());
+    destruir() {
+        for (const o of this.objetos) {
+            this.scene?.remove(o);
+            o.geometry?.dispose();
+            o.material?.dispose();
+        }
+        this.objetos = [];
     }
-    return new THREE.CubeTextureLoader().load(images);
 }

@@ -6,9 +6,11 @@ import ForceGraph3D from '3d-force-graph';
 import { resolveTHREE } from './threeObjects/threeGlobal.js';
 const THREE = resolveTHREE();
 import { ThreeObjectManager } from './threeObjects/ThreeObjectManager.js';
+import { ThreeObject } from './threeObjects/ThreeObject.js';
 import './threeObjects/registerTypes.js';        // efecto: registra los 15 tipos
 import { CameraController } from './graph/cameraController.js';
 import { AnimationManager } from './graph/animationManager.js';
+import { Background } from './graph/background.js';
 import { GLOBAL_DEFAULT_SETTINGS, ANIMATION_SETTINGS } from './graph/constants.js';
 import { adaptarSubgrafo } from './adaptador.js';
 import { clasificarCambio, pinear, fusionar, desvanecerYQuitar } from './graph/transiciones.js';
@@ -26,11 +28,19 @@ export class SinapsisEngine {
 
         this.graph = ForceGraph3D({ controlType: 'orbit' })(elemento)
             .nodeLabel('name')
-            .numDimensions(3)
+            .numDimensions(GLOBAL_DEFAULT_SETTINGS.numDimensions)
+            .dagLevelDistance(GLOBAL_DEFAULT_SETTINGS.dagLevelDistance)
+            // Sólo fijable al construir: cambiarlo después de la primera carga rompe el tick
+            // (three-forcegraph#layoutTick llama a state.layout['tick'|'step'] según este valor,
+            // y el layout viejo no tiene el método del engine nuevo). Ver DebugPanel.tsx.
+            .forceEngine(opciones.forceEngine ?? 'd3')
             // Pre-simula la física antes del primer frame: el grafo nace ya asentado y encuadrable.
             // ponytail: bloquea el hilo mientras corren los ticks (crece con los nodos, sin medir aún); la carga progresiva lo reemplazaría.
             .warmupTicks(300)
             .enableNodeDrag(true)
+            .d3AlphaMin(GLOBAL_DEFAULT_SETTINGS.d3AlphaMin)
+            .d3AlphaDecay(GLOBAL_DEFAULT_SETTINGS.d3AlphaDecay)
+            .d3VelocityDecay(GLOBAL_DEFAULT_SETTINGS.d3VelocityDecay)
             .cameraPosition({ z: GLOBAL_DEFAULT_SETTINGS.cameraDistance });
 
         // ponytail: workaround de un bug ABIERTO de three.js (mrdoob/three.js#32116), no de
@@ -70,6 +80,7 @@ export class SinapsisEngine {
         this.camera = this.graph.camera();
         this.renderer = this.graph.renderer();
         this.scene = this.graph.scene();
+        this.background = new Background(this.scene);
 
         // 'Hover' como en la web original: sólo se anima el nodo bajo el mouse (PERF-01).
         this.threeObjectManager = new ThreeObjectManager({ animationType: 'Hover' });
@@ -246,6 +257,34 @@ export class SinapsisEngine {
         }
     }
 
+    // Debug: tuning en vivo de la simulación de fuerzas (3d-force-graph/d3-force-3d) desde un
+    // panel de desarrollo — no es parte del flujo normal de navegación, que sigue siendo sólo
+    // setVista. Cada campo es opcional; sólo se toca lo que venga definido.
+    configurarFuerzas(cfg = {}) {
+        const g = this.graph;
+        if (cfg.numDimensions !== undefined) g.numDimensions(cfg.numDimensions);
+        if (cfg.dagMode !== undefined) g.dagMode(cfg.dagMode || null);
+        if (cfg.dagLevelDistance !== undefined) g.dagLevelDistance(cfg.dagLevelDistance);
+        if (cfg.d3AlphaMin !== undefined) g.d3AlphaMin(cfg.d3AlphaMin);
+        if (cfg.d3AlphaDecay !== undefined) g.d3AlphaDecay(cfg.d3AlphaDecay);
+        if (cfg.d3VelocityDecay !== undefined) g.d3VelocityDecay(cfg.d3VelocityDecay);
+        if (cfg.linkDistance !== undefined) GLOBAL_DEFAULT_SETTINGS.linkDistance = cfg.linkDistance;
+        if (cfg.linkDistanciaPorGrado !== undefined) GLOBAL_DEFAULT_SETTINGS.linkDistanciaPorGrado = cfg.linkDistanciaPorGrado;
+        if (cfg.linkDistance !== undefined || cfg.linkDistanciaPorGrado !== undefined) {
+            this._grados = null; // el caché de grados quedó atado a los parámetros viejos
+            g.d3Force('link').distance(link => link.distance ?? this._distanciaPorGrado(link));
+        }
+        if (cfg.chargeStrength !== undefined) g.d3Force('charge').strength(cfg.chargeStrength);
+        g.d3ReheatSimulation();
+    }
+
+    // Debug: multiplicador global de la animación interna de cada forma (shader/time, no la
+    // posición del nodo en el layout — eso lo maneja configurarFuerzas). 1 = velocidad curada tal
+    // cual; <1 la frena. Estático en ThreeObject, no hay que recorrer los objetos ya creados.
+    configurarAnimacion({ velocidad } = {}) {
+        if (velocidad !== undefined) ThreeObject.multiplicadorVelocidad = velocidad;
+    }
+
     on(evento, handler) {
         (this._handlers[evento] ??= new Set()).add(handler);
         return () => this._handlers[evento]?.delete(handler);
@@ -351,6 +390,7 @@ export class SinapsisEngine {
         window.removeEventListener('resize', this._onResize);
         this.animationManager.clearState();
         this.threeObjectManager.disposeAll();
+        this.background?.destruir();
         this.graph._destructor?.();
         this._handlers = {};
     }
