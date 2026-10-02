@@ -24,7 +24,7 @@ React↔engine bridge are settled in Phase 1 and Phase 3 rather than discovered 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Repo Cleanup** (2026-08-06) - Remove the failed react-force-graph-3d attempt, update dependencies, land the engine source from collectiveConscience, carve out `strapi/`, define the shared `Vista` contract
-- [ ] **Phase 2: Data & Vista Backend** - Postgres schema owned by SQL migrations, CSV-curated data import, and the topology endpoint plus `resolverVista`
+- [x] **Phase 2: Data & Vista Backend** (2026-10-01) - Postgres schema owned by SQL migrations, CSV-curated data import, and the topology endpoint plus `resolverVista`
 - [x] **Phase 3: 3D Engine** - SinapsisEngine with its three transitions, React-free, measured for its render ceiling
 - [ ] **Phase 4: UI & Navigation** - Persistent canvas above the router, Next.js routes as overlays (home, ENTIDAD, OBRA), URL-driven navigation choreographed with camera moves, data-driven menu
 - [ ] **Phase 5: Tropical Poncho Launch** - tropicalponcho.art live as the ENTIDAD profile page, on real migrated data, no special-cased code
@@ -67,7 +67,7 @@ Plans:
 - [x] 02-02-PLAN.md — `resolverVista` y el índice de adyacencia, puros y con test runnable (wave 2)
 - [x] 02-03-PLAN.md — Primera pasada de la migración: dump de Mongo a CSV de curaduría (wave 2)
 - [x] 02-04-PLAN.md — Route handler de topología con dos SELECT sin joins y carga única en el cliente (wave 3)
-- [ ] 02-05-PLAN.md — Curaduría de tipos en planilla y segunda pasada: CSV corregido a Postgres (wave 4)
+- [x] 02-05-PLAN.md — Curaduría de tipos en planilla y segunda pasada: CSV corregido a Postgres (wave 4)
 
 ### Phase 3: 3D Engine
 **Goal**: `SinapsisEngine` renders and transitions between any Vista independent of React, cleans up after itself, and its real render ceiling is measured and written down.
@@ -133,7 +133,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 (2 and 3 can run in p
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Repo Cleanup | 4/4 | Complete | 2026-08-06 |
-| 2. Data & Vista Backend | 0/? | Not started | - |
+| 2. Data & Vista Backend | 5/5 | Complete | 2026-10-01 |
 | 3. 3D Engine | 6/6 | Complete | 2026-09-20 |
-| 4. UI & Navigation | 0/7 | Not started | - |
+| 4. UI & Navigation | 6/7 | Not started | - |
 | 5. Tropical Poncho Launch | 0/? | Not started | - |

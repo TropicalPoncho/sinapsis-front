@@ -1,57 +1,55 @@
 id,descartar,node_type,subtipo,label,descripcion_breve,disciplina,is_stub,fecha,thumb,shape,ref_fuente,ref_sub,ref_grado_entrada,ref_grado_salida,ref_revisar
-6335d5e37636ed5b3529c543,,OBRA,instalacion,SOMA BETA,,,si,2022-09-29,,,red,,1,10,"REVISAR: idem SOMA: es obra, no entidad | REVISAR: ""SOMA BETA"" aparece en las dos fuentes con ids distintos — reconciliar"
+6335d5e37636ed5b3529c543,si,EVENTO,festival,SOMA BETA,,,si,2022-09-29,,,red,,1,10,"REVISAR: idem SOMA: es obra, no entidad | REVISAR: ""SOMA BETA"" aparece en las dos fuentes con ids distintos — reconciliar"
 6335d5fa7636ed5b3529c545,,ENTIDAD,productora,Tropical Poncho,Productora de Experiencias Artísticas,,,2022-09-29,entidades/tropical-poncho.png,,red,Productora de Experiencias Artísticas,0,9,
 63365a05349709fa31e2a492,,ENTIDAD,centro_cultural,Cultura Del Sur,Centro Cultural en Temperley,,,2022-09-30,entidades/cultura-del-sur.png,,red,Centro Cultural en Temperley,1,0,
-63365a24349709fa31e2a495,,ENTIDAD,persona,Ana Hagen,VINYL SET,,,2022-09-30,,,red,VINYL SET,1,1,
+63365a24349709fa31e2a495,si,ENTIDAD,persona,Ana Hagen,VINYL SET,,,2022-09-30,,,red,VINYL SET,1,1,
 63365a2f349709fa31e2a498,,ENTIDAD,persona,Rama Cerratto,"Gestorx Cultural, Curadorx, DJ",,,2022-09-30,,,red,"Gestorx Cultural, Curadorx, DJ",1,8,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Rama Cerratto"" aparece en las dos fuentes con ids distintos — reconciliar"
-63365a35349709fa31e2a49b,,ENTIDAD,persona,Mechi Botta,,,si,2022-09-30,,,red,,2,5,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Mechi Botta"" aparece en las dos fuentes con ids distintos — reconciliar"
+63365a35349709fa31e2a49b,,ENTIDAD,persona,Mechi Botta,"Poeta, Gestora Cultural, Artista Visual, Escritora",,si,2022-09-30,,,red,,2,5,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Mechi Botta"" aparece en las dos fuentes con ids distintos — reconciliar"
 63365a5a349709fa31e2a49e,,ENTIDAD,persona,Laura Trotta,,,si,2022-09-30,,,red,,3,3,
 63365f80de8baa0e115c0e23,,ENTIDAD,proyecto,PROYECTOCOSO,Musica experimental,,,2022-09-30,entidades/proyectocoso.png,,red,Musica experimental,1,5,REVISAR: musica experimental: proyecto o banda?
 6336611bde8baa0e115c0e29,,ENTIDAD,sello,RAYO SECO,"Sello y productora independiente y autogestiva. Difundimos música experimental y arte sonoro. Fiske Menuco, Río Negro, Arg.",,,2022-09-30,entidades/rayo-seco.png,,red,"Sello y productora independiente y autogestiva. Difundimos música experimental y arte sonoro. Fiske Menuco, Río Negro, Arg.",1,3,"la descripcion dice ""sello y productora""; vos lo mencionaste como duo — decidi cual"
 63366372de8baa0e115c0e32,,ENTIDAD,persona,Claudia Brito,"Investigadora, creadora. Guio terapias y entrenamientos sensibles, docente y artista",,,2022-09-30,,,red,"Investigadora, creadora. Guio terapias y entrenamientos sensibles, docente y artista",2,2,
 633f920b8610fbf9ba8ea7d2,,ENTIDAD,colectivo,Vuelos Del Sur,Danza Aerea,,,2022-10-07,,,red,Danza Aerea,1,1,REVISAR: danza aerea: colectivo o proyecto?
 634102208610fbf9ba8ea7fd,,ENTIDAD,proyecto,MENOKO,LIVE SET,,,2022-10-07,entidades/menoko.png,,red,LIVE SET,4,0,REVISAR: LIVE SET: alias de persona o proyecto?
-634e423754f7f464bb82c02f,,ENTIDAD,persona,Pau Gialdroni,,,si,2022-10-15,,,red,,4,2,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Pau Gialdroni"" aparece en las dos fuentes con ids distintos — reconciliar"
 634e42a054f7f464bb82c032,si,ENTIDAD,persona,LIVE SETs,,,si,2022-10-15,,,red,,1,3,
 634e42b554f7f464bb82c035,si,ENTIDAD,persona,Exposiciones,,,si,2022-10-15,,,red,,1,1,"REVISAR: ""Exposiciones"" aparece en las dos fuentes con ids distintos — reconciliar"
 634e42c254f7f464bb82c038,,ENTIDAD,persona,Pao Olea,Media artist,,,2022-10-15,,,red,Media artist,1,0,
 634e42ce54f7f464bb82c03b,,ENTIDAD,persona,Agus Mansilla,,,si,2022-10-15,,,red,,4,0,
 634ed01b54f7f464bb82c04d,si,ENTIDAD,persona,Meditación,,,si,2022-10-15,,,red,,1,1,
-634f12c542f427bbb0f61ccd,,ENTIDAD,persona,Malvi,,,si,2022-10-18,,,red,,5,1,
+634f12c542f427bbb0f61ccd,si,ENTIDAD,persona,Malvi,,,si,2022-10-18,,,red,,5,1,
 634f75a76568fe16a0ecd515,,ENTIDAD,persona,Agustin,,,si,2022-10-19,,,red,,1,0,
 635076cbb5a6b13cc69ee5c3,si,ENTIDAD,persona,Vinyls DJ Sets,,,si,2022-10-19,,,red,,1,2,"REVISAR: ""Vinyls DJ Sets"" aparece en las dos fuentes con ids distintos — reconciliar"
-635078edb5a6b13cc69ee5ca,,ENTIDAD,persona,Rama Cerratto,"Gestorx Cultural, Curadorx, DJ",,,2022-10-19,,,red,"Gestorx Cultural, Curadorx, DJ",2,1,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Rama Cerratto"" aparece en las dos fuentes con ids distintos — reconciliar"
+635078edb5a6b13cc69ee5ca,si,ENTIDAD,persona,Rama Cerratto,"Gestorx Cultural, Curadorx, DJ",,,2022-10-19,,,red,"Gestorx Cultural, Curadorx, DJ",2,1,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Rama Cerratto"" aparece en las dos fuentes con ids distintos — reconciliar"
 63507c03b5a6b13cc69ee5e7,,ENTIDAD,proyecto,Dioniso de las Galaxias,Live Coding Set,,,2022-10-19,,,red,Live Coding Set,1,0,REVISAR: live coding: alias de una persona?
 63507d90b5a6b13cc69ee602,,ENTIDAD,persona,Federico Urdinez,,,si,2022-10-19,,,red,,3,0,
 63507e8ab5a6b13cc69ee60e,,ENTIDAD,proyecto,Agualuna,Meditación,,,2022-10-19,,,red,Meditación,1,0,REVISAR: meditacion: persona o proyecto?
 6350809ab5a6b13cc69ee61a,si,ENTIDAD,persona,Poesía performática,,,si,2022-10-19,,,red,,1,2,
-635080adb5a6b13cc69ee620,,ENTIDAD,persona,Mechi Botta,"Poeta, Gestora Cultural, Artista Visual, Escritora",,,2022-10-19,,,red,"Poeta, Gestora Cultural, Artista Visual, Escritora",2,0,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Mechi Botta"" aparece en las dos fuentes con ids distintos — reconciliar"
-635080b1b5a6b13cc69ee626,,ENTIDAD,persona,Pau Gialdroni,"Poeta, performer, Gestor cultural",,,2022-10-19,,,red,"Poeta, performer, Gestor cultural",1,0,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Pau Gialdroni"" aparece en las dos fuentes con ids distintos — reconciliar"
+635080adb5a6b13cc69ee620,si,ENTIDAD,persona,Mechi Botta,"Poeta, Gestora Cultural, Artista Visual, Escritora",,,2022-10-19,,,red,"Poeta, Gestora Cultural, Artista Visual, Escritora",2,0,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Mechi Botta"" aparece en las dos fuentes con ids distintos — reconciliar"
 63508310b5a6b13cc69ee62f,si,ENTIDAD,persona,Stickers,,,si,2022-10-19,,,red,,1,4,
 63525c179cbfbdcc0ee357e3,,ENTIDAD,persona,Sebastian Rimoldi,,,si,2022-10-21,,,red,,1,0,
 63579d1703c577aafeb6610c,si,ENTIDAD,persona,Sticker01,,,si,2022-10-23,,,red,,1,1,
 6357a05d03c577aafeb6611a,si,ENTIDAD,persona,Sticker02,,,si,2022-10-23,,,red,,1,0,
 6357a0be03c577aafeb6611d,si,ENTIDAD,persona,Sticker03,,,si,2022-10-23,,,red,,1,0,
 6357a61f03c577aafeb66120,si,ENTIDAD,persona,Sticker04,,,si,2022-10-23,,,red,,1,0,
-6359e018743457e9570df6bd,,ENTIDAD,persona,Pepi Lucero,,,si,2022-10-27,,,red,,1,0,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Pepi Lucero"" aparece en las dos fuentes con ids distintos — reconciliar"
-635c835889c30564dca7fc88,,ENTIDAD,colectivo,Traino de Danza,,,si,2022-10-28,,,red,,2,0,"REVISAR: posible duplicado de ""Traino de Movimiento Performatico"""
-635c83d789c30564dca7fc8a,,ENTIDAD,persona,Malvi Di Ritta,,,si,2022-10-28,,,red,,1,1,
+6359e018743457e9570df6bd,si,ENTIDAD,persona,Pepi Lucero,,,si,2022-10-27,,,red,,1,0,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Pepi Lucero"" aparece en las dos fuentes con ids distintos — reconciliar"
+635c835889c30564dca7fc88,si,ENTIDAD,colectivo,Traino de Danza,,,si,2022-10-28,,,red,,2,0,"REVISAR: posible duplicado de ""Traino de Movimiento Performatico"""
+635c83d789c30564dca7fc8a,,ENTIDAD,persona,Malvon Di Ritta,,,si,2022-10-28,,,red,,1,1,
 636a77a575e2b685cc4eae8e,si,ENTIDAD,persona,IG Story 01,,,si,2022-10-29,,,red,,0,0,
 637d13ef75e2b685cc4eb25a,si,ENTIDAD,persona,Visuales,,,si,2022-10-29,,,red,,0,0,
-637d13fb75e2b685cc4eb25d,si,ENTIDAD,persona,Tama Moyre,,,si,2022-10-29,,,red,,0,0,
-637d145e75e2b685cc4eb260,si,ENTIDAD,persona,Lula,,,si,2022-10-29,,,red,,0,0,
-636326c5b63661e98b47ed11,,OBRA,instalacion,SOMA,,,si,2022-10-29,,,red,,2,10,"REVISAR: en el dump viejo SOMA era una obra bajo ""Obras"", no una entidad | REVISAR: ""SOMA"" aparece en las dos fuentes con ids distintos — reconciliar"
+637d13fb75e2b685cc4eb25d,,ENTIDAD,persona,Tama Moyre,,,si,2022-10-29,,,red,,0,0,
+637d145e75e2b685cc4eb260,,ENTIDAD,persona,Lula Delcraneo,,,si,2022-10-29,,,red,,0,0,
+636326c5b63661e98b47ed11,si,EVENTO,festival,SOMA,SOMA,,si,2022-10-29,,,red,,2,10,"REVISAR: en el dump viejo SOMA era una obra bajo ""Obras"", no una entidad | REVISAR: ""SOMA"" aparece en las dos fuentes con ids distintos — reconciliar"
 63632711b63661e98b47ed14,si,ENTIDAD,persona,VINYLS DJ SETs,,,si,2022-10-29,,,red,,3,2,"REVISAR: ""VINYLS DJ SETs"" aparece en las dos fuentes con ids distintos — reconciliar"
-6363278ab63661e98b47ed16,,ENTIDAD,proyecto,E110101,,,si,2022-10-29,,,red,,2,2,REVISAR: parece alias de live coding
-63632802b63661e98b47ed18,,ENTIDAD,persona,Gaby Sartoris,,,si,2022-10-29,,,red,,1,4,
+6363278ab63661e98b47ed16,,ENTIDAD,duo,E110101,,,si,2022-10-29,,,red,,2,2,REVISAR: parece alias de live coding
+63632802b63661e98b47ed18,,ENTIDAD,persona,Guido Sartoris,,,si,2022-10-29,,,red,,1,4,
 63632829b63661e98b47ed1a,,ENTIDAD,persona,Chiri,,,si,2022-10-29,,,red,,1,3,
-637de7398be52c754bc5346d,si,ENTIDAD,persona,In Session,,,,2022-11-23,entidades/in-session.png,,red,,2,2,
+637de7398be52c754bc5346d,,ENTIDAD,productora,In Session,,,,2022-11-23,entidades/in-session.png,,red,,2,2,
 63b4b176c7c53c60df6d576a,si,ENTIDAD,persona,tickets,,,si,2022-11-26,,,red,,1,0,
 63b6144ad5cd16d6e43fe41f,,ENTIDAD,persona,Fede Fragas,,,si,2023-01-04,,,red,,2,1,
-63bc55c9d5cd16d6e43fe43b,,ENTIDAD,centro_cultural,Detroit Classic Gallery,,,,2023-01-04,entidades/detroit-classic-gallery.png,,red,,3,1,"REVISAR: suena a galeria, no a persona"
-63bc55f8d5cd16d6e43fe43d,,ENTIDAD,persona,Sol Ortega,,,si,2023-01-04,,,red,,3,0,
+63bc55c9d5cd16d6e43fe43b,si,ENTIDAD,centro_cultural,Detroit Classic Gallery,,,,2023-01-04,entidades/detroit-classic-gallery.png,,red,,3,1,"REVISAR: suena a galeria, no a persona"
+63bc55f8d5cd16d6e43fe43d,si,ENTIDAD,persona,Sol Ortega,,,si,2023-01-04,,,red,,3,0,
 63bcae86292862f05c5dc736,,ENTIDAD,persona,Ludmila Di Pascuale,,,si,2023-01-09,,,red,,1,1,
-63bcaead292862f05c5dc738,,ENTIDAD,persona,Pepi Lucero,,,si,2023-01-09,,,red,,1,0,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Pepi Lucero"" aparece en las dos fuentes con ids distintos — reconciliar"
+63bcaead292862f05c5dc738,si,ENTIDAD,persona,Pepi Lucero,,,si,2023-01-09,,,red,,1,0,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Pepi Lucero"" aparece en las dos fuentes con ids distintos — reconciliar"
 63bcb000292862f05c5dc73a,,ENTIDAD,persona,Luciano Rodriguez,,,si,2023-01-09,,,red,,3,0,
 63bd0f695fcd03a3def047c6,si,ENTIDAD,persona,Instagram,,,si,2023-01-10,,,red,,1,4,
 63bd18a55fcd03a3def047ec,si,ENTIDAD,persona,MEDITACIÓN ACTIVA,,,si,2023-01-10,,,red,,1,1,
@@ -60,49 +58,169 @@ id,descartar,node_type,subtipo,label,descripcion_breve,disciplina,is_stub,fecha,
 63bd19085fcd03a3def047f2,si,ENTIDAD,persona,EXPOSICIONES,,,si,2023-01-10,,,red,,1,0,"REVISAR: ""EXPOSICIONES"" aparece en las dos fuentes con ids distintos — reconciliar"
 63bd193a5fcd03a3def047f4,si,ENTIDAD,persona,BANDAS EN VIVO,,,si,2023-01-10,,,red,,1,2,
 63bd19b95fcd03a3def047f6,si,ENTIDAD,persona,ARTES CIRCENSES,,,si,2023-01-10,,,red,,1,0,
-63bd228c5fcd03a3def04840,,ENTIDAD,proyecto,Juli Garro Yoga,,,si,2023-01-10,,,red,,1,0,REVISAR: proyecto de una persona?
+63bd228c5fcd03a3def04840,,ENTIDAD,proyecto,Juli Garro Yoga,Profe de Yoga,,si,2023-01-10,,,red,,1,0,REVISAR: proyecto de una persona?
 63bd22d25fcd03a3def04842,si,ENTIDAD,persona,VJ,,,si,2023-01-10,,,red,,1,1,
 63bd22ed5fcd03a3def04844,,ENTIDAD,persona,Marian Basti,,,si,2023-01-10,,,red,,1,0,"REVISAR: ""Marian Basti"" aparece en las dos fuentes con ids distintos — reconciliar"
 63bd23445fcd03a3def04846,si,ENTIDAD,persona,Biodanza,,,si,2023-01-10,,,red,,1,1,
-63bd236f5fcd03a3def04848,,ENTIDAD,colectivo,Trama,,,si,2023-01-10,,,red,,1,1,REVISAR: sin descripcion: que es?
-63bd23925fcd03a3def0484a,,ENTIDAD,colectivo,Traino de Movimiento Performático,,,si,2023-01-10,,,red,,1,0,"REVISAR: posible duplicado de ""Traino de Danza"""
+63bd236f5fcd03a3def04848,,OBRA,obra,Trama,Traino de Movimiento Performático,,si,2023-01-10,,,red,,1,1,REVISAR: sin descripcion: que es?
+63bd23925fcd03a3def0484a,si,ENTIDAD,colectivo,Traino de Movimiento Performático,,,si,2023-01-10,,,red,,1,0,"REVISAR: posible duplicado de ""Traino de Danza"""
 63bd24705fcd03a3def0484c,,ENTIDAD,persona,Fedah,,,si,2023-01-10,,,red,,2,0,
-63bd24a85fcd03a3def0484e,,ENTIDAD,persona,Rochi,,,si,2023-01-10,,,red,,1,0,
+63bd24a85fcd03a3def0484e,,ENTIDAD,persona,Rochi,Biodanza,,si,2023-01-10,,,red,,1,0,
 63bd25645fcd03a3def04850,,ENTIDAD,banda,KIRTAN ROCK,,,si,2023-01-10,,,red,,1,0,REVISAR: banda o evento recurrente?
 63bd25875fcd03a3def04852,,ENTIDAD,banda,Astronautas De La Mente,,,si,2023-01-10,,,red,,1,0,REVISAR: banda o colectivo?
-63c92bae4270efbd075d9272,,ENTIDAD,persona,Rama 2,,,si,2023-01-19,,,red,,1,0,"REVISAR: parece duplicado de prueba de ""Rama Cerratto"" — descartar?"
+63c92bae4270efbd075d9272,si,ENTIDAD,persona,Rama 2,,,si,2023-01-19,,,red,,1,0,"REVISAR: parece duplicado de prueba de ""Rama Cerratto"" — descartar?"
 63c9accd4270efbd075d92c6,si,ENTIDAD,persona,Ramita,,,si,2023-01-19,,,red,,0,0,
-6421a75422bfe064c2eb58ad,,ENTIDAD,persona,Laura,,,si,2023-03-03,,,red,,1,0,
-64487ecb22bfe064c2eb5ac5,,ENTIDAD,persona,javi,,,si,2023-03-03,,,red,,1,0,
+6421a75422bfe064c2eb58ad,si,ENTIDAD,persona,Laura,,,si,2023-03-03,,,red,,1,0,
+64487ecb22bfe064c2eb5ac5,si,ENTIDAD,persona,javi,,,si,2023-03-03,,,red,,1,0,
 647ac0e23bfd6b676bb156fc,,ENTIDAD,persona,Mailen Lazzarone,,,si,2023-06-01,,,red,,1,0,
 649993393bfd6b676bb1590c,si,ENTIDAD,persona,Juancho,,,si,2023-06-01,,,red,,0,0,
 649996ef3bfd6b676bb15926,si,ENTIDAD,persona,goljavi,,,si,2023-06-01,,,red,,0,0,
-64c94cfd3bfd6b676bb15c5f,,ENTIDAD,persona,mar,,,si,2023-06-01,,,red,,1,0,
+64c94cfd3bfd6b676bb15c5f,si,ENTIDAD,persona,mar,,,si,2023-06-01,,,red,,1,0,
 64fada1fe627cebf00a583c9,si,ENTIDAD,persona,Jdjd,,,si,2023-09-02,,,red,,0,0,
 669a4715e1452d0f79a8deb9,,AGRUPACION,area,Nosotres,,,,,agrupaciones/nosotres.png,Image,sitio,,0,0,"REVISAR: ""Nosotres"" es una sección del sitio, no un área de trabajo — descartar?"
 669a4715e1452d0f79a8deba,,AGRUPACION,area,Obras,"La consciencia de la percepción misma, como obra",,,,,Twist,sitio,"La consciencia de la percepción misma, como obra",0,11,
-669a4715e1452d0f79a8debb,,AGRUPACION,area,Audiovisuales,"La documentación de la obra, como materia prima de otra creación.",,,,,Marble,sitio,"La documentación de la obra, como materia prima de otra creación.",0,0,
+669a4715e1452d0f79a8debb,,AGRUPACION,area,Audiovisuales,"La documentación de la obra, como materia prima de otra creación.",,,,,Lights,sitio,"La documentación de la obra, como materia prima de otra creación.",0,0,
 669a4715e1452d0f79a8debc,,AGRUPACION,area,Editorial,El formato editorial para expandir el arte en toda su complejidad.,,,,,Twist,sitio,El formato editorial para expandir el arte en toda su complejidad.,0,0,
 669a4715e1452d0f79a8debd,,AGRUPACION,area,Tecnología,La tecnología en todas sus formas es una herramienta de la propia inteligencia planetaria que se expresa a trevés nuestro.,,,,,Lights,sitio,La tecnología en todas sus formas es una herramienta de la propia inteligencia planetaria que se expresa a trevés nuestro.,0,0,
 669a4715e1452d0f79a8debe,,AGRUPACION,area,Laboratorios,Otras de las maneras de expandir el arte es por medio de la experimentación colectiva y la sociabilización de saberes que enriquezcan la obra individual,,,,,Lights,sitio,Otras de las maneras de expandir el arte es por medio de la experimentación colectiva y la sociabilización de saberes que enriquezcan la obra individual,0,0,
-669a4715e1452d0f79a8dec1,,OBRA,obra,Kutral,El Fuego: Primer festival/experiencia en la Comarca Andina,,,,,Fire,sitio,El Fuego: Primer festival/experiencia en la Comarca Andina,1,0,
-669a4715e1452d0f79a8dec2,,OBRA,obra,Tempistica I,La sincronicidad,,,,,Twist,sitio,La sincronicidad,1,0,
-669a4715e1452d0f79a8dec3,,OBRA,obra,Tempistica II,,,si,,,Twist,sitio,,1,0,
-669a4715e1452d0f79a8dec4,,OBRA,obra,Tropical Posporno,Tropical Posporno,,,,,Lights,sitio,Tropical Posporno,1,0,
-669a4715e1452d0f79a8dec5,,OBRA,obra,SOMA beta,SOMAbeta,,,,,Marble,sitio,SOMAbeta,1,0,"REVISAR: ""SOMA beta"" aparece en las dos fuentes con ids distintos — reconciliar"
-669a4715e1452d0f79a8dec6,,OBRA,obra,SOMA,SOMA,,,,,Lights,sitio,SOMA,1,0,"REVISAR: ""SOMA"" aparece en las dos fuentes con ids distintos — reconciliar"
-669a4715e1452d0f79a8dec7,,OBRA,obra,NUDO,NUDO,,,,obras/nudo.png,Image,sitio,NUDO,1,0,
-669a4715e1452d0f79a8dec8,,OBRA,obra,C.E.P.A.,C.E.P.A.,,,,obras/c-e-p-a.png,Image,sitio,C.E.P.A.,1,0,
-669a4715e1452d0f79a8dec9,,OBRA,obra,Concierto Público #4 ft Tropical Poncho,CP,,,,,Marble,sitio,CP,1,0,
-669a4715e1452d0f79a8deca,,OBRA,obra,Tropical Posporno: Distopia,Distopia,,,,obras/tropical-posporno-distopia.png,Image,sitio,Distopia,1,0,
-669a4715e1452d0f79a8decb,,OBRA,obra,ESPORA,Encuentro para la promoción de la producción colectiva,,,,obras/espora.png,Image,sitio,Encuentro para la promoción de la producción colectiva,2,0,
-669a4715e1452d0f79a8decc,,OBRA,obra,WIP,,,,,obras/wip.png,Image,sitio,,0,1,"REVISAR: sin dimensionId, tipo conjeturado"
-669a4715e1452d0f79a8ded5,si,ENTIDAD,persona,Julieta Agriano,,,si,,,SimpleText,sitio,,0,0,
-669a4715e1452d0f79a8ded6,si,ENTIDAD,persona,Ep.Di,,,si,,,SimpleText,sitio,,0,0,
-669a4715e1452d0f79a8ded7,si,ENTIDAD,persona,Ari,,,si,,,SimpleText,sitio,,0,0,
-669a4715e1452d0f79a8ded8,si,ENTIDAD,persona,Mel,,,si,,,SimpleText,sitio,,0,0,
+669a4715e1452d0f79a8dec1,,EVENTO,festival,Kutral,El Fuego: Primer festival/experiencia en la Comarca Andina,,,,,Fire,sitio,El Fuego: Primer festival/experiencia en la Comarca Andina,1,0,
+669a4715e1452d0f79a8dec2,,EVENTO,festival,Tempistica I,La sincronicidad,,,,,Twist,sitio,La sincronicidad,1,0,
+669a4715e1452d0f79a8dec3,,EVENTO,festival,Tempistica II,,,si,,,Twist,sitio,,1,0,
+669a4715e1452d0f79a8dec4,,EVENTO,fiesta,Tropical Posporno,Tropical Posporno,,,,,Lights,sitio,Tropical Posporno,1,0,
+669a4715e1452d0f79a8dec5,,EVENTO,festival,SOMA beta,SOMAbeta,,,,,Fire,sitio,SOMAbeta,1,0,"REVISAR: ""SOMA beta"" aparece en las dos fuentes con ids distintos — reconciliar"
+669a4715e1452d0f79a8dec6,,EVENTO,festival,SOMA,SOMA,,,,,Lights,sitio,SOMA,1,0,"REVISAR: ""SOMA"" aparece en las dos fuentes con ids distintos — reconciliar"
+669a4715e1452d0f79a8dec7,,EVENTO,jam,NUDO,NUDO,,,,obras/nudo.png,Image,sitio,NUDO,1,0,
+669a4715e1452d0f79a8dec8,,EVENTO,concierto,C.E.P.A.,C.E.P.A.,,,,obras/c-e-p-a.png,Image,sitio,C.E.P.A.,1,0,
+669a4715e1452d0f79a8dec9,,EVENTO,performance,Concierto Público #4 ft Tropical Poncho,CP,,,,,Perlin Noise,sitio,CP,1,0,
+669a4715e1452d0f79a8deca,,EVENTO,fiesta,Tropical Posporno: Distopia,Distopia,,,,obras/tropical-posporno-distopia.png,Image,sitio,Distopia,1,0,
+669a4715e1452d0f79a8decb,,EVENTO,conversatorio,ESPORA,Encuentro para la promoción de la producción colectiva,,,,obras/espora.png,Image,sitio,Encuentro para la promoción de la producción colectiva,2,0,
+669a4715e1452d0f79a8decc,,ENTIDAD,plataforma,WIP,,,,,obras/wip.png,Image,sitio,,0,1,"REVISAR: sin dimensionId, tipo conjeturado"
+669a4715e1452d0f79a8ded5,,ENTIDAD,persona,Julieta Agriano,,,si,,,SimpleText,sitio,,0,0,
+669a4715e1452d0f79a8ded6,,ENTIDAD,persona,Ep.Di,,,si,,,SimpleText,sitio,,0,0,
+669a4715e1452d0f79a8ded7,,ENTIDAD,persona,Ari,,,si,,,SimpleText,sitio,,0,0,
+669a4715e1452d0f79a8ded8,,ENTIDAD,persona,Mel,,,si,,,SimpleText,sitio,,0,0,
 669a4715e1452d0f79a8ded9,si,ENTIDAD,persona,Rama Cerratto,,,si,,,SimpleText,sitio,,0,0,"REVISAR: ""Rama Cerratto"" aparece en las dos fuentes con ids distintos — reconciliar"
-669a4715e1452d0f79a8deda,si,ENTIDAD,persona,La Er,,,si,,,SimpleText,sitio,,0,0,
+669a4715e1452d0f79a8deda,,ENTIDAD,persona,La Er,,,si,,,SimpleText,sitio,,0,0,
 669a4715e1452d0f79a8dedb,si,ENTIDAD,persona,Clau Brito,,,si,,,SimpleText,sitio,,0,0,
-669a4715e1452d0f79a8dedc,si,ENTIDAD,persona,Luz Alta,,,si,,,SimpleText,sitio,,0,0,
+669a4715e1452d0f79a8dedc,,ENTIDAD,persona,Luz Alta,,,si,,,SimpleText,sitio,,0,0,
 669a4715e1452d0f79a8dedd,si,ENTIDAD,persona,Marian Basti,,,si,,,SimpleText,sitio,,0,0,"REVISAR: ""Marian Basti"" aparece en las dos fuentes con ids distintos — reconciliar"
+fe4e608a4d562d0f9dfad89b,,OBRA,disco,Cositura,Disco de música experimental de PROYECTOCOSO,,,,,,curaduria,,,,
+6fe509c226d2bc51b346a88b,,OBRA,disco,equilibrio no existís,Disco de música experimental de PROYECTOCOSO,,,,,,curaduria,,,,
+940acbd22017b61fc61b81b1,,OBRA,disco,Falso,Disco de música experimental de PROYECTOCOSO,,,,,,curaduria,,,,
+d2473f2eb6ecdc1f0a261272,,ENTIDAD,persona,Manu,"Artista de contorsión, colaboró en NUDO",,,,,,curaduria,,,,
+f367da813db2a7554dc43133,,ENTIDAD,persona,Flor,"Artista de shibari, colaboró en NUDO",,,,,,curaduria,,,,
+6912956eddac1e4aa2699912,,ENTIDAD,persona,Oxie,"DJ, colaboró en NUDO",,,,,,curaduria,,,,
+90f53daca8b05879e408b212,,ENTIDAD,persona,Vel,Diseño de flyer y dirección de arte para eventos de Tropical Poncho,,,,,,curaduria,,,,
+b79b6ec6530f36a6be179571,,ENTIDAD,persona,Memi,Artista de performance,,,,,,curaduria,,,,
+8bfe942ca494e64a3676df1d,,ENTIDAD,persona,Oscar,Artista de performance,,,,,,curaduria,,,,
+86f7f60e98d07991c60cc8c4,,ENTIDAD,persona,Hele,Armonía y puerta en eventos de Tropical Poncho,,,,,,curaduria,,,,
+896fe3d9a9c04dd497820110,,ENTIDAD,persona,Cris,Integra la productora Conmarcaandina,,,,,,curaduria,,,,
+c6d5d2239e8eb5302b7960ba,,ENTIDAD,persona,Vir,Integra la productora Conmarcaandina,,,,,,curaduria,,,,
+ea0fe5f4eed8d03ab1c4e3b6,,ENTIDAD,persona,Hugo Martinez,Coreógrafo,,,,,,curaduria,,,,
+d7eb70968bbeb5f5337faf3e,,ENTIDAD,productora,Conmarcaandina,"Productora, coprodujo Concierto Público #4 junto a Tropical Poncho",,,,,,curaduria,,,,
+ec65ce41e35718c377e9d040,,EVENTO,fiesta,Punk Solar,Evento de Tropical Poncho,,,2025-03-15,,,curaduria,,,,
+7dc6a0fd08814f653c8ddba8,,ENTIDAD,persona,Juan Balladobres,Alias artístico Outro (Sello Rojo). Charla + liveset en ESPORA,,,,,,curaduria,,,,
+3291d6c95eebc5f09564a767,,ENTIDAD,persona,Abril,Registro audiovisual,,,,,,curaduria,,,,
+79dd8b20673b687ce319e1e4,,ENTIDAD,persona,Aien,Streaming,,,,,,curaduria,,,,
+b63611a38fc5d855eee05884,,ENTIDAD,persona,Rayo,,,,,,,curaduria,,,,
+27c20cebe13c41ceee7f439d,,ENTIDAD,persona,Auki,,,,,,,curaduria,,,,
+40fbb4347d55959b4daadfcc,,ENTIDAD,persona,Leonor,,,,,,,curaduria,,,,
+523412b4512d74f0c6f36171,,ENTIDAD,persona,Gera,,,,,,,curaduria,,,,
+8fc80a24e1a70104946aa906,,ENTIDAD,persona,Mica,,,,,,,curaduria,,,,
+2786e61b7d19f8fc31554391,,ENTIDAD,persona,Dai Parsons,,,,,,,curaduria,,,,
+a8d332746015d72ddcbbb7d6,,ENTIDAD,persona,Alma,,,,,,,curaduria,,,,
+b27661db7cedb7181a8c35e3,,ENTIDAD,persona,Orne,,,,,,,curaduria,,,,
+371d4807f461a313c2845247,,ENTIDAD,persona,Oliver,,,,,,,curaduria,,,,
+210ddb95634d5e0a63040bd5,,ENTIDAD,persona,Jaant,,,,,,,curaduria,,,,
+c6e31cf3e44d0f6bdf3ac746,,ENTIDAD,persona,Estelle,,,,,,,curaduria,,,,
+3f25a5412f59b91d8d6f1621,,ENTIDAD,persona,Luchi,,,,,,,curaduria,,,,
+af5a322f04958249e51acb6f,,ENTIDAD,colectivo,La Travokupa,"Colectivo de artistas travestis, 5 integrantes colaboraron en Tropical Posporno: Distopia",,,,,,curaduria,,,,
+4025f088a49e38d4a72839f0,,ENTIDAD,persona,Jaz,,,,,,,curaduria,,,,
+e754f63cc98e521f328fc0c3,,ENTIDAD,persona,Bian,,,,,,,curaduria,,,,
+9abc83fec1c2d09bbad5149f,,ENTIDAD,persona,Seba Morell,,,,,,,curaduria,,,,
+413d016e83ec9467713a77bf,,ENTIDAD,persona,Nivvvo,,,,,,,curaduria,,,,
+11ff3e2c5e9d74c0b310b337,,ENTIDAD,persona,Momf,,,,,,,curaduria,,,,
+77ad891e2a5cbbf11094c556,,ENTIDAD,persona,Waltrom,,,,,,,curaduria,,,,
+cfedac5c4d46cd68feb6c7f8,,ENTIDAD,persona,Caro compe,,,,,,,curaduria,,,,
+3684334a5f3dba676d3f1692,,ENTIDAD,persona,Fede,"Fotografx, colaboró en SOMA Beta",,,,,,curaduria,,,,
+0ff41a652c5412ef926a38fb,,ENTIDAD,persona,Dante,,,,,,,curaduria,,,,
+9c1e1b1667c0cbd42237c986,,ENTIDAD,persona,Lule,,,,,,,curaduria,,,,
+f1d16aa73ef448a955675c60,,ENTIDAD,persona,Picky,,,,,,,curaduria,,,,
+591e004136782a2bdf4135e6,,ENTIDAD,persona,Kiki,,,,,,,curaduria,,,,
+c0d55de9be6cfdb5556b6a4e,,ENTIDAD,persona,Alu,,,,,,,curaduria,,,,
+45e2ffb2c07464fe49e67367,,ENTIDAD,persona,Trekan,,,,,,,curaduria,,,,
+c216106b01186d8cb646189b,,ENTIDAD,persona,Aggromance,,,,,,,curaduria,,,,
+9dadf8f3973ba01a97350bd7,,ENTIDAD,persona,Princeso,,,,,,,curaduria,,,,
+cdd68520e6138a72bea780d3,,ENTIDAD,productora,Post.xno,"Productora nacida de Malvon Di Ritta y Laura Trotta, ex-integrantes de Tropical Poncho",,,,,,curaduria,,,,
+60582db5c5a4bfbfba833c6b,,EVENTO,fiesta,Anomalia,Coproducido por Tropical Poncho y Post.xno,,,2026-02-14,,,curaduria,,,,
+8bfb5556d144d1082831f732,,ENTIDAD,persona,Agux,,,,,,,curaduria,,,,
+b1606fbfdd5cb31ea523331b,,ENTIDAD,persona,El Barto,,,,,,,curaduria,,,,
+e3e145836470879332d8413e,,ENTIDAD,persona,Taiel,,,,,,,curaduria,,,,
+3a16f1d574b66d1d646ba687,,ENTIDAD,persona,Melodruma,,,,,,,curaduria,,,,
+31ae46b6e0a711e6b2002b75,,ENTIDAD,persona,Maia,,,,,,,curaduria,,,,
+3e43dbc61d60e4a2a95f61b4,,ENTIDAD,persona,Who,,,,,,,curaduria,,,,
+fe0017d7169926fe04d7c79b,,ENTIDAD,persona,Antena Yanum,,,,,,,curaduria,,,,
+15c6da1b916ec3be655334dd,,ENTIDAD,persona,Rapo,,,,,,,curaduria,,,,
+a50b5c5c416dd3bf49d5d5a2,,ENTIDAD,colectivo,La Pista,"Acto musical, colaboró en C.E.P.A.",,,,,,curaduria,,,,
+4c1526b8774cd8b0e24eb5bc,,ENTIDAD,persona,Lu,,,,,,,curaduria,,,,
+5d5b52be391b65bc6423dba9,,ENTIDAD,persona,Bebote,,,,,,,curaduria,,,,
+66e5af8dca0453014410c471,,ENTIDAD,persona,Goni,,,,,,,curaduria,,,,
+29a429d163feb824210c2712,,ENTIDAD,persona,Marianela,,,,,,,curaduria,,,,
+769411bbaeb60857c3604f79,,ENTIDAD,persona,Luqui,,,,,,,curaduria,,,,
+76b75b2cfdcc5f3652e56ff1,,ENTIDAD,persona,Solivan,,,,,,,curaduria,,,,
+cda4e5978d23dd6a9fbf7289,,ENTIDAD,persona,LaGus,,,,,,,curaduria,,,,
+b0bef242d052d957ff503fa1,,ENTIDAD,persona,Gusti,,,,,,,curaduria,,,,
+57c9cb13c216280e9572c6d6,,ENTIDAD,persona,Emi,,,,,,,curaduria,,,,
+af30b44f4b73241c52e4f2e1,,ENTIDAD,persona,Solana,,,,,,,curaduria,,,,
+b8cdf4adb3bf675b8d9bbc1e,,ENTIDAD,persona,Elen,,,,,,,curaduria,,,,
+51cdd647145e25569d9fb723,,ENTIDAD,persona,Bel,,,,,,,curaduria,,,,
+50104733b7ed10a94774c77e,,ENTIDAD,persona,Juano,,,,,,,curaduria,,,,
+9e27878af2f28bcad3f27572,,ENTIDAD,persona,Ro,,,,,,,curaduria,,,,
+e4e465b33e097844657d80a4,,ENTIDAD,persona,Ang,,,,,,,curaduria,,,,
+c5d71bcf2b4fc2180c2ce357,,ENTIDAD,persona,Jaku,,,,,,,curaduria,,,,
+2416abf227b06e7620b93a29,,ENTIDAD,persona,Dub Master Marcos,,,,,,,curaduria,,,,
+dc786344772cd5632e70b115,,ENTIDAD,persona,Nadia,,,,,,,curaduria,,,,
+2de80544ffd57b81a71af67d,,ENTIDAD,persona,Cali,,,,,,,curaduria,,,,
+a3d10aece8766f17d7f06ba9,,ENTIDAD,persona,Marian,,,,,,,curaduria,,,,
+2ed9835393ac3bf293f05afd,,ENTIDAD,banda,Miranda,"Banda, colaboró en Tempistica I",,,,,,curaduria,,,,
+6f7c3eec982ebb6a3f950b11,,ENTIDAD,persona,Noah,,,,,,,curaduria,,,,
+47b2b3acce4eca29de960d89,,ENTIDAD,persona,Auka,,,,,,,curaduria,,,,
+8d536ba79b85f094125ee2f2,,ENTIDAD,persona,Euge2,,,,,,,curaduria,,,,
+04bf4dc7275906e3954d913c,,ENTIDAD,persona,Chino,,,,,,,curaduria,,,,
+94895eee1bd49e80d1eb6ca1,,ENTIDAD,persona,Maca,,,,,,,curaduria,,,,
+d187f5c6084ec477a91a622e,,ENTIDAD,persona,Mary,,,,,,,curaduria,,,,
+d6eae82fd7cc2dfc2f955b2e,,ENTIDAD,persona,Peko,,,,,,,curaduria,,,,
+2227a3cdfe9a821dc1b6860d,,ENTIDAD,persona,Lolli,,,,,,,curaduria,,,,
+cb610e4110c76242c84aba92,,ENTIDAD,persona,Fran,,,,,,,curaduria,,,,
+aebc243dab893e3252f71c34,,ENTIDAD,persona,Mile,,,,,,,curaduria,,,,
+b9fd1941af130409dfb73448,,ENTIDAD,persona,Karina,,,,,,,curaduria,,,,
+695f4dd84349033c6d726089,,ENTIDAD,colectivo,OnoSapiens,"Proyecto de obra sonora, colaboró en Tempistica II",,,,,,curaduria,,,,
+9794e8b141edc59f9e7201da,,ENTIDAD,persona,Ceci,,,,,,,curaduria,,,,
+a802aa7f2ae0a7a968f76738,,ENTIDAD,persona,Cami,,,,,,,curaduria,,,,
+c2e529a292a5ccc53d547ea0,,ENTIDAD,persona,Sol,,,,,,,curaduria,,,,
+5ff5efe354d02d038607f417,,ENTIDAD,banda,Las Fieras,"Banda, colaboró en Tempistica II",,,,,,curaduria,,,,
+225e2efcc1e176b22643e503,,ENTIDAD,persona,Jackie,,,,,,,curaduria,,,,
+f463f60378d633b9085f3b62,,ENTIDAD,persona,Alvaro,,,,,,,curaduria,,,,
+6ea7bc36f4e769c1cdb7542a,si,ENTIDAD,persona,Marquitos,,,,,,,curaduria,,,,
+6039268665fe95cae6b32238,,ENTIDAD,persona,Her,,,,,,,curaduria,,,,
+d19dec7a02f42da5f5587d2c,,ENTIDAD,persona,Coco,,,,,,,curaduria,,,,
+4df4c588a9174127f977118d,,ENTIDAD,persona,Luen,,,,,,,curaduria,,,,
+6edd4f0850500f0967a73f1a,,ENTIDAD,persona,Sabri Shibari,,,,,,,curaduria,,,,
+732948815658668d64d5cd46,,ENTIDAD,persona,Fede Coso,,,,,,,curaduria,,,,
+1478c3b6f5f469c02e6e2756,,ENTIDAD,persona,Juana,,,,,,,curaduria,,,,
+e15cd5c6cc1a25abf204a313,si,ENTIDAD,persona,MaTS DJ,,,,,,,curaduria,,,,
+6d4530a9f324767fba4d74e7,si,ENTIDAD,persona,Mati DJ,,,,,,,curaduria,,,,
+aa649abc4a138cd30b4581a1,,ENTIDAD,persona,Laureana,,,,,,,curaduria,,,,
+b244928d1ddbea897f2847cc,,ENTIDAD,persona,Escorpion del bosque,,,,,,,curaduria,,,,
+e2bd9669f1126937b83b07de,,ENTIDAD,persona,La Cleteria,,,,,,,curaduria,,,,
+8cd1015fd0406b10a642f06f,,ENTIDAD,persona,Los ojos de Mari,,,,,,,curaduria,,,,
+41060e0311b21176d73ebad0,,ENTIDAD,persona,J4 4NT,,,,,,,curaduria,,,,
+1f7190a5e3929025631f7ae7,,ENTIDAD,persona,Sabri Mallin,,,,,,,curaduria,,,,
+82ec028de5d79a49a5b560bd,,ENTIDAD,persona,Mery la gringa,,,,,,,curaduria,,,,
+34b0e040aad0b303a3c95d14,,ENTIDAD,persona,Male,,,,,,,curaduria,,,,
+2bbde4b95c5fc28df499cb2d,,ENTIDAD,persona,Pi,,,,,,,curaduria,,,,
+63b22200d1577c7799c55ca0,,ENTIDAD,persona,Rami,,,,,,,curaduria,,,,
+52656f0cbda79ffe074c8f54,,ENTIDAD,persona,Ger,,,,,,,curaduria,,,,
+7e5a4e979c6e09bc8cdec26c,,ENTIDAD,persona,Tomy,,,,,,,curaduria,,,,
+ac062ff6eccc445982702392,,ENTIDAD,persona,Deivid,,,,,,,curaduria,,,,
+68535ef3aa06c7abf565be31,,ENTIDAD,colectivo,Todo Tet,"Colectivo de arte, instalación de la serpiente de fuego en Kutral",,,,,,curaduria,,,,

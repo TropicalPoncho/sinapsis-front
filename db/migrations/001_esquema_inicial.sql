@@ -42,6 +42,7 @@ INSERT INTO subtipos (codigo, node_type, label) VALUES
   ('centro_cultural', 'ENTIDAD',    'Centro cultural'),
   ('sello',           'ENTIDAD',    'Sello'),
   ('proyecto',        'ENTIDAD',    'Proyecto'),
+  ('plataforma',      'ENTIDAD',    'Plataforma'),
   -- Genérico: la obra existe pero todavía no se decidió de qué tipo es. Mejor un valor
   -- honesto que forzar una categoría inventada en la migración.
   ('obra',            'OBRA',       'Obra'),
@@ -49,12 +50,17 @@ INSERT INTO subtipos (codigo, node_type, label) VALUES
   ('video',           'OBRA',       'Video'),
   ('libro',           'OBRA',       'Libro'),
   ('cancion',         'OBRA',       'Canción'),
+  ('disco',           'OBRA',       'Disco'),
   ('episodio',        'OBRA',       'Episodio'),
   ('instalacion',     'OBRA',       'Instalación'),
   ('concierto',       'EVENTO',     'Concierto'),
   ('muestra',         'EVENTO',     'Muestra'),
   ('funcion',         'EVENTO',     'Función'),
   ('conversatorio',   'EVENTO',     'Conversatorio'),
+  ('festival',        'EVENTO',     'Festival'),
+  ('fiesta',          'EVENTO',     'Fiesta'),
+  ('jam',             'EVENTO',     'Jam'),
+  ('performance',     'EVENTO',     'Performance'),
   ('serie',           'AGRUPACION', 'Serie'),
   ('area',            'AGRUPACION', 'Área'),
   ('podcast',         'AGRUPACION', 'Podcast'),
@@ -104,9 +110,14 @@ CREATE TABLE vinculos (
   created_by   text,
 
   -- DATA-04: sin CUSTOM. Un tipo libre no se puede traversar ni filtrar desde una Vista.
+  -- SUCEDE_EN en presente, como COMPONE/INTEGRA: el hecho estructural (dónde pasa el evento)
+  -- no depende de si ya ocurrió — eso lo dice `fecha` en el nodo, no el tiempo verbal del vínculo.
+  -- PRECEDE: dirigido, origen sucede antes que destino. Orden curatorial entre obras/eventos,
+  -- no cronología de datos — dos obras del mismo año pueden tener un PRECEDE igual si así se
+  -- decidió mostrarlas. INSPIRO ya cubre "esto inspiró a esto otro" cuando esa es la relación real.
   CONSTRAINT vinculos_tipo_valido CHECK (
     tipo_vinculo IN ('COMPONE', 'COLABORO_EN', 'CORREALIZO', 'PRODUJO',
-                     'INTEGRA', 'INSPIRO', 'REGISTRO')),
+                     'INTEGRA', 'INSPIRO', 'REGISTRO', 'SUCEDE_EN', 'PRECEDE')),
   CONSTRAINT vinculos_rol_corto CHECK (rol IS NULL OR length(rol) <= 60),
   CONSTRAINT vinculos_no_reflexivo CHECK (origen <> destino),
   CONSTRAINT vinculos_sin_duplicado UNIQUE NULLS NOT DISTINCT (origen, destino, tipo_vinculo, rol)
