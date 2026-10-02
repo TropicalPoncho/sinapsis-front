@@ -152,73 +152,9 @@ textarea{
   
  /* Style the navigation container */
 
-  button {
-    appearance: none;
-    position: relative;
-    padding: 1em 2em;
-    border: 0;
-    background-color: rgba(0,0,0,0);
-    font-family: 'Briller', Gotham, sans-serif;
-    font-size: 18px;
-    font-weight: 500;
-    color: #ffff;
-    z-index: 2;
-  }
-  
-  button::after {
-    --m-i: linear-gradient(#000, #000);
-    --m-o: content-box, padding-box;
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    padding: var(--border-width);
-    background-image: conic-gradient(
-      #ff0080,
-      #ff0080,
-      #ff0080,
-      #ff0080,
-      #ff0080,
-      #ff0080,
-      #ff0080
-    );
-    -webkit-mask-image: var(--m-i), var(--m-i);
-    mask-image: var(--m-i), var(--m-i);
-    -webkit-mask-origin: var(--m-o);
-    mask-origin: var(--m-o);
-    mask-clip: var(--m-o);
-    mask-composite: exclude;
-    -webkit-mask-composite: destination-out;
-    filter: hue-rotate(0);
-    animation: rotate-hue634 linear 100ms infinite;
-    animation-play-state: paused;
-    border-radius: 20px;
-    border-color: #000;
-  }
-  
-  button:hover::after {
-    animation-play-state: running;
-    border-radius: 10px;
-  }
-  
-  @keyframes rotate-hue634 {
-    to {
-      filter: hue-rotate(1turn);
-    }
-  }
-  
-  button,
-  button::after {
-    box-sizing: border-box;
-    border-radius: 20px;
-  }
-  
-  button:active {
-    --border-width: 5px;
-  }
-  
+  /* El menú superior (áreas) y las acciones del panel/lateral tienen su propio estilo minimalista
+     en overlay.css (.nav-item, .accion) — nada acá les agrega pill ni glow (plan 04, UAT). */
+
   .bn {
     display: inline;
     padding: 0.9em 1.6em;
@@ -287,7 +223,7 @@ textarea{
     opacity: 1;
   }
   
-  .bn:active:after, button:focus {
+  .bn:active:after {
     background: transparent;
   }
 

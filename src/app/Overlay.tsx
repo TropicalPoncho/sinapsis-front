@@ -43,29 +43,49 @@ export default function Overlay({ estado, ady, idx, fase, error, panelRef, naveg
   const redId = ady && idx && estado.red ? idx.idPorSlug.get(estado.red) ?? null : null
   const enfocadoId = nodo?.id ?? null
 
+  // Entrar en una entidad/agrupación: se ve toda su red, el nombre pasa a ser el título y el panel se retira.
+  // El menú de áreas es parte de "entrado", no de "enfocado con el panel abierto": una cosa es el
+  // preview de un nodo (panel + botón Entrar) y otra muy distinta estar adentro de su red.
+  const entrado = nodo !== undefined && estado.red === estado.enfocado && nodo.nodeType !== 'OBRA' && nodo.nodeType !== 'EVENTO'
+  // El título de la red en la que estás NO depende de qué nodo tengas enfocado ahora mismo:
+  // sigue siendo "Obras" mientras mirás una obra adentro de Obras, no vuelve a "Sinápsis" hasta
+  // que de verdad salís de la red (estado.red === null).
+  const redNodo = ady && redId ? ady.nodos.get(redId) : undefined
+
   const sub = useMemo(() => {
     if (!ady || !redId) return null
     return resolverVista(ady, vistaDe(estado, redId, ady.nodos.get(redId)?.nodeType))
   }, [ady, redId, estado])
   const subredVacia = sub !== null && sub.nodos.length <= 1
 
-  const entidadId = ady ? entidadDeMenu(ady, { redId, enfocadoId }) : null
+  const entidadId = ady && entrado ? entidadDeMenu(ady, { redId, enfocadoId }) : null
   const items = ady && entidadId ? agrupadoresDe(ady, entidadId) : []
   const activoId = items.find((i) => i.id === redId)?.id ?? null
   const padreId = ady && enfocadoId ? padreDe(ady, enfocadoId) : null
-  const lateral = sub !== null && redId !== null && estado.red !== null
+  const lateral = sub !== null && redId !== null && estado.red !== null && ady?.nodos.get(redId)?.nodeType === 'AGRUPACION'
   const [lateralAbierto, setLateralAbierto] = useState(false)
+  const [menuAbierto, setMenuAbierto] = useState(false)
+  // Un solo botón hamburger en mobile, sea cual sea el menú que exista en este contexto (áreas de
+  // una entidad o la lista de un área): si dependiera de MenuSuperior, adentro de un área —donde
+  // items siempre es []— no habría forma de abrir el cajón lateral.
+  const hayMenu = items.length > 0 || lateral
+  const alHamburguesa = () => { setMenuAbierto((a) => !a); setLateralAbierto((a) => !a) }
 
   const irA = (id: string, red: boolean) => {
     const n = ady?.nodos.get(id)
     const slug = idx?.slugPorId.get(id)
     if (!n || !idx || !slug) return
     setLateralAbierto(false)
-    if (red) navegar(urlDe(rutaDe(n, idx), { enfocado: slug, red: slug, prof: null, semilla: null }), 'reemplazo')
+    setMenuAbierto(false)
+    if (red) navegar(urlDe(rutaDe(n, idx), { enfocado: slug, red: slug, prof: null, semilla: null, raiz: null, puentes: null }), 'reemplazo')
     else navegar(urlDe(rutaDe(n, idx), { ...estado, enfocado: slug }), 'aditivo')
   }
 
-  const visible = fase === 'listo' && (nodo !== undefined || error !== null || subredVacia)
+  // VOLVER de la lista lateral no es "atrás" en el historial (podría salir del área entera si
+  // hubo varios focos en el medio): es soltar el foco puntual y volver al panorama del área misma.
+  const volverAlArea = () => { if (redId) irA(redId, true) }
+
+  const visible = fase === 'listo' && ((nodo !== undefined && !entrado) || error !== null || subredVacia)
 
   useEffect(() => { setAbierto(false) }, [estado.enfocado])
   useEffect(() => {
@@ -95,7 +115,7 @@ export default function Overlay({ estado, ady, idx, fase, error, panelRef, naveg
       case 'entrar': {
         const slug = idx.slugPorId.get(nodo.id) ?? ''
         navegar(
-          urlDe(rutaDe(nodo, idx), { enfocado: slug, red: slug, prof: estado.prof, semilla: null }),
+          urlDe(rutaDe(nodo, idx), { enfocado: slug, red: slug, prof: estado.prof, semilla: null, raiz: null, puentes: null }),
           transicionEntrada(nodo.nodeType),
         )
         break
@@ -107,9 +127,9 @@ export default function Overlay({ estado, ady, idx, fase, error, panelRef, naveg
 
   const alPanelScroll = (el: HTMLElement) =>
     // ponytail: escala 400px reajustable
-    el.style.setProperty('--panel-alpha', String(Math.min(0.9, 0.55 + el.scrollTop / 400)))
+    [el, el.parentElement!].forEach((e) => e.style.setProperty('--panel-alpha', String(Math.min(0.9, 0.55 + el.scrollTop / 400))))
 
-  const volverBtn = puedeVolver && <button className="bn" onClick={volver}>Volver</button>
+  const volverBtn = puedeVolver && <button className="accion accion--volver" onClick={volver}>Volver</button>
 
   return (
     <div className="overlay">
@@ -118,23 +138,32 @@ export default function Overlay({ estado, ady, idx, fase, error, panelRef, naveg
         <div className="cargando__barra" />
       </div>
 
-      <h1 className={'floatingTitle' + (estado.enfocado ? ' title-hidden' : '')}>Sinápsis</h1>
-      {!estado.enfocado && <p className="home__bajada">Red social para creadxrs y obra colectiva</p>}
+      {redNodo
+        ? <h1 className="tituloRed">{redNodo.label}</h1>
+        : <h1 className={'floatingTitle' + (estado.enfocado ? ' title-hidden' : '')}>Sinápsis</h1>}
+      {redNodo && <a className="marca" href="/" onClick={(e) => { e.preventDefault(); navegar('/', 'reemplazo') }}>Sinápsis</a>}
 
+      {hayMenu && (
+        <button id="hamburger" aria-label="Abrir menú" aria-expanded={menuAbierto || lateralAbierto} onClick={alHamburguesa}>
+          <span /><span /><span />
+        </button>
+      )}
       <MenuSuperior
         items={items}
         activoId={activoId}
         padreId={padreId}
+        abierto={menuAbierto}
         onElegir={(id) => irA(id, true)}
-        onHamburguesa={() => setLateralAbierto((a) => !a)}
       />
+      <div className={'izquierda' + (visible ? ' izquierda--visible' : '')}>
       {lateral && sub && redId && (
         <MenuLateral
-          nodos={nodosDeLaRed(sub, redId)}
+          // quien compone al área (el origen del COMPONE hacia ella) es de donde se viene, no un miembro
+          nodos={nodosDeLaRed(sub, redId, (ady!.entra.get(redId) ?? []).filter((v) => v.tipoVinculo === 'COMPONE').map((v) => v.origen))}
           enfocadoId={enfocadoId}
           abierto={lateralAbierto}
           onElegir={(id) => irA(id, false)}
-          onVolver={volver}
+          onVolver={volverAlArea}
           onCerrar={() => setLateralAbierto(false)}
         />
       )}
@@ -154,14 +183,14 @@ export default function Overlay({ estado, ady, idx, fase, error, panelRef, naveg
             <h2 id="panel-nombre" tabIndex={-1} className="panel__nombre" ref={h2Ref}>
               No pudimos cargar la red. Revisá tu conexión e intentá de nuevo.
             </h2>
-            <div className="panel__botones"><button className="bn" onClick={reintentar}>Reintentar</button></div>
+            <div className="panel__botones"><button className="accion" onClick={reintentar}>Reintentar</button></div>
           </div>
         ) : error === 'no-encontrado' ? (
           <div className="panel__contenido">
             <h2 id="panel-nombre" tabIndex={-1} className="panel__nombre" ref={h2Ref}>
               No encontramos ese nodo. Puede que el link haya cambiado. Volvé a la red y seguí explorando.
             </h2>
-            <div className="panel__botones"><button className="bn" onClick={() => navegar('/', 'reemplazo')}>Ir a la red</button></div>
+            <div className="panel__botones"><button className="accion" onClick={() => navegar('/', 'reemplazo')}>Ir a la red</button></div>
           </div>
         ) : nodo ? (
           <div className="panel__contenido" key={nodo.id}>
@@ -171,9 +200,9 @@ export default function Overlay({ estado, ady, idx, fase, error, panelRef, naveg
             <div className="panel__botones">
               {botones.map((b) =>
                 b.accion === 'enlace' ? (
-                  <a key={b.etiqueta} className="bn" href={b.destino} target="_blank" rel="noopener noreferrer">{b.etiqueta}</a>
+                  <a key={b.etiqueta} className="accion" href={b.destino} target="_blank" rel="noopener noreferrer">{b.etiqueta}</a>
                 ) : (
-                  <button key={b.etiqueta} className="bn" disabled={fase !== 'listo'} aria-busy={fase !== 'listo'} onClick={() => ejecutar(b)}>
+                  <button key={b.etiqueta} className="accion" disabled={fase !== 'listo'} aria-busy={fase !== 'listo'} onClick={() => ejecutar(b)}>
                     {b.accion === 'expandir' && abierto ? 'Ver menos' : b.accion === 'entrar' && !b.etiqueta ? 'Entrar' : b.etiqueta}
                   </button>
                 ),
@@ -198,6 +227,7 @@ export default function Overlay({ estado, ady, idx, fase, error, panelRef, naveg
           </div>
         ) : null}
       </aside>
+      </div>
     </div>
   )
 }

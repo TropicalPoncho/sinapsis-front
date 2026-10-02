@@ -37,17 +37,27 @@ export function adaptarSubgrafo(subgrafo, tiposValidos = ThreeObjectManager.getT
         return node;
     });
 
-    const links = subgrafo.vinculos.map((vinculo) => {
-        const link = {
-            id: vinculo.id,
-            source: vinculo.origen,
-            target: vinculo.destino,
-            tipoVinculo: vinculo.tipoVinculo,
-        };
-        if (vinculo.rol !== undefined) link.rol = vinculo.rol;
-        if (vinculo.distance !== undefined) link.distance = vinculo.distance;
-        return link;
-    });
+    // resolverVista puede devolver un vínculo hacia la raíz aunque incluirRaiz la haya sacado de
+    // `nodos` (contrato deliberado, ver resolverVista.test.ts "conserva las aristas que la
+    // conectan" — sirve para el modo aditivo, donde esa raíz ya está en escena). Acá, en cambio,
+    // `nodes` es TODO lo que va a existir en el grafo de 3d-force-graph: un link a un id ausente
+    // hace que d3-force-3d tire "node not found" apenas arranca la simulación (bug real: entrar a
+    // un AGRUPACION con incluirRaiz:false que tenía un vínculo propio hacia un hijo).
+    const idsDeNodos = new Set(nodes.map((n) => n.id));
+    const links = subgrafo.vinculos
+        .filter((vinculo) => idsDeNodos.has(vinculo.origen) && idsDeNodos.has(vinculo.destino))
+        .map((vinculo) => {
+            const link = {
+                id: vinculo.id,
+                source: vinculo.origen,
+                target: vinculo.destino,
+                tipoVinculo: vinculo.tipoVinculo,
+            };
+            if (vinculo.rol !== undefined) link.rol = vinculo.rol;
+            if (vinculo.distance !== undefined) link.distance = vinculo.distance;
+            if (vinculo.virtual !== undefined) link.virtual = vinculo.virtual;
+            return link;
+        });
 
     return { nodes, links };
 }

@@ -35,6 +35,56 @@ function pasaFiltroNodo(vista: Vista, n: NodoGrafo): boolean {
   return true
 }
 
+// D-puentes: un nodo alcanzado por el BFS pero que no entró en la Vista (filtrado por tipo, o
+// simplemente sin lugar tras el límite) conectaba entre sí a los nodos que sí quedaron. Sin esto
+// ese camino se pierde entero y esos nodos quedan sueltos. Nunca se persiste — se recalcula acá
+// cada vez, como el resto de lo que sale del traversal.
+// Con exactamente dos vecinos visibles es un pasaje real: se puentean sin condición. Con más de
+// dos, el excluido es un hub (evento, obra con varios créditos) y conectar a todos sus vecinos
+// entre sí formaría un clique falso — ahí sólo se puentea a través de quien lo PRODUJO (productora
+// u organizador), nunca entre dos participantes/asistentes entre sí.
+export function puentesDe(
+  ady: Adyacencia,
+  excluidos: Iterable<string>,
+  visibles: ReadonlySet<string>,
+  yaConectados: Set<string>, // pares "a|b" ya unidos por un vínculo real o un puente anterior
+): VinculoGrafo[] {
+  const puentes: VinculoGrafo[] = []
+  for (const id of excluidos) {
+    if (visibles.has(id)) continue
+    const nodo = ady.nodos.get(id)
+    const vecinos = new Set<string>()
+    const productores = new Set<string>()
+    for (const v of [...(ady.sale.get(id) ?? []), ...(ady.entra.get(id) ?? [])]) {
+      const vecino = v.origen === id ? v.destino : v.origen
+      if (!visibles.has(vecino)) continue
+      vecinos.add(vecino)
+      if (v.tipoVinculo === 'PRODUJO' && v.destino === id) productores.add(vecino)
+    }
+    const lista = [...vecinos]
+    for (let i = 0; i < lista.length; i++) {
+      for (let j = i + 1; j < lista.length; j++) {
+        const a = lista[i]
+        const b = lista[j]
+        if (lista.length > 2 && !productores.has(a) && !productores.has(b)) continue
+        const [x, y] = [a, b].sort()
+        const clave = `${x}|${y}`
+        if (yaConectados.has(clave)) continue
+        yaConectados.add(clave)
+        puentes.push({
+          id: `puente:${clave}:${id}`,
+          origen: x,
+          destino: y,
+          tipoVinculo: 'COLABORO_EN',
+          rol: nodo ? `Colaboró en ${nodo.label}`.slice(0, 60) : undefined,
+          virtual: true,
+        })
+      }
+    }
+  }
+  return puentes
+}
+
 export function resolverVista(
   ady: Adyacencia,
   vista: Vista,
@@ -121,6 +171,11 @@ export function resolverVista(
       vistoVinculos.add(v.id)
       vinculos.push(v)
     }
+  }
+
+  if (vista.vinculosVirtuales) {
+    const yaConectados = new Set(vinculos.map((v) => [v.origen, v.destino].sort().join('|')))
+    vinculos.push(...puentesDe(ady, alcanzados.keys(), idsVisiblesParaVinculos, yaConectados))
   }
 
   return { nodos, vinculos }

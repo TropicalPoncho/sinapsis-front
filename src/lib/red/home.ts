@@ -1,5 +1,6 @@
 import type { Adyacencia } from '../vista/adyacencia.ts'
 import type { NodoGrafo, NodeType, Subgrafo } from '../../types/vista.ts'
+import { puentesDe } from '../vista/resolverVista.ts'
 
 // PERF-01 mide ~100 nodos a 30fps con CPU 4x, pero la carga `warmupTicks(300)` síncrona es el
 // techo real; se ajusta con una corrida real. El override por `?limite=` lo lee el puente.
@@ -28,7 +29,10 @@ function hash(s: string): number {
   return h
 }
 
-const esCandidato = (n: NodoGrafo) => n.nodeType === 'ENTIDAD' || n.nodeType === 'OBRA'
+// Sólo ENTIDAD: el home es la puerta de entrada a quién hace las cosas, no a las obras sueltas
+// (que se ven al entrar a la red de su autor/a). Antes incluía OBRA también y una obra recién
+// cargada, sin nada más alrededor, aparecía suelta en el home el mismo día que se curaba.
+const esCandidato = (n: NodoGrafo) => n.nodeType === 'ENTIDAD'
 
 export function fraccionHome(
   ady: Adyacencia,
@@ -70,6 +74,14 @@ export function fraccionHome(
   const vinculos = [...elegidos.keys()].flatMap((id) =>
     (ady.sale.get(id) ?? []).filter((v) => elegidos.has(v.destino)),
   )
+
+  // La muestra del home es aleatoria: el nodo que conectaba a dos elegidos pudo no salir
+  // sorteado. Mismo mecanismo de puentes que resolverVista, para no dejarlos sueltos.
+  const visibles = new Set(elegidos.keys())
+  const excluidos = [...ady.nodos.keys()].filter((id) => !visibles.has(id))
+  const yaConectados = new Set(vinculos.map((v) => [v.origen, v.destino].sort().join('|')))
+  vinculos.push(...puentesDe(ady, excluidos, visibles, yaConectados))
+
   return { nodos: [...elegidos.values()], vinculos }
 }
 

@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { estadoDesdeUrl as d, urlDe, claveVista, vistaDe, profDefecto, LIMITE_VISTA, type EstadoRed } from './url.ts'
 
-const E = (o: Partial<EstadoRed> = {}): EstadoRed => ({ enfocado: null, red: null, prof: null, semilla: null, ...o })
+const E = (o: Partial<EstadoRed> = {}): EstadoRed => ({ enfocado: null, red: null, prof: null, semilla: null, raiz: null, puentes: null, ...o })
 
 test('home y raíz por defecto', () => {
   assert.deepEqual(d('/', ''), E())
@@ -24,6 +24,12 @@ test('semilla', () => {
   assert.equal(d('/', '?semilla=a%20b').semilla, null)
   assert.equal(d('/', '?semilla=' + 'a'.repeat(33)).semilla, null)
 })
+test('raiz', () => {
+  assert.equal(d('/', '?raiz=0').raiz, false)
+  assert.equal(d('/', '?raiz=1').raiz, true)
+  assert.equal(d('/', '').raiz, null)
+  assert.equal(d('/', '?raiz=x').raiz, null)
+})
 test('slugs raros no rompen', () => {
   assert.equal(d('/entidad/a%2Fb', '').enfocado, 'a/b')
   assert.equal(d('/entidad/%E0%A4%A', '').enfocado, '%E0%A4%A')
@@ -36,6 +42,7 @@ test('ida y vuelta', () => {
     ['/entidad/tp', E({ enfocado: 'tp', red: 'tp' })],
     ['/obra/nudo', E({ enfocado: 'nudo', red: 'tp' })],
     ['/obra/nudo', E({ enfocado: 'nudo', red: 'tp', prof: 3, semilla: 'abc' })],
+    ['/entidad/obras', E({ enfocado: 'obras', red: 'obras', raiz: false })],
   ]
   for (const [p, e] of casos) {
     const u = urlDe(p, e)
@@ -53,9 +60,19 @@ test('claveVista ignora enfocado', () => {
 })
 test('vistaDe', () => {
   const v = vistaDe(E(), 'r', 'ENTIDAD')
-  assert.equal(v.raiz, 'r'); assert.equal(v.profundidad, 2); assert.equal(v.limite, LIMITE_VISTA)
+  assert.equal(v.raiz, 'r'); assert.equal(v.profundidad, 1); assert.equal(v.limite, LIMITE_VISTA)
   assert.equal(v.direccion, 'ambas'); assert.equal(v.incluirRaiz, true); assert.equal(v.modoOrden, 'grafo')
-  assert.deepEqual(v.filtroNodeTypes, []); assert.deepEqual(v.filtroVinculos, [])
+  // Entrar a un ENTIDAD o AGRUPACION muestra solo lo que compone (áreas, obras) y el orden
+  // curatorial entre ellas (PRECEDE), no colaboradores.
+  assert.deepEqual(v.filtroNodeTypes, []); assert.deepEqual(v.filtroVinculos, ['COMPONE', 'PRECEDE'])
+  assert.deepEqual(vistaDe(E(), 'r', 'AGRUPACION').filtroVinculos, ['COMPONE', 'PRECEDE'])
+  assert.deepEqual(vistaDe(E(), 'r', 'OBRA').filtroVinculos, [])
   assert.equal(vistaDe(E({ prof: 4 }), 'r', 'OBRA').profundidad, 4)
-  assert.deepEqual([profDefecto('AGRUPACION'), profDefecto('OBRA'), profDefecto('EVENTO')], [1, 1, 1])
+  assert.equal(profDefecto(), 1)
+  // Una AGRUPACION no se muestra a sí misma por defecto (estás "adentro"); una ENTIDAD sí. `raiz`
+  // en la URL pisa el default en cualquier sentido.
+  assert.equal(vistaDe(E(), 'r', 'ENTIDAD').incluirRaiz, true)
+  assert.equal(vistaDe(E(), 'r', 'AGRUPACION').incluirRaiz, false)
+  assert.equal(vistaDe(E({ raiz: false }), 'r', 'ENTIDAD').incluirRaiz, false)
+  assert.equal(vistaDe(E({ raiz: true }), 'r', 'AGRUPACION').incluirRaiz, true)
 })

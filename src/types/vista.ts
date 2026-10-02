@@ -28,7 +28,7 @@ export type NodeType =
 // El escape hatch para el matiz es `rol` en el vínculo, no un tipo nuevo.
 export type TipoVinculo =
   | 'COMPONE' | 'COLABORO_EN' | 'CORREALIZO' | 'PRODUJO'
-  | 'INTEGRA' | 'INSPIRO' | 'REGISTRO'
+  | 'INTEGRA' | 'INSPIRO' | 'REGISTRO' | 'SUCEDE_EN' | 'PRECEDE'
 
 export type Transicion = 'reemplazo' | 'filtrado' | 'aditivo'
 export type ModoOrden = 'grafo' | 'geo' | 'aleatorio'
@@ -59,6 +59,10 @@ export interface Vista {
   incluirRaiz: boolean           // false = el subgrafo excluye la raíz
   limite?: number                // tope de nodos; protege el render de nodos muy conectados
   modoOrden: ModoOrden
+  // true = cuando un nodo queda fuera de la Vista (por filtroNodeTypes, o simplemente por no
+  // entrar en el recorte) y conectaba a dos nodos que sí quedaron, se agrega un vínculo puente
+  // entre esos dos (D-puentes). Sin esto, ese camino se pierde entero y los dos quedan sueltos.
+  vinculosVirtuales: boolean
 }
 
 export interface NodoGrafo {
@@ -108,6 +112,10 @@ export interface VinculoGrafo {
   destino: string
   tipoVinculo: TipoVinculo
   rol?: string                   // corto, filtrable
+  // true = puente calculado por resolverVista (D-puentes), nunca persistido: reemplaza el camino
+  // A-nodo_excluido-B por A-B cuando `nodo_excluido` quedó fuera de la Vista. El motor puede
+  // dibujarlo distinto (punteado); hoy no lo hace, es el próximo paso si hace falta distinguirlo.
+  virtual?: boolean
 }
 
 export interface Subgrafo {

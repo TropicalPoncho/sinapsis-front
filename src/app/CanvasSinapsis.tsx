@@ -21,6 +21,7 @@ interface Props {
   panelRef: RefObject<HTMLElement | null>;
   onFase: (f: Fase) => void;
   onNodoClick: (id: string) => void;
+  onEngineReady?: (engine: unknown) => void;
 }
 
 interface Tarea { sub: Subgrafo; enfocadoId: string | null; transicion: Transicion }
@@ -33,7 +34,7 @@ const limiteDe = () => {
 const pausa = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
 const frame = () => new Promise<void>(r => requestAnimationFrame(() => r()));
 
-export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef, onFase, onNodoClick }: Props) {
+export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef, onFase, onNodoClick, onEngineReady }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   // ponytail: `any` para el motor es deliberado — el motor es JS y `allowJs` infiere suelto.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,6 +43,7 @@ export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef,
   const motorListo = useRef<Promise<any>>(Promise.resolve(null));
   const resolverMotor = useRef<(e: unknown) => void>(() => {});
   const onClickRef = useRef(onNodoClick);
+  const onEngineReadyRef = useRef(onEngineReady);
   const hayFocoRef = useRef(false);
   const enCurso = useRef<Promise<void>>(Promise.resolve());
   const pendiente = useRef<Tarea | null>(null);
@@ -50,6 +52,7 @@ export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef,
   const panelVisible = useRef(false);
 
   useEffect(() => { onClickRef.current = onNodoClick; });
+  useEffect(() => { onEngineReadyRef.current = onEngineReady; });
 
   // Effect 1: ciclo de vida, StrictMode-safe.
   useEffect(() => {
@@ -82,9 +85,11 @@ export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef,
         },
         charge: num('charge'),
         escalaNodos: num('escala'),
+        forceEngine: params.get('engine') ?? undefined,
       });
       engineRef.current = engine;
       resolverMotor.current(engine);
+      onEngineReadyRef.current?.(engine);
 
       unsub.push(engine.on('nodeClick', (n: { id: string }) => onClickRef.current(n.id)));
       // Marca de "la red ya es visible": el LCP del navegador mide el título, no el WebGL.
@@ -103,6 +108,7 @@ export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef,
       if (timer) clearInterval(timer);
       engineRef.current?.destruir();
       engineRef.current = null;
+      onEngineReadyRef.current?.(null);
     };
   }, [panelRef]);
 
@@ -112,6 +118,8 @@ export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef,
     const redId = estado.red ? idx.idPorSlug.get(estado.red) ?? null : null;
     const enfocadoId = estado.enfocado ? idx.idPorSlug.get(estado.enfocado) ?? null : null;
     const tipo = (id: string | null) => (id ? ady.nodos.get(id)?.nodeType : undefined);
+    // Entrar (red === enfocado, salvo obra/evento): se encuadra toda la red, sin foco ni panel.
+    const entrado = redId !== null && redId === enfocadoId && tipo(redId) !== 'OBRA' && tipo(redId) !== 'EVENTO';
 
     const cvVista = claveVista(estado);
     const clave = cvVista + '|' + (estado.enfocado ?? '');
@@ -124,7 +132,7 @@ export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef,
       // El enfocado no está en la Vista: se mira la red del propio enfocado.
       sub = resolverVista(ady, vistaDe({ ...estado, red: estado.enfocado }, enfocadoId, tipo(enfocadoId)));
     }
-    hayFocoRef.current = enfocadoId !== null;
+    hayFocoRef.current = enfocadoId !== null && !entrado;
 
     const primera = ultimaClave.current === null;
     const transicion: Transicion = primera ? 'reemplazo'
@@ -135,7 +143,7 @@ export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef,
 
     // ponytail: la cola descarta intermedias (la URL ya quedó bien, es la fuente de verdad);
     // atrás con filtrado<->aditivo no restaura posiciones.
-    pendiente.current = { sub, enfocadoId, transicion };
+    pendiente.current = { sub, enfocadoId: entrado ? null : enfocadoId, transicion };
     enCurso.current = enCurso.current.then(async () => {
       const p = pendiente.current;
       pendiente.current = null;

@@ -63,7 +63,7 @@ export function Ficha({ nodo, creditos, hrefDe, onEnfocar }: {
       {det?.enlaces && (
         <div className="ficha__enlaces">
           {det.enlaces.map((e) => (
-            <a key={e.url} className="bn" href={e.url} target="_blank" rel="noopener noreferrer">{e.etiqueta || 'Ir al sitio'}</a>
+            <a key={e.url} className="accion" href={e.url} target="_blank" rel="noopener noreferrer">{e.etiqueta || 'Ir al sitio'}</a>
           ))}
         </div>
       )}

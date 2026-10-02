@@ -39,6 +39,7 @@ const vistaNeutra: Vista = {
   direccion: 'ambas',
   incluirRaiz: true,
   modoOrden: 'grafo',
+  vinculosVirtuales: false,
 }
 
 function vista(parcial: Partial<Vista>): Vista {
@@ -193,6 +194,52 @@ describe('resolverVista', () => {
   test('filtroSubtipos filtra por subtipo sin tocar node_type', () => {
     const sub = resolverVista(ady, vista({ raiz: null, profundidad: 0, filtroSubtipos: ['productora'] }))
     assert.deepEqual(ids(sub), ['e1'])
+  })
+
+  test('vinculosVirtuales arma un puente cuando el nodo intermedio queda excluido por tipo', () => {
+    // e1 -PRODUJO-> a1,a2 ; a1,a2 -COLABORO_EN-> o1 (o1 queda excluido por filtroNodeTypes).
+    // a1-a2 no tienen vínculo real: el puente debe reemplazar el camino que pasaba por o1.
+    const sub = resolverVista(
+      ady,
+      vista({ raiz: 'e1', profundidad: 2, filtroNodeTypes: ['ENTIDAD'], vinculosVirtuales: true }),
+    )
+    assert.deepEqual(ids(sub), ['a1', 'a2', 'e1'])
+    const puente = sub.vinculos.find((v) => v.virtual)
+    assert.ok(puente, 'no se generó ningún puente')
+    assert.deepEqual([puente!.origen, puente!.destino].sort(), ['a1', 'a2'])
+    assert.equal(puente!.tipoVinculo, 'COLABORO_EN')
+    assert.equal(puente!.rol, 'Colaboró en Obra Uno')
+  })
+
+  test('vinculosVirtuales apagado no agrega nada (default de vistaNeutra)', () => {
+    const sub = resolverVista(ady, vista({ raiz: 'e1', profundidad: 2, filtroNodeTypes: ['ENTIDAD'] }))
+    assert.ok(!sub.vinculos.some((v) => v.virtual))
+  })
+
+  test('vinculosVirtuales en un hub: puentea sólo a través de quien lo PRODUJO, nunca entre participantes', () => {
+    // x,y PRODUJO-> h (coproducen) ; p,q COLABORO_EN-> h (participan). h queda excluido por tipo.
+    // Deben puentear x-y, x-p, x-q, y-p, y-q (todo par con al menos un productor); nunca p-q.
+    const nodosHub: NodoGrafo[] = [
+      { id: 'x', nodeType: 'ENTIDAD', subtipo: 'productora', label: 'X', vizParams: vp, isStub: false },
+      { id: 'y', nodeType: 'ENTIDAD', subtipo: 'productora', label: 'Y', vizParams: vp, isStub: false },
+      { id: 'p', nodeType: 'ENTIDAD', subtipo: 'persona', label: 'P', vizParams: vp, isStub: false },
+      { id: 'q', nodeType: 'ENTIDAD', subtipo: 'persona', label: 'Q', vizParams: vp, isStub: false },
+      { id: 'h', nodeType: 'OBRA', subtipo: 'evento', label: 'H', vizParams: vp, isStub: false },
+    ]
+    const vinculosHub: VinculoGrafo[] = [
+      { id: 'hx', origen: 'x', destino: 'h', tipoVinculo: 'PRODUJO' },
+      { id: 'hy', origen: 'y', destino: 'h', tipoVinculo: 'PRODUJO' },
+      { id: 'hp', origen: 'p', destino: 'h', tipoVinculo: 'COLABORO_EN' },
+      { id: 'hq', origen: 'q', destino: 'h', tipoVinculo: 'COLABORO_EN' },
+    ]
+    const adyHub = construirAdyacencia({ nodos: nodosHub, vinculos: vinculosHub })
+    const sub = resolverVista(
+      adyHub,
+      vista({ raiz: 'x', profundidad: 2, filtroNodeTypes: ['ENTIDAD'], vinculosVirtuales: true }),
+    )
+    assert.deepEqual(ids(sub), ['p', 'q', 'x', 'y'])
+    const pares = sub.vinculos.map((v) => [v.origen, v.destino].sort().join('|')).sort()
+    assert.deepEqual(pares, ['p|x', 'q|x', 'x|y', 'p|y', 'q|y'].sort())
   })
 
   test('filtroSubtipos convive con filtroNodeTypes', () => {

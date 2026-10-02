@@ -25,12 +25,12 @@ test('reproducible por semilla', () => {
   assert.notDeepEqual(ids(fraccionHome(ady, { semilla: 'a', limite: 20 })), ids(fraccionHome(ady, { semilla: 'b', limite: 20 })))
 })
 test('tope exacto y nunca superado', () => {
-  assert.equal(fraccionHome(ady, { semilla: 's', limite: 40 }).nodos.length, 40)
+  assert.equal(fraccionHome(ady, { semilla: 's', limite: 15 }).nodos.length, 15)
   assert.ok(fraccionHome(ady, { semilla: 's', limite: 7 }).nodos.length <= 7)
 })
-test('solo ENTIDAD y OBRA, con ambas', () => {
+test('solo ENTIDAD', () => {
   const t = new Set(fraccionHome(ady, { semilla: 's', limite: 20 }).nodos.map((n) => n.nodeType))
-  assert.deepEqual([...t].sort(), ['ENTIDAD', 'OBRA'])
+  assert.deepEqual([...t], ['ENTIDAD'])
 })
 test('vínculos inducidos', () => {
   const s = fraccionHome(ady, { semilla: 's', limite: 20 })
@@ -39,10 +39,11 @@ test('vínculos inducidos', () => {
   for (const v of s.vinculos) assert.ok(set.has(v.origen) && set.has(v.destino))
 })
 test('pocos candidatos y vacía', () => {
-  assert.equal(fraccionHome(ady, { semilla: 's', limite: 500 }).nodos.length, 46)
+  assert.equal(fraccionHome(ady, { semilla: 's', limite: 500 }).nodos.length, 23)
   assert.deepEqual(fraccionHome(construirAdyacencia({ nodos: [], vinculos: [] }), { semilla: 's', limite: 5 }), { nodos: [], vinculos: [] })
 })
 test('abarca dos componentes cuando la frontera se vacía', () => {
-  const s = fraccionHome(ady, { semilla: 's', limite: 45 })
+  // componente A (ids 0-29) sólo tiene 12 ENTIDAD: con límite 20 tiene que cruzar a B.
+  const s = fraccionHome(ady, { semilla: 's', limite: 20 })
   assert.ok(s.nodos.some((n) => +n.id.slice(1) < 30) && s.nodos.some((n) => +n.id.slice(1) >= 30))
 })

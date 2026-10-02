@@ -74,9 +74,18 @@ describe('adaptarSubgrafo', () => {
     });
 
     test('un vínculo se traduce a source/target conservando tipoVinculo y rol', () => {
+        const a = { id: 'a', nodeType: 'OBRA', subtipo: 'obra', label: 'A', vizParams: { shape: 'Lines', color: '#fff' }, isStub: false };
+        const b = { id: 'b', nodeType: 'OBRA', subtipo: 'obra', label: 'B', vizParams: { shape: 'Lines', color: '#fff' }, isStub: false };
         const vinculo = { id: 'v1', origen: 'a', destino: 'b', tipoVinculo: 'PRODUJO', rol: 'anfitrion' };
-        const { links } = adaptarSubgrafo({ nodos: [], vinculos: [vinculo] }, tipos);
+        const { links } = adaptarSubgrafo({ nodos: [a, b], vinculos: [vinculo] }, tipos);
         assert.deepEqual(links[0], { id: 'v1', source: 'a', target: 'b', tipoVinculo: 'PRODUJO', rol: 'anfitrion' });
+    });
+
+    test('un vínculo hacia un id que no está en nodos se descarta (evita el "node not found" de d3-force)', () => {
+        const a = { id: 'a', nodeType: 'OBRA', subtipo: 'obra', label: 'A', vizParams: { shape: 'Lines', color: '#fff' }, isStub: false };
+        const vinculo = { id: 'v1', origen: 'a', destino: 'raiz-ausente', tipoVinculo: 'COMPONE' };
+        const { links } = adaptarSubgrafo({ nodos: [a], vinculos: [vinculo] }, tipos);
+        assert.deepEqual(links, []);
     });
 
     test('no muta el Subgrafo de entrada', () => {

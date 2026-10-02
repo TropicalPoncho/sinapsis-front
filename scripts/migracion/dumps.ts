@@ -133,10 +133,11 @@ function tipoDeSitio(n: NodoSitio, label: string): { nodeType: string; subtipo: 
   return { nodeType: 'OBRA', subtipo: 'obra', revisar: 'REVISAR: sin dimensionId, tipo conjeturado' }
 }
 
-// 1 related → andamiaje del force layout, no semántica: se descarta.
-// Los otros tres sí son relaciones reales del sitio.
+// type 1 ("related") SÍ es semántico: entre obras (dimensionId 1) es el orden curatorial en el
+// que el sitio las mostraba, de una a la siguiente — la línea temporal que armó lxs curadorxs a
+// mano. Se había descartado como "andamiaje del force layout"; no lo es (ver PROJECT.md D-?).
 const TIPO_VINCULO_SITIO: Record<number, string | null> = {
-  1: null,
+  1: 'PRECEDE',
   2: 'PRODUJO',
   3: 'COLABORO_EN',
   4: 'COMPONE',
