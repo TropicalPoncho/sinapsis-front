@@ -103,7 +103,7 @@ Plans:
   5. A route change sequences the Vista change, the camera animation and the overlay rather than firing them in parallel.
   6. The active Vista is reflected in the URL — the browser back button steps back through the Vista history, and a Vista link can be shared and reopened directly.
   7. The side nav menu is rendered from the same data feeding the graph, with no separate hardcoded menu structure.
-**Plans**: 7 plans in 5 waves
+**Plans**: 11 plans (7 + 4 de cierre de gaps del UAT, waves 1-4 propias)
 
 Plans:
 - [x] 04-01-PLAN.md — Motor puede desenfocar, topologia.ts se recupera de fetch rechazado, fixtures y endpoint de detalle (wave 1)
@@ -113,6 +113,10 @@ Plans:
 - [x] 04-05-PLAN.md — Overlay: estilos, panel de foco con degradado, botones por tipo, loader y errores (wave 3)
 - [x] 04-06-PLAN.md — Menu superior, lateral y hamburguesa; ficha extendida de OBRA (wave 4)
 - [ ] 04-07-PLAN.md — Gates, smoke en navegador headless y UAT del dueno (wave 5)
+- [ ] 04-08-PLAN.md — Gaps: panel se oculta antes de cambiar (G-02), Volver sin salto (G-01), cámara nunca en NaN tras un crédito (G-04 motor), "Sinápsis" abajo en mobile (G-07) (gap wave 1)
+- [ ] 04-09-PLAN.md — Gaps: el menú enfoca el área, entrar es zoom in y volver la inversa, área sin la dueña flotando; ENTIDAD entra con reemplazo (G-03, enmienda D-16) (gap wave 2)
+- [ ] 04-10-PLAN.md — Gaps: checkpoint de serialización de la red acumulada; crédito suma al colaborador, "Sumar sus obras", criterio G-05 (G-04, G-05) (gap wave 3)
+- [ ] 04-11-PLAN.md — Gaps: auditoría ponytail, CONTEXT/UI-SPEC enmendados, re-smoke y UAT del dueño con base real (gap wave 4)
 **UI hint**: yes
 
 ### Phase 5: Tropical Poncho Launch
