@@ -123,6 +123,10 @@ filasNodos.forEach((fila, i) => {
   if (shape !== '' && !SHAPES_VALIDAS.has(shape)) {
     errores.push(`nodos.csv línea ${numeroFila}: shape "${shape}" no está registrada en el motor`)
   }
+  const color = fila.color?.trim() ?? ''
+  if (color !== '' && !/^#[0-9a-fA-F]{6}$/.test(color)) {
+    errores.push(`nodos.csv línea ${numeroFila}: color "${color}" no es #RRGGBB`)
+  }
   if (fila.label.trim() === '') {
     errores.push(`nodos.csv línea ${numeroFila}: label vacío`)
   }
@@ -197,7 +201,8 @@ const nodosParaInsertar = nodosACargar.map((f) => {
     thumb,
     viz_params: {
       shape,
-      color: colorDeNodo(f.id),
+      // Columna `color` opcional en nodos.csv: pisa el color por hash cuando se quiere uno puntual.
+      color: f.color?.trim() || colorDeNodo(f.id),
       // Igual para todos los nodos por ahora — a pedido, sin variación por id (antes ±40%).
       speed: SPEED_DEFAULT,
       noise: variar(f.id, ':noise', 0.5, 0.2),
