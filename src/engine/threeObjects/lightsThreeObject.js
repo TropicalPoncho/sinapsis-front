@@ -4,12 +4,18 @@ import {ThreeObject}  from './ThreeObject.js';
 import { noiseFS } from '../shaders/noise.js';
 import { frecuenciasDeColor } from './colorUtils.js';
 
+// 0.009 / 0.05 (speed calibrado a mano de este shader / speed compartido de viz_params).
+const VELOCIDAD_RELATIVA = 0.18;
+
 export class LightsThreeObject extends ThreeObject  {
 
     static type = 'Lights';
 
     constructor (node, config){
         super(node);
+        // Estos shaders se calibraron a mano con speed 0.009; el 0.05 compartido los deja ~5x más
+        // rápidos. El factor mantiene el multiplicador global (panel de debug) funcionando.
+        this.speed *= VELOCIDAD_RELATIVA;
 
         // colorR/colorG/colorB fijos (.9/0/.8) para todos los nodos: son la frecuencia de un
         // pnoise() por canal, no un color literal, pero igual definían el mismo resultado visual

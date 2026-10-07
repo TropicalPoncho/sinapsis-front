@@ -29,7 +29,12 @@ export class ImageThreeObject extends ThreeObject  {
                 ? node.imgSize
                 : getImageSize(node, 2.1); // factor 1 = igual que el nodo
 
-            sprite.scale.set(imgSize[0], imgSize[1]);
+            // Respeta la relación de aspecto de la imagen: el lado mayor mide lo calculado y el otro
+            // se achica en proporción (logos horizontales como Post.xno o Sello Rojo, flyers verticales).
+            const { width, height } = imgTexture.image;
+            const lado = Math.max(imgSize[0], imgSize[1]);
+            const aspecto = width && height ? width / height : 1;
+            sprite.scale.set(aspecto >= 1 ? lado : lado * aspecto, aspecto >= 1 ? lado / aspecto : lado);
             
             this.mesh.add(sprite);
             return this;

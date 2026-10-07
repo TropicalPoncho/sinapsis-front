@@ -4,12 +4,18 @@ import {ThreeObject}  from './ThreeObject.js';
 import { noiseFS } from '../shaders/noise.js';
 import { frecuenciasDeColor } from './colorUtils.js';
 
+// 0.009 / 0.05 (speed calibrado a mano de este shader / speed compartido de viz_params).
+const VELOCIDAD_RELATIVA = 0.18;
+
 export class WaveLineThreeObject extends ThreeObject  {
 
     static type = 'Wave Line';
 
     constructor (node, config){
         super(node);
+        // Estos shaders se calibraron a mano con speed 0.009; el 0.05 compartido los deja ~5x más
+        // rápidos. El factor mantiene el multiplicador global (panel de debug) funcionando.
+        this.speed *= VELOCIDAD_RELATIVA;
 
         // colorR/colorG/colorB antes fijos para todos los nodos — ver LightsThreeObject, mismo patrón.
         const { colorR, colorG, colorB } = frecuenciasDeColor(node.color);

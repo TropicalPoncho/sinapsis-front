@@ -28,6 +28,8 @@ export class ParticlesThreeObject extends ThreeObject {
     constructor(node, props){
         super(node);
         
+        // Tinte por nodo: antes siempre blanco (el color de viz_params no llegaba a esta forma).
+        this._tinte = new THREE.Color(node.color ?? 0xffffff);
         const rX = this.r ?? node.particlesSize;
         const rY = rX;
         const rZ = rX;
@@ -41,7 +43,7 @@ export class ParticlesThreeObject extends ThreeObject {
         this.colors = new Float32Array( segments * 3 );
 
         const pMaterial = new THREE.PointsMaterial( {
-            color: 0xFFFFFF,
+            color: this._tinte,
             size: 0.5,
             blending: THREE.AdditiveBlending,
             transparent: true,
@@ -116,6 +118,7 @@ export class ParticlesThreeObject extends ThreeObject {
         let particlesData = this.particlesData;
         let positions = this.positions; 
         let colors = this.colors;
+        const tinte = this._tinte;
         let pointCloud = this.pointCloud;
         let particlePositions = this.particlePositions; 
         let limitConnections = this.limitConnections;
@@ -175,13 +178,13 @@ export class ParticlesThreeObject extends ThreeObject {
                     positions[ vertexpos ++ ] = particlePositions[ j * 3 + 1 ];
                     positions[ vertexpos ++ ] = particlePositions[ j * 3 + 2 ];
 
-                    colors[ colorpos ++ ] = alpha;
-                    colors[ colorpos ++ ] = alpha;
-                    colors[ colorpos ++ ] = alpha;
+                    colors[ colorpos ++ ] = alpha * tinte.r;
+                    colors[ colorpos ++ ] = alpha * tinte.g;
+                    colors[ colorpos ++ ] = alpha * tinte.b;
 
-                    colors[ colorpos ++ ] = alpha;
-                    colors[ colorpos ++ ] = alpha;
-                    colors[ colorpos ++ ] = alpha;
+                    colors[ colorpos ++ ] = alpha * tinte.r;
+                    colors[ colorpos ++ ] = alpha * tinte.g;
+                    colors[ colorpos ++ ] = alpha * tinte.b;
 
                     numConnected ++;
 
