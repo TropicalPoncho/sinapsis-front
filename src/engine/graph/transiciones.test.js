@@ -1,6 +1,6 @@
 import { describe, test } from 'node:test'
 import assert from 'node:assert/strict'
-import { clasificarCambio, pinear, soltarPin, fusionar } from './transiciones.js'
+import { clasificarCambio, pinear, soltarPin, fusionar, sembrarJuntoAVecinos } from './transiciones.js'
 
 // `desvanecerYQuitar` depende de requestAnimationFrame (DOM) y no se testea acá headless.
 
@@ -76,5 +76,43 @@ describe('fusionar', () => {
         const res = fusionar(quedan, entran)
         assert.deepEqual(res.map(n => n.id), ['b', 'c', 'd'])
         assert.equal(res[0], quedan[0])
+    })
+})
+
+describe('sembrarJuntoAVecinos', () => {
+    const presente = { id: 'p', x: 100, y: 200, z: 300 }
+    const presentes = new Map([['p', presente]])
+    const cerca = (n, radio) => Math.hypot(n.x - presente.x, n.y - presente.y, n.z - presente.z) < radio
+
+    test('un entrante con vínculo a un presente nace junto a él', () => {
+        const nuevo = { id: 'n' }
+        sembrarJuntoAVecinos([nuevo], [{ source: 'p', target: 'n' }], presentes, 50)
+        assert.ok(Number.isFinite(nuevo.x) && Number.isFinite(nuevo.y) && Number.isFinite(nuevo.z))
+        assert.ok(cerca(nuevo, 50))
+        assert.ok(!(nuevo.x === 100 && nuevo.y === 200 && nuevo.z === 300), 'no nace encima del vecino')
+    })
+
+    test('source/target como objeto con id funcionan igual', () => {
+        const nuevo = { id: 'n' }
+        sembrarJuntoAVecinos([nuevo], [{ source: { id: 'n' }, target: { id: 'p' } }], presentes, 50)
+        assert.ok(cerca(nuevo, 50))
+    })
+
+    test('un entrante que ya trae x no se toca', () => {
+        const nuevo = { id: 'n', x: 7, y: 8, z: 9 }
+        sembrarJuntoAVecinos([nuevo], [{ source: 'p', target: 'n' }], presentes, 50)
+        assert.deepEqual([nuevo.x, nuevo.y, nuevo.z], [7, 8, 9])
+    })
+
+    test('sin vecino presente queda sin coordenadas', () => {
+        const nuevo = { id: 'n' }
+        sembrarJuntoAVecinos([nuevo], [{ source: 'otro', target: 'n' }], presentes, 50)
+        assert.equal('x' in nuevo, false)
+    })
+
+    test('dos entrantes del mismo vecino no nacen en el mismo punto', () => {
+        const a = { id: 'a' }, b = { id: 'b' }
+        sembrarJuntoAVecinos([a, b], [{ source: 'p', target: 'a' }, { source: 'p', target: 'b' }], presentes, 50)
+        assert.notDeepEqual([a.x, a.y, a.z], [b.x, b.y, b.z])
     })
 })
