@@ -8,7 +8,7 @@ import type { Fase } from './Overlay';
 import type { Adyacencia } from '../lib/vista/adyacencia.ts';
 import { resolverVista } from '../lib/vista/resolverVista.ts';
 import type { IndiceSlugs } from '../lib/red/slugs.ts';
-import { claveVista, vistaDe } from '../lib/red/url.ts';
+import { claveEstado, claveVista, vistaDe } from '../lib/red/url.ts';
 import type { EstadoRed } from '../lib/red/url.ts';
 import { LIMITE_HOME, fraccionHome, semillaDeVisita } from '../lib/red/home.ts';
 import type { Subgrafo, Transicion } from '../types/vista.ts';
@@ -20,11 +20,12 @@ interface Props {
   llegadaRef: RefObject<{ t: Transicion }>;
   panelRef: RefObject<HTMLElement | null>;
   onFase: (f: Fase) => void;
+  onMostrar: (e: EstadoRed) => void;
   onNodoClick: (id: string) => void;
   onEngineReady?: (engine: unknown) => void;
 }
 
-interface Tarea { sub: Subgrafo; enfocadoId: string | null; transicion: Transicion }
+interface Tarea { sub: Subgrafo; enfocadoId: string | null; transicion: Transicion; estado: EstadoRed }
 
 const limiteDe = () => {
   const n = Number(new URLSearchParams(window.location.search).get('limite'));
@@ -34,7 +35,7 @@ const limiteDe = () => {
 const pausa = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
 const frame = () => new Promise<void>(r => requestAnimationFrame(() => r()));
 
-export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef, onFase, onNodoClick, onEngineReady }: Props) {
+export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef, onFase, onMostrar, onNodoClick, onEngineReady }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   // ponytail: `any` para el motor es deliberado — el motor es JS y `allowJs` infiere suelto.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,7 +45,6 @@ export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef,
   const resolverMotor = useRef<(e: unknown) => void>(() => {});
   const onClickRef = useRef(onNodoClick);
   const onEngineReadyRef = useRef(onEngineReady);
-  const hayFocoRef = useRef(false);
   const enCurso = useRef<Promise<void>>(Promise.resolve());
   const pendiente = useRef<Tarea | null>(null);
   const ultimaClave = useRef<string | null>(null);
@@ -77,7 +77,7 @@ export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef,
       const engine = new SinapsisEngine(ref.current, {
         getAreaSegura: () => {
           const sin = { top: 0, right: 0, bottom: 0, left: 0 };
-          if (!hayFocoRef.current || !panelRef.current) return sin;
+          if (!panelRef.current) return sin; // siempre el rect del panel: el motor decide cuándo aplicarlo (_nodoEnfocado)
           const r = panelRef.current.getBoundingClientRect();
           return window.innerWidth >= 800
             ? { ...sin, left: r.right }
@@ -122,7 +122,7 @@ export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef,
     const entrado = redId !== null && redId === enfocadoId && tipo(redId) !== 'OBRA' && tipo(redId) !== 'EVENTO';
 
     const cvVista = claveVista(estado);
-    const clave = cvVista + '|' + (estado.enfocado ?? '');
+    const clave = claveEstado(estado);
     if (clave === ultimaClave.current) return; // cubre el doble effect de StrictMode
 
     let sub: Subgrafo = redId === null
@@ -132,7 +132,6 @@ export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef,
       // El enfocado no está en la Vista: se mira la red del propio enfocado.
       sub = resolverVista(ady, vistaDe({ ...estado, red: estado.enfocado }, enfocadoId, tipo(enfocadoId)));
     }
-    hayFocoRef.current = enfocadoId !== null && !entrado;
 
     const primera = ultimaClave.current === null;
     const transicion: Transicion = primera ? 'reemplazo'
@@ -143,7 +142,7 @@ export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef,
 
     // ponytail: la cola descarta intermedias (la URL ya quedó bien, es la fuente de verdad);
     // atrás con filtrado<->aditivo no restaura posiciones.
-    pendiente.current = { sub, enfocadoId: entrado ? null : enfocadoId, transicion };
+    pendiente.current = { sub, enfocadoId: entrado ? null : enfocadoId, transicion, estado };
     enCurso.current = enCurso.current.then(async () => {
       const p = pendiente.current;
       pendiente.current = null;
@@ -151,19 +150,27 @@ export default function CanvasSinapsis({ ady, idx, estado, llegadaRef, panelRef,
       try {
         onFase(primera ? 'cargando' : 'moviendo');
         if (panelVisible.current) {
-          // sale el panel antes de mover la cámara
-          await pausa(window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 300);
+          // el panel sale con el contenido viejo antes de que cambie nada (misma duración que el CSS)
+          await pausa(window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 200 : 300);
         }
         if (primera) { await frame(); await frame(); } // pintar el loader antes de warmupTicks
+        if (p.enfocadoId) {
+          // ya oculto: el contenido nuevo se pinta (invisible) y el rect del panel queda medido
+          // antes de que el motor lo lea para encuadrar
+          onMostrar(p.estado);
+          await frame(); await frame();
+        }
         const engine = await motorListo.current;
         await engine.setVista(p.sub, { transicion: p.transicion, nodoEnfocado: p.enfocadoId });
       } catch (e) {
         console.error(e);
       }
+      // sin foco: el contenido se vacía recién cuando la cámara ya soltó el foco
+      if (!p.enfocadoId) onMostrar(p.estado);
       // solo si nadie encoló durante el movimiento
       if (pendiente.current === null) { panelVisible.current = p.enfocadoId !== null; onFase('listo'); }
     });
-  }, [ady, idx, estado, llegadaRef, onFase]);
+  }, [ady, idx, estado, llegadaRef, onFase, onMostrar]);
 
   return <div ref={ref} aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 0 }} />;
 }

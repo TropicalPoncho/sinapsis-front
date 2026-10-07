@@ -7,7 +7,7 @@ import { resolverVista } from '../lib/vista/resolverVista.ts'
 import type { IndiceSlugs } from '../lib/red/slugs.ts'
 import { rutaDe } from '../lib/red/slugs.ts'
 import type { EstadoRed } from '../lib/red/url.ts'
-import { urlDe, vistaDe } from '../lib/red/url.ts'
+import { claveEstado, urlDe, vistaDe } from '../lib/red/url.ts'
 import { botonesDe } from '../lib/red/botones.ts'
 import type { Boton } from '../lib/red/botones.ts'
 import { transicionEntrada } from '../lib/red/navegacion.ts'
@@ -20,6 +20,8 @@ export type Fase = 'cargando' | 'moviendo' | 'listo'
 
 export interface OverlayProps {
   estado: EstadoRed
+  // Lo que el panel está mostrando; va por detrás de `estado` (ver CanvasSinapsis: onMostrar).
+  mostrado: EstadoRed
   ady: Adyacencia | null
   idx: IndiceSlugs | null
   fase: Fase
@@ -31,22 +33,25 @@ export interface OverlayProps {
 }
 
 // El panel siempre está maquetado (nunca display:none): la cámara mide su rect antes de que aparezca.
-export default function Overlay({ estado, ady, idx, fase, error, panelRef, navegar, volver, reintentar }: OverlayProps) {
+export default function Overlay({ estado, mostrado, ady, idx, fase, error, panelRef, navegar, volver, reintentar }: OverlayProps) {
   const h2Ref = useRef<HTMLHeadingElement>(null)
   const [abierto, setAbierto] = useState(false)
   const [puedeVolver, setPuedeVolver] = useState(false)
 
-  const nodo = ady && idx && estado.enfocado
-    ? ady.nodos.get(idx.idPorSlug.get(estado.enfocado) ?? '')
+  const nodoDe = (e: EstadoRed) => ady && idx && e.enfocado
+    ? ady.nodos.get(idx.idPorSlug.get(e.enfocado) ?? '')
     : undefined
+  // El título y los menús siguen a la URL; todo lo de ADENTRO del panel sigue a `mostrado`.
+  const nodoUrl = nodoDe(estado)
+  const nodo = nodoDe(mostrado)
 
   const redId = ady && idx && estado.red ? idx.idPorSlug.get(estado.red) ?? null : null
-  const enfocadoId = nodo?.id ?? null
+  const enfocadoId = nodoUrl?.id ?? null
 
   // Entrar en una entidad/agrupación: se ve toda su red, el nombre pasa a ser el título y el panel se retira.
   // El menú de áreas es parte de "entrado", no de "enfocado con el panel abierto": una cosa es el
   // preview de un nodo (panel + botón Entrar) y otra muy distinta estar adentro de su red.
-  const entrado = nodo !== undefined && estado.red === estado.enfocado && nodo.nodeType !== 'OBRA' && nodo.nodeType !== 'EVENTO'
+  const entrado = nodoUrl !== undefined && estado.red === estado.enfocado && nodoUrl.nodeType !== 'OBRA' && nodoUrl.nodeType !== 'EVENTO'
   // El título de la red en la que estás NO depende de qué nodo tengas enfocado ahora mismo:
   // sigue siendo "Obras" mientras mirás una obra adentro de Obras, no vuelve a "Sinápsis" hasta
   // que de verdad salís de la red (estado.red === null).
@@ -85,9 +90,11 @@ export default function Overlay({ estado, ady, idx, fase, error, panelRef, naveg
   // hubo varios focos en el medio): es soltar el foco puntual y volver al panorama del área misma.
   const volverAlArea = () => { if (redId) irA(redId, true) }
 
-  const visible = fase === 'listo' && ((nodo !== undefined && !entrado) || error !== null || subredVacia)
+  // Cuando cambia la URL el panel empieza a salir en ese mismo render, con el contenido viejo.
+  const coincide = claveEstado(mostrado) === claveEstado(estado)
+  const visible = fase === 'listo' && ((nodo !== undefined && !entrado && coincide) || error !== null || subredVacia)
 
-  useEffect(() => { setAbierto(false) }, [estado.enfocado])
+  useEffect(() => { setAbierto(false) }, [mostrado.enfocado])
   useEffect(() => {
     setPuedeVolver(((history.state as { sinapsis?: { idx?: number } } | null)?.sinapsis?.idx ?? 0) > 0)
   }, [estado])
@@ -103,7 +110,7 @@ export default function Overlay({ estado, ady, idx, fase, error, panelRef, naveg
 
   const grado = nodo && ady ? (ady.sale.get(nodo.id)?.length ?? 0) + (ady.entra.get(nodo.id)?.length ?? 0) : 0
   const botones = nodo
-    ? botonesDe(nodo, { grado }).filter((b) => !(b.accion === 'entrar' && estado.red === estado.enfocado))
+    ? botonesDe(nodo, { grado }).filter((b) => !(b.accion === 'entrar' && mostrado.red === mostrado.enfocado))
     : []
 
   const ejecutar = (b: Boton) => {

@@ -23,6 +23,8 @@ export default function Shell() {
   const [engine, setEngine] = useState<any>(null)
   const [errTopo, setErrTopo] = useState(false)
   const [fase, setFase] = useState<Fase>('cargando')
+  // Lo que el panel está mostrando: va por detrás de la URL (oculta, cambia, mueve la cámara, muestra).
+  const [mostrado, setMostrado] = useState<EstadoRed>(HOME)
   const pathname = usePathname()
   const search = useSearchParams().toString()
   const panelRef = useRef<HTMLElement | null>(null)
@@ -74,8 +76,8 @@ export default function Shell() {
   return (
     <>
       <CanvasSinapsis ady={ady} idx={idx} estado={estado} llegadaRef={llegadaRef} panelRef={panelRef}
-        onFase={setFase} onNodoClick={enfocar} onEngineReady={setEngine} />
-      <Overlay estado={estado} ady={ady} idx={idx} fase={fase} error={error} panelRef={panelRef}
+        onFase={setFase} onMostrar={setMostrado} onNodoClick={enfocar} onEngineReady={setEngine} />
+      <Overlay estado={estado} mostrado={mostrado} ady={ady} idx={idx} fase={fase} error={error} panelRef={panelRef}
         navegar={navegar} volver={volver} reintentar={reintentar} />
       {process.env.NODE_ENV !== 'production' && engine && <DebugPanel engine={engine} />}
     </>

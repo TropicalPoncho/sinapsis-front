@@ -63,6 +63,9 @@ export function urlDe(path: string, e: EstadoRed): string {
 export const claveVista = (e: EstadoRed): string =>
   `${e.red ?? '_'}|${e.prof ?? ''}|${e.semilla ?? ''}|${e.raiz ?? ''}|${e.puentes ?? ''}`
 
+// Identidad completa de un estado (Vista + foco): lo que la cola del puente y el Overlay comparan.
+export const claveEstado = (e: EstadoRed): string => claveVista(e) + '|' + (e.enfocado ?? '')
+
 // Por defecto, entrar a una AGRUPACION no muestra el contenedor: estás "adentro", verlo flotando
 // junto a sus propios miembros no aporta. Una ENTIDAD sigue viéndose (D-11, el resto de vistaDe).
 // `raiz` en la URL pisa el default en cualquier sentido — la Vista queda del todo configurable.
