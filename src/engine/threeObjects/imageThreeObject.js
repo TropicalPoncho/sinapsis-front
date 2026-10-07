@@ -3,6 +3,22 @@ const THREE = resolveTHREE();
 import {ThreeObject}  from "./ThreeObject.js";
 import { GLOBAL_DEFAULT_SETTINGS } from '../graph/constants.js';
 
+// Un nodo mide ~50 unidades en pantalla: una textura de 1920 px (wip.png) pesa ~15 MB decodificada,
+// y con 40 nodos cargados el tab del celular se quedaba sin memoria (UAT 04-07, G-06).
+// ponytail: tope fijo de 512 px por lado, escalado en canvas al cargar; si algún día un nodo
+// ocupa toda la pantalla a distancia de enfoque en un display denso, subir o servir miniaturas (R2).
+const MAX_TEXTURA = 512;
+function reducir(img) {
+    const mayor = Math.max(img.width, img.height);
+    if (!mayor || mayor <= MAX_TEXTURA) return img;
+    const k = MAX_TEXTURA / mayor;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(img.width * k);
+    canvas.height = Math.round(img.height * k);
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas;
+}
+
 export class ImageThreeObject extends ThreeObject  {
 
     static type = 'Image';

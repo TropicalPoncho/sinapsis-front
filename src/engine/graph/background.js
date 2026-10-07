@@ -18,7 +18,9 @@ const RADIO_ESTRELLAS_MAX = 3200;
 // ponytail: 256x256 vértices ≈ 195k segmentos en UN draw call, ~110 ms de ruido al cargar (medido
 // en node). Techo práctico en gama media; 512x512 (~780k segmentos, ~240 ms) anda en escritorio
 // pero pesa en GPUs integradas/mobile. Más allá, partir en chunks con LOD.
-const MUNDO_LADO = 256;
+// En pantallas táctiles baja a 128x128 (~49k segmentos, 4x menos): el celular perdía el contexto
+// WebGL al navegar (UAT 04-07, G-06) y la montaña es decorado.
+const MUNDO_LADO = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches ? 128 : 256;
 const MONTANA_TAMANO = 9000;
 const MONTANA_INTENSIDAD = 9;
 // Fracción del radio donde empieza a desvanecerse hacia el color de fondo (borde = invisible).
