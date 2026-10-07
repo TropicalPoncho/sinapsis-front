@@ -46,4 +46,19 @@ Notas:
 
 ## UAT del dueño
 
-Pendiente: diez puntos de `04-07-PLAN.md` Task 2.
+Fecha: 2026-10-07. Escritorio contra `localhost:3002` y celular Android (Chrome) contra `10.0.0.39:3002`, con la base real (193 nodos, 300 vínculos), no el fixture. Resultado transcrito del dueño; cada falla es un gap contra su requisito (ver `04-UAT-GAPS.md`), no se corrige dentro de este plan.
+
+| punto | resultado | nota |
+|-------|-----------|------|
+| 1 home | OK | |
+| 2 secuencia al tocar un nodo | FALLA (celu) | Al pulsar Volver en el celular hace un pequeño salto a la neurona del centro y luego vuelve. Gap G-01 (UI-10) |
+| 3 degradado | OK | |
+| 4 otro nodo con el panel abierto | OK con ajuste | Hoy cambia el contenido y recién después oculta/anima/reaparece; el dueño aprueba el comportamiento pero el orden debe ser: primero ocultar, después cambiar la información. Gap G-02 (UI-10) |
+| 5 Entrar a entidad y área | FALLA | Gap G-03 (D-18, UI-03): el área no muestra su info antes de entrar, la animación es zoom out (debe ser zoom in), Tropical queda flotando inconexo |
+| 6 ficha, scroll y crédito | scroll OK, crédito FALLA | Gap G-04 (UI-02, UI-04): al tocar un crédito queda la pantalla en negro |
+| 7 link compartido | OK con reparos | Gap G-05 (UI-03): dentro de la red de una entidad, tocar otra entidad cambia la red; aparecen nodos sin relación con la entidad |
+| 8 celular | FALLA parcial | Arrastre y zoom OK. Tocar la entidad Tropical dejó la pantalla en blanco con ícono de roto; 4 errores de Next, entre ellos `THREE.WebGLRenderer: A WebGL context could not be created. Reason: Web page caused context loss and was blocked`. Gap G-06 (PERF-01, UI-08). Además "Sinápsis" queda cortada por el borde izquierdo y el título de la entidad la tapa. Gap G-07 (UI-09) |
+| 9 teclado | OK | |
+| 10 consola | OK (escritorio) | En el celular: los 4 errores del punto 8 |
+
+Fluidez en celular (PERF-01): sin medición de fps; la red 3D con fondo (4000 estrellas + montaña de ~195k segmentos) provocó pérdida de contexto WebGL al navegar a Tropical.
