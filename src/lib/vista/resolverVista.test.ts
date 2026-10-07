@@ -129,6 +129,18 @@ describe('resolverVista', () => {
     )
   })
 
+  test('limite corta por relevancia: gana quien comparte más eventos con la raíz', () => {
+    const n = (id: string, nodeType: 'ENTIDAD' | 'EVENTO'): NodoGrafo => ({ id, nodeType, subtipo: nodeType === 'EVENTO' ? 'fiesta' : 'persona', label: id, vizParams: vp, isStub: false })
+    const l = (o: string, d: string): VinculoGrafo => ({ id: o + d, origen: o, destino: d, tipoVinculo: 'COLABORO_EN' })
+    // p1 aparece último en la lista y está en los dos eventos; p2 y p3 en uno solo
+    const a = construirAdyacencia({
+      nodos: [n('r', 'ENTIDAD'), n('x', 'EVENTO'), n('y', 'EVENTO'), n('p2', 'ENTIDAD'), n('p3', 'ENTIDAD'), n('p1', 'ENTIDAD')],
+      vinculos: [l('r', 'x'), l('r', 'y'), l('x', 'p2'), l('y', 'p3'), l('x', 'p1'), l('y', 'p1')],
+    })
+    const sub = resolverVista(a, vista({ raiz: 'r', profundidad: 2, filtroNodeTypes: ['ENTIDAD'], incluirRaiz: false, limite: 1 }))
+    assert.deepEqual(ids(sub), ['p1'])
+  })
+
   test('raiz null devuelve la red global filtrada', () => {
     const sub = resolverVista(ady, vista({ raiz: null, profundidad: 0, filtroNodeTypes: ['OBRA'] }))
     assert.deepEqual(ids(sub), ['o1', 'o2'])

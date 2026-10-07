@@ -60,15 +60,17 @@ test('claveVista ignora enfocado', () => {
 })
 test('vistaDe', () => {
   const v = vistaDe(E(), 'r', 'ENTIDAD')
-  assert.equal(v.raiz, 'r'); assert.equal(v.profundidad, 1); assert.equal(v.limite, LIMITE_VISTA)
+  assert.equal(v.raiz, 'r'); assert.equal(v.profundidad, 2); assert.equal(v.limite, LIMITE_VISTA)
   assert.equal(v.direccion, 'ambas'); assert.equal(v.incluirRaiz, true); assert.equal(v.modoOrden, 'grafo')
-  // Entrar a un ENTIDAD o AGRUPACION muestra solo lo que compone (áreas, obras) y el orden
-  // curatorial entre ellas (PRECEDE), no colaboradores.
-  assert.deepEqual(v.filtroNodeTypes, []); assert.deepEqual(v.filtroVinculos, ['COMPONE', 'PRECEDE'])
-  assert.deepEqual(vistaDe(E(), 'r', 'AGRUPACION').filtroVinculos, ['COMPONE', 'PRECEDE'])
+  // Entrar a una AGRUPACION muestra solo lo que compone (áreas, obras) y el orden curatorial
+  // entre ellas (PRECEDE). Entrar a una ENTIDAD recorre todo a profundidad 2 pero muestra solo
+  // ENTIDAD/AGRUPACION: eventos y obras quedan como nodos puente, no se dibujan.
+  assert.deepEqual(v.filtroNodeTypes, ['ENTIDAD', 'AGRUPACION']); assert.deepEqual(v.filtroVinculos, [])
+  const ag = vistaDe(E(), 'r', 'AGRUPACION')
+  assert.deepEqual(ag.filtroNodeTypes, []); assert.deepEqual(ag.filtroVinculos, ['COMPONE', 'PRECEDE']); assert.equal(ag.profundidad, 1)
   assert.deepEqual(vistaDe(E(), 'r', 'OBRA').filtroVinculos, [])
   assert.equal(vistaDe(E({ prof: 4 }), 'r', 'OBRA').profundidad, 4)
-  assert.equal(profDefecto(), 1)
+  assert.equal(profDefecto('ENTIDAD'), 2); assert.equal(profDefecto('AGRUPACION'), 1); assert.equal(profDefecto(), 1)
   // Una AGRUPACION no se muestra a sí misma por defecto (estás "adentro"); una ENTIDAD sí. `raiz`
   // en la URL pisa el default en cualquier sentido.
   assert.equal(vistaDe(E(), 'r', 'ENTIDAD').incluirRaiz, true)

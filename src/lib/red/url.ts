@@ -9,19 +9,24 @@ export interface EstadoRed {
   puentes: boolean | null
 }
 
-// Cota PERF-01: tope de nodos por Vista.
-export const LIMITE_VISTA = 100
+// Cota PERF-01: tope de nodos por Vista. Con 100 la entrada a Tropical ya iba lenta (cada nodo es
+// un draw call y los puentes suman vínculos); 40 sale de esa medición, reajustar con GPU real.
+export const LIMITE_VISTA = 40
 
-export const profDefecto = (): number => 1
+// ENTIDAD llega a 2: nodo -> evento/obra (excluidos por tipo) -> colaboradores, que quedan unidos
+// por puentes virtuales (D-puentes) a quien produjo. El resto, a 1.
+export const profDefecto = (tipo?: NodeType): number => (tipo === 'ENTIDAD' ? 2 : 1)
 
-// ENTIDAD y AGRUPACION son los únicos tipos con botón "Entrar" (D-ver botones.ts): entrar muestra
-// solo lo que ese nodo compone —sus áreas, sus obras—, no a quién colaboró. Los colaboradores
-// (COLABORO_EN, PRODUJO, INTEGRA) se ven al enfocar el nodo, no al entrar en su red.
-// PRECEDE entra acá también: son vínculos ENTRE los ya visibles (obras de una misma área), no
-// traen nodos nuevos — sin esto, obras sin vínculo a la raíz quedan sin ningún vínculo visible y
-// el layout de fuerzas las amontona todas en el mismo punto.
+// ENTIDAD y AGRUPACION son los únicos tipos con botón "Entrar" (D-ver botones.ts).
+// AGRUPACION: entrar muestra solo lo que compone —sus áreas, sus obras— y el orden curatorial entre
+// ellas (PRECEDE: vínculos ENTRE los ya visibles; sin esto, obras sin vínculo a la raíz quedan sin
+// ningún vínculo visible y el layout de fuerzas las amontona en el mismo punto).
+// ENTIDAD: además se ve con quién hizo cosas. Los eventos y obras que conectan a esa gente quedan
+// afuera por tipo (no se muestran) y el puente virtual une a la entidad con sus colaboradores: sin
+// recorrer PRODUJO/COLABORO_EN, Tropical Poncho entraba como 5 áreas y ningún creadxr.
 const VINCULOS_AL_ENTRAR: TipoVinculo[] = ['COMPONE', 'PRECEDE']
-const soloComponeAlEntrar = (tipo: NodeType | undefined) => tipo === 'ENTIDAD' || tipo === 'AGRUPACION'
+const soloComponeAlEntrar = (tipo: NodeType | undefined) => tipo === 'AGRUPACION'
+const TIPOS_AL_ENTRAR_ENTIDAD: NodeType[] = ['ENTIDAD', 'AGRUPACION']
 
 export function estadoDesdeUrl(pathname: string, search: string): EstadoRed {
   const [, seg, slug] = pathname.split('/')
@@ -65,8 +70,8 @@ const incluirRaizDefecto = (tipoRed: NodeType | undefined) => tipoRed !== 'AGRUP
 
 export const vistaDe = (e: EstadoRed, redId: string | null, tipoRed?: NodeType): Vista => ({
   raiz: redId,
-  profundidad: e.prof ?? profDefecto(),
-  filtroNodeTypes: [],
+  profundidad: e.prof ?? profDefecto(tipoRed),
+  filtroNodeTypes: tipoRed === 'ENTIDAD' ? TIPOS_AL_ENTRAR_ENTIDAD : [],
   filtroVinculos: soloComponeAlEntrar(tipoRed) ? VINCULOS_AL_ENTRAR : [],
   direccion: 'ambas',
   incluirRaiz: e.raiz ?? incluirRaizDefecto(tipoRed),

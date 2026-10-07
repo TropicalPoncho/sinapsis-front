@@ -144,12 +144,24 @@ export function resolverVista(
   )
 
   if (vista.limite !== undefined && visibles.size > vista.limite) {
-    // ponytail: modoOrden 'geo' y 'aleatorio' caen al mismo orden de BFS que 'grafo'. La
-    // semántica de 'geo' está sin definir en el contrato y solo 3 nodos del dump tienen datos de
-    // ubicación; 'aleatorio' necesitaría una fuente de azar, que rompería la pureza de esta
-    // función. Se resuelven cuando el orden se vuelva visible (fase 3 o 4), pasando un
-    // comparador desde afuera.
-    visibles = new Map([...visibles].slice(0, vista.limite))
+    // Corta por relevancia, no por orden de recorrido: primero la cercanía a la raíz y, dentro de
+    // cada nivel, quien se conecta a más nodos ya alcanzados (para una entidad: con quién compartió
+    // más eventos). Así lo que queda afuera es lo que menos pesa en esta red.
+    // ponytail: modoOrden 'geo' y 'aleatorio' siguen sin implementarse (ver contrato de Vista);
+    // 'grafo' es este criterio.
+    const peso = (id: string): number => {
+      let c = 0
+      for (const v of [...(ady.sale.get(id) ?? []), ...(ady.entra.get(id) ?? [])]) {
+        if (alcanzados.has(v.origen === id ? v.destino : v.origen)) c++
+      }
+      return c
+    }
+    const pesos = new Map([...visibles.keys()].map((id) => [id, peso(id)]))
+    visibles = new Map(
+      [...visibles]
+        .sort(([ia, da], [ib, db]) => da - db || pesos.get(ib)! - pesos.get(ia)!)
+        .slice(0, vista.limite),
+    )
   }
 
   const nodos: NodoGrafo[] = [...visibles.keys()].map((id) => ady.nodos.get(id)!)

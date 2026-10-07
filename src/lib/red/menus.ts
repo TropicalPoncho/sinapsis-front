@@ -3,6 +3,11 @@ import type { NodoGrafo, Subgrafo, VinculoGrafo } from '../../types/vista.ts'
 
 const porLabel = (a: { label: string }, b: { label: string }) => a.label.localeCompare(b.label, 'es')
 
+// Cronológico (más viejo primero); sin fecha, al final y por nombre. Es el orden de la lista lateral:
+// las ediciones de un evento tienen que leerse en el orden en que pasaron.
+const porFecha = (a: { fecha?: string; label: string }, b: { fecha?: string; label: string }) =>
+  a.fecha && b.fecha ? a.fecha.localeCompare(b.fecha) || porLabel(a, b) : a.fecha ? -1 : b.fecha ? 1 : porLabel(a, b)
+
 // Une `sale` y `entra`: el otro extremo de cada vínculo del nodo.
 function vecinos(ady: Adyacencia, id: string): { nodo: NodoGrafo; v: VinculoGrafo }[] {
   const out: { nodo: NodoGrafo; v: VinculoGrafo }[] = []
@@ -45,7 +50,7 @@ export function padreDe(ady: Adyacencia, nodoId: string): string | null {
 export function nodosDeLaRed(sub: Subgrafo, redId: string, excluir: (string | null)[] = []) {
   return sub.nodos
     .filter((n) => n.id !== redId && !excluir.includes(n.id) && !(n.nodeType === 'AGRUPACION' && n.subtipo === 'area'))
-    .sort(porLabel)
+    .sort(porFecha)
     .map((n) => ({ id: n.id, label: n.label, subtipo: n.subtipo }))
 }
 
