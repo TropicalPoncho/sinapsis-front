@@ -46,8 +46,8 @@ export const ANIMATION_SETTINGS = {
 export const CAMERA_SETTINGS = {
     FOV: 70,
     NEAR: 1,
-    // Subido de 1000: el fondo (background.js) pone estrellas/montaña hasta ~1400-1900 unidades
-    // del origen, y con la cámara orbitando lejos del centro quedaban recortadas por el far plane.
-    FAR: 3000,
+    // El fondo (background.js) llega lejos: estrellas a ~3200 de la cámara y una montaña de 9000
+    // de lado; con menos far plane quedaban recortadas al alejarse.
+    FAR: 10000,
     ORBIT_DISTANCE: 90
 }; 

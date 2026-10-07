@@ -151,6 +151,7 @@ export class SinapsisEngine {
         // loop (incluido tweenGroup.update()) y hacerlo de nuevo duplicaría los draw calls
         // que PERF-01 va a medir — ése era el bug de doble render de mundo.js.
         this.animationManager.animate(); // uniforms de shaders + links
+        this.background?.seguirCamara(this.camera);
         this._emitirFocoSiSeMovio();
         this._actualizarFps();
         this._raf = requestAnimationFrame(this._tick);
