@@ -4,7 +4,8 @@ import { readFileSync } from 'node:fs'
 import { construirAdyacencia } from '../vista/adyacencia.ts'
 import { resolverVista } from '../vista/resolverVista.ts'
 import type { Subgrafo } from '../../types/vista.ts'
-import { estadoDesdeUrl as d, urlDe, claveVista, vistaDe, profDefecto, LIMITE_VISTA, type EstadoRed } from './url.ts'
+import { indexarSlugs } from './slugs.ts'
+import { estadoDesdeUrl as d, urlDe, claveVista, vistaDe, profDefecto, LIMITE_VISTA, LIMITE_SUMA, sumarIds, subgrafoDe, type EstadoRed } from './url.ts'
 
 const E = (o: Partial<EstadoRed> = {}): EstadoRed => ({ enfocado: null, red: null, prof: null, semilla: null, raiz: null, puentes: null, ...o })
 
@@ -117,4 +118,66 @@ test('fixture: ninguna red de entidad o área tiene nodos sueltos (salvo los hub
     if (nodos.some((x) => !conVinculo.has(x.id))) conSueltos.push(n.id)
   }
   assert.deepEqual(conSueltos.sort(), SUELTOS_POR_HUB_SIN_PRODUCTORA)
+})
+
+// D-22: lo sumado al recorrer. La red base no cambia; el foco o lo guardado que no está se suma.
+const idx = indexarSlugs(topo.nodos)
+const sd = (e: Partial<EstadoRed>, guardados: string[] = []) => subgrafoDe(ady, idx, E(e), guardados, { semilla: 'abc', limiteHome: 40 })
+const ids = (r: { sub: Subgrafo }) => r.sub.nodos.map((n) => n.id)
+const vids = (r: { sub: Subgrafo }) => r.sub.vinculos.map((v) => v.id)
+
+test('sumarIds: lo nuevo al final, lo re-tocado pasa al final, tope LIMITE_SUMA', () => {
+  assert.deepEqual(sumarIds(['a', 'b'], ['b', 'c']), ['a', 'b', 'c'])
+  assert.deepEqual(sumarIds(['a', 'b'], ['a']), ['b', 'a'])
+  const quince = Array.from({ length: 15 }, (_, i) => 'n' + i)
+  const r = sumarIds([], quince)
+  assert.equal(r.length, LIMITE_SUMA); assert.equal(r[0], 'n3'); assert.equal(r.at(-1), 'n14')
+})
+test('subgrafoDe: un crédito fuera de la red se suma con su vínculo real, la red no se reemplaza (G-04)', () => {
+  const r = sd({ enfocado: 'ana-ruiz', red: 'obras' })
+  assert.equal(r.sub.nodos.length, 6)
+  assert.ok(ids(r).includes('creadxr-ana') && ids(r).includes('obra-nudo'))
+  assert.ok(vids(r).includes('v14') && !vids(r).includes('v22'))
+  assert.deepEqual(r.sumados, ['creadxr-ana'])
+})
+test('subgrafoDe: lo guardado se conserva al enfocar otra cosa (Atrás)', () => {
+  const r = sd({ enfocado: 'nudo', red: 'obras' }, ['creadxr-ana'])
+  assert.equal(r.sub.nodos.length, 6); assert.ok(ids(r).includes('creadxr-ana'))
+})
+test('subgrafoDe: enfocar algo visible solo cambia el foco (G-05)', () => {
+  const base = redDe('tropical-poncho').nodos.map((n) => n.id).sort()
+  const r = sd({ enfocado: 'beto-sosa', red: 'tropical-poncho' })
+  assert.equal(base.length, 12)
+  assert.deepEqual(ids(r).sort(), base); assert.deepEqual(r.sumados, [])
+})
+test('subgrafoDe: enfocar algo no visible lo suma sin traer su red propia (G-05)', () => {
+  const r = sd({ enfocado: 'fede-roca', red: 'tropical-poncho' })
+  assert.equal(r.sub.nodos.length, 13)
+  assert.ok(ids(r).includes('creadxr-fede') && !ids(r).includes('obra-corto'))
+  assert.ok(redDe('tropical-poncho').nodos.every((n) => ids(r).includes(n.id)))
+})
+test('subgrafoDe: el área enfocada adentro de sí misma no se suma', () => {
+  const r = sd({ enfocado: 'obras', red: 'obras' })
+  assert.equal(r.sub.nodos.length, 5); assert.deepEqual(r.sumados, [])
+})
+test('subgrafoDe: ids desconocidos en guardados se ignoran', () => {
+  const r = sd({ enfocado: 'nudo', red: 'obras' }, ['no-existe'])
+  assert.equal(r.sub.nodos.length, 5); assert.deepEqual(r.sumados, [])
+})
+test('subgrafoDe: punto fijo (si no, el Shell entra en un ciclo de render)', () => {
+  const e = { enfocado: 'ana-ruiz', red: 'obras' }
+  const r = sd(e)
+  assert.deepEqual(sd(e, r.sumados).sumados, r.sumados)
+  const r2 = sd({ enfocado: 'beto-sosa', red: 'obras' }, r.sumados)
+  assert.deepEqual(sd({ enfocado: 'beto-sosa', red: 'obras' }, r2.sumados).sumados, r2.sumados)
+})
+test('subgrafoDe: tope — nunca más de LIMITE_VISTA + LIMITE_SUMA y el foco no sale', () => {
+  const base = new Set(redDe('obras').nodos.map((n) => n.id))
+  const libres = topo.nodos.map((n) => n.id).filter((id) => !base.has(id) && id !== 'creadxr-ana')
+  const r = sd({ enfocado: 'ana-ruiz', red: 'obras' }, libres.slice(0, 20))
+  assert.equal(r.sumados.length, LIMITE_SUMA); assert.equal(r.sumados.at(-1), 'creadxr-ana')
+  assert.ok(r.sub.nodos.length <= LIMITE_VISTA + LIMITE_SUMA)
+})
+test('subgrafoDe: en la home una obra enfocada se suma', () => {
+  assert.ok(ids(sd({ enfocado: 'nudo' })).includes('obra-nudo'))
 })
