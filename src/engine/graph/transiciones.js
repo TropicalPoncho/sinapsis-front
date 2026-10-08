@@ -76,3 +76,32 @@ export function desvanecerYQuitar(threeObjectManager, ids, duracion) {
         requestAnimationFrame(step);
     });
 }
+
+/**
+ * Los nodos que entran no traen x/y/z: d3 los inicializa en el origen y viajan desde ahí. Si
+ * tienen un vínculo con un nodo ya presente, nacen junto a él (a `radio` de distancia, repartidos
+ * por ángulo áureo para que dos hermanos no coincidan). d3-force-3d no reinicializa un nodo que ya
+ * trae x. Muta `entran`.
+ * ponytail: sin vecino presente cae al origen como antes; solo mira el primer vecino presente.
+ * @param {Array} entran nodos recién adaptados
+ * @param {Array} links `source`/`target` como id o como objeto con `.id`
+ * @param {Map} presentesPorId id -> nodo con x/y/z simulados
+ * @param {number} radio distancia de siembra (menor a la de link base)
+ */
+export function sembrarJuntoAVecinos(entran, links, presentesPorId, radio = 40) {
+    const idDe = e => (e !== null && typeof e === 'object' ? e.id : e);
+    entran.forEach((n, i) => {
+        if (n.x != null) return;
+        for (const l of links) {
+            const s = idDe(l.source), t = idDe(l.target);
+            const otro = s === n.id ? t : t === n.id ? s : undefined;
+            const v = otro !== undefined ? presentesPorId.get(otro) : undefined;
+            if (!v || !Number.isFinite(v.x) || !Number.isFinite(v.y) || !Number.isFinite(v.z)) continue;
+            const a = (i + 1) * 2.399963;
+            n.x = v.x + radio * Math.cos(a);
+            n.y = v.y + radio * Math.sin(a);
+            n.z = v.z;
+            return;
+        }
+    });
+}

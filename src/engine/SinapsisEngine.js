@@ -13,7 +13,7 @@ import { AnimationManager } from './graph/animationManager.js';
 import { Background } from './graph/background.js';
 import { GLOBAL_DEFAULT_SETTINGS, ANIMATION_SETTINGS } from './graph/constants.js';
 import { adaptarSubgrafo } from './adaptador.js';
-import { clasificarCambio, pinear, fusionar, desvanecerYQuitar } from './graph/transiciones.js';
+import { clasificarCambio, pinear, fusionar, desvanecerYQuitar, sembrarJuntoAVecinos } from './graph/transiciones.js';
 
 export class SinapsisEngine {
     constructor(elemento, opciones = {}) {
@@ -136,7 +136,12 @@ export class SinapsisEngine {
         // nodo enfocado, applySafeArea comprimiría el overview entero dentro del área libre
         // desde el primer frame (bug real de 03-06, la vista general no tiene por qué esquivar
         // un panel que todavía no está mostrando nada de ese nodo).
-        const area = this.opciones.getAreaSegura?.() ?? this._areaSegura;
+        const leida = this.opciones.getAreaSegura?.() ?? this._areaSegura;
+        // Con foco el área se lee cuadro a cuadro y se recuerda; sin foco (mezcla bajando) se sigue
+        // aplicando la recordada: el panel ya puede estar vacío o colapsado, y leerla de nuevo
+        // hacía caer el offset a 0 de golpe antes de que la cámara empezara a moverse (G-01).
+        if (this._nodoEnfocado && leida) this._areaFoco = leida;
+        const area = this._nodoEnfocado ? leida : this._areaFoco;
         // El offset entra y sale de forma gradual (misma duración que el tween de cámara): aplicarlo
         // de golpe movía toda la red unos píxeles antes de que la cámara empezara a acercarse.
         const ahora = performance.now();
@@ -326,6 +331,9 @@ export class SinapsisEngine {
                 const datos = adaptarSubgrafo(subgrafo);
                 const { entran } = clasificarCambio(actuales, datos.nodes);
                 pinear(actuales); // el esqueleto existente no se mueve
+                // ponytail: siembra junto al primer vecino presente; sin vecino cae al origen como antes
+                // y, si la física lo sigue moviendo, el encuadre no lo sigue.
+                sembrarJuntoAVecinos(entran, datos.links, new Map(actuales.map(n => [n.id, n])), GLOBAL_DEFAULT_SETTINGS.linkDistance * 0.3);
                 this._idsEntrando = new Set(entran.map(n => n.id));
                 const linksPorId = new Map();
                 for (const l of this.graph.graphData().links) linksPorId.set(l.id, l);
@@ -333,6 +341,9 @@ export class SinapsisEngine {
                 this.graph.graphData({ nodes: [...actuales, ...entran], links: [...linksPorId.values()] });
                 // Sin animación de entrada propia en esta fase: la promesa resuelve apenas
                 // graphData() termina de aplicarse — no hay fundido para 'aditivo' (CONTEXT.md).
+                // Mientras crecen desde 0 la física los acomoda (los presentes están pineados): el
+                // encuadre llega después, sobre la posición casi final.
+                if (entran.length) await new Promise(r => setTimeout(r, ANIMATION_SETTINGS.NODE_FADE_DURATION));
                 this._emitir('vistaLista', { transicion, nodos: datos.nodes, entran, salen: [] });
                 break;
             }
@@ -360,7 +371,7 @@ export class SinapsisEngine {
         // promesa de setVista resuelve recién cuando la cámara llegó. `nodoEnfocado` es un id;
         // si no está en el Subgrafo recién aplicado, no enfoca y no emite — sin throw.
         if (nodoEnfocado) {
-            const nodo = this.graph.graphData().nodes.find(n => n.id === nodoEnfocado);
+            const nodo = await this._nodoConCoordenadas(nodoEnfocado);
             const area = this.opciones.getAreaSegura?.() ?? this._areaSegura;
             if (nodo && area) {
                 // _nodoEnfocado se marca ANTES del await: _tick ya aplica applySafeArea durante
@@ -382,6 +393,20 @@ export class SinapsisEngine {
                 await new Promise(r => setTimeout(r, ANIMATION_SETTINGS.CAMERA_TRANSITION_DURATION));
             }
         }
+    }
+
+    // graphData() se procesa diferido: un nodo recién entrado no tiene x/y/z hasta entonces, y
+    // enfocarlo dejaría la cámara en NaN (pantalla negra, G-04). Espera a que sean finitas.
+    // ponytail: sondeo cada 50 ms con tope de 2 s; si no llegan no se enfoca (sin throw, como un id ausente).
+    async _nodoConCoordenadas(id) {
+        for (let i = 0; i <= 40; i++) {
+            const n = this.graph.graphData().nodes.find(x => x.id === id);
+            if (!n) return undefined;
+            if ([n.x, n.y, n.z].every(Number.isFinite)) return n;
+            await new Promise(r => setTimeout(r, 50));
+        }
+        console.warn('SinapsisEngine: el nodo', id, 'no tiene coordenadas finitas; no se enfoca');
+        return undefined;
     }
 
     destruir() {
