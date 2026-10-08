@@ -164,7 +164,7 @@ export default function Overlay({ estado, mostrado, ady, idx, fase, error, panel
         activoId={activoId}
         padreId={padreId}
         abierto={menuAbierto}
-        onElegir={(id) => irA(id, true)}
+        onElegir={(id) => irA(id, false)}
       />
       <div className={'izquierda' + (visible ? ' izquierda--visible' : '')}>
       {lateral && sub && redId && (

@@ -355,6 +355,10 @@ export class SinapsisEngine {
                 performance.mark('sinapsis:graphData:inicio'); // PERF-01: dónde se va el tiempo de carga
                 this.graph.graphData(datos);
                 performance.mark('sinapsis:graphData:fin');
+                // El objeto del enfocado ya no existe en la escena. Sin foco nuevo se suelta y el
+                // área segura vuelve a 0 acá, bajo el negro: si no, la red interna aparece corrida
+                // hacia el área libre y se desliza al centro cuando el foco se suelta después.
+                if (!nodoEnfocado) { this._nodoEnfocado = null; this._ultimoFoco = null; this._mezclaArea = 0; }
                 await this.animationManager.fadeInCanvasFromBlack(ANIMATION_SETTINGS.FADE_DURATION);
                 await this._liberarTrasDigest(datos.nodes.map(n => n.id)); // MOTR-07
                 this._emitir('vistaLista', { transicion, nodos: datos.nodes.length });

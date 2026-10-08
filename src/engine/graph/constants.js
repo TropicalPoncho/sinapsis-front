@@ -35,6 +35,11 @@ export const COLORS_ARRAY = [
 export const ANIMATION_SETTINGS = {
     CAMERA_TRANSITION_DURATION: 3000,
     FADE_DURATION: 300,
+    // Llegada de una red nueva (zoom in desde lejos): la cámara arranca a ENTRADA_FACTOR veces la
+    // distancia de encuadre y baja en ENTRADA_DURACION ms. ponytail: a ojo; perillas para el UAT del
+    // dueño, no configuración de producto.
+    ENTRADA_FACTOR: 2.5,
+    ENTRADA_DURACION: 1200,
     // salida/entrada de nodos en filtrado/aditivo: 300 ms no se llegaba a ver (checklist 03-06 #8/#9)
     NODE_FADE_DURATION: 800,
     ORBIT_SPEED: Math.PI / 1500,

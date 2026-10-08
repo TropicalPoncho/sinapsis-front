@@ -5,7 +5,6 @@ import { ANIMATION_SETTINGS, GLOBAL_DEFAULT_SETTINGS } from './constants.js';
  * Maneja animaciones de nodos, enlaces y transiciones visuales
  */
 export class AnimationManager {
-    lastDimensionNode;
     constructor(graph, threeObjectManager, cameraController) {
         this.graph = graph;
         this.threeObjectManager = threeObjectManager;
@@ -52,7 +51,6 @@ export class AnimationManager {
      */
     async fadeOutCanvasToBlack(node, duration = ANIMATION_SETTINGS.FADE_DURATION) {
         if (node) {
-            this.lastDimensionNode = node;
             // Si hay nodo, hacemos Zoom IN (entrar en la neurona)
             this.graph.cameraPosition(
                 { x: node.x, y: node.y, z: node.z }, // nueva posición de la cámara (pegada al nodo)
@@ -76,46 +74,57 @@ export class AnimationManager {
 
     /**
      * Fade in desde negro sobre el canvas de Three.js (animación suave)
+     * Dos llegadas, las dos bajo el negro y con la misma espera a que la red esté asentada:
+     *  - sin foco destino: zoom in desde lejos hasta encuadrar la red (entrar a un área o entidad).
+     *  - con foco destino presente en la red (`focoId` + `enfocar`): la cámara arranca dentro de esa
+     *    neurona y `enfocar()` la saca hasta el encuadre de foco mientras el negro se retira (D-18,
+     *    Volver = la entrada al revés). `enfocar` es del motor (lleva el área segura); acá solo se
+     *    lanza en paralelo con el fundido.
      * @param {number} duration - Duración de la animación en ms
-     * @param {boolean} zoomIn - Si es true, hace zoom in (de lejos a cerca). Si es false, hace zoom out (de cerca a lejos).
-     * @returns {Promise}
+     * @param {{focoId?: string|null, enfocar?: () => Promise<void>}} [llegada]
+     * @returns {Promise<boolean>} true si `enfocar` se ejecutó acá
      */
-    async fadeInCanvasFromBlack(duration = ANIMATION_SETTINGS.FADE_DURATION, zoomOut = false) {
+    async fadeInCanvasFromBlack(duration = ANIMATION_SETTINGS.FADE_DURATION, { focoId = null, enfocar = null } = {}) {
         const overlay = this.ensureBlackOverlay();
         // forzamos el repaint para que requestAnimationFrame tenga algo que animar
         overlay.getBoundingClientRect();
         overlay.style.opacity = '1';
-        let extraDuration = 1.2; 
-        if (zoomOut) {
-            this.graph.cameraPosition(this.lastDimensionNode,this.lastDimensionNode);
-            this.graph.cameraPosition(
-                { x: this.lastDimensionNode.x, y: this.lastDimensionNode.y, z: GLOBAL_DEFAULT_SETTINGS.aimDistance },
-                this.lastDimensionNode,
-                duration
-            );
-            extraDuration = 0.5
-        } else {
-            // El grafo ya viene asentado (warmupTicks): se encuadra instantáneo MIENTRAS el
-            // overlay sigue negro, así aparece directo en zoom-to-fit, sin salto visible.
-            // getGraphBbox mide con matrixWorld: hasta que la librería procesa graphData() (crea
-            // los objetos de los nodos, diferido) y renderiza, todo está en el origen y el bbox
-            // sale diminuto — la cámara quedaba pegada a un solo nodo (UAT 03, test 1). Se espera
-            // a que TODOS los nodos tengan objeto y posición, más 2 frames, con tope de 30 s.
-            const listos = () => {
-                const nodos = this.graph.graphData().nodes;
-                return nodos.length > 0 && nodos.every(n => n.__threeObj && Number.isFinite(n.x));
-            };
-            const inicio = performance.now();
-            while (!listos() && performance.now() - inicio < 30000) await new Promise(r => setTimeout(r, 50));
-            const frame = () => new Promise(r => { requestAnimationFrame(() => r()); setTimeout(r, 300); });
-            await frame();
-            await frame();
-            this.graph.scene().updateMatrixWorld(true);
-            this.graph.zoomToFit(0, 10);
-        }
+        // El grafo ya viene asentado (warmupTicks): se encuadra instantáneo MIENTRAS el
+        // overlay sigue negro, así aparece directo en zoom-to-fit, sin salto visible.
+        // getGraphBbox mide con matrixWorld: hasta que la librería procesa graphData() (crea
+        // los objetos de los nodos, diferido) y renderiza, todo está en el origen y el bbox
+        // sale diminuto — la cámara quedaba pegada a un solo nodo (UAT 03, test 1). Se espera
+        // a que TODOS los nodos tengan objeto y posición, más 2 frames, con tope de 30 s.
+        const listos = () => {
+            const nodos = this.graph.graphData().nodes;
+            return nodos.length > 0 && nodos.every(n => n.__threeObj && Number.isFinite(n.x));
+        };
+        const inicio = performance.now();
+        while (!listos() && performance.now() - inicio < 30000) await new Promise(r => setTimeout(r, 50));
+        const frame = () => new Promise(r => { requestAnimationFrame(() => r()); setTimeout(r, 300); });
+        await frame();
+        await frame();
+        this.graph.scene().updateMatrixWorld(true);
 
-        const fadeDuration = duration * extraDuration;
-        await this.animateOverlayOpacity(overlay, 0, fadeDuration);
+        const fundido = this.animateOverlayOpacity(overlay, 0, duration * 1.2);
+        const foco = focoId && enfocar ? this.graph.graphData().nodes.find(n => n.id === focoId) : null;
+        if (foco) {
+            // Un paso afuera de la neurona sobre el eje origen-nodo: nunca posición == lookAt (degenera
+            // OrbitControls). ponytail: 6 de distancia a ojo; un nodo en el origen mira desde +z.
+            const { x, y, z } = foco, r = Math.hypot(x, y, z);
+            const u = r ? { x: x / r, y: y / r, z: z / r } : { x: 0, y: 0, z: 1 };
+            this.graph.cameraPosition({ x: x + u.x * 6, y: y + u.y * 6, z: z + u.z * 6 }, { x, y, z }, 0);
+            await Promise.all([fundido, enfocar()]);
+            return true;
+        }
+        this.graph.zoomToFit(0, 10);
+        const { x, y, z } = this.graph.cameraPosition(); // zoomToFit siempre mira al origen
+        const f = ANIMATION_SETTINGS.ENTRADA_FACTOR, origen = { x: 0, y: 0, z: 0 };
+        this.graph.cameraPosition({ x: x * f, y: y * f, z: z * f }, origen, 0);
+        this.graph.cameraPosition({ x, y, z }, origen, ANIMATION_SETTINGS.ENTRADA_DURACION);
+        // tween.js y setTimeout terminan exactos: la promesa resuelve cuando llegó lo más largo (MOTR-09).
+        await Promise.all([fundido, new Promise(r => setTimeout(r, ANIMATION_SETTINGS.ENTRADA_DURACION))]);
+        return false;
     }
 
     animateOverlayOpacity(overlay, targetOpacity, duration, startOpacity = null) {
