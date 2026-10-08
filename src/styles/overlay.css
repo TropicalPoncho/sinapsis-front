@@ -126,7 +126,19 @@
 /* Título de la red en la que se entró; "Sinápsis" pasa a marca chica arriba a la derecha */
 .tituloRed { position: fixed; z-index: 40; top: 20px; left: 24px; margin: 0; font-family: 'Briller', Gotham, sans-serif; font-size: 32px; font-weight: 400; color: #fff; }
 .marca { position: fixed; z-index: 40; top: 24px; right: 24px; font-family: 'Briller', Gotham, sans-serif; font-size: 16px; color: rgba(255,255,255,.7); text-decoration: none; }
-@media (max-width: 800px) { .tituloRed { left: 72px; top: 20px; font-size: 20px; } .marca { top: 28px; right: 16px; font-size: 14px; } }
+@media (max-width: 800px) {
+  /* Un nombre largo nunca desborda: deja la hamburguesa (72px) y el margen. */
+  .tituloRed { left: 72px; top: 20px; font-size: 20px; max-width: calc(100vw - 88px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* "Sinápsis" es una marca chica abajo hasta que exista logo (G-07). Pisa la regla legada de index.css
+     (.floatingTitle: left 42% + width 90% + translate(-50%) arrancaba en -3% y cortaba la palabra). */
+  .overlay .floatingTitle, .overlay .floatingTitle.title-hidden, .marca {
+    position: fixed; top: auto; right: auto; bottom: 16px; left: 16px; transform: none; width: auto;
+    min-height: 0; max-height: none; overflow: visible; margin: 0; font-size: 14px; transition: opacity .3s;
+  }
+  .overlay .floatingTitle.title-hidden { opacity: 0; pointer-events: none; }
+  /* con el panel visible la banda inferior ocupa ese lugar: la marca cede, no se superpone */
+  .marca--oculta { opacity: 0; pointer-events: none; }
+}
 
 /* Escritorio según las pantallas de diseño: título arriba a la izquierda, menú superior a la derecha
    en la misma fila, lateral como lista de texto bajo el título, panel al lado sin huecos. */

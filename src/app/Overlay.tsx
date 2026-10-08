@@ -152,7 +152,7 @@ export default function Overlay({ estado, mostrado, ady, idx, fase, error, panel
         : <h1 className={'floatingTitle' + (estado.enfocado ? ' title-hidden' : '')}>Sinápsis</h1>}
       {/* <a> a propósito: la navegación la coreografía Shell vía navegar(); next/link la saltearía. */}
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-      {redNodo && <a className="marca" href="/" onClick={(e) => { e.preventDefault(); navegar('/', 'reemplazo') }}>Sinápsis</a>}
+      {redNodo && <a className={'marca' + (visible ? ' marca--oculta' : '')} href="/" onClick={(e) => { e.preventDefault(); navegar('/', 'reemplazo') }}>Sinápsis</a>}
 
       {hayMenu && (
         <button id="hamburger" aria-label="Abrir menú" aria-expanded={menuAbierto || lateralAbierto} onClick={alHamburguesa}>
