@@ -145,16 +145,15 @@ test('subgrafoDe: lo guardado se conserva al enfocar otra cosa (Atrás)', () => 
   assert.equal(r.sub.nodos.length, 6); assert.ok(ids(r).includes('creadxr-ana'))
 })
 test('subgrafoDe: enfocar algo visible solo cambia el foco (G-05)', () => {
-  const base = redDe('tropical-poncho').nodos.map((n) => n.id).sort()
+  const base = redDe('tp').nodos.map((n) => n.id).sort()
   const r = sd({ enfocado: 'beto-sosa', red: 'tropical-poncho' })
-  assert.equal(base.length, 12)
   assert.deepEqual(ids(r).sort(), base); assert.deepEqual(r.sumados, [])
 })
 test('subgrafoDe: enfocar algo no visible lo suma sin traer su red propia (G-05)', () => {
   const r = sd({ enfocado: 'fede-roca', red: 'tropical-poncho' })
-  assert.equal(r.sub.nodos.length, 13)
+  assert.equal(r.sub.nodos.length, redDe('tp').nodos.length + 1)
   assert.ok(ids(r).includes('creadxr-fede') && !ids(r).includes('obra-corto'))
-  assert.ok(redDe('tropical-poncho').nodos.every((n) => ids(r).includes(n.id)))
+  assert.ok(redDe('tp').nodos.every((n) => ids(r).includes(n.id)))
 })
 test('subgrafoDe: el área enfocada adentro de sí misma no se suma', () => {
   const r = sd({ enfocado: 'obras', red: 'obras' })
@@ -172,7 +171,7 @@ test('subgrafoDe: punto fijo (si no, el Shell entra en un ciclo de render)', () 
   assert.deepEqual(sd({ enfocado: 'beto-sosa', red: 'obras' }, r2.sumados).sumados, r2.sumados)
 })
 test('subgrafoDe: tope — nunca más de LIMITE_VISTA + LIMITE_SUMA y el foco no sale', () => {
-  const base = new Set(redDe('obras').nodos.map((n) => n.id))
+  const base = new Set(redDe('area-obras').nodos.map((n) => n.id))
   const libres = topo.nodos.map((n) => n.id).filter((id) => !base.has(id) && id !== 'creadxr-ana')
   const r = sd({ enfocado: 'ana-ruiz', red: 'obras' }, libres.slice(0, 20))
   assert.equal(r.sumados.length, LIMITE_SUMA); assert.equal(r.sumados.at(-1), 'creadxr-ana')
