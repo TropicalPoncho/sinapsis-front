@@ -95,9 +95,11 @@ export default function Overlay({ estado, mostrado, ady, idx, fase, error, panel
   const visible = fase === 'listo' && ((nodo !== undefined && !entrado && coincide) || error !== null || subredVacia)
 
   useEffect(() => { setAbierto(false) }, [mostrado.enfocado])
+  // Sigue a `mostrado`, no a la URL: si el botón desaparece apenas cambia la URL, el panel (en mobile,
+  // de alto automático) se achica mientras sale y el encuadre salta antes de que la cámara se mueva.
   useEffect(() => {
     setPuedeVolver(((history.state as { sinapsis?: { idx?: number } } | null)?.sinapsis?.idx ?? 0) > 0)
-  }, [estado])
+  }, [mostrado])
   useEffect(() => {
     if (!nodo) return
     const f = (e: KeyboardEvent) => { if (e.key === 'Escape') volver() }
