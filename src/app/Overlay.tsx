@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react'
 import type { Adyacencia } from '../lib/vista/adyacencia.ts'
-import { resolverVista } from '../lib/vista/resolverVista.ts'
 import type { IndiceSlugs } from '../lib/red/slugs.ts'
 import { rutaDe } from '../lib/red/slugs.ts'
-import type { EstadoRed } from '../lib/red/url.ts'
-import { claveEstado, urlDe, vistaDe } from '../lib/red/url.ts'
+import type { EstadoRed, subgrafoDe } from '../lib/red/url.ts'
+import { claveEstado, urlDe } from '../lib/red/url.ts'
 import { botonesDe } from '../lib/red/botones.ts'
 import type { Boton } from '../lib/red/botones.ts'
 import { transicionEntrada } from '../lib/red/navegacion.ts'
@@ -24,16 +23,19 @@ export interface OverlayProps {
   mostrado: EstadoRed
   ady: Adyacencia | null
   idx: IndiceSlugs | null
+  // Lo visible (Vista de la URL + lo sumado al recorrer, D-22): un solo cálculo, el del Shell.
+  escena: ReturnType<typeof subgrafoDe> | null
   fase: Fase
   error: 'topologia' | 'no-encontrado' | null
   panelRef: RefObject<HTMLElement | null>
   navegar: (url: string, t: Transicion) => void
   volver: () => void
   reintentar: () => void
+  sumar: (ids: string[]) => void
 }
 
 // El panel siempre está maquetado (nunca display:none): la cámara mide su rect antes de que aparezca.
-export default function Overlay({ estado, mostrado, ady, idx, fase, error, panelRef, navegar, volver, reintentar }: OverlayProps) {
+export default function Overlay({ estado, mostrado, ady, idx, escena, fase, error, panelRef, navegar, volver, reintentar }: OverlayProps) {
   const h2Ref = useRef<HTMLHeadingElement>(null)
   const [abierto, setAbierto] = useState(false)
   const [puedeVolver, setPuedeVolver] = useState(false)
@@ -57,10 +59,7 @@ export default function Overlay({ estado, mostrado, ady, idx, fase, error, panel
   // que de verdad salís de la red (estado.red === null).
   const redNodo = ady && redId ? ady.nodos.get(redId) : undefined
 
-  const sub = useMemo(() => {
-    if (!ady || !redId) return null
-    return resolverVista(ady, vistaDe(estado, redId, ady.nodos.get(redId)?.nodeType))
-  }, [ady, redId, estado])
+  const sub = redId ? escena?.sub ?? null : null
   const subredVacia = sub !== null && sub.nodos.length <= 1
 
   const entidadId = ady && entrado ? entidadDeMenu(ady, { redId, enfocadoId }) : null

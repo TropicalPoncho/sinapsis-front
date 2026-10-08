@@ -9,13 +9,21 @@ import type { Fase } from './Overlay'
 import { cargarAdyacencia, olvidarTopologia } from '../lib/vista/topologia.ts'
 import type { Adyacencia } from '../lib/vista/adyacencia.ts'
 import { indexarSlugs, rutaDe } from '../lib/red/slugs.ts'
-import { estadoDesdeUrl, urlDe } from '../lib/red/url.ts'
+import { estadoDesdeUrl, subgrafoDe, sumarIds, urlDe } from '../lib/red/url.ts'
+import { LIMITE_HOME, semillaDeVisita } from '../lib/red/home.ts';
 import type { EstadoRed } from '../lib/red/url.ts'
 import { alPop, entradaValida } from '../lib/red/navegacion.ts'
 import type { Entrada } from '../lib/red/navegacion.ts'
 import type { Transicion } from '../types/vista.ts'
 
 const HOME: EstadoRed = { enfocado: null, red: null, prof: null, semilla: null, raiz: null, puentes: null }
+// Misma referencia siempre: dejar la red borra lo sumado sin invalidar el memo de la escena.
+const SIN_GUARDAR: string[] = []
+
+const limiteDe = () => {
+  const n = Number(new URLSearchParams(window.location.search).get('limite'))
+  return Number.isInteger(n) && n >= 5 && n <= 200 ? n : LIMITE_HOME
+}
 
 export default function Shell() {
   const [ady, setAdy] = useState<Adyacencia | null>(null)
@@ -25,6 +33,10 @@ export default function Shell() {
   const [fase, setFase] = useState<Fase>('cargando')
   // Lo que el panel está mostrando: va por detrás de la URL (oculta, cambia, mueve la cámara, muestra).
   const [mostrado, setMostrado] = useState<EstadoRed>(HOME)
+  // Nodos sumados al recorrer (D-22), atados a la red en la que se sumaron. No viajan en la URL.
+  // ponytail: un solo conjunto para la red actual; volver a una red anterior no restaura el suyo. El
+  // feed futuro suma y saca nodos por este mismo estado (sumarIds, limpiar al dejar la red), sin historial.
+  const [sumados, setSumados] = useState<{ red: string | null; ids: string[] }>({ red: null, ids: SIN_GUARDAR })
   const pathname = usePathname()
   const search = useSearchParams().toString()
   const panelRef = useRef<HTMLElement | null>(null)
@@ -39,6 +51,19 @@ export default function Shell() {
     (!!estadoUrl.red && !idx.idPorSlug.has(estadoUrl.red)))
   const estado = useMemo(() => (noEncontrado ? HOME : estadoUrl), [noEncontrado, estadoUrl])
   const error = errTopo ? 'topologia' : noEncontrado ? 'no-encontrado' : null
+
+  const guardados = sumados.red === estado.red ? sumados.ids : SIN_GUARDAR
+  // `ady` llega por fetch en un effect: la escena solo existe en el cliente (limiteDe y semillaDeVisita usan el browser).
+  const escena = useMemo(
+    () => (ady && idx ? subgrafoDe(ady, idx, estado, guardados, { semilla: estado.semilla ?? semillaDeVisita(), limiteHome: limiteDe() }) : null),
+    [ady, idx, estado, guardados],
+  )
+  // Ajustar estado durante el render (sin effect ni commit intermedio): lo que quedó visible se guarda
+  // para que Atrás dentro de la red lo conserve; al cambiar de red se parte de cero.
+  if (escena && (sumados.red !== estado.red || escena.sumados.length !== guardados.length || escena.sumados.some((id, i) => id !== guardados[i]))) {
+    setSumados({ red: estado.red, ids: escena.sumados })
+  }
+  const sumar = (ids: string[]) => { if (escena) setSumados({ red: estado.red, ids: sumarIds(escena.sumados, ids) }) }
 
   const cargar = useCallback(() => { cargarAdyacencia().then(setAdy).catch(() => setErrTopo(true)) }, [])
   useEffect(() => { cargar() }, [cargar])
@@ -75,10 +100,10 @@ export default function Shell() {
 
   return (
     <>
-      <CanvasSinapsis ady={ady} idx={idx} estado={estado} llegadaRef={llegadaRef} panelRef={panelRef}
+      <CanvasSinapsis ady={ady} idx={idx} estado={estado} escena={escena} llegadaRef={llegadaRef} panelRef={panelRef}
         onFase={setFase} onMostrar={setMostrado} onNodoClick={enfocar} onEngineReady={setEngine} />
-      <Overlay estado={estado} mostrado={mostrado} ady={ady} idx={idx} fase={fase} error={error} panelRef={panelRef}
-        navegar={navegar} volver={volver} reintentar={reintentar} />
+      <Overlay estado={estado} mostrado={mostrado} ady={ady} idx={idx} escena={escena} fase={fase} error={error} panelRef={panelRef}
+        navegar={navegar} volver={volver} reintentar={reintentar} sumar={sumar} />
       {process.env.NODE_ENV !== 'production' && engine && <DebugPanel engine={engine} />}
     </>
   )
