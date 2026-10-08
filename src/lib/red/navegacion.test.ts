@@ -6,8 +6,10 @@ test('inversa', () => {
   assert.deepEqual([inversa.reemplazo, inversa.filtrado, inversa.aditivo], ['reemplazo', 'aditivo', 'filtrado'])
 })
 test('transicionEntrada', () => {
-  assert.equal(transicionEntrada('AGRUPACION'), 'reemplazo')
-  for (const t of ['ENTIDAD', 'OBRA', 'EVENTO'] as const) assert.equal(transicionEntrada(t), 'filtrado')
+  // Entrar a un área o a una entidad es zoom in a la neurona: solo el reemplazo (corte bajo el negro) lo permite.
+  for (const t of ['ENTIDAD', 'AGRUPACION'] as const) assert.equal(transicionEntrada(t), 'reemplazo')
+  for (const t of ['OBRA', 'EVENTO'] as const) assert.equal(transicionEntrada(t), 'filtrado')
+  assert.equal(inversa.reemplazo, 'reemplazo') // Volver de una entrada sigue siendo reemplazo
 })
 test('entradaValida', () => {
   assert.deepEqual(entradaValida({ sinapsis: { idx: 0, t: 'aditivo' } }), { idx: 0, t: 'aditivo' })
