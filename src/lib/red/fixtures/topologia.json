@@ -579,6 +579,36 @@
       "origen": "tp",
       "destino": "obra-nudo",
       "tipoVinculo": "PRODUJO"
+    },
+    {
+      "id": "v32",
+      "origen": "obra-nudo",
+      "destino": "obra-espora",
+      "tipoVinculo": "PRECEDE"
+    },
+    {
+      "id": "v33",
+      "origen": "obra-espora",
+      "destino": "obra-cepa",
+      "tipoVinculo": "PRECEDE"
+    },
+    {
+      "id": "v34",
+      "origen": "obra-cepa",
+      "destino": "obra-wip",
+      "tipoVinculo": "PRECEDE"
+    },
+    {
+      "id": "v35",
+      "origen": "obra-wip",
+      "destino": "obra-distopia",
+      "tipoVinculo": "PRECEDE"
+    },
+    {
+      "id": "v36",
+      "origen": "obra-corto",
+      "destino": "obra-sin-desc",
+      "tipoVinculo": "PRECEDE"
     }
   ]
 }

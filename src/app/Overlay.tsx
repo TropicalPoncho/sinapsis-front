@@ -169,8 +169,7 @@ export default function Overlay({ estado, mostrado, ady, idx, fase, error, panel
       <div className={'izquierda' + (visible ? ' izquierda--visible' : '')}>
       {lateral && sub && redId && (
         <MenuLateral
-          // quien compone al área (el origen del COMPONE hacia ella) es de donde se viene, no un miembro
-          nodos={nodosDeLaRed(sub, redId, (ady!.entra.get(redId) ?? []).filter((v) => v.tipoVinculo === 'COMPONE').map((v) => v.origen))}
+          nodos={nodosDeLaRed(sub, redId)}
           enfocadoId={enfocadoId}
           abierto={lateralAbierto}
           onElegir={(id) => irA(id, false)}

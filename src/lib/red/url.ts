@@ -18,9 +18,11 @@ export const LIMITE_VISTA = 40
 export const profDefecto = (tipo?: NodeType): number => (tipo === 'ENTIDAD' ? 2 : 1)
 
 // ENTIDAD y AGRUPACION son los únicos tipos con botón "Entrar" (D-ver botones.ts).
-// AGRUPACION: entrar muestra solo lo que compone —sus áreas, sus obras— y el orden curatorial entre
-// ellas (PRECEDE: vínculos ENTRE los ya visibles; sin esto, obras sin vínculo a la raíz quedan sin
-// ningún vínculo visible y el layout de fuerzas las amontona en el mismo punto).
+// AGRUPACION: entrar muestra solo lo que compone —sus áreas, sus obras— recorriendo los vínculos
+// SALIENTES (contenedor -> miembros): el COMPONE que entra al área viene de su dueña (Tropical) y
+// recorrerlo en ambas direcciones la traía a profundidad 1; con la raíz fuera de `nodos` quedaba
+// flotando sin ningún vínculo dibujable. El orden curatorial entre miembros (PRECEDE) se dibuja igual:
+// resolverVista une pares ya visibles, y sin él los miembros quedarían sin ningún vínculo visible.
 // ENTIDAD: además se ve con quién hizo cosas. Los eventos y obras que conectan a esa gente quedan
 // afuera por tipo (no se muestran) y el puente virtual une a la entidad con sus colaboradores: sin
 // recorrer PRODUJO/COLABORO_EN, Tropical Poncho entraba como 5 áreas y ningún creadxr.
@@ -76,7 +78,7 @@ export const vistaDe = (e: EstadoRed, redId: string | null, tipoRed?: NodeType):
   profundidad: e.prof ?? profDefecto(tipoRed),
   filtroNodeTypes: tipoRed === 'ENTIDAD' ? TIPOS_AL_ENTRAR_ENTIDAD : [],
   filtroVinculos: soloComponeAlEntrar(tipoRed) ? VINCULOS_AL_ENTRAR : [],
-  direccion: 'ambas',
+  direccion: soloComponeAlEntrar(tipoRed) ? 'sale' : 'ambas',
   incluirRaiz: e.raiz ?? incluirRaizDefecto(tipoRed),
   limite: LIMITE_VISTA,
   modoOrden: 'grafo',

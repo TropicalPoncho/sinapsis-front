@@ -46,10 +46,10 @@ export function padreDe(ady: Adyacencia, nodoId: string): string | null {
 }
 
 // Lista lateral: los miembros del área o serie en la que se está. Las áreas van en el menú superior,
-// así que no se listan acá; `excluir` saca además a la entidad dueña del menú.
-export function nodosDeLaRed(sub: Subgrafo, redId: string, excluir: (string | null)[] = []) {
+// así que no se listan acá (la dueña del área ya no entra a la Vista: ver vistaDe).
+export function nodosDeLaRed(sub: Subgrafo, redId: string) {
   return sub.nodos
-    .filter((n) => n.id !== redId && !excluir.includes(n.id) && !(n.nodeType === 'AGRUPACION' && n.subtipo === 'area'))
+    .filter((n) => n.id !== redId && !(n.nodeType === 'AGRUPACION' && n.subtipo === 'area'))
     .sort(porFecha)
     .map((n) => ({ id: n.id, label: n.label, subtipo: n.subtipo }))
 }
