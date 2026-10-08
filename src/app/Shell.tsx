@@ -10,7 +10,7 @@ import { cargarAdyacencia, olvidarTopologia } from '../lib/vista/topologia.ts'
 import type { Adyacencia } from '../lib/vista/adyacencia.ts'
 import { indexarSlugs, rutaDe } from '../lib/red/slugs.ts'
 import { estadoDesdeUrl, subgrafoDe, sumarIds, urlDe } from '../lib/red/url.ts'
-import { LIMITE_HOME, semillaDeVisita } from '../lib/red/home.ts';
+import { LIMITE_HOME, semillaDeVisita } from '../lib/red/home.ts'
 import type { EstadoRed } from '../lib/red/url.ts'
 import { alPop, entradaValida } from '../lib/red/navegacion.ts'
 import type { Entrada } from '../lib/red/navegacion.ts'

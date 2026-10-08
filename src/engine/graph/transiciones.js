@@ -88,7 +88,7 @@ export function desvanecerYQuitar(threeObjectManager, ids, duracion) {
  * @param {Map} presentesPorId id -> nodo con x/y/z simulados
  * @param {number} radio distancia de siembra (menor a la de link base)
  */
-export function sembrarJuntoAVecinos(entran, links, presentesPorId, radio = 40) {
+export function sembrarJuntoAVecinos(entran, links, presentesPorId, radio) {
     const idDe = e => (e !== null && typeof e === 'object' ? e.id : e);
     entran.forEach((n, i) => {
         if (n.x != null) return;
