@@ -1,17 +1,20 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: v1.0
-milestone_name: milestone
+current_phase: 04
+current_phase_name: UI & Navigation
 status: executing
-stopped_at: Completed 02-05-PLAN.md
-last_updated: "2026-10-01T00:00:00.000Z"
-last_activity: 2026-10-01
+stopped_at: Completed 04-08-PLAN.md
+last_updated: "2026-10-08T00:07:22.936Z"
+last_activity: 2026-10-07
+last_activity_desc: Phase 04 execution started
+state_head: 9c223dbd101dfd30d2d17c97c0a0cab358c8a673
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 22
-  completed_plans: 21
-  percent: 0
+  total_plans: 26
+  completed_plans: 23
+milestone_name: milestone
 ---
 
 # Project State
@@ -21,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-06)
 
 **Core value:** Que la red se pueda mirar desde cualquier punto de vista sin cambiar el modelo de datos.
-**Current focus:** Phase 04 — ui-navigation (solo falta el gate de cierre, 04-07)
+**Current focus:** Phase 04 — UI & Navigation
 
 ## Current Position
 
-Phase: 04 (ui-navigation) — EXECUTING
-Plan: 7 of 7
+Phase: 04 (UI & Navigation) — EXECUTING
+Plan: 2 of 11
 Status: Ready to execute
-Last activity: 2026-10-01
+Last activity: 2026-10-07 — Phase 04 execution started
 
 Phase 02 (data-vista-backend) closed 2026-10-01 — see 02-05-SUMMARY.md.
 
@@ -72,6 +75,11 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P04 | 20min | 2 tasks | 7 files |
 | Phase 04 P05 | 15min | 2 tasks | 3 files |
 | Phase 04 P06 | 12min | 2 tasks | 4 files |
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 04 P08 | 62 min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -97,6 +105,9 @@ Recent decisions affecting current work:
 - [Phase 03]: [Phase 03 P05] nodoEnfocado en setVista viaja como id, resuelto contra graphData().nodes tras la transición, nunca antes (respeta MOTR-06 y sólo enfoca lo que sobrevivió al recambio)
 - [Phase 03]: [Phase 03 P05] area segura entra por opcion del constructor, leida cada frame en _tick (pull) en vez de un setter; getSide/aimAtNode eliminados de cameraController
 - [Phase 04]: [04-01] setVista: nodoEnfocado undefined no toca el foco, null desenfoca
+- [Phase 04]: 04-08: el panel sigue un estado 'mostrado' que va por detras de la URL (ocultar, cambiar contenido, mover camara, mostrar); reemplaza el cross-fade de UI-SPEC 4
+- [Phase 04]: 04-08: el area segura la decide el motor (recuerda el area mientras hay foco, la aplica mientras la mezcla baja); se borra el ref booleano de foco del puente
+- [Phase 04]: 04-08: el motor no enfoca un nodo hasta tener x/y/z finitas (tope 2 s, warn sin throw); evita camara en NaN (G-04)
 
 ### Pending Todos
 
@@ -134,8 +145,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-20T21:40:51.971Z
-Stopped at: Completed 04-06-PLAN.md
+Last session: 2026-10-08T00:07:22.578Z
+Stopped at: Completed 04-08-PLAN.md
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's

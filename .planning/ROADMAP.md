@@ -32,6 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Repo Cleanup
+
 **Goal**: The repo is a clean, buildable base — no trace of the react-force-graph-3d experiment, current dependency versions, the engine source copied in from collectiveConscience, Strapi's home carved out, and the shared `Vista` contract defined so phases 2 and 3 can build against the same shape in parallel.
 **Depends on**: Nothing (first phase)
 **Requirements**: REPO-01, REPO-02, REPO-03, REPO-04, REPO-05
@@ -41,6 +42,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `src/engine/` contains `threeObjects/`, `cameraController`, `animationManager`, and `constants` copied from collectiveConscience, including `crossedLines`, `linkThreeObject`, `threeGlobal`, and `background`.
   4. A TypeScript `Vista` type exists as the shared contract — its fields, the three transitions, and the shape of the returned subgraph — and both the Vista backend and the engine are expected to import it rather than restate it.
   5. `strapi/` exists with its own `package.json`, and `docker-compose.yml` brings up Postgres for local development.
+
 **Plans**: 4 plans in 2 waves
 
 Plans:
@@ -50,6 +52,7 @@ Plans:
 - [x] 01-04-PLAN.md — Carve out `strapi/` and bring up Postgres via `docker-compose.yml` (wave 2)
 
 ### Phase 2: Data & Vista Backend
+
 **Goal**: Postgres holds the nodo/vínculo model with no `dimensionId`, under a schema this repo owns through plain SQL migrations, the old Mongo data is curated in and the topology is served for the client to traverse locally.
 **Depends on**: Phase 1
 **Requirements**: DATA-01, DATA-02, DATA-03, DATA-04, DATA-05, DATA-06, DATA-07, DATA-08, DATA-09, DATA-10, VIST-01, VIST-02, VIST-03, VIST-04, VIST-05, VIST-06, VIST-07
@@ -60,6 +63,7 @@ Plans:
   4. One Next route handler dumps the topology — light nodes plus links — with two joinless queries, and it is the only thing that touches Postgres.
   5. `resolverVista(adyacencia, vista)` is a pure, framework-free, database-free function that resolves a Vista by depth, `filtroNodeTypes`, `filtroVinculos`, `filtroRoles`, `direccion`, `filtroAtributos`, `limite` and `incluirRaiz`, and returns only the un-loaded neighbours of an already-loaded set when asked for depth 1.
   6. The client fetches the topology once, builds the adjacency index in memory and resolves every Vista locally — exploring the network fires no network requests. The same function is importable server-side unchanged, for the day the topology stops fitting in the browser.
+
 **Plans**: 5 plans in 4 waves
 
 Plans:
@@ -70,6 +74,7 @@ Plans:
 - [x] 02-05-PLAN.md — Curaduría de tipos en planilla y segunda pasada: CSV corregido a Postgres (wave 4)
 
 ### Phase 3: 3D Engine
+
 **Goal**: `SinapsisEngine` renders and transitions between any Vista independent of React, cleans up after itself, and its real render ceiling is measured and written down.
 **Depends on**: Phase 1
 **Requirements**: MOTR-01, MOTR-02, MOTR-03, MOTR-04, MOTR-05, MOTR-06, MOTR-07, MOTR-08, MOTR-09, MOTR-10, MOTR-11, MOTR-12, PERF-01
@@ -81,6 +86,7 @@ Plans:
   5. On focus, the engine picks the camera angle so the node's edges radiate away from the occluded side, and reports the node's projected screen point through `on`. The panel never switches sides — this replaces today's `aimAtNode` returning `izq`/`der`.
   6. Camera animations are awaitable from outside, so a caller can sequence animation and overlay instead of firing both at once.
   6. A documented number states how many nodes the engine sustains at 30fps on a mid-range device — measured both with a bare canvas and with an overlay covering most of the screen, which is the common case — along with draw calls per node.
+
 **Plans**: 6 plans in 5 waves
 
 Plans:
@@ -92,6 +98,7 @@ Plans:
 - [x] 03-06-PLAN.md — Medicion PERF-01 en los dos escenarios y checklist visual de la fase (wave 5)
 
 ### Phase 4: UI & Navigation
+
 **Goal**: Visitors can explore the network in the browser end to end, over one continuous 3D space — the canvas is the persistent background, routes are overlays on top of it, and every navigation is choreographed with a camera move.
 **Depends on**: Phase 2, Phase 3
 **Requirements**: UI-01, UI-02, UI-03, UI-04, UI-05, UI-06, UI-08, UI-09, UI-10
@@ -103,7 +110,8 @@ Plans:
   5. A route change sequences the Vista change, the camera animation and the overlay rather than firing them in parallel.
   6. The active Vista is reflected in the URL — the browser back button steps back through the Vista history, and a Vista link can be shared and reopened directly.
   7. The side nav menu is rendered from the same data feeding the graph, with no separate hardcoded menu structure.
-**Plans**: 11 plans (7 + 4 de cierre de gaps del UAT, waves 1-4 propias)
+
+**Plans**: 8/11 plans executed (7 + 4 de cierre de gaps del UAT, waves 1-4 propias)
 
 Plans:
 - [x] 04-01-PLAN.md — Motor puede desenfocar, topologia.ts se recupera de fetch rechazado, fixtures y endpoint de detalle (wave 1)
@@ -112,20 +120,23 @@ Plans:
 - [x] 04-04-PLAN.md — Shell en layout.tsx, puente CanvasSinapsis con cola y area segura desde el panel, rutas nulas (wave 2)
 - [x] 04-05-PLAN.md — Overlay: estilos, panel de foco con degradado, botones por tipo, loader y errores (wave 3)
 - [x] 04-06-PLAN.md — Menu superior, lateral y hamburguesa; ficha extendida de OBRA (wave 4)
-- [ ] 04-07-PLAN.md — Gates, smoke en navegador headless y UAT del dueno (wave 5)
-- [ ] 04-08-PLAN.md — Gaps: panel se oculta antes de cambiar (G-02), Volver sin salto (G-01), cámara nunca en NaN tras un crédito (G-04 motor), "Sinápsis" abajo en mobile (G-07) (gap wave 1)
+- [x] 04-07-PLAN.md — Gates, smoke en navegador headless y UAT del dueno (wave 5)
+- [x] 04-08-PLAN.md — Gaps: panel se oculta antes de cambiar (G-02), Volver sin salto (G-01), cámara nunca en NaN tras un crédito (G-04 motor), "Sinápsis" abajo en mobile (G-07) (gap wave 1)
 - [ ] 04-09-PLAN.md — Gaps: el menú enfoca el área, entrar es zoom in y volver la inversa, área sin la dueña flotando; ENTIDAD entra con reemplazo (G-03, enmienda D-16) (gap wave 2)
 - [ ] 04-10-PLAN.md — Gaps: checkpoint de serialización de la red acumulada; crédito suma al colaborador, "Sumar sus obras", criterio G-05 (G-04, G-05) (gap wave 3)
 - [ ] 04-11-PLAN.md — Gaps: auditoría ponytail, CONTEXT/UI-SPEC enmendados, re-smoke y UAT del dueño con base real (gap wave 4)
+
 **UI hint**: yes
 
 ### Phase 5: Tropical Poncho Launch
+
 **Goal**: tropicalponcho.art works as the live proof point that the model needs no special-casing — the ENTIDAD profile page for Tropical Poncho, running on the real migrated production data.
 **Depends on**: Phase 2, Phase 4
 **Requirements**: UI-07
 **Success Criteria** (what must be TRUE):
   1. Visiting tropicalponcho.art renders through the same ENTIDAD page component and Vista logic as any other espacio node — no node-specific code path.
   2. The page's network and obras reflect the real data migrated in Phase 2, not fixtures.
+
 **Plans**: TBD
 **UI hint**: yes
 
@@ -139,5 +150,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 (2 and 3 can run in p
 | 1. Repo Cleanup | 4/4 | Complete | 2026-08-06 |
 | 2. Data & Vista Backend | 5/5 | Complete | 2026-10-01 |
 | 3. 3D Engine | 6/6 | Complete | 2026-09-20 |
-| 4. UI & Navigation | 6/7 | Not started | - |
+| 4. UI & Navigation | 8/11 | In Progress|  |
 | 5. Tropical Poncho Launch | 0/? | Not started | - |
