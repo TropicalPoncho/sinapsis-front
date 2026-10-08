@@ -111,7 +111,7 @@ Plans:
   6. The active Vista is reflected in the URL — the browser back button steps back through the Vista history, and a Vista link can be shared and reopened directly.
   7. The side nav menu is rendered from the same data feeding the graph, with no separate hardcoded menu structure.
 
-**Plans**: 10/11 plans executed (7 + 4 de cierre de gaps del UAT, waves 1-4 propias)
+**Plans**: 11/11 plans executed (7 + 4 de cierre de gaps del UAT, waves 1-4 propias)
 
 Plans:
 - [x] 04-01-PLAN.md — Motor puede desenfocar, topologia.ts se recupera de fetch rechazado, fixtures y endpoint de detalle (wave 1)
@@ -124,7 +124,7 @@ Plans:
 - [x] 04-08-PLAN.md — Gaps: panel se oculta antes de cambiar (G-02), Volver sin salto (G-01), cámara nunca en NaN tras un crédito (G-04 motor), "Sinápsis" abajo en mobile (G-07) (gap wave 1)
 - [x] 04-09-PLAN.md — Gaps: el menú enfoca el área, entrar es zoom in y volver la inversa, área sin la dueña flotando; ENTIDAD entra con reemplazo (G-03, enmienda D-16) (gap wave 2)
 - [x] 04-10-PLAN.md — Gaps: D-22 (lo sumado al recorrer vive en memoria del Shell, la URL lleva el ancla; excepción al invariante escrita); crédito suma al colaborador, "Sumar sus obras", criterio G-05, estado vacío de área (G-04, G-05) (gap wave 3)
-- [ ] 04-11-PLAN.md — Gaps: auditoría ponytail, D-23 y CONTEXT/UI-SPEC enmendados, re-smoke de gaps y reglas de D-22, UAT del dueño con base real (D-16, menú en preview) (gap wave 4)
+- [x] 04-11-PLAN.md — Gaps: auditoría ponytail, D-23 y CONTEXT/UI-SPEC enmendados, re-smoke de gaps y reglas de D-22, UAT del dueño con base real (D-16, menú en preview) (gap wave 4)
 
 **UI hint**: yes
 
@@ -150,5 +150,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 (2 and 3 can run in p
 | 1. Repo Cleanup | 4/4 | Complete | 2026-08-06 |
 | 2. Data & Vista Backend | 5/5 | Complete | 2026-10-01 |
 | 3. 3D Engine | 6/6 | Complete | 2026-09-20 |
-| 4. UI & Navigation | 10/11 | In Progress|  |
+| 4. UI & Navigation | 11/11 | In Progress|  |
 | 5. Tropical Poncho Launch | 0/? | Not started | - |

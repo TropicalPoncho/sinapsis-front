@@ -4,16 +4,16 @@ milestone: v1.0
 current_phase: 04
 current_phase_name: UI & Navigation
 status: executing
-stopped_at: Completed 04-10-PLAN.md
-last_updated: "2026-10-08T01:13:59.664Z"
-last_activity: 2026-10-07
+stopped_at: "Completed 04-11-PLAN.md (Fase 4 abierta: gaps G-08..G-10, G-06)"
+last_updated: "2026-10-08T19:51:05.366Z"
+last_activity: 2026-10-08
 last_activity_desc: Phase 04 execution started
-state_head: 48e92f8864daba4ea096f52d21bcd018dcfd0b79
+state_head: 59466cf0fdbce4c25ea75993c4b9c4602cf0762d
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 26
-  completed_plans: 25
+  completed_plans: 26
 milestone_name: milestone
 ---
 
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-08-06)
 ## Current Position
 
 Phase: 04 (UI & Navigation) — EXECUTING
-Plan: 4 of 11
-Status: Ready to execute
-Last activity: 2026-10-07 — Phase 04 execution started
+Plan: 11 of 11 ejecutados (04-11 completo)
+Status: Fase 4 abierta: gaps G-08, G-09, G-10 (UAT 2) y G-06 (celular) pendientes; falta planificar 04-12
+Last activity: 2026-10-08 — 04-11 completo, UAT del dueño 2 transcripto
 
 Phase 02 (data-vista-backend) closed 2026-10-01 — see 02-05-SUMMARY.md.
 
@@ -82,6 +82,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P08 | 62 min | 3 tasks | 8 files |
 | Phase 04 P09 | 70min | 3 tasks | 10 files |
 | Phase 04 P10 | 60min | 3 tasks | 13 files |
+| Phase 04 P11 | 2 sesiones | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -115,6 +116,8 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-09: la Vista de AGRUPACION recorre solo vínculos salientes; la dueña del área ya no entra
 - [Phase 04]: 04-10 D-22: lo sumado al recorrer vive en memoria del Shell atado a la red; la URL lleva solo el ancla; tope 40 + 12 FIFO, el foco nunca sale
 - [Phase 04]: 04-10: enfocar dentro de una red nunca la cambia (G-05); el puente ya no calcula la Vista, la calcula el Shell (subgrafoDe)
+- [Phase 04]: D-16 confirmada por el dueño (UAT 2): entrar a entidad y a área es zoom in; menú superior visible al previsualizar un área (3b)
+- [Phase 04]: D-23: dentro de una red enfocar nunca la cambia; la red propia solo con Entrar
 
 ### Pending Todos
 
@@ -149,11 +152,12 @@ None yet.
     value, either continue `/gsd:execute-phase 02` (Task 2 checkpoint of plan 02-05) as-is, or
     re-plan 02-05 (and possibly amend the migration `001_esquema_inicial.sql`) if `NodeType` changes.
     Do not resume Task 2 by guessing — the checkpoint explicitly requires the owner's answer.
+- Fase 4 abierta: G-08 (vista de entrada de la entidad: solo áreas + raíz, áreas conectadas por vínculos virtuales derivados), G-09 (Volver en Obras), G-10 (menú activo y título fijo al entrar a un área) -> plan 04-12; G-06 sin verificar en celular
 
 ## Session Continuity
 
-Last session: 2026-10-08T01:13:59.306Z
-Stopped at: Completed 04-10-PLAN.md
+Last session: 2026-10-08T19:50:45.969Z
+Stopped at: Completed 04-11-PLAN.md (Fase 4 abierta: gaps G-08..G-10, G-06)
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's
