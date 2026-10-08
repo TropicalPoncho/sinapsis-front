@@ -1,5 +1,9 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { construirAdyacencia } from '../vista/adyacencia.ts'
+import { resolverVista } from '../vista/resolverVista.ts'
+import type { Subgrafo } from '../../types/vista.ts'
 import { estadoDesdeUrl as d, urlDe, claveVista, vistaDe, profDefecto, LIMITE_VISTA, type EstadoRed } from './url.ts'
 
 const E = (o: Partial<EstadoRed> = {}): EstadoRed => ({ enfocado: null, red: null, prof: null, semilla: null, raiz: null, puentes: null, ...o })
@@ -77,4 +81,28 @@ test('vistaDe', () => {
   assert.equal(vistaDe(E(), 'r', 'AGRUPACION').incluirRaiz, false)
   assert.equal(vistaDe(E({ raiz: false }), 'r', 'ENTIDAD').incluirRaiz, false)
   assert.equal(vistaDe(E({ raiz: true }), 'r', 'AGRUPACION').incluirRaiz, true)
+})
+
+// Con la fixture (mismo contrato que la curaduría): ver qué trae de verdad cada red al entrar.
+const topo = JSON.parse(readFileSync('src/lib/red/fixtures/topologia.json', 'utf8')) as Subgrafo
+const ady = construirAdyacencia(topo)
+const redDe = (id: string) => { const t = ady.nodos.get(id)!.nodeType; return resolverVista(ady, vistaDe(E(), id, t)) }
+
+test('vistaDe: una AGRUPACION recorre solo vínculos salientes (contenedor -> miembros)', () => {
+  assert.equal(vistaDe(E(), 'r', 'AGRUPACION').direccion, 'sale')
+  for (const t of ['ENTIDAD', 'OBRA', 'EVENTO'] as const) assert.equal(vistaDe(E(), 'r', t).direccion, 'ambas')
+})
+test('fixture: adentro de un área no aparece la entidad dueña', () => {
+  const ids = redDe('area-obras').nodos.map((n) => n.id)
+  assert.ok(!ids.includes('tp'))
+  assert.ok(ids.includes('obra-nudo') && ids.includes('obra-espora'))
+})
+test('fixture: ninguna red de entidad o área tiene nodos sueltos', () => {
+  for (const n of topo.nodos.filter((n) => n.nodeType === 'ENTIDAD' || n.nodeType === 'AGRUPACION')) {
+    const { nodos, vinculos } = redDe(n.id)
+    if (nodos.length < 2) continue
+    const ids = new Set(nodos.map((x) => x.id))
+    const conVinculo = new Set(vinculos.filter((v) => ids.has(v.origen) && ids.has(v.destino)).flatMap((v) => [v.origen, v.destino]))
+    assert.deepEqual(nodos.filter((x) => !conVinculo.has(x.id)).map((x) => x.id), [], 'sueltos en la red de ' + n.id)
+  }
 })
