@@ -104,6 +104,11 @@ Estas no son preferencias de estilo. Cada una existe por una decisión registrad
 - **La transición es independiente de la consulta.** Cualquier Vista se alcanza con
   `reemplazo`, `filtrado` o `aditivo`. Atarlas es el bug que se está viniendo a arreglar.
 - **La Vista vive en la URL.** No se reintroduce un stack de navegación propio ni snapshots.
+  Excepción acotada (D-22, Fase 4): los nodos que se suman al recorrer (créditos, 'Sumar sus obras')
+  viven en memoria del Shell, atados a la red actual, con tope (`LIMITE_SUMA`) y descarte de lo tocado
+  hace más tiempo; la URL sigue llevando el ancla (red y foco) y es lo único que se comparte o sobrevive
+  a una recarga. Ese conjunto no guarda Vistas pasadas ni se restaura al volver a otra red: si alguna
+  vez hace falta historial de lo sumado, se discute antes del código.
 - **`CUSTOM` no entra en el enum de `tipo_vinculo`.** El escape hatch es el campo `rol`.
 - **`nodeType` tiene cuatro valores y no se agregan más.** ENTIDAD, OBRA, EVENTO, AGRUPACION. Si
   aparece la necesidad de "un tipo nuevo" —banda, sello, podcast, área— es un `subtipo`, que es

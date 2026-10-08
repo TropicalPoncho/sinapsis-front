@@ -22,7 +22,7 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   degradado hacia el canvas (no corte duro), texto alineado a la izquierda (UI-09, 03-CONTEXT).
 - **D-00b:** El canvas vive por encima del router y nunca se desmonta; el motor expone solo
   `setVista`/`on`; el foco entra por `nodoEnfocado`; el área segura llega continua desde el DOM.
-- **D-00c:** La Vista vive en la URL; el historial es el stack de navegación (UI-05).
+- **D-00c:** La Vista vive en la URL; el historial es el stack de navegación (UI-05). (enmendada por D-22: el conjunto efímero de nodos sumados al recorrer vive en memoria del Shell; el ancla sigue en la URL)
 - **D-00d:** Cambio de ruta secuencia Vista → cámara → overlay (UI-10). Tipografía Briller/Gotham.
   Se dice "creadxr", no "artista".
 
@@ -96,6 +96,33 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
 - **D-21:** Los vínculos **entidad a área** (6 áreas unidas a Tropical Poncho) que necesita el menú
   D-09 **no existen en la curaduría actual**: la UI se desarrolla con **fixtures** que los incluyen, y
   agregar esas aristas queda como tarea de 02-05 (en pausa).
+
+### Decisiones tras el UAT (2026-10-07)
+- **D-22 (registro de decisión): la red acumulada vive en memoria; la URL lleva el ancla.**
+  - **Qué se decidió:** los nodos que se suman al recorrer (tocar un crédito, "Sumar sus obras") viven en
+    memoria del Shell, durante la sesión, atados a la red actual. La URL queda como estaba (foco + `red` +
+    los parámetros existentes): sin parámetro nuevo, sin reescribir entradas del historial. Tope P1: la
+    Vista base no cambia (`LIMITE_VISTA = 40`) y se suman hasta `LIMITE_SUMA = 12`, con descarte FIFO por
+    recencia (sale lo tocado hace más tiempo); el foco nunca se descarta. Techo: 52 nodos = 52 draw calls.
+  - **Por qué:** el dueño quiere más adelante "recorrer" la red como un scroll tipo Instagram por obras
+    (algunas precargadas, aparecen otras y se van otras): lo acumulado es estado de sesión efímero y
+    cambiante, no una Vista. Poder ir por URL a un lugar puntual (una entidad, una obra) es bueno; el
+    resto no debe condicionar la URL "salvo que haya una muy buena razón".
+  - **Alternativas descartadas:** (a2) `?suma=slug.slug` y reescribir la entrada de origen antes de empujar
+    la nueva: Atrás conservaba al colaborador, pero fijaba un formato de una sola vía en links e
+    historiales y reescribía pasos ya dados. (a1) `?suma=` solo empujando entradas: Atrás sacaba al
+    colaborador, contra lo pedido. (b) `history.state`: tampoco se comparte, no permite tocar entradas
+    anteriores y Next comparte ese objeto.
+  - **Reglas:** lo sumado persiste con Atrás/Adelante dentro de la misma red y con VOLVER del lateral; se
+    borra al cambiar de red (Entrar, Atrás/Adelante a otra red, home) y al recargar; Atrás a una red
+    anterior no restaura lo que se sumó ahí, solo vuelve el foco; el link abre el ancla (si el foco no es
+    parte de la red, se suma); "Sumar sus obras" no es una navegación ni un paso de historial.
+  - **Riesgo:** UI-05 vale para la Vista ancla; lo visible puede tener hasta 12 nodos más que lo que
+    reproduce el link, y Atrás no deshace "Sumar sus obras". El feed futuro usa este mismo estado (sumar
+    con descarte, limpiar al dejar la red) y no lo convierte en historial; si hiciera falta historial de
+    lo sumado, se reabre el invariante y se discute antes del código. Reversible: no queda en links ni
+    historiales.
+  - **Estado:** decidida por el dueño el 2026-10-07; ADR en Notion pendiente (lo lista 04-11).
 
 ### Claude's Discretion
 - Menú de arriba en la home social (contexto general, sin entidad en foco).

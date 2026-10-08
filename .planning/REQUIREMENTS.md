@@ -60,7 +60,7 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 - [x] **UI-02**: Al tocar un nodo, el visitante ve su información y puede seguir explorando desde sus vínculos
 - [x] **UI-03**: Existe una página de nodo ENTIDAD que muestra la red de esa entidad y sus obras producidas
 - [x] **UI-04**: Existe una página de nodo OBRA que muestra su ficha y lxs creadxrs que colaboraron en ella
-- [x] **UI-05**: La Vista activa está reflejada en la URL, de modo que el botón atrás del navegador retrocede por el historial de vistas y una vista se puede compartir por link
+- [x] **UI-05**: La Vista activa está reflejada en la URL, de modo que el botón atrás del navegador retrocede por el historial de vistas y una vista se puede compartir por link (D-22: lo que se suma al recorrer es estado de sesión y no viaja en el link; el link reproduce la Vista ancla)
 - [x] **UI-06**: El menú de navegación se renderiza desde la misma data que alimenta el grafo, sin construcción imperativa aparte
 - [ ] **UI-07**: tropicalponcho.art funciona como la página de perfil del nodo ENTIDAD Tropical Poncho (subtipo `productora`), sin código específico para ese nodo
 - [x] **UI-08**: El canvas 3D se monta una sola vez por encima del router y sobrevive a los cambios de ruta sin remontarse — el contenido de cada ruta flota encima
