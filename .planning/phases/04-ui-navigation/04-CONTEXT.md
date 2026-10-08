@@ -69,8 +69,9 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   *(enmendada 2026-10-07, G-03/04-09: tocar un ítem del menú **enfoca** el área, como cualquier nodo
   (aditivo, `/entidad/<área>?red=<entidad>`); el botón "Entrar a {área}" del panel es el que carga su
   sub-red. Es el patrón de dos pasos de D-01 aplicado al menú. Mientras se previsualiza un área el menú
-  superior se oculta, igual que con cualquier foco dentro de la red; si queda visible es pregunta 3b del
-  UAT de 04-11.)*
+  superior se oculta hoy, igual que con cualquier foco dentro de la red. **Respuesta del dueño (UAT 2,
+  2026-10-08, pregunta 3b): el menú superior queda visible**, con el área previsualizada o abierta marcada
+  como activa (captura de diseño); el cambio es el gap G-10, pendiente del plan 04-12.)*
 - **D-10:** Al entrar a una sub-red aparece un **menú lateral**: lista de los nodos de esa
   sub-red y un VOLVER, de la misma data que el grafo.
 - **D-11:** Mobile: **hamburguesa** que despliega hacia abajo (patrón de la web original); con
@@ -100,7 +101,10 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   animado (sigue alejando). Costo: al entrar a una entidad se pierde la continuidad de posiciones (la red
   interna se reasienta). OBRA y EVENTO no tienen Entrar. Reversible en una línea,
   `transicionEntrada` (`src/lib/red/navegacion.ts:15-16`), más su test; D-20 no cambia (el default vive
-  solo en código). **Pendiente de confirmación del dueño** en el punto 4 del UAT de 04-11.)*
+  solo en código). **Confirmada por el dueño** (UAT 2, 2026-10-08, punto 4): entrar a una entidad y entrar a un área son zoom in,
+  "vas ingresando". El dueño agrega que el movimiento aditivo/filtrado puede ser el **lateral** entre
+  entidad y obra (de un evento ver sus artistas ocultando el resto; de un artista sumar sus últimas obras),
+  a diseñar más adelante; no cambia esta decisión. Ver "Temas abiertos" en `04-UAT-GAPS.md`.)*
 - **D-17:** Secuencia estricta: la **cámara llega y recién ahí aparece el panel** (UI-10).
 - **D-18:** **Volver = animación inversa** de la que se usó para entrar.
 

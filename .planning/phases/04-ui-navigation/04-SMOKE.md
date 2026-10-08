@@ -97,4 +97,28 @@ Sin filas GAP. Observaciones que no cambian el resultado: la llegada del zoom in
 
 ## UAT del dueño 2
 
-Pendiente: se completa en la Task 3 de 04-11 con la respuesta textual del dueño (escritorio `localhost:3002`, celular Android `<IP-de-la-PC>:3002`, base real).
+Fecha: 2026-10-08. Escritorio `localhost:3002` y celular Android `10.0.0.39:3002`, con la base real (193 nodos, 300 vínculos). Respuesta del dueño, textual:
+
+> esta ok. En tropical quiero que figuren solo las areas, todas conectadas entre si. Podemos pensar relaciones entre areas. Para tener una vista mas limpia. Y que esté, en este caso si, el nodo raiz. O sea la entidad. Fíjate que el volver ahí no me estaba andando en obras. Por otro lado, al entrar en obras por ej., debería mostrar el "obras" como active (en desktop) mantener el tropical poncho en el mismo lugar arriba a la izq. Te dejo capturas de diseños para esto. Eso hace que al ingresar en obras, se ve el menu lateral de obras. Podemos pensar que sucede cuando se sigue moviendo a lugares. Pero veo que hay dos formas de scrollear.. onda, se puede ingresar a una entidad o a una obra, pero se puede ir scrolleando por la red. Vayamos por esto por ahora. Area vacia dice todavia no hay nada aca, esta ok. Sinapsis ok. Sigamos
+
+La captura de diseño adjunta muestra el nombre de la entidad fijo arriba a la izquierda ("NOMBRE ENTIDAD"), el menú superior con el área actual resaltada (OBRAS activa, en turquesa) junto a las demás, y a la izquierda la lista lateral de obras, con la red a la derecha. Sobre la enmienda de D-16 el dueño agregó (resumido por el coordinador, no textual): en general es zoom in, entrar a una entidad y entrar a un área es así ("vas ingresando"); el movimiento aditivo/filtrado puede ser el lateral entre entidad y obra (de un evento ver sus artistas, ocultando el resto; de un artista sumar sus últimas obras), a diseñar más adelante: "Tenemos que pensar bien todo esto".
+
+Resultado por punto. El dueño contestó en bloque ("esta ok"), no punto por punto; lo que no nombró queda "sin respuesta explícita" y no se infiere.
+
+| punto | resultado | nota |
+|-------|-----------|------|
+| 1 (G-02) panel antes de cambiar el contenido | sin respuesta explícita | cubierto por el re-smoke; el "esta ok" general no lo nombra |
+| 2 (G-01) Volver sin salto | sin respuesta explícita | cubierto por el re-smoke. Aparte, el dueño reporta que "el volver" no andaba en Obras: G-09 |
+| 3 (G-03) entrar/salir de un área | OK con ajustes | "al entrar en obras por ej., debería mostrar el 'obras' como active (en desktop) mantener el tropical poncho en el mismo lugar arriba a la izq." y ver el lateral de obras: G-10. En Tropical quiere solo las áreas conectadas entre sí más la entidad raíz: G-08. Sobre si el zoom in llegaba cortado en una red grande: sin respuesta explícita |
+| 3b menú superior mientras se previsualiza un área | respondido: que quede visible | surge de la captura de diseño (menú superior visible con el área activa). Va a D-09 y a UI-SPEC, punto abierto 7 |
+| 4 enmienda de D-16 (ENTIDAD con reemplazo, zoom in) | CONFIRMADA | entrar a una entidad y entrar a un área son zoom in. El movimiento lateral aditivo/filtrado queda como tema abierto de diseño |
+| 5 (G-04) créditos, "Sumar sus obras" | sin respuesta explícita | cubierto por el re-smoke |
+| 6 reglas de D-22 | sin respuesta explícita | el dueño no objetó ninguna; la discusión de "dos formas de scrollear" queda como tema abierto (ver 04-UAT-GAPS.md) |
+| 7 (G-05) enfocar otra entidad dentro de una red | sin respuesta explícita | cubierto por el re-smoke |
+| 8 áreas vacías | OK | "Area vacia dice todavia no hay nada aca, esta ok" |
+| 9 (G-07) "Sinápsis" abajo | OK | "Sinapsis ok" |
+| 10 (G-06, PERF-01) celu: sin pantalla blanca, fluidez con ~12 sumados | sin respuesta explícita | sin fps ni sensación reportados; PERF-01 queda sin medir en celular |
+| 11 duraciones | sin respuesta explícita | las perillas no se tocan |
+| 12 consola | sin respuesta explícita | cubierto por el re-smoke (escritorio headless, sin errores) |
+
+Gaps nuevos del UAT: G-08, G-09 y G-10 (ver `04-UAT-GAPS.md`). No se corrigen en este plan.

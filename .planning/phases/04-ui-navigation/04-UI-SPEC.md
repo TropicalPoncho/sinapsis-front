@@ -129,7 +129,7 @@ Colores por área (`--ColorPalette-Turquesa #8AE2C8`, `Cian #578CCB`, `Violeta #
 - Muestra una fracción de la red (D-06). Ningún control extra en la home.
 
 ### 2. Menú superior `.floatingMenu`
-> (enmendado tras el UAT, ver 04-UAT-GAPS.md y D-09) Tocar un área la **enfoca** (panel del área con "Entrar a {área}"); el botón del panel la carga. El menú se oculta mientras se previsualiza un área (comportamiento de cualquier foco dentro de la red, `entrado` exige `red === enfocado`); si debe quedar visible es el punto abierto 7.
+> (enmendado tras el UAT, ver 04-UAT-GAPS.md y D-09) Tocar un área la **enfoca** (panel del área con "Entrar a {área}"); el botón del panel la carga. El menú hoy se oculta mientras se previsualiza un área (`entrado` exige `red === enfocado`), pero el dueño decidió que **queda visible** con el área activa (punto abierto 7, UAT 2); el cambio es el gap G-10.
 
 - Escritorio: fila centrada, `gap 16px`, ítems = agrupadores de la entidad en foco (D-09), renderizados desde la topología (UI-06). Ítem = `.bn`; el activo pasa a `.bnfocus` (36px, color del área).
 - Mobile (<=800px): `#hamburger` arriba a la izquierda (48px, blanco, `aria-label="Abrir menú"`, `aria-expanded`). Despliega el menú hacia abajo (`.menu-open`, `top: 10%`, transición 0.5s). Con nodo enfocado muestra solo el botón activo; el del nivel padre queda iluminado con acento (D-11).
@@ -167,7 +167,7 @@ Un "tipo de botón" es un dato `{ etiqueta, accion, destino?, hijos? }`. La list
 | Acción | Nodo por defecto | Etiqueta por defecto | Efecto |
 |--------|------------------|----------------------|--------|
 | `expandir` | OBRA | **Ver más** | Extiende el panel hacia abajo con scroll (ficha extendida). Al abrir cambia a **Ver menos** |
-| `entrar` | ENTIDAD, AGRUPACION | **Entrar a {nombre}** (o **Entrar** si no hay destino) | Carga la sub-red con la transición por defecto: reemplazo para ENTIDAD y AGRUPACION (enmendado, D-16; antes ENTIDAD = filtrado). Pendiente de confirmación del dueño para ENTIDAD |
+| `entrar` | ENTIDAD, AGRUPACION | **Entrar a {nombre}** (o **Entrar** si no hay destino) | Carga la sub-red con la transición por defecto: reemplazo para ENTIDAD y AGRUPACION (enmendado, D-16; antes ENTIDAD = filtrado). Confirmado por el dueño (UAT 2) |
 | `sumar` | ENTIDAD con obras o eventos fuera de la escena | **Sumar sus obras** | Agrega a la red visible las obras y eventos de la entidad (D-22). No navega, no cambia la URL, no es paso de historial y no oculta el panel. No se ofrece estando "entrado" ni cuando no queda nada por sumar |
 | `enlace` | cualquiera con URL | etiqueta del dato (ej. "Sitio web") | Abre en pestaña nueva, `rel="noopener noreferrer"`, ícono `.ico` cuando el destino es conocido |
 
@@ -279,7 +279,7 @@ Tono: rioplatense, voseo ("Volvé", "Revisá", "Intentá"). Siempre "creadxr", n
 4. Pantalla de carga y reduced-motion.
 5. Galería sin lightbox.
 6. Color del `.bnfocus` sale del dato del nodo, no de ids hardcodeados.
-7. (enmendado tras el UAT, ver 04-UAT-GAPS.md) Menú superior durante la previsualización de un área: hoy se oculta (como con cualquier foco dentro de la red). Pregunta 3b del UAT de 04-11: ¿debe quedar visible para saltar de área en área? Sin respuesta del dueño todavía.
+7. (enmendado tras el UAT, ver 04-UAT-GAPS.md) Menú superior durante la previsualización de un área: **decidido (UAT 2, 2026-10-08, pregunta 3b): queda visible**, con el área activa como `.bnfocus` y el nombre de la entidad fijo arriba a la izquierda (captura de diseño del dueño). Hoy el código lo oculta: gap G-10, lo resuelve el plan 04-12.
 
 ---
 
