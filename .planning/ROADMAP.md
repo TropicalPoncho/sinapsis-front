@@ -111,7 +111,7 @@ Plans:
   6. The active Vista is reflected in the URL — the browser back button steps back through the Vista history, and a Vista link can be shared and reopened directly.
   7. The side nav menu is rendered from the same data feeding the graph, with no separate hardcoded menu structure.
 
-**Plans**: 8/11 plans executed (7 + 4 de cierre de gaps del UAT, waves 1-4 propias)
+**Plans**: 9/11 plans executed (7 + 4 de cierre de gaps del UAT, waves 1-4 propias)
 
 Plans:
 - [x] 04-01-PLAN.md — Motor puede desenfocar, topologia.ts se recupera de fetch rechazado, fixtures y endpoint de detalle (wave 1)
@@ -122,7 +122,7 @@ Plans:
 - [x] 04-06-PLAN.md — Menu superior, lateral y hamburguesa; ficha extendida de OBRA (wave 4)
 - [x] 04-07-PLAN.md — Gates, smoke en navegador headless y UAT del dueno (wave 5)
 - [x] 04-08-PLAN.md — Gaps: panel se oculta antes de cambiar (G-02), Volver sin salto (G-01), cámara nunca en NaN tras un crédito (G-04 motor), "Sinápsis" abajo en mobile (G-07) (gap wave 1)
-- [ ] 04-09-PLAN.md — Gaps: el menú enfoca el área, entrar es zoom in y volver la inversa, área sin la dueña flotando; ENTIDAD entra con reemplazo (G-03, enmienda D-16) (gap wave 2)
+- [x] 04-09-PLAN.md — Gaps: el menú enfoca el área, entrar es zoom in y volver la inversa, área sin la dueña flotando; ENTIDAD entra con reemplazo (G-03, enmienda D-16) (gap wave 2)
 - [ ] 04-10-PLAN.md — Gaps: checkpoint de serialización de la red acumulada; crédito suma al colaborador, "Sumar sus obras", criterio G-05 (G-04, G-05) (gap wave 3)
 - [ ] 04-11-PLAN.md — Gaps: auditoría ponytail, CONTEXT/UI-SPEC enmendados, re-smoke y UAT del dueño con base real (gap wave 4)
 
@@ -150,5 +150,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 (2 and 3 can run in p
 | 1. Repo Cleanup | 4/4 | Complete | 2026-08-06 |
 | 2. Data & Vista Backend | 5/5 | Complete | 2026-10-01 |
 | 3. 3D Engine | 6/6 | Complete | 2026-09-20 |
-| 4. UI & Navigation | 8/11 | In Progress|  |
+| 4. UI & Navigation | 9/11 | In Progress|  |
 | 5. Tropical Poncho Launch | 0/? | Not started | - |

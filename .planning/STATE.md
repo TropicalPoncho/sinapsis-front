@@ -4,16 +4,16 @@ milestone: v1.0
 current_phase: 04
 current_phase_name: UI & Navigation
 status: executing
-stopped_at: Completed 04-08-PLAN.md
-last_updated: "2026-10-08T00:07:22.936Z"
+stopped_at: Completed 04-09-PLAN.md
+last_updated: "2026-10-08T00:27:24.854Z"
 last_activity: 2026-10-07
 last_activity_desc: Phase 04 execution started
-state_head: 9c223dbd101dfd30d2d17c97c0a0cab358c8a673
+state_head: 6e66e63568485fba5f15e12c6a10e2f1b9fb9234
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 26
-  completed_plans: 23
+  completed_plans: 24
 milestone_name: milestone
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-06)
 ## Current Position
 
 Phase: 04 (UI & Navigation) — EXECUTING
-Plan: 2 of 11
+Plan: 3 of 11
 Status: Ready to execute
 Last activity: 2026-10-07 — Phase 04 execution started
 
@@ -80,6 +80,7 @@ Progress: [░░░░░░░░░░] 0%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 04 P08 | 62 min | 3 tasks | 8 files |
+| Phase 04 P09 | 70min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -108,6 +109,9 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-08: el panel sigue un estado 'mostrado' que va por detras de la URL (ocultar, cambiar contenido, mover camara, mostrar); reemplaza el cross-fade de UI-SPEC 4
 - [Phase 04]: 04-08: el area segura la decide el motor (recuerda el area mientras hay foco, la aplica mientras la mezcla baja); se borra el ref booleano de foco del puente
 - [Phase 04]: 04-08: el motor no enfoca un nodo hasta tener x/y/z finitas (tope 2 s, warn sin throw); evita camara en NaN (G-04)
+- [Phase 04]: 04-09: el menú superior enfoca el área y Entrar la carga (cambia D-09/UI-SPEC §2)
+- [Phase 04]: 04-09: ENTIDAD entra con reemplazo, igual que AGRUPACION (cambia D-16; reversible en transicionEntrada)
+- [Phase 04]: 04-09: la Vista de AGRUPACION recorre solo vínculos salientes; la dueña del área ya no entra
 
 ### Pending Todos
 
@@ -145,8 +149,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-10-08T00:07:22.578Z
-Stopped at: Completed 04-08-PLAN.md
+Last session: 2026-10-08T00:27:24.502Z
+Stopped at: Completed 04-09-PLAN.md
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's
