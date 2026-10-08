@@ -8,8 +8,12 @@ export const inversa: Record<Transicion, Transicion> = {
   aditivo: 'filtrado',
 }
 
+// Cambio de D-16 (decisión 2 del UAT): ENTIDAD y AGRUPACION entran con reemplazo. Con filtrado los nodos
+// se quedan en su lugar y la cámara solo puede alejarse del enfocado (zoom out); el reemplazo corta bajo el
+// negro y permite "zoom in a la neurona, luego zoom in a la red interna". OBRA y EVENTO no tienen Entrar.
+// Reversible acá: volver a filtrado para ENTIDAD es esta línea y su test (D-20: el default vive solo en código).
 export const transicionEntrada = (nodeType: NodeType): Transicion =>
-  nodeType === 'AGRUPACION' ? 'reemplazo' : 'filtrado'
+  nodeType === 'AGRUPACION' || nodeType === 'ENTIDAD' ? 'reemplazo' : 'filtrado'
 
 export interface Entrada { idx: number; t: Transicion }
 export type Direccion = 'push' | 'atras' | 'adelante' | 'dura'

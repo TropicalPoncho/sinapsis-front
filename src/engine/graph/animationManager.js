@@ -95,9 +95,17 @@ export class AnimationManager {
         // los objetos de los nodos, diferido) y renderiza, todo está en el origen y el bbox
         // sale diminuto — la cámara quedaba pegada a un solo nodo (UAT 03, test 1). Se espera
         // a que TODOS los nodos tengan objeto y posición, más 2 frames, con tope de 30 s.
+        // Una red vacía (un área sin miembros) no tiene nada que esperar ni que encuadrar: sin este corte
+        // el sondeo agotaba los 30 s con la pantalla negra. La cámara venía pegada a la neurona de salida,
+        // así que vuelve a la vista básica; el panel dice "Todavía no hay nada acá".
+        if (!this.graph.graphData().nodes.length) {
+            this.graph.cameraPosition({ x: 0, y: 0, z: GLOBAL_DEFAULT_SETTINGS.cameraDistance }, { x: 0, y: 0, z: 0 }, 0);
+            await this.animateOverlayOpacity(overlay, 0, duration * 1.2);
+            return false;
+        }
         const listos = () => {
             const nodos = this.graph.graphData().nodes;
-            return nodos.length > 0 && nodos.every(n => n.__threeObj && Number.isFinite(n.x));
+            return nodos.every(n => n.__threeObj && Number.isFinite(n.x));
         };
         const inicio = performance.now();
         while (!listos() && performance.now() - inicio < 30000) await new Promise(r => setTimeout(r, 50));

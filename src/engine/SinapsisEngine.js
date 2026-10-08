@@ -306,6 +306,24 @@ export class SinapsisEngine {
         this._subgrafo = subgrafo;
         this._areaSegura = areaSegura ?? this._areaSegura;
 
+        // MOTR-09/12: el encuadre corre después de la transición, nunca en paralelo — la
+        // promesa de setVista resuelve recién cuando la cámara llegó. `nodoEnfocado` es un id;
+        // si no está en el Subgrafo recién aplicado, no enfoca y no emite — sin throw.
+        const enfocar = async () => {
+            const nodo = await this._nodoConCoordenadas(nodoEnfocado);
+            const area = this.opciones.getAreaSegura?.() ?? this._areaSegura;
+            if (nodo && area) {
+                // _nodoEnfocado se marca ANTES del await: _tick ya aplica applySafeArea durante
+                // el tween (no sólo al final), si no el frustum saltaría recién al terminar la
+                // animación en vez de acompañarla.
+                this._nodoEnfocado = nodo;
+                await this.cameraController.enfocarNodo(nodo, this.graph.graphData().nodes, area);
+                this._ultimoFoco = null; // fuerza la emisión de nodeFocus en el próximo frame
+                this._emitirFocoSiSeMovio();
+            }
+        };
+        let yaEnfocado = false;
+
         switch (transicion) {
             case 'filtrado': {
                 // Conserva instancias/posiciones de lo que sigue en la Vista, desvanece y
@@ -359,7 +377,9 @@ export class SinapsisEngine {
                 // área segura vuelve a 0 acá, bajo el negro: si no, la red interna aparece corrida
                 // hacia el área libre y se desliza al centro cuando el foco se suelta después.
                 if (!nodoEnfocado) { this._nodoEnfocado = null; this._ultimoFoco = null; this._mezclaArea = 0; }
-                await this.animationManager.fadeInCanvasFromBlack(ANIMATION_SETTINGS.FADE_DURATION);
+                // Con foco destino la llegada es la entrada al revés (D-18): la cámara arranca dentro de
+                // esa neurona, bajo el negro, y el propio foco la saca mientras el negro se retira.
+                yaEnfocado = await this.animationManager.fadeInCanvasFromBlack(ANIMATION_SETTINGS.FADE_DURATION, nodoEnfocado ? { focoId: nodoEnfocado, enfocar } : undefined);
                 await this._liberarTrasDigest(datos.nodes.map(n => n.id)); // MOTR-07
                 this._emitir('vistaLista', { transicion, nodos: datos.nodes.length });
                 // La promesa resuelve recién acá, después del último await: eso es MOTR-09.
@@ -371,21 +391,8 @@ export class SinapsisEngine {
             }
         }
 
-        // MOTR-09/12: el encuadre corre después de la transición, nunca en paralelo — la
-        // promesa de setVista resuelve recién cuando la cámara llegó. `nodoEnfocado` es un id;
-        // si no está en el Subgrafo recién aplicado, no enfoca y no emite — sin throw.
         if (nodoEnfocado) {
-            const nodo = await this._nodoConCoordenadas(nodoEnfocado);
-            const area = this.opciones.getAreaSegura?.() ?? this._areaSegura;
-            if (nodo && area) {
-                // _nodoEnfocado se marca ANTES del await: _tick ya aplica applySafeArea durante
-                // el tween (no sólo al final), si no el frustum saltaría recién al terminar la
-                // animación en vez de acompañarla.
-                this._nodoEnfocado = nodo;
-                await this.cameraController.enfocarNodo(nodo, this.graph.graphData().nodes, area);
-                this._ultimoFoco = null; // fuerza la emisión de nodeFocus en el próximo frame
-                this._emitirFocoSiSeMovio();
-            }
+            if (!yaEnfocado) await enfocar();
         } else if (nodoEnfocado === null) {
             const habia = this._nodoEnfocado;
             this._nodoEnfocado = null;
