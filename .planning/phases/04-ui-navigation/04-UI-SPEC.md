@@ -129,17 +129,23 @@ Colores por área (`--ColorPalette-Turquesa #8AE2C8`, `Cian #578CCB`, `Violeta #
 - Muestra una fracción de la red (D-06). Ningún control extra en la home.
 
 ### 2. Menú superior `.floatingMenu`
+> (enmendado tras el UAT, ver 04-UAT-GAPS.md y D-09) Tocar un área la **enfoca** (panel del área con "Entrar a {área}"); el botón del panel la carga. El menú se oculta mientras se previsualiza un área (comportamiento de cualquier foco dentro de la red, `entrado` exige `red === enfocado`); si debe quedar visible es el punto abierto 7.
+
 - Escritorio: fila centrada, `gap 16px`, ítems = agrupadores de la entidad en foco (D-09), renderizados desde la topología (UI-06). Ítem = `.bn`; el activo pasa a `.bnfocus` (36px, color del área).
 - Mobile (<=800px): `#hamburger` arriba a la izquierda (48px, blanco, `aria-label="Abrir menú"`, `aria-expanded`). Despliega el menú hacia abajo (`.menu-open`, `top: 10%`, transición 0.5s). Con nodo enfocado muestra solo el botón activo; el del nivel padre queda iluminado con acento (D-11).
 - Sube a `top: 2%` cuando el título se oculta (transición 0.6s, del original).
 
 ### 3. Menú lateral `.lateralFloatingMenu` (D-10)
+> (enmendado tras el UAT, ver 04-UAT-GAPS.md y D-22/D-23) La lista es lo **visible** de la red, incluidos los nodos sumados al recorrer (créditos, "Sumar sus obras"): es la alternativa navegable del canvas. Las áreas no se listan (van en el menú superior). VOLVER conserva lo sumado.
+
 - Aparece al entrar a una sub-red. Lista de nodos de la sub-red (mismo dato que el grafo) + botón **VOLVER** arriba de la lista.
 - Escritorio: fijo a la izquierda, `left 24px`, centrado vertical, `min-width 200px`, `border-radius 12px`. Convive con el panel (el panel se corre: `padding-left` del panel = ancho del lateral + 24px cuando ambos están visibles). Default (reajustable).
 - Mobile: drawer full-height desde la izquierda (`translateX(-110%)` oculto), `min-width 240px`, cerrar con `.close-lateral` (32x32, `aria-label="Cerrar lista"`).
 - Ítem activo = `.bnfocus` (18px). Ítems son `<button>`; la lista es `<nav aria-label="Nodos de la red">`.
 
 ### 4. Panel de foco `.panel` (D-01, D-12, D-15)
+> (enmendado tras el UAT, ver 04-UAT-GAPS.md y D-03) Al enfocar otro nodo el orden es: **el panel sale** con el contenido viejo (0.3 s) → **cambia el contenido** ya oculto → **se mueve la cámara** → **el panel entra** (0.6 s). Reemplaza el cross-fade de contenido de abajo. Excepción: si solo cambia lo sumado ("Sumar sus obras") el panel no se oculta ni se mueve la cámara.
+
 Contenido, en este orden, alineado a la izquierda, columna con padding `48px 24px 24px` (escritorio) / `16px` (mobile):
 1. Nombre (Heading 26px).
 2. Subtipo (Label uppercase, 70% blanco).
@@ -154,12 +160,15 @@ Comportamiento:
 - `role="region"` con `aria-labelledby` = id del heading; `aria-live="polite"` en el contenedor para anunciar el cambio de nodo.
 
 ### 5. Tipos de botón (D-02)
+> (enmendado tras el UAT, ver 04-UAT-GAPS.md, D-16 y D-22) Se suma la acción `sumar` y `entrar` carga con reemplazo también para ENTIDAD (la tabla de abajo dice "ENTIDAD = filtrado": ya no).
+
 Un "tipo de botón" es un dato `{ etiqueta, accion, destino?, hijos? }`. La lista de acciones es abierta; el contrato de esta fase define tres:
 
 | Acción | Nodo por defecto | Etiqueta por defecto | Efecto |
 |--------|------------------|----------------------|--------|
 | `expandir` | OBRA | **Ver más** | Extiende el panel hacia abajo con scroll (ficha extendida). Al abrir cambia a **Ver menos** |
-| `entrar` | ENTIDAD, AGRUPACION | **Entrar a {nombre}** (o **Entrar** si no hay destino) | Carga la sub-red con la transición por defecto (ENTIDAD = filtrado, AGRUPACION = reemplazo, D-16) |
+| `entrar` | ENTIDAD, AGRUPACION | **Entrar a {nombre}** (o **Entrar** si no hay destino) | Carga la sub-red con la transición por defecto: reemplazo para ENTIDAD y AGRUPACION (enmendado, D-16; antes ENTIDAD = filtrado). Pendiente de confirmación del dueño para ENTIDAD |
+| `sumar` | ENTIDAD con obras o eventos fuera de la escena | **Sumar sus obras** | Agrega a la red visible las obras y eventos de la entidad (D-22). No navega, no cambia la URL, no es paso de historial y no oculta el panel. No se ofrece estando "entrado" ni cuando no queda nada por sumar |
 | `enlace` | cualquiera con URL | etiqueta del dato (ej. "Sitio web") | Abre en pestaña nueva, `rel="noopener noreferrer"`, ícono `.ico` cuando el destino es conocido |
 
 - Un botón puede tener sub-botones (`hijos`): se renderizan como fila secundaria bajo el botón principal, mismo estilo `.bn`, 14px.
@@ -189,6 +198,11 @@ Mismo panel de foco. Las obras producidas no se listan en el panel: aparecen en 
 
 Orden estricto de cada navegación (UI-10): **(1)** cambia la ruta/URL → **(2)** `setVista` + cámara → **(3)** aparece el panel al resolver la promesa.
 
+> (enmendado tras el UAT, ver 04-UAT-GAPS.md) Con el panel visible, entre (1) y (2) el panel sale con su contenido viejo y cambia ya oculto (ver §4). Además:
+> - **Entrar** (ENTIDAD o área): vuelo de la cámara a la neurona (`FADE_DURATION`, 300 ms) → negro → llegada con zoom in desde `ENTRADA_FACTOR` (2,5) veces la distancia de encuadre hasta el encuadre, en `ENTRADA_DURACION` (1200 ms), mientras el negro se retira. Perillas del motor (`constants.js`), no configuración de producto.
+> - **Volver** (D-18): la inversa; la cámara arranca dentro de la neurona y sale hasta el encuadre de foco.
+> - **Un crédito** suma al colaborador a la red visible con `aditivo`, con sus vínculos reales (D-22/D-23); la cámara llega a un nodo con coordenadas finitas (nunca a NaN).
+
 | Momento | Estado UI |
 |---------|-----------|
 | Inicio de app (hoy negro un rato) | Fondo `#0a0a0a`, wordmark "Sinápsis" centrado en Display con `opacity` pulsando 0.4 ↔ 1 (1.5s) y barra de 2px de acento abajo. Se retira con fade 0.6s cuando el motor reporta el primer cuadro con nodos. Default (reajustable) |
@@ -208,6 +222,7 @@ Orden estricto de cada navegación (UI-10): **(1)** cambia la ruta/URL → **(2)
 - El canvas conserva gestos (arrastre, pellizco). El panel captura solo su propio scroll (`touch-action: pan-y`).
 - Botones en columna, ancho 100%, mínimo 44px de alto.
 - Título en `.floatingTitle` 26px; hamburguesa 48px arriba a la izquierda.
+- (enmendado tras el UAT, ver 04-UAT-GAPS.md, G-07) "Sinápsis" es una marca chica (14px) **abajo a la izquierda**, entera (`left: 16px`), tanto el h1 de la home como `.marca` dentro de una red, hasta que exista logo. Se oculta (`marca--oculta`) mientras el panel está visible porque la banda inferior ocupa ese lugar. `.tituloRed` se trunca con elipsis y no pasa de `100vw - 88px`.
 
 ---
 
@@ -235,7 +250,8 @@ Orden estricto de cada navegación (UI-10): **(1)** cambia la ruta/URL → **(2)
 | Encabezado de bloque créditos | Créditos |
 | Encabezado de galería / enlaces / video | Galería / Enlaces / Video (solo si hay dato) |
 | Estado vacío: nodo stub | (sin copy: solo nombre y subtipo, D-15) |
-| Estado vacío: sub-red sin nodos | Título: "Todavía no hay nada acá". Cuerpo: "Esta red no tiene nodos cargados. Volvé y explorá otro camino." + botón Volver |
+| Estado vacío: sub-red sin nodos | Título: "Todavía no hay nada acá". Cuerpo: "Esta red no tiene nodos cargados. Volvé y explorá otro camino." + botón Volver. (enmendado tras el UAT, ver 04-UAT-GAPS.md) Aplica a las áreas sin miembros: adentro no queda ningún nodo distinto del área misma; hoy 5 de las 6 áreas reales de Tropical, hueco de datos de 02-05, no de código |
+| Acción `sumar` | "Sumar sus obras" (enmendado tras el UAT, ver 04-UAT-GAPS.md) |
 | Estado vacío: menú sin agrupadores | El menú superior no se renderiza (sin copy) |
 | Error: nodo no encontrado | "No encontramos ese nodo. Puede que el link haya cambiado. Volvé a la red y seguí explorando." + botón "Ir a la red" |
 | Error: topología | "No pudimos cargar la red. Revisá tu conexión e intentá de nuevo." + botón "Reintentar" |
@@ -263,6 +279,7 @@ Tono: rioplatense, voseo ("Volvé", "Revisá", "Intentá"). Siempre "creadxr", n
 4. Pantalla de carga y reduced-motion.
 5. Galería sin lightbox.
 6. Color del `.bnfocus` sale del dato del nodo, no de ids hardcodeados.
+7. (enmendado tras el UAT, ver 04-UAT-GAPS.md) Menú superior durante la previsualización de un área: hoy se oculta (como con cualquier foco dentro de la red). Pregunta 3b del UAT de 04-11: ¿debe quedar visible para saltar de área en área? Sin respuesta del dueño todavía.
 
 ---
 

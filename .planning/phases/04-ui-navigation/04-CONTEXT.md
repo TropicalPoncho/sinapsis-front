@@ -39,6 +39,10 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   como datos, no como código por nodo.
 - **D-03:** Mientras hay un nodo enfocado, un click en otro nodo visible **enfoca ese nodo**
   (cambia foco y URL; atrás vuelve al anterior; el panel no cambia de lado) — UI-02.
+  *(enmendada 2026-10-07, G-02/G-04, ver "Decisiones tras el UAT": el panel ya no hace cross-fade de
+  contenido. Orden: se oculta con el contenido viejo, cambia el contenido ya oculto, se mueve la cámara y
+  recién ahí se muestra. Excepción: si solo cambia lo sumado ("Sumar sus obras", D-22) el panel no se
+  oculta. Enfocar un nodo que no está visible lo suma como un crédito, D-23.)*
 - **D-04:** URLs por tipo: `/`, `/entidad/[slug]`, `/obra/[slug]`. Los parámetros de la Vista
   (profundidad, filtros) van en query (`?prof=2`).
 - **D-05:** **Cada navegación es un paso de historial**; atrás deshace un paso con la
@@ -62,6 +66,11 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
 - **D-09:** El menú de arriba muestra los **agrupadores de la entidad en foco** (en
   tropicalponcho.art son las áreas: CONCEPTO, OBRAS, AUDIOVISUALES, EDITORIAL, TECNOLOGÍA,
   LABORATORIOS en la web original). Sale de la misma data que el grafo (UI-06).
+  *(enmendada 2026-10-07, G-03/04-09: tocar un ítem del menú **enfoca** el área, como cualquier nodo
+  (aditivo, `/entidad/<área>?red=<entidad>`); el botón "Entrar a {área}" del panel es el que carga su
+  sub-red. Es el patrón de dos pasos de D-01 aplicado al menú. Mientras se previsualiza un área el menú
+  superior se oculta, igual que con cualquier foco dentro de la red; si queda visible es pregunta 3b del
+  UAT de 04-11.)*
 - **D-10:** Al entrar a una sub-red aparece un **menú lateral**: lista de los nodos de esa
   sub-red y un VOLVER, de la misma data que el grafo.
 - **D-11:** Mobile: **hamburguesa** que despliega hacia abajo (patrón de la web original); con
@@ -84,6 +93,14 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   reemplazo**. Es configurable: el dueño de la entidad podrá elegir otra. En M1 (sin auth) el
   default vive **solo en código** (ver D-20); leer la elección por entidad del dato y la interfaz
   de edición del dueño son M2.
+  *(enmendada 2026-10-07, G-03/04-09: **ENTIDAD también entra con reemplazo**, igual que AGRUPACION.
+  Motivo: la decisión 2 del UAT pide "zoom in a la neurona, luego zoom in a la red interna"; con filtrado
+  los nodos se quedan en su lugar y la cámara solo puede alejarse del enfocado, o sea zoom out por
+  construcción. Alternativa descartada: mantener filtrado y encuadrar la red filtrada con `zoomToFit`
+  animado (sigue alejando). Costo: al entrar a una entidad se pierde la continuidad de posiciones (la red
+  interna se reasienta). OBRA y EVENTO no tienen Entrar. Reversible en una línea,
+  `transicionEntrada` (`src/lib/red/navegacion.ts:15-16`), más su test; D-20 no cambia (el default vive
+  solo en código). **Pendiente de confirmación del dueño** en el punto 4 del UAT de 04-11.)*
 - **D-17:** Secuencia estricta: la **cámara llega y recién ahí aparece el panel** (UI-10).
 - **D-18:** **Volver = animación inversa** de la que se usó para entrar.
 
@@ -92,7 +109,8 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   `tropical-poncho`), marcado con `ponytail:`; renombrar un nodo cambia su URL. Pasa a columna
   única cuando entre la curaduría real (02-05).
 - **D-20:** La **transición de entrada por entidad** (D-16) queda **solo en código** en M1
-  (entidad = filtrado, área = reemplazo); no se lee del dato hasta M2, con el editor del dueño.
+  (entidad = filtrado, área = reemplazo; hoy ambas con reemplazo, ver la enmienda de D-16); no se lee del
+  dato hasta M2, con el editor del dueño.
 - **D-21:** Los vínculos **entidad a área** (6 áreas unidas a Tropical Poncho) que necesita el menú
   D-09 **no existen en la curaduría actual**: la UI se desarrolla con **fixtures** que los incluyen, y
   agregar esas aristas queda como tarea de 02-05 (en pausa).
@@ -123,6 +141,19 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
     lo sumado, se reabre el invariante y se discute antes del código. Reversible: no queda en links ni
     historiales.
   - **Estado:** decidida por el dueño el 2026-10-07; ADR en Notion pendiente (lo lista 04-11).
+  - **Contrastada con el código en 04-11 (2026-10-07):** todas las reglas coinciden con `Shell.tsx` y `url.ts`
+    (`subgrafoDe`, `sumarIds`). Un matiz que el texto no decía: la home cuenta como una red más
+    (`red = null`), así que dentro de la home también se acumulan los enfocados que quedan fuera de la
+    fracción; se borra al salir de ella como en cualquier otra red. Y el foco nunca sale por el tope porque
+    `subgrafoDe` lo vuelve a poner al final en cada cálculo, aunque "Sumar sus obras" lo haya empujado
+    fuera de lo guardado.
+- **D-23 (criterio G-05, 2026-10-07): dentro de una red, enfocar otro nodo nunca la cambia.** Si el nodo ya
+  está visible, solo cambia el foco (ni nodos nuevos ni cambio de Vista). Si no está visible, se suma a la
+  red como un crédito (D-22), con sus vínculos reales contra lo presente. Su red propia solo se carga con
+  el botón "Entrar a ..." (reemplazo, D-16). Causa eliminada: el puente desviaba el click a la red propia
+  del enfocado y por eso aparecían "nodos sin relación" (17 → 56 nodos medidos en 04-08); ese desvío se
+  borró en 04-10 (`CanvasSinapsis.tsx` ya no calcula la Vista, solo corrige el pedido imposible
+  aditivo → filtrado). Resuelve la decisión 3 de `04-UAT-GAPS.md`.
 
 ### Claude's Discretion
 - Menú de arriba en la home social (contexto general, sin entidad en foco).
