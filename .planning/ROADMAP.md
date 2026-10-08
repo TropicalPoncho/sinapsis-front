@@ -123,8 +123,8 @@ Plans:
 - [x] 04-07-PLAN.md — Gates, smoke en navegador headless y UAT del dueno (wave 5)
 - [x] 04-08-PLAN.md — Gaps: panel se oculta antes de cambiar (G-02), Volver sin salto (G-01), cámara nunca en NaN tras un crédito (G-04 motor), "Sinápsis" abajo en mobile (G-07) (gap wave 1)
 - [x] 04-09-PLAN.md — Gaps: el menú enfoca el área, entrar es zoom in y volver la inversa, área sin la dueña flotando; ENTIDAD entra con reemplazo (G-03, enmienda D-16) (gap wave 2)
-- [ ] 04-10-PLAN.md — Gaps: checkpoint de serialización de la red acumulada; crédito suma al colaborador, "Sumar sus obras", criterio G-05 (G-04, G-05) (gap wave 3)
-- [ ] 04-11-PLAN.md — Gaps: auditoría ponytail, CONTEXT/UI-SPEC enmendados, re-smoke y UAT del dueño con base real (gap wave 4)
+- [ ] 04-10-PLAN.md — Gaps: D-22 (lo sumado al recorrer vive en memoria del Shell, la URL lleva el ancla; excepción al invariante escrita); crédito suma al colaborador, "Sumar sus obras", criterio G-05, estado vacío de área (G-04, G-05) (gap wave 3)
+- [ ] 04-11-PLAN.md — Gaps: auditoría ponytail, D-23 y CONTEXT/UI-SPEC enmendados, re-smoke de gaps y reglas de D-22, UAT del dueño con base real (D-16, menú en preview) (gap wave 4)
 
 **UI hint**: yes
 
