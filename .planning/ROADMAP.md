@@ -111,7 +111,7 @@ Plans:
   6. The active Vista is reflected in the URL — the browser back button steps back through the Vista history, and a Vista link can be shared and reopened directly.
   7. The side nav menu is rendered from the same data feeding the graph, with no separate hardcoded menu structure.
 
-**Plans**: 11/11 plans executed (7 + 4 de cierre de gaps del UAT, waves 1-4 propias)
+**Plans**: 11/13 plans executed (7 + 4 de cierre de gaps del UAT 1; 04-12 y 04-13 cierran los gaps del UAT 2, waves 1-2 propias)
 
 Plans:
 - [x] 04-01-PLAN.md — Motor puede desenfocar, topologia.ts se recupera de fetch rechazado, fixtures y endpoint de detalle (wave 1)
@@ -125,6 +125,8 @@ Plans:
 - [x] 04-09-PLAN.md — Gaps: el menú enfoca el área, entrar es zoom in y volver la inversa, área sin la dueña flotando; ENTIDAD entra con reemplazo (G-03, enmienda D-16) (gap wave 2)
 - [x] 04-10-PLAN.md — Gaps: D-22 (lo sumado al recorrer vive en memoria del Shell, la URL lleva el ancla; excepción al invariante escrita); crédito suma al colaborador, "Sumar sus obras", criterio G-05, estado vacío de área (G-04, G-05) (gap wave 3)
 - [x] 04-11-PLAN.md — Gaps: auditoría ponytail, D-23 y CONTEXT/UI-SPEC enmendados, re-smoke de gaps y reglas de D-22, UAT del dueño con base real (D-16, menú en preview) (gap wave 4)
+- [ ] 04-12-PLAN.md — Gaps del UAT 2: VOLVER del área reproducido con la base real, sube un nivel, y navegar no apila la URL actual (G-09); la entrada a una entidad con áreas es la raíz y sus áreas, con vínculos virtuales derivados de sus miembros (G-08, D-24); adentro de un área, la entidad queda fija, el menú marca el área activa y el lateral sigue la captura del dueño (G-10, D-25) (gap wave 1)
+- [ ] 04-13-PLAN.md — Gaps del UAT 2: auditoría ponytail de 04-12, D-24/D-25 y sus enmiendas en CONTEXT/UI-SPEC, re-smoke de G-08..G-10 y UAT del dueño 3 contra la captura (gap wave 2)
 
 **UI hint**: yes
 
