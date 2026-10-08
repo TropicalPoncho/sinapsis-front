@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { agrupadoresDe, entidadDeMenu, padreDe, nodosDeLaRed, creditosDe } from './menus.ts'
+import { agrupadoresDe, entidadDeMenu, padreDe, nodosDeLaRed, creditosDe, obrasDe } from './menus.ts'
 import { construirAdyacencia } from '../vista/adyacencia.ts'
 import type { NodoGrafo, NodeType, TipoVinculo } from '../../types/vista.ts'
 
@@ -40,4 +40,8 @@ test('creditosDe: dedup, une roles, sin rol vacío', () => {
   assert.deepEqual(creditosDe(ady, 'o'), [{ id: 'z', nombre: 'Ana' }, { id: 'p', nombre: 'Persona', rol: 'voz, dj' }])
 })
 test('creditosDe: obra sin vínculos', () => assert.deepEqual(creditosDe(ady, 'solo'), []))
+test('obrasDe: obras y eventos vecinos en ambos sentidos, sin repetidos', () => {
+  assert.deepEqual(obrasDe(ady, 'p'), ['o'])
+  assert.deepEqual(obrasDe(ady, 'o'), [])
+})
 test('creditosDe ignora no-ENTIDAD', () => assert.ok(creditosDe(ady, 'o').every((c) => c.id !== 'a')))
