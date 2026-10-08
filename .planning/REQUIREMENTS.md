@@ -70,7 +70,7 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 
 ### Rendimiento
 
-- [ ] **PERF-01**: Está medido y documentado cuántos nodos sostiene el motor a 30 fps en un dispositivo de gama media, con el número de draw calls por nodo
+- [x] **PERF-01**: Está medido y documentado cuántos nodos sostiene el motor a 30 fps en un dispositivo de gama media, con el número de draw calls por nodo
 
 ## v2 Requirements
 
@@ -157,7 +157,7 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | MOTR-10 | Phase 3 | Complete |
 | MOTR-11 | Phase 3 | Complete |
 | MOTR-12 | Phase 3 | Complete |
-| PERF-01 | Phase 3 | Pending |
+| PERF-01 | Phase 3 | Complete |
 | UI-01 | Phase 4 | Complete |
 | UI-02 | Phase 4 | Complete |
 | UI-03 | Phase 4 | Complete |

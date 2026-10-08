@@ -4,16 +4,16 @@ milestone: v1.0
 current_phase: 04
 current_phase_name: UI & Navigation
 status: executing
-stopped_at: Completed 04-09-PLAN.md
-last_updated: "2026-10-08T00:27:24.854Z"
+stopped_at: Completed 04-10-PLAN.md
+last_updated: "2026-10-08T01:13:59.664Z"
 last_activity: 2026-10-07
 last_activity_desc: Phase 04 execution started
-state_head: 6e66e63568485fba5f15e12c6a10e2f1b9fb9234
+state_head: 48e92f8864daba4ea096f52d21bcd018dcfd0b79
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 26
-  completed_plans: 24
+  completed_plans: 25
 milestone_name: milestone
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-08-06)
 ## Current Position
 
 Phase: 04 (UI & Navigation) — EXECUTING
-Plan: 3 of 11
+Plan: 4 of 11
 Status: Ready to execute
 Last activity: 2026-10-07 — Phase 04 execution started
 
@@ -81,6 +81,7 @@ Progress: [░░░░░░░░░░] 0%
 |------|----------|-------|-------|
 | Phase 04 P08 | 62 min | 3 tasks | 8 files |
 | Phase 04 P09 | 70min | 3 tasks | 10 files |
+| Phase 04 P10 | 60min | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -112,6 +113,8 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-09: el menú superior enfoca el área y Entrar la carga (cambia D-09/UI-SPEC §2)
 - [Phase 04]: 04-09: ENTIDAD entra con reemplazo, igual que AGRUPACION (cambia D-16; reversible en transicionEntrada)
 - [Phase 04]: 04-09: la Vista de AGRUPACION recorre solo vínculos salientes; la dueña del área ya no entra
+- [Phase 04]: 04-10 D-22: lo sumado al recorrer vive en memoria del Shell atado a la red; la URL lleva solo el ancla; tope 40 + 12 FIFO, el foco nunca sale
+- [Phase 04]: 04-10: enfocar dentro de una red nunca la cambia (G-05); el puente ya no calcula la Vista, la calcula el Shell (subgrafoDe)
 
 ### Pending Todos
 
@@ -149,8 +152,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-10-08T00:27:24.502Z
-Stopped at: Completed 04-09-PLAN.md
+Last session: 2026-10-08T01:13:59.306Z
+Stopped at: Completed 04-10-PLAN.md
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's
