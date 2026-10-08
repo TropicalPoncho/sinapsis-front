@@ -11,7 +11,7 @@ import { botonesDe } from '../lib/red/botones.ts'
 import type { Boton } from '../lib/red/botones.ts'
 import { transicionEntrada } from '../lib/red/navegacion.ts'
 import type { Transicion } from '../types/vista.ts'
-import { agrupadoresDe, creditosDe, entidadDeMenu, nodosDeLaRed, padreDe } from '../lib/red/menus.ts'
+import { agrupadoresDe, creditosDe, entidadDeMenu, nodosDeLaRed, obrasDe, padreDe } from '../lib/red/menus.ts'
 import { Ficha } from './Ficha.tsx'
 import { MenuLateral, MenuSuperior } from './Menus.tsx'
 
@@ -35,7 +35,7 @@ export interface OverlayProps {
 }
 
 // El panel siempre está maquetado (nunca display:none): la cámara mide su rect antes de que aparezca.
-export default function Overlay({ estado, mostrado, ady, idx, escena, fase, error, panelRef, navegar, volver, reintentar }: OverlayProps) {
+export default function Overlay({ estado, mostrado, ady, idx, escena, fase, error, panelRef, navegar, volver, reintentar, sumar }: OverlayProps) {
   const h2Ref = useRef<HTMLHeadingElement>(null)
   const [abierto, setAbierto] = useState(false)
   const [puedeVolver, setPuedeVolver] = useState(false)
@@ -60,7 +60,6 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
   const redNodo = ady && redId ? ady.nodos.get(redId) : undefined
 
   const sub = redId ? escena?.sub ?? null : null
-  const subredVacia = sub !== null && sub.nodos.length <= 1
 
   const entidadId = ady && entrado ? entidadDeMenu(ady, { redId, enfocadoId }) : null
   const items = ady && entidadId ? agrupadoresDe(ady, entidadId) : []
@@ -91,7 +90,10 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
 
   // Cuando cambia la URL el panel empieza a salir en ese mismo render, con el contenido viejo.
   const coincide = claveEstado(mostrado) === claveEstado(estado)
-  const visible = fase === 'listo' && ((nodo !== undefined && !entrado && coincide) || error !== null || subredVacia)
+  // Adentro de una red sin nada más que ella misma (un área sin miembros). Espera a `coincide`: si no, el
+  // texto cambiaría mientras el panel todavía está saliendo con el contenido viejo.
+  const vacia = entrado && coincide && sub !== null && sub.nodos.every((n) => n.id === redId)
+  const visible = fase === 'listo' && ((nodo !== undefined && !entrado && coincide) || error !== null || vacia)
 
   useEffect(() => { setAbierto(false) }, [mostrado.enfocado])
   // Sigue a `mostrado`, no a la URL: si el botón desaparece apenas cambia la URL, el panel (en mobile,
@@ -110,8 +112,12 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
   }, [visible, nodo?.id, error])
 
   const grado = nodo && ady ? (ady.sale.get(nodo.id)?.length ?? 0) + (ady.entra.get(nodo.id)?.length ?? 0) : 0
+  // Las obras/eventos de la entidad enfocada que todavía no están en escena (D-22: se suman sin navegar).
+  const porSumar = nodo && ady && escena && nodo.nodeType === 'ENTIDAD'
+    ? obrasDe(ady, nodo.id).filter((id) => !escena.sub.nodos.some((n) => n.id === id))
+    : []
   const botones = nodo
-    ? botonesDe(nodo, { grado }).filter((b) => !(b.accion === 'entrar' && mostrado.red === mostrado.enfocado))
+    ? botonesDe(nodo, { grado, obrasPorSumar: porSumar.length }).filter((b) => !((b.accion === 'entrar' || b.accion === 'sumar') && mostrado.red === mostrado.enfocado))
     : []
 
   const ejecutar = (b: Boton) => {
@@ -128,6 +134,9 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
         )
         break
       }
+      case 'sumar':
+        sumar(porSumar)
+        break
       case 'enlace':
         break
     }
@@ -201,6 +210,12 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
             </h2>
             <div className="panel__botones"><button className="accion" onClick={() => navegar('/', 'reemplazo')}>Ir a la red</button></div>
           </div>
+        ) : vacia ? (
+          <div className="panel__contenido">
+            <h2 id="panel-nombre" tabIndex={-1} className="panel__nombre" ref={h2Ref}>Todavía no hay nada acá</h2>
+            <p className="panel__desc">Esta red no tiene nodos cargados. Volvé y explorá otro camino.</p>
+            <div className="panel__botones">{volverBtn}</div>
+          </div>
         ) : nodo ? (
           <div className="panel__contenido" key={nodo.id}>
             <h2 id="panel-nombre" tabIndex={-1} className="panel__nombre" ref={h2Ref}>{nodo.label}</h2>
@@ -227,12 +242,6 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
                 onEnfocar={(id) => irA(id, false)}
               />
             )}
-          </div>
-        ) : subredVacia ? (
-          <div className="panel__contenido">
-            <h2 id="panel-nombre" tabIndex={-1} className="panel__nombre" ref={h2Ref}>Todavía no hay nada acá</h2>
-            <p className="panel__desc">Esta red no tiene nodos cargados. Volvé y explorá otro camino.</p>
-            <div className="panel__botones">{volverBtn}</div>
           </div>
         ) : null}
       </aside>

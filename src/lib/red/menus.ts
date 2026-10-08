@@ -54,6 +54,15 @@ export function nodosDeLaRed(sub: Subgrafo, redId: string) {
     .map((n) => ({ id: n.id, label: n.label, subtipo: n.subtipo }))
 }
 
+// Obras y eventos vecinos de una entidad (ambos sentidos), más viejos primero: lo que "Sumar sus obras" agrega.
+export function obrasDe(ady: Adyacencia, entidadId: string): string[] {
+  const vistos = new Map<string, NodoGrafo>()
+  for (const { nodo } of vecinos(ady, entidadId)) {
+    if (nodo.nodeType === 'OBRA' || nodo.nodeType === 'EVENTO') vistos.set(nodo.id, nodo)
+  }
+  return [...vistos.values()].sort(porFecha).map((n) => n.id)
+}
+
 // ponytail: sin ordenar por relevancia del rol; sale cuando el dato traiga un orden explícito.
 export function creditosDe(ady: Adyacencia, obraId: string) {
   const porEntidad = new Map<string, { nombre: string; roles: string[] }>()
