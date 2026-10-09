@@ -92,10 +92,11 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
 
   // Previsualiza un área en la red de su dueña (D-25): el mismo camino que "Entrar" pero al revés, con
   // reemplazo, así la cámara sale de la neurona (D-18). Sin dueña no hay a dónde subir: Atrás del Shell.
+  // La dueña es la entidad de contexto de arriba: se calcula en un solo lugar.
   const aLaDuena = (areaId: string) => {
     const area = ady?.nodos.get(areaId)
     const slug = idx?.slugPorId.get(areaId)
-    const duena = ady && idx ? idx.slugPorId.get(padreDe(ady, areaId, 'ENTIDAD') ?? '') : undefined
+    const duena = idx && entidadId ? idx.slugPorId.get(entidadId) : undefined
     if (!area || !idx || !slug || !duena) return volver()
     setLateralAbierto(false)
     setMenuAbierto(false)
