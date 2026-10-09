@@ -63,6 +63,12 @@ export interface Vista {
   // entrar en el recorte) y conectaba a dos nodos que sí quedaron, se agrega un vínculo puente
   // entre esos dos (D-puentes). Sin esto, ese camino se pierde entero y los dos quedan sueltos.
   vinculosVirtuales: boolean
+  // true = las agrupaciones visibles (áreas) se unen con un vínculo virtual cuando sus miembros se tocan
+  // (D-24). Miembro = destino de un COMPONE que sale de la agrupación, un nivel. Vínculo = cualquier
+  // vínculo real entre miembros de dos agrupaciones, o un miembro compartido. Solo entre agrupaciones
+  // visibles; un par ya unido por un vínculo real dibujado no recibe el virtual. Nunca se persiste.
+  // Opcional: ausente = apagado, así las Vistas que no lo piden no cambian.
+  vinculosEntreAgrupaciones?: boolean
 }
 
 export interface NodoGrafo {
@@ -112,9 +118,10 @@ export interface VinculoGrafo {
   destino: string
   tipoVinculo: TipoVinculo
   rol?: string                   // corto, filtrable
-  // true = puente calculado por resolverVista (D-puentes), nunca persistido: reemplaza el camino
+  // true = vínculo calculado por resolverVista, nunca persistido: un puente (D-puentes) o un vínculo
+  // entre agrupaciones (D-24, id `entre:`). El puente reemplaza el camino
   // A-nodo_excluido-B por A-B cuando `nodo_excluido` quedó fuera de la Vista. El motor puede
-  // dibujarlo distinto (punteado); hoy no lo hace, es el próximo paso si hace falta distinguirlo.
+  // dibujarlo distinto: el motor lo dibuja punteado (linkThreeObject).
   virtual?: boolean
 }
 

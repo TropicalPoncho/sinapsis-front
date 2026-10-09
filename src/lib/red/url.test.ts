@@ -5,6 +5,7 @@ import { construirAdyacencia } from '../vista/adyacencia.ts'
 import { resolverVista } from '../vista/resolverVista.ts'
 import type { Subgrafo } from '../../types/vista.ts'
 import { indexarSlugs } from './slugs.ts'
+import { agrupadoresDe } from './menus.ts'
 import { estadoDesdeUrl as d, urlDe, claveVista, vistaDe, profDefecto, LIMITE_VISTA, LIMITE_SUMA, sumarIds, subgrafoDe, type EstadoRed } from './url.ts'
 
 const E = (o: Partial<EstadoRed> = {}): EstadoRed => ({ enfocado: null, red: null, prof: null, semilla: null, raiz: null, puentes: null, ...o })
@@ -84,11 +85,39 @@ test('vistaDe', () => {
   assert.equal(vistaDe(E({ raiz: true }), 'r', 'AGRUPACION').incluirRaiz, true)
 })
 
+test('vistaDe: entidad con áreas entra como la raíz y sus áreas (D-24)', () => {
+  const v = vistaDe(E(), 'r', 'ENTIDAD', true)
+  assert.equal(v.profundidad, 1); assert.deepEqual(v.filtroNodeTypes, ['AGRUPACION']); assert.deepEqual(v.filtroVinculos, ['COMPONE', 'PRECEDE'])
+  assert.equal(v.direccion, 'sale'); assert.equal(v.incluirRaiz, true); assert.equal(v.limite, LIMITE_VISTA)
+  assert.equal(v.vinculosEntreAgrupaciones, true); assert.equal(v.vinculosVirtuales, true)
+  // `?prof` explícito, o sin áreas, da la Vista general; `?puentes=0` apaga los dos campos virtuales.
+  assert.deepEqual(vistaDe(E({ prof: 2 }), 'r', 'ENTIDAD', true), vistaDe(E({ prof: 2 }), 'r', 'ENTIDAD'))
+  assert.equal(vistaDe(E({ prof: 2 }), 'r', 'ENTIDAD', true).profundidad, 2)
+  assert.equal(vistaDe(E(), 'r', 'ENTIDAD').vinculosEntreAgrupaciones, undefined)
+  const sin = vistaDe(E({ puentes: false }), 'r', 'ENTIDAD', true)
+  assert.equal(sin.vinculosVirtuales, false); assert.equal(sin.vinculosEntreAgrupaciones, false)
+  assert.equal(vistaDe(E({ raiz: false }), 'r', 'ENTIDAD', true).incluirRaiz, false)
+})
+
 // Con la fixture (mismo contrato que la curaduría): ver qué trae de verdad cada red al entrar.
 const topo = JSON.parse(readFileSync('src/lib/red/fixtures/topologia.json', 'utf8')) as Subgrafo
 const ady = construirAdyacencia(topo)
-const redDe = (id: string) => { const t = ady.nodos.get(id)!.nodeType; return resolverVista(ady, vistaDe(E(), id, t)) }
+// Igual que subgrafoDe: la Vista de entrada depende de si la entidad tiene áreas (D-24).
+const redDe = (id: string) => { const t = ady.nodos.get(id)!.nodeType; return resolverVista(ady, vistaDe(E(), id, t, agrupadoresDe(ady, id).length > 0)) }
 
+test('fixture: Tropical entra con la raíz y sus 6 áreas, unidas por un solo vínculo virtual derivado (D-24)', () => {
+  const { nodos, vinculos } = redDe('tp')
+  assert.deepEqual(nodos.map((n) => n.id).sort(), ['area-audiovisuales', 'area-concepto', 'area-editorial', 'area-laboratorios', 'area-obras', 'area-tecnologia', 'tp'])
+  assert.equal(vinculos.filter((l) => l.tipoVinculo === 'COMPONE' && !l.virtual).length, 6)
+  const virtuales = vinculos.filter((l) => l.virtual)
+  assert.deepEqual(virtuales.map((l) => l.id), ['entre:area-editorial|area-obras'])
+  assert.match(virtuales[0].rol!, /^Vinculadas por (Libro uno y Espora|Espora y Libro uno)$/)
+})
+test('fixture: una entidad sin áreas entra a su red de siempre, con la raíz y otra entidad', () => {
+  const r = redDe('creadxr-ana')
+  assert.deepEqual(r, resolverVista(ady, vistaDe(E(), 'creadxr-ana', 'ENTIDAD')))
+  assert.ok(r.nodos.some((n) => n.id === 'creadxr-ana') && r.nodos.some((n) => n.id !== 'creadxr-ana' && n.nodeType === 'ENTIDAD'))
+})
 test('vistaDe: una AGRUPACION recorre solo vínculos salientes (contenedor -> miembros)', () => {
   assert.equal(vistaDe(E(), 'r', 'AGRUPACION').direccion, 'sale')
   for (const t of ['ENTIDAD', 'OBRA', 'EVENTO'] as const) assert.equal(vistaDe(E(), 'r', t).direccion, 'ambas')
@@ -144,10 +173,19 @@ test('subgrafoDe: lo guardado se conserva al enfocar otra cosa (Atrás)', () => 
   const r = sd({ enfocado: 'nudo', red: 'obras' }, ['creadxr-ana'])
   assert.equal(r.sub.nodos.length, 6); assert.ok(ids(r).includes('creadxr-ana'))
 })
+test('subgrafoDe: Tropical entra con 7 nodos y `?prof=2` da la red general con creadxrs (D-24)', () => {
+  const r = sd({ enfocado: 'tropical-poncho', red: 'tropical-poncho' })
+  assert.equal(r.sub.nodos.length, 7); assert.deepEqual(r.sumados, [])
+  assert.ok(ids(sd({ enfocado: 'tropical-poncho', red: 'tropical-poncho', prof: 2 })).includes('creadxr-ana'))
+})
 test('subgrafoDe: enfocar algo visible solo cambia el foco (G-05)', () => {
   const base = redDe('tp').nodos.map((n) => n.id).sort()
-  const r = sd({ enfocado: 'beto-sosa', red: 'tropical-poncho' })
+  const r = sd({ enfocado: 'obras', red: 'tropical-poncho' })
   assert.deepEqual(ids(r).sort(), base); assert.deepEqual(r.sumados, [])
+})
+test('subgrafoDe: enfocar un creadxr que ya no entra con la red lo suma (D-23)', () => {
+  const r = sd({ enfocado: 'beto-sosa', red: 'tropical-poncho' })
+  assert.equal(r.sub.nodos.length, redDe('tp').nodos.length + 1); assert.ok(ids(r).includes('creadxr-beto'))
 })
 test('subgrafoDe: enfocar algo no visible lo suma sin traer su red propia (G-05)', () => {
   const r = sd({ enfocado: 'fede-roca', red: 'tropical-poncho' })

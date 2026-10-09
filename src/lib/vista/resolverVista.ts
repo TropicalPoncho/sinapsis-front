@@ -85,6 +85,50 @@ export function puentesDe(
   return puentes
 }
 
+// D-24: las áreas (AGRUPACION) visibles se unen entre sí cuando sus miembros se tocan. Regla del dueño:
+// "hay nodos que son parte de un área que se vinculan con nodos de otra área, y eso genera el vínculo
+// virtual". Miembro = destino de un COMPONE que sale del área. Une a A y B un vínculo real, del tipo y
+// sentido que sea, entre un miembro de A y uno de B, o un miembro que está en las dos. Un vínculo virtual
+// por par, con rol legible; un par ya unido por un vínculo real dibujado no recibe el virtual. Nunca se persiste.
+// ponytail: un solo nivel de membresía (una serie dentro de un área no propaga) y solo la primera evidencia
+// en el rol; salida: recorrer COMPONE en profundidad o contar evidencias si el UAT lo pide.
+function vinculosEntreAgrupaciones(
+  ady: Adyacencia,
+  nodos: readonly NodoGrafo[],
+  yaConectados: Set<string>,
+): VinculoGrafo[] {
+  const areas = nodos
+    .filter((n) => n.nodeType === 'AGRUPACION')
+    .map((n) => ({
+      id: n.id,
+      miembros: new Set((ady.sale.get(n.id) ?? []).filter((v) => v.tipoVinculo === 'COMPONE').map((v) => v.destino)),
+    }))
+  const label = (id: string) => ady.nodos.get(id)?.label ?? id
+  const out: VinculoGrafo[] = []
+  for (let i = 0; i < areas.length; i++) {
+    for (let j = i + 1; j < areas.length; j++) {
+      const [A, B] = [areas[i], areas[j]]
+      const [x, y] = [A.id, B.id].sort()
+      const clave = `${x}|${y}`
+      if (yaConectados.has(clave)) continue
+      let rol: string | undefined
+      const comun = [...A.miembros].find((m) => B.miembros.has(m))
+      if (comun !== undefined) rol = `Comparten ${label(comun)}`
+      else {
+        for (const m of A.miembros) {
+          const v = [...(ady.sale.get(m) ?? []), ...(ady.entra.get(m) ?? [])]
+            .find((e) => B.miembros.has(e.origen === m ? e.destino : e.origen))
+          if (v) { rol = `Vinculadas por ${label(m)} y ${label(v.origen === m ? v.destino : v.origen)}`; break }
+        }
+      }
+      if (rol === undefined) continue
+      yaConectados.add(clave)
+      out.push({ id: `entre:${clave}`, origen: x, destino: y, tipoVinculo: 'COLABORO_EN', rol: rol.slice(0, 60), virtual: true })
+    }
+  }
+  return out
+}
+
 export function resolverVista(
   ady: Adyacencia,
   vista: Vista,
@@ -185,9 +229,10 @@ export function resolverVista(
     }
   }
 
-  if (vista.vinculosVirtuales) {
+  if (vista.vinculosVirtuales || vista.vinculosEntreAgrupaciones) {
     const yaConectados = new Set(vinculos.map((v) => [v.origen, v.destino].sort().join('|')))
-    vinculos.push(...puentesDe(ady, alcanzados.keys(), idsVisiblesParaVinculos, yaConectados))
+    if (vista.vinculosVirtuales) vinculos.push(...puentesDe(ady, alcanzados.keys(), idsVisiblesParaVinculos, yaConectados))
+    if (vista.vinculosEntreAgrupaciones) vinculos.push(...vinculosEntreAgrupaciones(ady, nodos, yaConectados))
   }
 
   return { nodos, vinculos }

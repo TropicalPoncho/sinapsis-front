@@ -2,6 +2,7 @@ import type { NodeType, Subgrafo, TipoVinculo, Vista, VinculoGrafo } from '../..
 import type { Adyacencia } from '../vista/adyacencia.ts'
 import { resolverVista } from '../vista/resolverVista.ts'
 import { fraccionHome } from './home.ts'
+import { agrupadoresDe } from './menus.ts'
 import type { IndiceSlugs } from './slugs.ts'
 
 export interface EstadoRed {
@@ -37,9 +38,10 @@ export const profDefecto = (tipo?: NodeType): number => (tipo === 'ENTIDAD' ? 2 
 // recorrerlo en ambas direcciones la traía a profundidad 1; con la raíz fuera de `nodos` quedaba
 // flotando sin ningún vínculo dibujable. El orden curatorial entre miembros (PRECEDE) se dibuja igual:
 // resolverVista une pares ya visibles, y sin él los miembros quedarían sin ningún vínculo visible.
-// ENTIDAD: además se ve con quién hizo cosas. Los eventos y obras que conectan a esa gente quedan
-// afuera por tipo (no se muestran) y el puente virtual une a la entidad con sus colaboradores: sin
-// recorrer PRODUJO/COLABORO_EN, Tropical Poncho entraba como 5 áreas y ningún creadxr.
+// ENTIDAD sin áreas (o con `?prof`): además se ve con quién hizo cosas. Los eventos y obras que conectan a
+// esa gente quedan afuera por tipo (no se muestran) y el puente virtual une a la entidad con sus
+// colaboradores. ENTIDAD con áreas (D-24, G-08): entra como la raíz y sus áreas, unidas por vínculos
+// virtuales derivados de sus miembros; a lxs colaboradorxs se llega entrando a un área o con `?prof`.
 const VINCULOS_AL_ENTRAR: TipoVinculo[] = ['COMPONE', 'PRECEDE']
 const soloComponeAlEntrar = (tipo: NodeType | undefined) => tipo === 'AGRUPACION'
 const TIPOS_AL_ENTRAR_ENTIDAD: NodeType[] = ['ENTIDAD', 'AGRUPACION']
@@ -87,19 +89,26 @@ export const claveEstado = (e: EstadoRed): string => claveVista(e) + '|' + (e.en
 // `raiz` en la URL pisa el default en cualquier sentido — la Vista queda del todo configurable.
 const incluirRaizDefecto = (tipoRed: NodeType | undefined) => tipoRed !== 'AGRUPACION'
 
-export const vistaDe = (e: EstadoRed, redId: string | null, tipoRed?: NodeType): Vista => ({
-  raiz: redId,
-  profundidad: e.prof ?? profDefecto(tipoRed),
-  filtroNodeTypes: tipoRed === 'ENTIDAD' ? TIPOS_AL_ENTRAR_ENTIDAD : [],
-  filtroVinculos: soloComponeAlEntrar(tipoRed) ? VINCULOS_AL_ENTRAR : [],
-  direccion: soloComponeAlEntrar(tipoRed) ? 'sale' : 'ambas',
-  incluirRaiz: e.raiz ?? incluirRaizDefecto(tipoRed),
-  limite: LIMITE_VISTA,
-  modoOrden: 'grafo',
-  // Prendido por defecto (D-puentes): un nodo fuera de la Vista no debería dejar sueltos a los que
-  // conectaba. `?puentes=0` lo apaga para comparar, pensando en el panel de opciones de muestra.
-  vinculosVirtuales: e.puentes ?? true,
-})
+export const vistaDe = (e: EstadoRed, redId: string | null, tipoRed?: NodeType, conAreas = false): Vista => {
+  const vista: Vista = {
+    raiz: redId,
+    profundidad: e.prof ?? profDefecto(tipoRed),
+    filtroNodeTypes: tipoRed === 'ENTIDAD' ? TIPOS_AL_ENTRAR_ENTIDAD : [],
+    filtroVinculos: soloComponeAlEntrar(tipoRed) ? VINCULOS_AL_ENTRAR : [],
+    direccion: soloComponeAlEntrar(tipoRed) ? 'sale' : 'ambas',
+    incluirRaiz: e.raiz ?? incluirRaizDefecto(tipoRed),
+    limite: LIMITE_VISTA,
+    modoOrden: 'grafo',
+    // Prendido por defecto (D-puentes): un nodo fuera de la Vista no debería dejar sueltos a los que
+    // conectaba. `?puentes=0` lo apaga para comparar, pensando en el panel de opciones de muestra.
+    vinculosVirtuales: e.puentes ?? true,
+  }
+  // D-24 (G-08): una entidad con áreas entra como la raíz y sus áreas, unidas por lo que comparten sus
+  // miembros. `?prof` explícito da la Vista general de arriba.
+  return tipoRed === 'ENTIDAD' && conAreas && e.prof === null
+    ? { ...vista, profundidad: 1, filtroNodeTypes: ['AGRUPACION'], filtroVinculos: VINCULOS_AL_ENTRAR, direccion: 'sale', vinculosEntreAgrupaciones: e.puentes ?? true }
+    : vista
+}
 
 // Lo visible para un estado (D-22): la Vista base (la home o la red) más lo sumado al recorrer.
 // Criterio G-05: enfocar nunca cambia de red. Lo guardado y el foco que no están en la base se suman
@@ -119,7 +128,7 @@ export function subgrafoDe(
   const redId = estado.red ? idx.idPorSlug.get(estado.red) ?? null : null
   const base = redId === null
     ? fraccionHome(ady, { semilla, limite: limiteHome })
-    : resolverVista(ady, vistaDe(estado, redId, ady.nodos.get(redId)?.nodeType))
+    : resolverVista(ady, vistaDe(estado, redId, ady.nodos.get(redId)?.nodeType, agrupadoresDe(ady, redId).length > 0))
   const enBase = new Set(base.nodos.map((n) => n.id))
   const focoId = estado.enfocado ? idx.idPorSlug.get(estado.enfocado) : undefined
   const foco = focoId && ady.nodos.has(focoId) && !enBase.has(focoId) && focoId !== redId ? [focoId] : []

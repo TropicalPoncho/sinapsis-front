@@ -609,6 +609,13 @@
       "origen": "obra-corto",
       "destino": "obra-sin-desc",
       "tipoVinculo": "PRECEDE"
+    },
+    {
+      "id": "v37",
+      "origen": "obra-libro",
+      "destino": "obra-espora",
+      "tipoVinculo": "INSPIRO",
+      "rol": "cita directa"
     }
   ]
 }

@@ -262,3 +262,46 @@ describe('resolverVista', () => {
     assert.deepEqual(ids(sub), ['a1', 'a2'])
   })
 })
+
+// D-24: vínculos virtuales entre agrupaciones (áreas), derivados de sus miembros.
+describe('vinculosEntreAgrupaciones', () => {
+  const nd = (id: string, nodeType: NodoGrafo['nodeType']): NodoGrafo => ({ id, nodeType, subtipo: 's', label: id, vizParams: vp, isStub: false })
+  const ln = (id: string, origen: string, destino: string, tipoVinculo: VinculoGrafo['tipoVinculo']): VinculoGrafo => ({ id, origen, destino, tipoVinculo })
+  const base: VinculoGrafo[] = [
+    ...['A', 'B', 'C', 'D'].map((a) => ln('c' + a, 'ent', a, 'COMPONE')),
+    ln('m1', 'A', 'mA', 'COMPONE'), ln('m2', 'A', 'mAC', 'COMPONE'), ln('m3', 'B', 'mB', 'COMPONE'),
+    ln('m4', 'B', 'mB2', 'COMPONE'), ln('m5', 'C', 'mAC', 'COMPONE'), ln('m6', 'D', 'mD', 'COMPONE'),
+    ln('x1', 'mA', 'mB', 'INSPIRO'), ln('x2', 'mB2', 'mA', 'COLABORO_EN'),
+    ln('x3', 'p', 'mA', 'COLABORO_EN'), ln('x4', 'p', 'mD', 'COLABORO_EN'),
+  ]
+  const nodosA = [nd('ent', 'ENTIDAD'), ...['A', 'B', 'C', 'D'].map((a) => nd(a, 'AGRUPACION')), nd('p', 'ENTIDAD'),
+    ...['mA', 'mAC', 'mB', 'mB2', 'mD'].map((m) => nd(m, 'OBRA'))]
+  const vistaAreas = (extra: Partial<Vista> = {}): Vista => ({
+    raiz: 'ent', profundidad: 1, direccion: 'sale', filtroNodeTypes: ['AGRUPACION'], filtroVinculos: ['COMPONE', 'PRECEDE'],
+    incluirRaiz: true, modoOrden: 'grafo', vinculosVirtuales: true, vinculosEntreAgrupaciones: true, ...extra,
+  })
+  const resolver = (vinculos: VinculoGrafo[], v: Vista) => resolverVista(construirAdyacencia({ nodos: nodosA, vinculos }), v)
+
+  test('une las áreas por vínculo entre miembros y por miembro compartido, sin repetidos ni colaboradores', () => {
+    const sub = resolver(base, vistaAreas())
+    assert.deepEqual(sub.nodos.map((n) => n.id).sort(), ['A', 'B', 'C', 'D', 'ent'])
+    const virtuales = sub.vinculos.filter((l) => l.virtual)
+    assert.deepEqual(virtuales.map((l) => l.id).sort(), ['entre:A|B', 'entre:A|C'])
+    assert.match(virtuales.find((l) => l.id === 'entre:A|B')!.rol!, /^Vinculadas por /)
+    assert.match(virtuales.find((l) => l.id === 'entre:A|C')!.rol!, /^Comparten mAC/)
+    for (const l of virtuales) {
+      assert.equal(l.tipoVinculo, 'COLABORO_EN'); assert.ok(l.origen < l.destino); assert.ok(l.rol!.length <= 60)
+      assert.ok(l.origen !== 'D' && l.destino !== 'D', 'un colaborador compartido no une áreas')
+    }
+  })
+  test('un vínculo real entre las áreas reemplaza al derivado', () => {
+    const sub = resolver([...base, ln('r', 'A', 'B', 'PRECEDE')], vistaAreas())
+    assert.ok(sub.vinculos.some((l) => l.id === 'r'))
+    assert.ok(!sub.vinculos.some((l) => l.id === 'entre:A|B'))
+  })
+  test('sin el campo o en false no hay vínculos entre áreas', () => {
+    for (const extra of [{ vinculosEntreAgrupaciones: undefined }, { vinculosEntreAgrupaciones: false }]) {
+      assert.ok(!resolver(base, vistaAreas(extra)).vinculos.some((l) => l.id.startsWith('entre:')))
+    }
+  })
+})
