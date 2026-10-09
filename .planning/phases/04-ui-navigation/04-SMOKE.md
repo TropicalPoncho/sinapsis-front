@@ -122,3 +122,38 @@ Resultado por punto. El dueño contestó en bloque ("esta ok"), no punto por pun
 | 12 consola | sin respuesta explícita | cubierto por el re-smoke (escritorio headless, sin errores) |
 
 Gaps nuevos del UAT: G-08, G-09 y G-10 (ver `04-UAT-GAPS.md`). No se corrigen en este plan.
+
+## Re-smoke tras 04-12 (G-08..G-10)
+
+Fecha: 2026-10-08. Gates tras la auditoría ponytail de 04-13 (sobre el árbol con el commit `b0c67af`): `npm test` 145/145, `npx tsc --noEmit` 0, `npm run lint` 0 errores (solo warnings previos de `config` sin usar en `src/engine/threeObjects/*`), `next build` OK (copia aislada con `node_modules` enlazado, para no pisar el `.next` del dev server del dueño). `git diff --stat -- package.json` vacío.
+
+Método: el 3002 es el dev server del dueño con la base real (192 nodos, 300 vínculos); solo se lee, no se levantó ni se cerró (mismo PID antes y después). La fixture se sirvió con `TOPOLOGIA_FIXTURE=1 next dev -p 3003` desde la copia aislada, sincronizada con HEAD, y se cerró al terminar (sin listeners en 3003). Medición con Playwright y el Chromium de gstack (scripts en el scratchpad, sin commitear), `?perf=1`, muestreo por `requestAnimationFrame` (~5 fps; no se miden fps). Recorridos ya medidos en 04-12 que no cambiaron (captura de maqueta, G-09 en 1536x730) no se repiten; esta corrida sí vuelve a medir con el código de HEAD, incluida la limpieza de la auditoría.
+
+| gap | punto | resultado | evidencia |
+|-----|-------|-----------|-----------|
+| G-08 (UI-03) | fixture `/entidad/tropical-poncho` | OK | 7 nodos: exactamente `tp` y las 6 áreas; 7 vínculos = 6 COMPONE + 1 virtual `area-editorial\|area-obras` (v37). Ningún creadxr. Raíz incluida |
+| G-08 (UI-03) | fixture `?puentes=0` | OK | 7 nodos, 6 vínculos, 0 virtuales: el flag apaga los derivados junto con los puentes |
+| G-08 (UI-03) | base real `/entidad/tropical-poncho` | OK (hueco de curaduría) | 6 nodos (Tropical + 5 áreas), 5 vínculos, 0 virtuales. Solo Obras tiene miembros; los vínculos entre áreas aparecen cuando la curaduría cargue miembros en una segunda área. Raíz incluida |
+| G-08 (UI-03) | fallback `ana-ruiz` (fixture) | OK | `/entidad/ana-ruiz`: 7 nodos, 11 vínculos, tipos ENTIDAD y AGRUPACION, con la raíz Ana Ruiz: la red general de siempre |
+| G-08 (UI-03) | fallback `rama-cerratto` (real) | OK | 40 nodos, 61 vínculos, con la raíz Rama Cerratto (los mismos 40 de antes del cambio) |
+| G-08 (UI-03, D-08) | `?prof=2` en Tropical | OK | Real: 40 nodos, 74 vínculos, con creadxrs. Fixture: 11 nodos, 15 vínculos, con `creadxr-ana` |
+| G-09 (UI-10, D-18) | VOLVER en el panorama de Obras (real, 1280x800 y 1366x657) | OK | URL `/entidad/obras` → `/entidad/obras?red=tropical-poncho`; `history.length` 4 → 5 (+1, en ambos viewports); panel "Obras" con "Entrar a Obras"; escena = red de Tropical (6 nodos). Fixture 1366x657: mismo resultado (7 nodos) |
+| G-09 (UI-10, D-18) | cámara sale de la neurona | OK | Distancia a la neurona de Obras 5, 28, 51, 69, 84, 94, 100, 103 (1280x800) y 5, 26, 49, 67, 83, 93, 100, 103 (1366x657): monótona creciente hasta el reposo. Fixture: 11, 35, 55, 72, 86, 95, 101, 103 |
+| G-09 (UI-10) | Atrás tras VOLVER | OK | Un solo toque: de `/entidad/obras?red=tropical-poncho` a `/entidad/obras`; un segundo toque a la previsualización. `history.length` no cambia al ir hacia atrás |
+| G-09 (UI-10) | VOLVER con una obra enfocada | OK | `/obra/tempistica-i?red=obras` (link duro) → VOLVER: `/entidad/obras`, +1 en el historial, 16 nodos (los de antes). Con la fixture, igual (5 nodos) |
+| G-09 (UI-10) | sin entradas duplicadas | OK | Re-click del nodo ya enfocado: `history.length` +0 (real y fixture, ambos viewports). Click del área activa en el menú estando adentro de Obras: URL y `history.length` sin cambio (+0). VOLVER tras link duro a `/entidad/obras`: +1 |
+| G-09 (UI-10) | VOLVER dentro del viewport | OK | Rect de VOLVER `top 108, bottom 153` con `innerHeight` 800 y 657; el lateral scrollea (`overflow-y: auto`, `scrollHeight` 1122 vs `clientHeight` 700 / 557); VOLVER va antes de la lista |
+| G-10 (UI-06, UI-09) | escritorio 1280x800, previsualizar y adentro de Obras (real) | OK | Título visible "Tropical Poncho", `text-transform: uppercase`, también adentro; menú visible con Obras activa: `font-size: 26px`, `aria-current="true"`, color `rgb(255, 188, 0)` (el del dato); lateral con 16 ítems en 26 px y VOLVER arriba |
+| G-10 (UI-06, UI-09) | escritorio 1366x657 (real) | OK | Idéntico a 1280x800 (título, menú, activo 26 px, 16 ítems en 26 px, VOLVER `top 108, bottom 153`) |
+| G-10 (UI-06, D-25) | desde adentro de Obras, click en AUDIOVISUALES | OK | `/entidad/audiovisuales?red=tropical-poncho`, escena de Tropical (6 nodos), panel "Audiovisuales" con "Entrar a Audiovisuales", activo Audiovisuales (26 px, `aria-current`, `rgb(138, 226, 200)`), título sigue "Tropical Poncho". En ambos viewports |
+| G-10 (UI-09) | mobile 390x800 (real) | OK | Al previsualizar un área: `#hamburger` visible. Adentro de Obras: título visible "Obras", sin transform; `.floatingMenu` `display: none` también con la hamburguesa abierta; lateral con VOLVER arriba (`top 80, bottom 123`) |
+| G-03 (D-18, UI-03), no regresión | Entrar a Obras y Atrás (fixture y real) | OK | Entrar: vuelo a la neurona (191 → 111 en la fixture, 94 → 111 en la real), negro, llegada con zoom in decreciente (fixture 652 → 274, 2,5 × el encuadre; real 503 → 451, ver nota). Atrás: salida desde la neurona, distancia 13, 14, 24 ... 103 monótona (fixture) y 7, 16, 25 ... 103 (real) |
+| D-22 (UI-05), no regresión | fixture: crédito en Obras, VOLVER con foco, VOLVER del panorama | OK | Crédito Ana Ruiz desde Nudo: 5 → 6 nodos (`creadxr-ana`). VOLVER con foco: `/entidad/obras`, 6 nodos, Ana conservada. VOLVER desde el panorama: `/entidad/obras?red=tropical-poncho`, 7 nodos, sin Ana (cambio de red, la borra). Entrar otra vez: 5 nodos, sin Ana |
+| G-07 (UI-09), no regresión | 390x800, `/`, red y panel visible (real) | OK | h1 de la home y `.marca` `left 16, top 763`; `.tituloRed` `left 72, top 20`: no se intersectan; con el panel visible la marca tiene `opacity 0`; título largo `right 374` (< 390) |
+| UI-08 y G-06 (no regresión) | todos los recorridos | OK | Un solo `<canvas>` en cada medición; `ERRS []` (sin errores de consola ni excepciones de página) en todas las corridas; `imageThreeObject.js`, `background.js` y `data/` sin cambios |
+
+Notas:
+- La llegada de Entrar con la red real de Obras (16 nodos, encuadre ~451) muestra solo el tramo final del zoom in (503 → 451) porque un bloqueo del hilo al cargar se come el tween (observado ya en 04-09 y 04-11): se confirma en la GPU del dueño, punto 3 del UAT 3. No es regresión de 04-12.
+- La marca "Sinápsis" de escritorio (abajo a la derecha, rect `1145-1256 x 752-776` a 1280x800) queda parcialmente tapada por el botón del panel de debug (`.debugPanel__abrir`, rect `1169-1268 x 756-788`): se superponen. El panel de debug es solo de desarrollo (`DebugPanel.tsx`, "no forma parte del diseño final"). No se corrige en este plan; va al UAT del dueño para saber si le molesta.
+
+Sin filas GAP.
