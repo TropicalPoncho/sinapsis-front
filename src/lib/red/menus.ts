@@ -29,16 +29,6 @@ export function agrupadoresDe(ady: Adyacencia, entidadId: string) {
   return [...vistos.values()].sort(porLabel).map((n) => ({ id: n.id, label: n.label, color: n.vizParams.color }))
 }
 
-export function entidadDeMenu(
-  ady: Adyacencia,
-  { redId, enfocadoId }: { redId: string | null; enfocadoId: string | null },
-): string | null {
-  for (const id of [redId, enfocadoId]) {
-    if (id && ady.nodos.get(id)?.nodeType === 'ENTIDAD') return id
-  }
-  return null
-}
-
 // D-11 / D-25: quien compone al nodo (COMPONE entrante) con origen del `tipo` pedido: por defecto el
 // agrupador (la serie o área de una obra); con 'ENTIDAD', la dueña de un área.
 // ponytail: con dos dueñas/agrupadores gana el primero por nombre (el modelo admite varios, solo el menú

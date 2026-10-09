@@ -16,16 +16,17 @@ const HEX = /^#[0-9a-fA-F]{6}$/
 // El hamburger vive en Overlay, no acá: adentro de un área este menú no tiene items (las áreas
 // son de la entidad), y si el botón dependiera de este componente, en mobile no habría forma de
 // abrir el cajón lateral. Acá solo se dibuja el nav; `abierto` llega controlado desde afuera.
-export function MenuSuperior({ items, activoId, padreId, abierto, onElegir }: {
+export function MenuSuperior({ items, activoId, padreId, abierto, enArea, onElegir }: {
   items: ItemMenu[]
   activoId?: string | null
   padreId?: string | null
   abierto: boolean
+  enArea?: boolean
   onElegir: (id: string) => void
 }) {
   if (items.length === 0) return null
   return (
-    <nav className={'floatingMenu' + (abierto ? ' menu-open' : '') + (activoId || padreId ? ' menu--con-foco' : '')} aria-label="Áreas">
+    <nav className={'floatingMenu' + (abierto ? ' menu-open' : '') + (activoId || padreId ? ' menu--con-foco' : '') + (enArea ? ' menu--en-area' : '')} aria-label="Áreas">
       {items.map((i) => {
         const activo = i.id === activoId
         const padre = i.id === padreId
@@ -33,6 +34,7 @@ export function MenuSuperior({ items, activoId, padreId, abierto, onElegir }: {
           <button
             key={i.id}
             className={'nav-item' + (activo ? ' nav-item--activo' : '') + (padre ? ' nav-item--padre' : '')}
+            aria-current={activo ? 'true' : undefined}
             style={activo && HEX.test(i.color) ? { color: i.color } : undefined}
             onClick={() => onElegir(i.id)}
           >

@@ -104,6 +104,8 @@
   .floatingMenu { display: none; top: 72px; left: 12px; transform: none; flex-direction: column; align-items: flex-start; }
   .floatingMenu.menu-open { display: flex; }
   .floatingMenu.menu-open.menu--con-foco { display: flex; }
+  /* Adentro de un área la hamburguesa abre solo el lateral; las áreas de la entidad no se ofrecen ahí. */
+  .floatingMenu.menu--en-area.menu-open, .floatingMenu.menu--en-area.menu-open.menu--con-foco { display: none; }
   .lateralFloatingMenu { left: 0; top: 0; transform: translateX(-110%); height: 100dvh; max-height: none; width: 80vw; border-radius: 0; transition: transform .3s; }
   .lateralFloatingMenu.lateral--abierto { transform: none; }
   .lateralFloatingMenu .close-lateral { display: block; align-self: flex-end; min-width: 48px; min-height: 48px; background: none; border: 0; color: #fff; font-size: 26px; }
@@ -124,11 +126,15 @@
 @media (max-width: 800px) { .panel--extendido { max-height: 70dvh; } }
 
 /* Título de la red en la que se entró; "Sinápsis" pasa a marca chica arriba a la derecha */
+.tituloRed__red { display: none; }
 .tituloRed { position: fixed; z-index: 40; top: 20px; left: 24px; margin: 0; font-family: 'Briller', Gotham, sans-serif; font-size: 32px; font-weight: 400; color: #fff; }
 .marca { position: fixed; z-index: 40; top: 24px; right: 24px; font-family: 'Briller', Gotham, sans-serif; font-size: 16px; color: rgba(255,255,255,.7); text-decoration: none; }
 @media (max-width: 800px) {
   /* Un nombre largo nunca desborda: deja la hamburguesa (72px) y el margen. */
   .tituloRed { left: 72px; top: 20px; font-size: 20px; max-width: calc(100vw - 88px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Mobile no cambia de layout: el título es el nombre de la red (adentro de un área, el área). */
+  .tituloRed__entidad { display: none; }
+  .tituloRed__red { display: inline; }
   /* "Sinápsis" es una marca chica abajo hasta que exista logo (G-07). Pisa la regla legada de index.css
      (.floatingTitle: left 42% + width 90% + translate(-50%) arrancaba en -3% y cortaba la palabra). */
   .overlay .floatingTitle, .overlay .floatingTitle.title-hidden, .marca {
@@ -175,7 +181,22 @@
 /* Título a la izquierda y menú de áreas a la derecha comparten fila: el menú envuelve y no invade el título. */
 @media (min-width: 801px) {
   .overlay .floatingTitle, .tituloRed { max-width: 38vw; }
-  .floatingMenu { left: 42vw; right: 24px; gap: 2px; }
+  .floatingMenu { left: 42vw; right: 24px; gap: 2px; align-items: center; }
+}
+
+/* Maqueta de la captura de diseño (G-10, D-25), solo escritorio: título de la entidad, menú en mayúsculas
+   con el área activa grande y del color del dato, lista lateral grande y liviana sin riel. */
+@media (min-width: 801px) {
+  .tituloRed, .nav-item { text-transform: uppercase; }
+  /* En mayúsculas el título (Briller es ancha) ya no entra en 38vw a 32px: una línea, achica con el
+     ancho, y el menú envuelve a partir de 46vw en vez de pisarlo. */
+  .tituloRed { font-size: clamp(22px, 2.3vw, 32px); max-width: 44vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .floatingMenu { left: 46vw; flex-wrap: wrap; }
+  .nav-item--activo { font-size: 26px; font-weight: 400; border-bottom-color: transparent; }
+  .izquierda .lateralFloatingMenu { flex-basis: 340px; max-height: calc(100dvh - 100px); overflow-y: auto; scrollbar-width: thin; }
+  .lateralFloatingMenu .branched-menu { max-width: 100%; }
+  .lateralFloatingMenu .branched-menu::before { display: none; }
+  .lateralFloatingMenu .branched-menu__head { font-size: 26px; font-weight: 400; text-transform: uppercase; color: rgba(255,255,255,.9); }
 }
 
 /* Panel de debug (DebugPanel.tsx): sólo dev, minimalista, no forma parte del diseño final. */

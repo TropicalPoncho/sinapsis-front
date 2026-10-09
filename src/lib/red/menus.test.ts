@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { agrupadoresDe, entidadDeMenu, padreDe, nodosDeLaRed, creditosDe, obrasDe } from './menus.ts'
+import { agrupadoresDe, padreDe, nodosDeLaRed, creditosDe, obrasDe } from './menus.ts'
 import { construirAdyacencia } from '../vista/adyacencia.ts'
 import type { NodoGrafo, NodeType, TipoVinculo } from '../../types/vista.ts'
 
@@ -24,12 +24,6 @@ test('agrupadoresDe: sin áreas', () => assert.deepEqual(agrupadoresDe(ady, 'z')
 test('agrupadoresDe: solo el COMPONE que sale; ser miembro de un área no la hace propia', () => {
   const a2 = construirAdyacencia({ nodos: [n('a', 'AGRUPACION'), n('z', 'ENTIDAD')], vinculos: [v('a', 'z', 'COMPONE')] })
   assert.deepEqual(agrupadoresDe(a2, 'z'), [])
-})
-test('entidadDeMenu', () => {
-  assert.equal(entidadDeMenu(ady, { redId: 'tp', enfocadoId: 'o' }), 'tp')
-  assert.equal(entidadDeMenu(ady, { redId: 'a', enfocadoId: 'p' }), 'p')
-  assert.equal(entidadDeMenu(ady, { redId: null, enfocadoId: 'o' }), null)
-  assert.equal(entidadDeMenu(ady, { redId: null, enfocadoId: null }), null)
 })
 test('padreDe', () => {
   assert.equal(padreDe(ady, 'o'), 'a')

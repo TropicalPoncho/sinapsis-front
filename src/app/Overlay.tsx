@@ -11,7 +11,7 @@ import { botonesDe } from '../lib/red/botones.ts'
 import type { Boton } from '../lib/red/botones.ts'
 import { transicionEntrada } from '../lib/red/navegacion.ts'
 import type { Transicion } from '../types/vista.ts'
-import { agrupadoresDe, creditosDe, entidadDeMenu, nodosDeLaRed, obrasDe, padreDe } from '../lib/red/menus.ts'
+import { agrupadoresDe, creditosDe, nodosDeLaRed, obrasDe, padreDe } from '../lib/red/menus.ts'
 import { Ficha } from './Ficha.tsx'
 import { MenuLateral, MenuSuperior } from './Menus.tsx'
 
@@ -61,10 +61,16 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
 
   const sub = redId ? escena?.sub ?? null : null
 
-  const entidadId = ady && entrado ? entidadDeMenu(ady, { redId, enfocadoId }) : null
+  // Entidad de contexto (D-25): la red si es una ENTIDAD, o la dueña del área si la red es una AGRUPACION.
+  // Es la del título y la de las áreas del menú superior, también al previsualizar y adentro de un área.
+  const entidadId = !ady || !redNodo || !redId ? null
+    : redNodo.nodeType === 'ENTIDAD' ? redId
+    : redNodo.nodeType === 'AGRUPACION' ? padreDe(ady, redId, 'ENTIDAD') : null
   const items = ady && entidadId ? agrupadoresDe(ady, entidadId) : []
-  const activoId = items.find((i) => i.id === redId)?.id ?? null
-  const padreId = ady && enfocadoId ? padreDe(ady, enfocadoId) : null
+  // Activa: el área en la que se está o, al previsualizar, la enfocada. El padre se marca solo si es otra.
+  const activoId = (items.find((i) => i.id === redId) ?? items.find((i) => i.id === enfocadoId))?.id ?? null
+  const padre = ady && enfocadoId ? padreDe(ady, enfocadoId) : null
+  const padreId = padre !== activoId ? padre : null
   const lateral = sub !== null && redId !== null && estado.red !== null && ady?.nodos.get(redId)?.nodeType === 'AGRUPACION'
   const [lateralAbierto, setLateralAbierto] = useState(false)
   const [menuAbierto, setMenuAbierto] = useState(false)
@@ -94,6 +100,14 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     setLateralAbierto(false)
     setMenuAbierto(false)
     navegar(urlDe(rutaDe(area, idx), { enfocado: slug, red: duena, prof: null, semilla: null, raiz: null, puentes: null }), 'reemplazo')
+  }
+
+  // Menú superior (D-25 c): tocar el área en la que se está no hace nada; desde adentro de un área, otra
+  // se previsualiza en la red de la entidad (excepción explícita de D-23), no se suma a la del área.
+  const elegirArea = (id: string) => {
+    if (id === redId) return
+    if (redId === entidadId) irA(id, false)
+    else aLaDuena(id)
   }
 
   // VOLVER de la lista lateral sube un nivel; no es "atrás" en el historial (podría salir del área
@@ -173,7 +187,8 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
       </div>
 
       {redNodo
-        ? <h1 className="tituloRed">{redNodo.label}</h1>
+        // Escritorio muestra la entidad de contexto; mobile, el nombre de la red (el área adentro de un área): el CSS elige.
+        ? <h1 className="tituloRed"><span className="tituloRed__entidad">{(entidadId && ady?.nodos.get(entidadId)?.label) || redNodo.label}</span><span className="tituloRed__red">{redNodo.label}</span></h1>
         : <h1 className={'floatingTitle' + (estado.enfocado ? ' title-hidden' : '')}>Sinápsis</h1>}
       {/* <a> a propósito: la navegación la coreografía Shell vía navegar(); next/link la saltearía. */}
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
@@ -189,7 +204,8 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
         activoId={activoId}
         padreId={padreId}
         abierto={menuAbierto}
-        onElegir={(id) => irA(id, false)}
+        enArea={lateral}
+        onElegir={elegirArea}
       />
       <div className={'izquierda' + (visible ? ' izquierda--visible' : '')}>
       {lateral && sub && redId && (
