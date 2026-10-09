@@ -79,7 +79,7 @@ Exactamente 4 tamaños (**14, 18, 26, 36px**) y 2 pesos (400, 500).
 |-----|--------|------|-------------|-----------------|
 | Cuerpo (descripción, texto largo, créditos) | 14px | 400 | 1.5 | Gotham; se unifica con Label (el original usaba 15px) |
 | Label (botones `.bn`, roles de crédito, `.node-label` uppercase) | 14px | 500 | 1.2 | Briller; `.bn` original 14px/500 |
-| Ítem activo del lateral (`.lateralFloatingMenu .bn.bnfocus`) | 18px | 500 | 1.2 | Briller; original 18px |
+| Ítem activo del lateral (`.lateralFloatingMenu .bn.bnfocus`) | 18px (escritorio, enmendado: 26px, ver Notas) | 500 | 1.2 | Briller; original 18px |
 | Heading (nombre del nodo en el panel, `.subtitle`) | 26px | 400 | 1.2 | Briller; `.subtitle` original 26px |
 | Display (`.floatingTitle`, título de la home, `.bnfocus` del menú superior) | 36px escritorio / 26px mobile | 400 | 1.2 | Briller |
 
@@ -87,6 +87,7 @@ Notas:
 - Ningún otro tamaño en CSS, tokens ni ejemplos.
 - Solo se declaran los pesos 400 y 500 (los que usa el original); no se introduce semibold. El énfasis se logra con tamaño y color, no con peso.
 - Excepción heredada: `.bnfocus` del menú superior usa 36px (Display) y el del lateral 18px; `.node-label` pasa a 14px uppercase.
+- (enmendado tras el UAT 2, ver D-24/D-25) En escritorio, el ítem activo del menú superior pasa de 36 a **26px** (peso 400, mayúsculas, color del dato) y los ítems de la lista lateral van en **26px**, peso 400, mayúsculas, como en la captura de diseño del dueño. No suma tamaños nuevos: 26px ya está en la escala (Heading). El título de la entidad (`.tituloRed`) va en mayúsculas con `clamp(22px, 2.3vw, 32px)` en una línea con elipsis: es el tamaño del título de red existente, ajustado al ancho (04-12, Deviation 1; fuera de la escala de 4, queda marcado para el dueño).
 - Texto alineado a la izquierda en todo el panel. **Sin `text-align: justify`** (el original lo usa; se descarta por UI-09).
 - Subtipo del nodo: rol Label, `text-transform: uppercase`, `letter-spacing: 0.5px`, color en 70% de opacidad del blanco.
 
@@ -129,14 +130,18 @@ Colores por área (`--ColorPalette-Turquesa #8AE2C8`, `Cian #578CCB`, `Violeta #
 - Muestra una fracción de la red (D-06). Ningún control extra en la home.
 
 ### 2. Menú superior `.floatingMenu`
-> (enmendado tras el UAT, ver 04-UAT-GAPS.md y D-09) Tocar un área la **enfoca** (panel del área con "Entrar a {área}"); el botón del panel la carga. El menú hoy se oculta mientras se previsualiza un área (`entrado` exige `red === enfocado`), pero el dueño decidió que **queda visible** con el área activa (punto abierto 7, UAT 2); el cambio es el gap G-10.
+> (enmendado tras el UAT, ver 04-UAT-GAPS.md y D-09) Tocar un área la **enfoca** (panel del área con "Entrar a {área}"); el botón del panel la carga. El dueño decidió que el menú **queda visible** con el área activa (punto abierto 7, UAT 2); es el gap G-10.
+>
+> (enmendado tras el UAT 2, ver D-24/D-25) Los ítems son las áreas de la **entidad de contexto**: la red si es una ENTIDAD, o la entidad dueña si la red es un área (AGRUPACION destino de un COMPONE saliente de la entidad). El menú está visible al previsualizar un área y adentro de ella. El activo es el área en la que se está o la que se previsualiza: **26px**, peso 400, color del dato (`vizParams.color`, blanco si falta) y `aria-current="true"` (no se comunica solo por color); los ítems van en **mayúsculas en escritorio**. Desde adentro de un área, tocar otra área la previsualiza en la red de la dueña (`/entidad/<área>?red=<dueña>`, reemplazo); tocar el área actual no hace nada. **Mobile:** adentro de un área el menú queda oculto (la hamburguesa abre solo el lateral); al previsualizar un área la hamburguesa aparece y el menú vuelve a ser el de la entidad.
 
-- Escritorio: fila centrada, `gap 16px`, ítems = agrupadores de la entidad en foco (D-09), renderizados desde la topología (UI-06). Ítem = `.bn`; el activo pasa a `.bnfocus` (36px, color del área).
+- Escritorio: fila a la derecha del título (arranca en `46vw`, envuelve en dos filas si no entra), `gap 2px`, ítems = agrupadores de la entidad de contexto (D-09), renderizados desde la topología (UI-06). Ítem = `.bn`; el activo pasa a `.bnfocus` (26px, color del área; antes 36px).
 - Mobile (<=800px): `#hamburger` arriba a la izquierda (48px, blanco, `aria-label="Abrir menú"`, `aria-expanded`). Despliega el menú hacia abajo (`.menu-open`, `top: 10%`, transición 0.5s). Con nodo enfocado muestra solo el botón activo; el del nivel padre queda iluminado con acento (D-11).
 - Sube a `top: 2%` cuando el título se oculta (transición 0.6s, del original).
 
 ### 3. Menú lateral `.lateralFloatingMenu` (D-10)
 > (enmendado tras el UAT, ver 04-UAT-GAPS.md y D-22/D-23) La lista es lo **visible** de la red, incluidos los nodos sumados al recorrer (créditos, "Sumar sus obras"): es la alternativa navegable del canvas. Las áreas no se listan (van en el menú superior). VOLVER conserva lo sumado.
+
+> (enmendado tras el UAT 2, ver D-24/D-25) **VOLVER sube un nivel**: con otro nodo enfocado vuelve al panorama del área (conserva lo sumado); en el panorama sube a la red de la entidad dueña con el área enfocada (reemplazo, la cámara sale de la neurona, D-18; lo sumado se borra por el cambio de red, D-22). VOLVER va **arriba** de la lista y siempre dentro del viewport. En escritorio los ítems van en **26px**, peso 400, mayúsculas, blanco al 90 %, sin el riel vertical de BranchedMenu (como en la captura de diseño), y la lista scrollea dentro del viewport (`overflow-y: auto`, ancho 340px). `navegar` ya no apila una entrada con la URL actual.
 
 - Aparece al entrar a una sub-red. Lista de nodos de la sub-red (mismo dato que el grafo) + botón **VOLVER** arriba de la lista.
 - Escritorio: fijo a la izquierda, `left 24px`, centrado vertical, `min-width 200px`, `border-radius 12px`. Convive con el panel (el panel se corre: `padding-left` del panel = ancho del lateral + 24px cuando ambos están visibles). Default (reajustable).
@@ -192,6 +197,8 @@ Panel mínimo: solo el nombre (Heading) y el subtipo. **Sin** descripción, **si
 ### 8. ENTIDAD (`/entidad/[slug]`, UI-03, D-14)
 Mismo panel de foco. Las obras producidas no se listan en el panel: aparecen en la red al entrar y en el menú lateral. La página acepta `?prof=N` (D-04, D-08) y no contiene código específico de Tropical Poncho.
 
+(enmendado tras el UAT 2, ver D-24/D-25) **Vista de entrada (D-24):** una entidad que COMPONE al menos un área entra como la raíz más sus áreas (nada más), unidas por vínculos virtuales punteados derivados de sus miembros (miembro de una con vínculo real a miembro de otra, o miembro compartido; un vínculo curado entre áreas reemplaza al derivado). **Fallback:** una entidad sin áreas (una persona), o con `?prof=N` explícito, entra a la Vista general (profundidad 2, entidades y áreas relacionadas, con puentes); `?prof=2` en Tropical sirve de acceso a lxs colaboradorxs. Las obras aparecen al entrar al área que las compone (corrige el drift de D-14 existente desde 04-02). Con la base de hoy la entrada de Tropical no muestra vínculos entre áreas (solo Obras tiene miembros): es hueco de curaduría, no de código.
+
 ---
 
 ## Transiciones y estados de carga
@@ -222,6 +229,7 @@ Orden estricto de cada navegación (UI-10): **(1)** cambia la ruta/URL → **(2)
 - El canvas conserva gestos (arrastre, pellizco). El panel captura solo su propio scroll (`touch-action: pan-y`).
 - Botones en columna, ancho 100%, mínimo 44px de alto.
 - Título en `.floatingTitle` 26px; hamburguesa 48px arriba a la izquierda.
+- (enmendado tras el UAT 2, ver D-24/D-25) Adentro de un área el título **sigue siendo el área** (en escritorio es la entidad dueña): en mobile el menú superior vive en la hamburguesa y el nombre del área es la única orientación en pantalla. Sin rediseño: lo único nuevo es que la hamburguesa aparece al previsualizar un área.
 - (enmendado tras el UAT, ver 04-UAT-GAPS.md, G-07) "Sinápsis" es una marca chica (14px) **abajo a la izquierda**, entera (`left: 16px`), tanto el h1 de la home como `.marca` dentro de una red, hasta que exista logo. Se oculta (`marca--oculta`) mientras el panel está visible porque la banda inferior ocupa ese lugar. `.tituloRed` se trunca con elipsis y no pasa de `100vw - 88px`.
 
 ---
@@ -279,7 +287,7 @@ Tono: rioplatense, voseo ("Volvé", "Revisá", "Intentá"). Siempre "creadxr", n
 4. Pantalla de carga y reduced-motion.
 5. Galería sin lightbox.
 6. Color del `.bnfocus` sale del dato del nodo, no de ids hardcodeados.
-7. (enmendado tras el UAT, ver 04-UAT-GAPS.md) Menú superior durante la previsualización de un área: **decidido (UAT 2, 2026-10-08, pregunta 3b): queda visible**, con el área activa como `.bnfocus` y el nombre de la entidad fijo arriba a la izquierda (captura de diseño del dueño). Hoy el código lo oculta: gap G-10, lo resuelve el plan 04-12.
+7. (enmendado tras el UAT, ver 04-UAT-GAPS.md) Menú superior durante la previsualización de un área: **decidido (UAT 2, 2026-10-08, pregunta 3b): queda visible**, con el área activa como `.bnfocus` y el nombre de la entidad fijo arriba a la izquierda (captura de diseño del dueño). (enmendado tras el UAT 2, ver D-24/D-25) **Implementado en 04-12** (gap G-10); pendiente de confirmación del dueño en el UAT 3.
 
 ---
 

@@ -61,6 +61,9 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   agrupadores), no todo. Es UI-07 (Fase 5), pero la página ENTIDAD de esta fase no puede tener
   código específico de Tropical Poncho y debe aceptar una profundidad / niveles visibles como
   parámetro.
+  *(enmendada 2026-10-08 por D-24/D-25, ver "Decisiones tras el UAT 2": la "red de primer nivel" queda
+  realizada para toda entidad con áreas (raíz + sus áreas, unidas por vínculos virtuales derivados);
+  `?prof=N` sigue siendo el parámetro de niveles y pide la Vista general.)*
 
 ### Menú
 - **D-09:** El menú de arriba muestra los **agrupadores de la entidad en foco** (en
@@ -71,9 +74,17 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   sub-red. Es el patrón de dos pasos de D-01 aplicado al menú. Mientras se previsualiza un área el menú
   superior se oculta hoy, igual que con cualquier foco dentro de la red. **Respuesta del dueño (UAT 2,
   2026-10-08, pregunta 3b): el menú superior queda visible**, con el área previsualizada o abierta marcada
-  como activa (captura de diseño); el cambio es el gap G-10, pendiente del plan 04-12.)*
+  como activa (captura de diseño); el cambio es el gap G-10, implementado en 04-12.)*
+  *(enmendada 2026-10-08 por D-24/D-25, ver "Decisiones tras el UAT 2": el menú es el de la **entidad de
+  contexto** (la red si es una ENTIDAD; la dueña si la red es un área) y queda visible al previsualizar y
+  adentro de un área, con el área activa (color del dato, `aria-current`). Desde adentro de un área, otra
+  área del menú se previsualiza en la red de la dueña; tocar la actual no hace nada. "Áreas de una
+  entidad" = AGRUPACION destino de un COMPONE que SALE de ella.)*
 - **D-10:** Al entrar a una sub-red aparece un **menú lateral**: lista de los nodos de esa
   sub-red y un VOLVER, de la misma data que el grafo.
+  *(enmendada 2026-10-08 por D-24/D-25, ver "Decisiones tras el UAT 2": VOLVER sube un nivel y va
+  **arriba** de la lista, como decía UI-SPEC §3. Con otro nodo enfocado vuelve al panorama del área; en el
+  panorama sube a la red de la entidad dueña con el área enfocada.)*
 - **D-11:** Mobile: **hamburguesa** que despliega hacia abajo (patrón de la web original); con
   un nodo enfocado muestra solo el botón activo, y el botón del nivel padre queda iluminado.
 
@@ -86,6 +97,9 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   si el dato lo trae).
 - **D-14:** En una ENTIDAD, las obras producidas aparecen **solo en la red al entrar** (y en el
   menú lateral), no como lista dentro del panel.
+  *(enmendada 2026-10-08 por D-24, ver "Decisiones tras el UAT 2": drift existente desde 04-02. La Vista
+  de ENTIDAD filtra por tipo (ENTIDAD + AGRUPACION), así que las obras de una entidad no aparecen al
+  entrar a ella; con D-24 aparecen al entrar al área que las compone, y en el lateral.)*
 - **D-15:** Un nodo stub o sin descripción muestra un **panel mínimo con el nombre**: sin
   descripción, sin botón de expandir, sin aviso de "perfil pendiente".
 
@@ -145,6 +159,9 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
     lo sumado, se reabre el invariante y se discute antes del código. Reversible: no queda en links ni
     historiales.
   - **Estado:** decidida por el dueño el 2026-10-07; ADR en Notion pendiente (lo lista 04-11).
+  - **Matiz (enmendada 2026-10-08 por D-25, ver "Decisiones tras el UAT 2"):** VOLVER desde el panorama de un
+    área cambia de red (sube a la de la entidad dueña), así que lo sumado en el área se borra, como en
+    cualquier cambio de red. VOLVER con otro nodo enfocado sigue conservándolo.
   - **Contrastada con el código en 04-11 (2026-10-07):** todas las reglas coinciden con `Shell.tsx` y `url.ts`
     (`subgrafoDe`, `sumarIds`). Un matiz que el texto no decía: la home cuenta como una red más
     (`red = null`), así que dentro de la home también se acumulan los enfocados que quedan fuera de la
@@ -158,6 +175,91 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   del enfocado y por eso aparecían "nodos sin relación" (17 → 56 nodos medidos en 04-08); ese desvío se
   borró en 04-10 (`CanvasSinapsis.tsx` ya no calcula la Vista, solo corrige el pedido imposible
   aditivo → filtrado). Resuelve la decisión 3 de `04-UAT-GAPS.md`.
+  *(enmendada 2026-10-08 por D-25, ver "Decisiones tras el UAT 2": excepción explícita para el menú
+  superior. Desde adentro de un área, tocar otra área del menú **sí** cambia de red: la previsualiza en la
+  red de la entidad dueña (`/entidad/<área>?red=<dueña>`, reemplazo). Es navegación de la red de la
+  entidad, no de los nodos de la red actual; con otro nodo enfocado en cualquier otro caso, la regla
+  sigue igual.)*
+
+### Decisiones tras el UAT 2 (2026-10-08)
+
+Las tomó el plan 04-12 dentro del pedido del dueño (UAT 2, G-08, G-09 y G-10); el texto completo y las
+mediciones están en `04-12-PLAN.md` y `04-12-SUMMARY.md`. El dueño las confirma o ajusta en el UAT 3
+(04-13). Ninguna es de una sola vía: son una rama en `vistaDe`, un campo opcional de la Vista y funciones
+de Overlay; no hay migraciones, datos nuevos ni gramática de URL nueva.
+
+- **D-24 (registro de decisión): vista de entrada de una ENTIDAD con áreas (G-08, UI-03).**
+  - **Qué se decidió:** si la entidad COMPONE al menos una AGRUPACION y la URL no trae `prof`, su Vista de
+    entrada es la raíz + esas agrupaciones (`profundidad: 1`, `direccion: 'sale'`, `filtroNodeTypes:
+    ['AGRUPACION']`, `filtroVinculos: ['COMPONE','PRECEDE']`, `incluirRaiz: e.raiz ?? true`, `limite:
+    LIMITE_VISTA`), más **vínculos virtuales entre áreas** pedidos con un campo opcional nuevo de la Vista,
+    `vinculosEntreAgrupaciones`, y calculados en `resolverVista` (`src/lib/vista/resolverVista.ts`;
+    `vistaDe` en `src/lib/red/url.ts`).
+    - *Miembro* de un área = destino de un COMPONE que sale de ella (un nivel, cualquier `nodeType`).
+    - Dos áreas se unen si un miembro de una tiene un vínculo real (de cualquier tipo y sentido) con un
+      miembro de la otra, o si un mismo nodo es miembro de las dos. Un virtual por par
+      (`entre:{x}|{y}`, `virtual: true`, `COLABORO_EN`, punteado como los puentes, rol "Comparten …" o
+      "Vinculadas por … y …"). Un vínculo curado entre áreas (COMPONE o PRECEDE) reemplaza al derivado.
+      Nunca se persiste; `?puentes=0` los apaga junto con los puentes.
+    - "Áreas de una entidad" = AGRUPACION destino de un COMPONE que SALE de ella (`agrupadoresDe`): el menú
+      y la vista de entrada salen de la misma función.
+    - Fallback: entidad sin áreas, o con `?prof=N` explícito, entra a la Vista general de siempre
+      (profundidad 2, ENTIDAD + AGRUPACION, puentes). `?prof` mantiene vivo el parámetro de niveles de D-08.
+  - **Por qué:** es la regla literal del dueño ("hay nodos que son parte de un área que se vinculan con
+    nodos de otra área, y eso genera el vínculo virtual"). Vive en `resolverVista` (pura, al lado de
+    `puentesDe`) y se pide desde la Vista: la vista de entrada sigue siendo configuración de una Vista
+    (Core Value) y corre igual el día que el traversal pase al servidor.
+  - **Alternativas descartadas:** (a) unir áreas también por colaboradorxs compartidxs (no es lo pedido y
+    une áreas por cualquier crédito; sería un salto más en la misma función); (b) calcularlo en `subgrafoDe`
+    (saca de la Vista parte de la vista de entrada y no correría en el servidor); (c) derivarlo en toda
+    Vista con dos o más áreas, sin campo nuevo (cambia en silencio otras redes y el contrato de
+    `resolverVista` de la Fase 2); (d) persistirlo (contradice "virtuales" y deja un dato derivado como
+    fuente de verdad). Fallback descartado: raíz + vecinos directos (quedaría la raíz casi sola) y raíz sola
+    (vista vacía que dispararía "Todavía no hay nada acá").
+  - **Riesgo:** (1) con la base de hoy solo Obras tiene miembros (16), así que la entrada a Tropical es una
+    estrella de 5 áreas sin vínculos entre ellas (medido: 6 nodos, 5 vínculos, 0 virtuales) hasta que la
+    curaduría cargue miembros en una segunda área; (2) hay dos formas de entrar a una entidad según el
+    dato: una creadxr que suma un área pasa a la vista limpia; (3) lxs colaboradorxs de Tropical dejan de
+    verse al entrar: se llega por un área, por créditos o con `?prof=2`. Reversible: nada queda en datos ni
+    en links.
+  - **Estado:** decidida en 04-12 dentro del pedido del dueño; **pendiente de confirmación en el UAT 3**.
+    ADR en Notion pendiente (campo nuevo del contrato de la Vista y vínculos derivados en el traversal).
+
+- **D-25 (registro de decisión): adentro de un área, el contexto es la entidad dueña; VOLVER sube un nivel
+  (G-09, G-10, UI-06, UI-09, UI-10).**
+  - **Qué se decidió:** la *entidad de contexto* es la red si es una ENTIDAD, o la ENTIDAD que COMPONE al
+    área si la red es una AGRUPACION (con dos dueñas, la primera por nombre: `padreDe(ady, redId,
+    'ENTIDAD')`, con `ponytail:` en `menus.ts`). Con ella:
+    - (a) Título (escritorio): la dueña, también adentro del área. Mobile sigue mostrando el área.
+    - (b) Menú superior: las áreas de la dueña, visible al previsualizar y adentro de un área; activo = el
+      área en la que se está o la que se previsualiza (color del dato, `aria-current="true"`).
+    - (c) Desde adentro de un área, otra área del menú se previsualiza en la red de la dueña; tocar la
+      actual no hace nada.
+    - (d) VOLVER del lateral: con otro nodo enfocado, al panorama del área (conserva lo sumado, D-22); en el
+      panorama, a la red de la dueña con el área enfocada, con reemplazo, así la cámara sale de la neurona
+      (D-18). Sin dueña, `volver()`.
+    - (e) `navegar` no empuja una entrada si la URL es la actual (`src/app/Shell.tsx`, una sola guardia).
+    - Mobile sin rediseño: adentro de un área el título sigue siendo el área, el menú superior queda
+      oculto ahí y la hamburguesa abre solo el lateral; lo único nuevo es que la hamburguesa aparece al
+      previsualizar un área.
+  - **Por qué:** G-10 pide (a) y (b) y la captura de diseño del dueño muestra el menú visible con el área
+    activa. G-09, causa confirmada contra la base real en 04-12: en el panorama de un área, VOLVER ejecutaba
+    `irA(redId, true)`, que arma la URL actual; no cambiaba nada y dejaba una entrada duplicada (el Atrás
+    siguiente también parecía no andar, H1). VOLVER además quedaba bajo el pliegue de una laptop con 16
+    obras (H2).
+  - **Alternativas descartadas:** VOLVER = `history.back()` (no es la inversa exacta con un link duro);
+    VOLVER a la red de la dueña sin foco (llega con zoom in, no es la inversa); menú desde adentro =
+    entrar directo al área (saltea la previsualización de D-09); menú desde adentro = sumar el área a la del
+    área (deja una neurona suelta, lo que hacía D-23).
+  - **Riesgo:** D-23 pasa a tener una excepción explícita para el menú superior; VOLVER desde el panorama
+    cambia de red y borra lo sumado (D-22); el color del activo sale del dato (Obras es `#FFBC00` en la
+    base; el turquesa de la captura es un ejemplo). Ajuste de maqueta con evidencia (04-12, Deviation 1):
+    en escritorio "TROPICAL PONCHO" en mayúsculas (Briller es ancha) no entra en una fila con el menú de 5
+    ítems; el título usa `clamp(22px, 2.3vw, 32px)` en una línea con elipsis y el menú arranca en `46vw` y
+    envuelve (a 1280x800 queda en dos filas). La captura usa una fuente condensada, por eso allí entra en
+    una fila; para una sola fila, achicar los ítems o dejar el activo en 18 px. Reversible: todo vive en
+    Overlay, Shell y CSS.
+  - **Estado:** decidida en 04-12 dentro del pedido del dueño; **pendiente de confirmación en el UAT 3**.
 
 ### Claude's Discretion
 - Menú de arriba en la home social (contexto general, sin entidad en foco).
