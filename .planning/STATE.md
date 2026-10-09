@@ -4,16 +4,16 @@ milestone: v1.0
 current_phase: 04
 current_phase_name: UI & Navigation
 status: executing
-stopped_at: "Completed 04-11-PLAN.md (Fase 4 abierta: gaps G-08..G-10, G-06)"
-last_updated: "2026-10-08T19:51:05.366Z"
+stopped_at: Completed 04-12-PLAN.md
+last_updated: "2026-10-09T00:38:46.397Z"
 last_activity: 2026-10-08
 last_activity_desc: Phase 04 execution started
-state_head: 59466cf0fdbce4c25ea75993c4b9c4602cf0762d
+state_head: 2c7081038fd3e379f59e8326f4ef438170faef29
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 26
-  completed_plans: 26
+  total_plans: 28
+  completed_plans: 27
 milestone_name: milestone
 ---
 
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-08-06)
 ## Current Position
 
 Phase: 04 (UI & Navigation) — EXECUTING
-Plan: 11 of 11 ejecutados (04-11 completo)
-Status: Fase 4 abierta: gaps G-08, G-09, G-10 (UAT 2) y G-06 (celular) pendientes; falta planificar 04-12
-Last activity: 2026-10-08 — 04-11 completo, UAT del dueño 2 transcripto
+Plan: 12 de 13 ejecutados (04-12 completo; falta 04-13)
+Status: Fase 4 abierta: G-08, G-09 y G-10 implementados (04-12), pendientes del UAT del dueño (04-13); G-06 (celular) abierto
+Last activity: 2026-10-08 — 04-12 completo (G-08, G-09, G-10)
 
 Phase 02 (data-vista-backend) closed 2026-10-01 — see 02-05-SUMMARY.md.
 
@@ -83,6 +83,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P09 | 70min | 3 tasks | 10 files |
 | Phase 04 P10 | 60min | 3 tasks | 13 files |
 | Phase 04 P11 | 2 sesiones | 3 tasks | 6 files |
+| Phase 04 P12 | 1 sesion | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,8 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-10: enfocar dentro de una red nunca la cambia (G-05); el puente ya no calcula la Vista, la calcula el Shell (subgrafoDe)
 - [Phase 04]: D-16 confirmada por el dueño (UAT 2): entrar a entidad y a área es zoom in; menú superior visible al previsualizar un área (3b)
 - [Phase 04]: D-23: dentro de una red enfocar nunca la cambia; la red propia solo con Entrar
+- [Phase 04]: D-24: una entidad con areas entra como la raiz y sus areas, unidas por vinculos virtuales derivados de sus miembros (Vista.vinculosEntreAgrupaciones)
+- [Phase 04]: D-25: adentro de un area el contexto es la entidad duena; VOLVER sube un nivel y navegar ignora la URL actual (G-09 causa H1+H2)
 
 ### Pending Todos
 
@@ -156,8 +159,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-10-08T19:50:45.969Z
-Stopped at: Completed 04-11-PLAN.md (Fase 4 abierta: gaps G-08..G-10, G-06)
+Last session: 2026-10-09T00:38:46.017Z
+Stopped at: Completed 04-12-PLAN.md (Fase 4 abierta: UAT del dueño en 04-13, G-06)
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's
