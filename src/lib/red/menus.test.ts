@@ -13,7 +13,7 @@ const v = (origen: string, destino: string, tipoVinculo: TipoVinculo, rol?: stri
 const ady = construirAdyacencia({
   nodos: [n('tp', 'ENTIDAD'), n('b', 'AGRUPACION', 'Beta', '#f00'), n('a', 'AGRUPACION', 'Álamo', '#0f0'), n('x', 'AGRUPACION', 'Otra'),
     n('p', 'ENTIDAD', 'Persona'), n('o', 'OBRA', 'Obra'), n('z', 'ENTIDAD', 'Ana'), n('solo', 'OBRA')],
-  vinculos: [v('tp', 'b', 'COMPONE'), v('a', 'tp', 'COMPONE'), v('a', 'tp', 'COMPONE'), v('tp', 'x', 'PRODUJO'), v('tp', 'p', 'COMPONE'),
+  vinculos: [v('tp', 'b', 'COMPONE'), v('a', 'tp', 'COMPONE'), v('a', 'tp', 'COMPONE'), v('tp', 'a', 'COMPONE'), v('tp', 'a', 'COMPONE'), v('tp', 'x', 'PRODUJO'), v('tp', 'p', 'COMPONE'),
     v('a', 'o', 'COMPONE'), v('p', 'o', 'COLABORO_EN', 'dj'), v('p', 'o', 'PRODUJO', 'dj'), v('o', 'p', 'INSPIRO', 'voz'), v('z', 'o', 'COLABORO_EN')],
 })
 
@@ -21,6 +21,10 @@ test('agrupadoresDe: COMPONE, sin duplicados, orden es, color del dato', () => {
   assert.deepEqual(agrupadoresDe(ady, 'tp'), [{ id: 'a', label: 'Álamo', color: '#0f0' }, { id: 'b', label: 'Beta', color: '#f00' }])
 })
 test('agrupadoresDe: sin áreas', () => assert.deepEqual(agrupadoresDe(ady, 'z'), []))
+test('agrupadoresDe: solo el COMPONE que sale; ser miembro de un área no la hace propia', () => {
+  const a2 = construirAdyacencia({ nodos: [n('a', 'AGRUPACION'), n('z', 'ENTIDAD')], vinculos: [v('a', 'z', 'COMPONE')] })
+  assert.deepEqual(agrupadoresDe(a2, 'z'), [])
+})
 test('entidadDeMenu', () => {
   assert.equal(entidadDeMenu(ady, { redId: 'tp', enfocadoId: 'o' }), 'tp')
   assert.equal(entidadDeMenu(ady, { redId: 'a', enfocadoId: 'p' }), 'p')
@@ -31,6 +35,11 @@ test('padreDe', () => {
   assert.equal(padreDe(ady, 'o'), 'a')
   assert.equal(padreDe(ady, 'tp'), 'a')
   assert.equal(padreDe(ady, 'solo'), null)
+})
+test('padreDe con tipo: la dueña de un área es la ENTIDAD que la COMPONE', () => {
+  assert.equal(padreDe(ady, 'b', 'ENTIDAD'), 'tp')
+  assert.equal(padreDe(ady, 'x', 'ENTIDAD'), null)
+  assert.equal(padreDe(ady, 'solo', 'ENTIDAD'), null)
 })
 test('nodosDeLaRed sin raíz y ordenados', () => {
   const r = nodosDeLaRed({ nodos: [n('r', 'ENTIDAD'), n('2', 'OBRA', 'b'), n('1', 'OBRA', 'a')], vinculos: [] }, 'r')

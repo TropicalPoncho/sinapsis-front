@@ -1,5 +1,5 @@
 import type { Adyacencia } from '../vista/adyacencia.ts'
-import type { NodoGrafo, Subgrafo, VinculoGrafo } from '../../types/vista.ts'
+import type { NodeType, NodoGrafo, Subgrafo, VinculoGrafo } from '../../types/vista.ts'
 
 const porLabel = (a: { label: string }, b: { label: string }) => a.label.localeCompare(b.label, 'es')
 
@@ -18,10 +18,13 @@ function vecinos(ady: Adyacencia, id: string): { nodo: NodoGrafo; v: VinculoGraf
   return out
 }
 
+// Las áreas de una entidad: AGRUPACION destino de un COMPONE que SALE de ella. Solo ese sentido: una
+// persona que es miembro de un área (Nosotrxs) no la tiene como propia (D-24).
 export function agrupadoresDe(ady: Adyacencia, entidadId: string) {
   const vistos = new Map<string, NodoGrafo>()
-  for (const { nodo, v } of vecinos(ady, entidadId)) {
-    if (nodo.nodeType === 'AGRUPACION' && v.tipoVinculo === 'COMPONE') vistos.set(nodo.id, nodo)
+  for (const v of ady.sale.get(entidadId) ?? []) {
+    const nodo = ady.nodos.get(v.destino)
+    if (nodo?.nodeType === 'AGRUPACION' && v.tipoVinculo === 'COMPONE') vistos.set(nodo.id, nodo)
   }
   return [...vistos.values()].sort(porLabel).map((n) => ({ id: n.id, label: n.label, color: n.vizParams.color }))
 }
@@ -36,10 +39,13 @@ export function entidadDeMenu(
   return null
 }
 
-// D-11: el agrupador que compone al nodo (origen AGRUPACION, destino el nodo).
-export function padreDe(ady: Adyacencia, nodoId: string): string | null {
+// D-11 / D-25: quien compone al nodo (COMPONE entrante) con origen del `tipo` pedido: por defecto el
+// agrupador (la serie o área de una obra); con 'ENTIDAD', la dueña de un área.
+// ponytail: con dos dueñas/agrupadores gana el primero por nombre (el modelo admite varios, solo el menú
+// elige uno); salida: elegir por la red de la que se vino si aparece el caso.
+export function padreDe(ady: Adyacencia, nodoId: string, tipo: NodeType = 'AGRUPACION'): string | null {
   const padres = (ady.entra.get(nodoId) ?? [])
-    .filter((v) => v.tipoVinculo === 'COMPONE' && ady.nodos.get(v.origen)?.nodeType === 'AGRUPACION')
+    .filter((v) => v.tipoVinculo === 'COMPONE' && ady.nodos.get(v.origen)?.nodeType === tipo)
     .map((v) => ady.nodos.get(v.origen)!)
     .sort(porLabel)
   return padres[0]?.id ?? null

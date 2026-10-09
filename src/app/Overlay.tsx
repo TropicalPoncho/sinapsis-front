@@ -84,9 +84,26 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     else navegar(urlDe(rutaDe(n, idx), { ...estado, enfocado: slug }), 'aditivo')
   }
 
-  // VOLVER de la lista lateral no es "atrás" en el historial (podría salir del área entera si
-  // hubo varios focos en el medio): es soltar el foco puntual y volver al panorama del área misma.
-  const volverAlArea = () => { if (redId) irA(redId, true) }
+  // Previsualiza un área en la red de su dueña (D-25): el mismo camino que "Entrar" pero al revés, con
+  // reemplazo, así la cámara sale de la neurona (D-18). Sin dueña no hay a dónde subir: Atrás del Shell.
+  const aLaDuena = (areaId: string) => {
+    const area = ady?.nodos.get(areaId)
+    const slug = idx?.slugPorId.get(areaId)
+    const duena = ady && idx ? idx.slugPorId.get(padreDe(ady, areaId, 'ENTIDAD') ?? '') : undefined
+    if (!area || !idx || !slug || !duena) return volver()
+    setLateralAbierto(false)
+    setMenuAbierto(false)
+    navegar(urlDe(rutaDe(area, idx), { enfocado: slug, red: duena, prof: null, semilla: null, raiz: null, puentes: null }), 'reemplazo')
+  }
+
+  // VOLVER de la lista lateral sube un nivel; no es "atrás" en el historial (podría salir del área
+  // entera si hubo varios focos en el medio). Con otro nodo enfocado, suelta el foco y vuelve al
+  // panorama del área; en el panorama, sube a la red de la dueña con el área enfocada (G-09, D-25).
+  const volverAlArea = () => {
+    if (!redId) return
+    if (enfocadoId !== redId) irA(redId, true)
+    else aLaDuena(redId)
+  }
 
   // Cuando cambia la URL el panel empieza a salir en ese mismo render, con el contenido viejo.
   const coincide = claveEstado(mostrado) === claveEstado(estado)

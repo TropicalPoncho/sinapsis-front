@@ -67,6 +67,7 @@ export function MenuLateral({ nodos, enfocadoId, abierto, onElegir, onVolver, on
   return (
     <nav className={'lateralFloatingMenu' + (abierto ? ' lateral--abierto' : '')} aria-label="Nodos de la red">
       <button className="close-lateral" aria-label="Cerrar lista" onClick={onCerrar}>×</button>
+      <button className="accion accion--volver accion--lateral" onClick={onVolver}>VOLVER</button>
       {nodos.length > 0 && (
         <BranchedMenu
           items={aItemsDeMenu(nodos)}
@@ -79,7 +80,6 @@ export function MenuLateral({ nodos, enfocadoId, abierto, onElegir, onVolver, on
           width={260}
         />
       )}
-      <button className="accion accion--volver accion--lateral" onClick={onVolver}>VOLVER</button>
     </nav>
   )
 }

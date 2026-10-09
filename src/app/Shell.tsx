@@ -83,6 +83,8 @@ export default function Shell() {
 
   // pushState (Next lo parchea y sincroniza usePathname/useSearchParams); nunca router.push.
   const navegar = (url: string, t: Transicion) => {
+    // Una entrada idéntica a la actual deja un Atrás que no hace nada (G-09).
+    if (url === location.pathname + location.search) return
     const i = (entradaRef.current?.idx ?? 0) + 1
     llegadaRef.current = { t }
     entradaRef.current = { idx: i, t }
