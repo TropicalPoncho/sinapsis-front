@@ -130,6 +130,16 @@ Plans:
 
 **UI hint**: yes
 
+### Phase 04.1: Expandir nodo y secciones derivadas (INSERTED)
+
+**Goal**: Cada nodo se puede expandir (ficha de lectura que sube por encima del canvas) o ingresar (red interna), con las acciones derivadas de los datos; el panel de preview ocupa el ancho libre; y un evento u obra muestra secciones virtuales derivadas de los roles de sus vínculos, con un recorrido recursivo hasta lxs creadxrs y sus propias áreas.
+**Requirements**: UI-04, UI-11 (más los IDs nuevos que agregue el plan)
+**Depends on:** Phase 4
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 04.1 to break down)
+
 ### Phase 5: Tropical Poncho Launch
 
 **Goal**: tropicalponcho.art works as the live proof point that the model needs no special-casing — the ENTIDAD profile page for Tropical Poncho, running on the real migrated production data.

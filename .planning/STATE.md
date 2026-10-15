@@ -5,12 +5,12 @@ current_phase: 04
 current_phase_name: UI & Navigation
 status: executing
 stopped_at: Completed 04-12-PLAN.md
-last_updated: "2026-10-09T00:38:46.397Z"
+last_updated: "2026-10-15T19:49:30.593Z"
 last_activity: 2026-10-08
 last_activity_desc: Phase 04 execution started
-state_head: 2c7081038fd3e379f59e8326f4ef438170faef29
+state_head: a4b9bccbdd64aa0e80c8a28f6af1975c6229b0a5
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 3
   total_plans: 28
   completed_plans: 27
@@ -156,6 +156,10 @@ None yet.
     re-plan 02-05 (and possibly amend the migration `001_esquema_inicial.sql`) if `NodeType` changes.
     Do not resume Task 2 by guessing — the checkpoint explicitly requires the owner's answer.
 - Fase 4 abierta: G-08 (vista de entrada de la entidad: solo áreas + raíz, áreas conectadas por vínculos virtuales derivados), G-09 (Volver en Obras), G-10 (menú activo y título fijo al entrar a un área) -> plan 04-12; G-06 sin verificar en celular
+
+### Roadmap Evolution
+
+- Phase 4.1 inserted after Phase 4: Expandir nodo y secciones derivadas
 
 ## Session Continuity
 
