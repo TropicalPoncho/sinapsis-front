@@ -69,7 +69,7 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 - [x] **UI-10**: Un cambio de ruta secuencia el cambio de Vista, la animación de cámara y la aparición del overlay, en vez de dispararlos a la vez
 - [ ] **UI-12**: Las acciones del panel salen de los datos, no de configuración por nodo: "Entrar" aparece si el nodo compone algo (un COMPONE saliente) o tiene secciones derivadas, para cualquier tipo de nodo, y "Expandir" si una obra o un evento tiene contenido (créditos); un nodo puede tener las dos. Entrar es zoom in a la red interna del nodo (Fase 4.1, D-26)
 - [ ] **UI-13**: Expandir abre una ficha de lectura por encima de todo el canvas sin mover la cámara, con el borde superior fundido con la escena y una cabecera fija con el nombre del nodo y el menú de sus secciones; Volver y Esc vuelven al preview (Fase 4.1, D-27)
-- [ ] **UI-14**: Los vínculos de participación de un nodo, agrupados por `rol` normalizado (roles múltiples, mayúsculas y plurales, vocabulario curado en datos, "Otros"), forman secciones virtuales que no se persisten; el mismo componente de UI muestra las secciones derivadas y las áreas reales de una entidad (Fase 4.1, D-29)
+- [x] **UI-14**: Los vínculos de participación de un nodo, agrupados por `rol` normalizado (roles múltiples, mayúsculas y plurales, vocabulario curado en datos, "Otros"), forman secciones virtuales que no se persisten; el mismo componente de UI muestra las secciones derivadas y las áreas reales de una entidad (Fase 4.1, D-29)
 - [ ] **UI-15**: Entrar a una sección muestra a la izquierda la lista de sus nodos para pasar de uno a otro; cada uno se previsualiza, se expande o se entra, y su red muestra sus áreas reales o derivadas, recursivamente. Las listas son UI y no crean nodos de escena (tope 40 + 12) y la URL lleva solo el ancla (Fase 4.1, D-30, D-22)
 - [ ] **UI-16**: El panel de preview ocupa el ancho libre entre el borde izquierdo (o el menú lateral) y la neurona, con la alineación como un valor de CSS (izquierda por defecto); en mobile el nombre de la red se ve grande a todo el ancho superior y el motor lo esquiva (Fase 4.1, D-28)
 
@@ -175,7 +175,7 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | UI-10 | Phase 4 | Complete |
 | UI-12 | Phase 4.1 | Pending |
 | UI-13 | Phase 4.1 | Pending |
-| UI-14 | Phase 4.1 | Pending |
+| UI-14 | Phase 4.1 | Complete |
 | UI-15 | Phase 4.1 | Pending |
 | UI-16 | Phase 4.1 | Pending |
 | UI-07 | Phase 5 | Pending |

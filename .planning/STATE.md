@@ -4,16 +4,16 @@ milestone: v1.0
 current_phase: 04
 current_phase_name: UI & Navigation
 status: executing
-stopped_at: Completed 04-12-PLAN.md
-last_updated: "2026-10-15T19:49:30.593Z"
+stopped_at: Completed 04.1-01-PLAN.md
+last_updated: "2026-10-16T02:51:58.176Z"
 last_activity: 2026-10-08
 last_activity_desc: Phase 04 execution started
-state_head: a4b9bccbdd64aa0e80c8a28f6af1975c6229b0a5
+state_head: ca2dd10b9b391381f4d4204cea77dac2ddb346a0
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 28
-  completed_plans: 27
+  total_plans: 32
+  completed_plans: 28
 milestone_name: milestone
 ---
 
@@ -84,6 +84,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P10 | 60min | 3 tasks | 13 files |
 | Phase 04 P11 | 2 sesiones | 3 tasks | 6 files |
 | Phase 04 P12 | 1 sesion | 3 tasks | 12 files |
+| Phase 04.1 P01 | 12min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -121,6 +122,7 @@ Recent decisions affecting current work:
 - [Phase 04]: D-23: dentro de una red enfocar nunca la cambia; la red propia solo con Entrar
 - [Phase 04]: D-24: una entidad con areas entra como la raiz y sus areas, unidas por vinculos virtuales derivados de sus miembros (Vista.vinculosEntreAgrupaciones)
 - [Phase 04]: D-25: adentro de un area el contexto es la entidad duena; VOLVER sube un nivel y navegar ignora la URL actual (G-09 causa H1+H2)
+- [Phase 04.1]: D-32: secciones derivadas de los roles de COLABORO_EN/CORREALIZO/PRODUJO/INTEGRA en ambos sentidos; vocabulario curado en src/lib/red/roles.json (se pasa por parametro a seccionesDe); lo no mapeado va a Otros con su grafia original. Los roles son del productor: la normalizacion es un default de presentacion (dueno, 2026-10-16)
 
 ### Pending Todos
 
@@ -163,8 +165,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-10-09T00:38:46.017Z
-Stopped at: Completed 04-12-PLAN.md (Fase 4 abierta: UAT del dueño en 04-13, G-06)
+Last session: 2026-10-16T02:51:57.524Z
+Stopped at: Completed 04.1-01-PLAN.md
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's
