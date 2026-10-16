@@ -37,6 +37,10 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   - **Otros comportamientos:** enlaces externos (ir a otra web). La lista de acciones es abierta.
   En la web original era un "tipo de botón" que disparaba acciones distintas; se porta ese patrón
   como datos, no como código por nodo.
+  *(enmendada 2026-10-16 por la Fase 4.1, ver 04.1-CONTEXT.md D-33 y D-36: los botones ya no dependen del tipo sino de los
+  datos. Expandir aparece en una OBRA o EVENTO no stub con secciones (créditos); Entrar aparece si el nodo compone algo
+  (COMPONE saliente) o tiene secciones, para cualquier `nodeType`. El "Ver más" que extendía el panel se reemplazó por la
+  ficha expandida.)*
 - **D-03:** Mientras hay un nodo enfocado, un click en otro nodo visible **enfoca ese nodo**
   (cambia foco y URL; atrás vuelve al anterior; el panel no cambia de lado) — UI-02.
   *(enmendada 2026-10-07, G-02/G-04, ver "Decisiones tras el UAT": el panel ya no hace cross-fade de
@@ -80,11 +84,15 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   adentro de un área, con el área activa (color del dato, `aria-current`). Desde adentro de un área, otra
   área del menú se previsualiza en la red de la dueña; tocar la actual no hace nada. "Áreas de una
   entidad" = AGRUPACION destino de un COMPONE que SALE de ella.)*
+  *(enmendada 2026-10-16 por la Fase 4.1, ver 04.1-CONTEXT.md D-36: en una red sin áreas reales el menú superior lista las
+  secciones derivadas de los roles de la red, con el mismo componente; el activo es la sección abierta. En la home sigue sin menú.)*
 - **D-10:** Al entrar a una sub-red aparece un **menú lateral**: lista de los nodos de esa
   sub-red y un VOLVER, de la misma data que el grafo.
   *(enmendada 2026-10-08 por D-24/D-25, ver "Decisiones tras el UAT 2": VOLVER sube un nivel y va
   **arriba** de la lista, como decía UI-SPEC §3. Con otro nodo enfocado vuelve al panorama del área; en el
   panorama sube a la red de la entidad dueña con el área enfocada.)*
+  *(enmendada 2026-10-16 por la Fase 4.1, ver 04.1-CONTEXT.md D-37: el lateral también lista los nodos de una sección abierta
+  (lista de UI atada a la red, sin tocar la escena ni la URL); su VOLVER cierra la sección en vez de subir de red.)*
 - **D-11:** Mobile: **hamburguesa** que despliega hacia abajo (patrón de la web original); con
   un nodo enfocado muestra solo el botón activo, y el botón del nivel padre queda iluminado.
 
@@ -95,6 +103,10 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   clickeable para enfocar su nodo, sale de los vínculos — UI-04), **texto descriptivo largo**,
   **galería de imágenes**, **enlaces externos** y un **iframe de video de YouTube opcional** (solo
   si el dato lo trae).
+  *(enmendada 2026-10-16 por la Fase 4.1, ver 04.1-CONTEXT.md D-27, D-33 y D-34: la ficha extendida ya no es el panel que
+  crece: es la capa expandida de la variante A, por encima de todo el canvas y con la cámara quieta, estado de UI fuera de la
+  URL. Los créditos se muestran por sección derivada del rol (D-32), cada nombre lleva a esa sección con esx creadxr en preview;
+  el resto (texto, galería, enlaces, video) se pide al abrir y se omite si no hay dato.)*
 - **D-14:** En una ENTIDAD, las obras producidas aparecen **solo en la red al entrar** (y en el
   menú lateral), no como lista dentro del panel.
   *(enmendada 2026-10-08 por D-24, ver "Decisiones tras el UAT 2": drift existente desde 04-02. La Vista
@@ -102,6 +114,8 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   entrar a ella; con D-24 aparecen al entrar al área que las compone, y en el lateral.)*
 - **D-15:** Un nodo stub o sin descripción muestra un **panel mínimo con el nombre**: sin
   descripción, sin botón de expandir, sin aviso de "perfil pendiente".
+  *(enmendada 2026-10-16 por la Fase 4.1, ver 04.1-CONTEXT.md D-33: "sin descripción" ya no quita Expandir si el nodo tiene
+  créditos; el stub sigue sin Expandir. Tempistica II dejó de ser stub por corrección de curaduría; Trama sigue siéndolo.)*
 
 ### Coreografía
 - **D-16:** Transición por defecto al **entrar**: **ENTIDAD = filtrado, ÁREA (AGRUPACION) =
@@ -119,6 +133,10 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   "vas ingresando". El dueño agrega que el movimiento aditivo/filtrado puede ser el **lateral** entre
   entidad y obra (de un evento ver sus artistas ocultando el resto; de un artista sumar sus últimas obras),
   a diseñar más adelante; no cambia esta decisión. Ver "Temas abiertos" en `04-UAT-GAPS.md`.)*
+  *(enmendada 2026-10-16 por la Fase 4.1, ver 04.1-CONTEXT.md D-36: "OBRA y EVENTO no tienen Entrar" ya no vale. Una OBRA o
+  EVENTO que compone algo o tiene secciones también entra, con reemplazo, a su red (`/obra/<slug>`) y queda enfocado con su
+  panel. `transicionEntrada` se borró (cero callers); el default, reemplazo para los cuatro `nodeType`, vive en el caller de
+  Overlay.)*
 - **D-17:** Secuencia estricta: la **cámara llega y recién ahí aparece el panel** (UI-10).
 - **D-18:** **Volver = animación inversa** de la que se usó para entrar.
 

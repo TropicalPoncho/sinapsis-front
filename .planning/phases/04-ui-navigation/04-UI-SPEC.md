@@ -42,6 +42,7 @@ Reglas de reuso:
 | Título `.floatingTitle` | 60 | `pointer-events: none` |
 | Menú lateral `.lateralFloatingMenu` | 100 | |
 | Hamburguesa `#hamburger` | 120 | Solo mobile |
+| Ficha expandida `.expandido` | 150 | (enmendado en 4.1, ver D-34) Por encima de todo el overlay y del canvas; el overlay base queda `inert` debajo. Carga inicial `.cargando`: 200 |
 
 - Los overlays son `pointer-events: none` en su contenedor y `auto` solo en los elementos interactivos, para que el canvas reciba drag/zoom/click en las zonas libres.
 - **Área segura:** el contenedor del panel es el que mide el puente (`getAreaSegura`). Escritorio: rect libre = derecha, a partir del 62% del ancho. Mobile: rect libre = franja superior sobre la banda inferior. Cuando el panel crece con el scroll, el área segura cambia cuadro a cuadro y el degradado se oscurece (ver Panel).
@@ -134,6 +135,8 @@ Colores por área (`--ColorPalette-Turquesa #8AE2C8`, `Cian #578CCB`, `Violeta #
 >
 > (enmendado tras el UAT 2, ver D-24/D-25) Los ítems son las áreas de la **entidad de contexto**: la red si es una ENTIDAD, o la entidad dueña si la red es un área (AGRUPACION destino de un COMPONE saliente de la entidad). El menú está visible al previsualizar un área y adentro de ella. El activo es el área en la que se está o la que se previsualiza: **26px**, peso 400, color del dato (`vizParams.color`, blanco si falta) y `aria-current="true"` (no se comunica solo por color); los ítems van en **mayúsculas en escritorio**. Desde adentro de un área, tocar otra área la previsualiza en la red de la dueña (`/entidad/<área>?red=<dueña>`, reemplazo); tocar el área actual no hace nada. **Mobile:** adentro de un área el menú queda oculto (la hamburguesa abre solo el lateral); al previsualizar un área la hamburguesa aparece y el menú vuelve a ser el de la entidad.
 
+> (enmendado en 4.1, ver 04.1-CONTEXT.md D-36) En una red **sin áreas reales** el menú lista las **secciones derivadas de los roles** de la red (D-32), con el mismo componente (`MenuSuperior`) y los mismos estilos: activa = la sección abierta, con el color del nodo dueño y `aria-current="true"`. Con áreas reales, el menú es el de las áreas, sin cambios; en la home, no hay menú. En escritorio es **una sola línea que scrollea en horizontal** sin barra visible (Tempistica I tiene 14 secciones) y no pisa el título. El menú ya no arranca en `46vw` ni envuelve: la fila queda desde `38vw` hasta el borde derecho, a la altura del nombre de la entidad (en mayúsculas, una sola fila).
+
 - Escritorio: fila a la derecha del título (arranca en `46vw`, envuelve en dos filas si no entra), `gap 2px`, ítems = agrupadores de la entidad de contexto (D-09), renderizados desde la topología (UI-06). Ítem = `.bn`; el activo pasa a `.bnfocus` (26px, color del área; antes 36px).
 - Mobile (<=800px): `#hamburger` arriba a la izquierda (48px, blanco, `aria-label="Abrir menú"`, `aria-expanded`). Despliega el menú hacia abajo (`.menu-open`, `top: 10%`, transición 0.5s). Con nodo enfocado muestra solo el botón activo; el del nivel padre queda iluminado con acento (D-11).
 - Sube a `top: 2%` cuando el título se oculta (transición 0.6s, del original).
@@ -143,6 +146,8 @@ Colores por área (`--ColorPalette-Turquesa #8AE2C8`, `Cian #578CCB`, `Violeta #
 
 > (enmendado tras el UAT 2, ver D-24/D-25) **VOLVER sube un nivel**: con otro nodo enfocado vuelve al panorama del área (conserva lo sumado); en el panorama sube a la red de la entidad dueña con el área enfocada (reemplazo, la cámara sale de la neurona, D-18; lo sumado se borra por el cambio de red, D-22). VOLVER va **arriba** de la lista y siempre dentro del viewport. En escritorio los ítems van en **26px**, peso 400, mayúsculas, blanco al 90 %, sin el riel vertical de BranchedMenu (como en la captura de diseño), y la lista scrollea dentro del viewport (`overflow-y: auto`, ancho 340px). `navegar` ya no apila una entrada con la URL actual.
 
+> (enmendado en 4.1, ver 04.1-CONTEXT.md D-37) El mismo menú lista también los **nodos de una sección abierta**: tocar una sección del menú superior abre a la izquierda la lista de sus nodos (los mismos estilos de BranchedMenu, sin restyle; en "Otros" cada ítem lleva " — rol"). La escena no cambia al abrirla; tocar un nodo de la lista lo enfoca (aditivo, D-22/D-23). **VOLVER cierra la sección** (y, si el foco era otro nodo, vuelve a enfocar la raíz de la red) en vez de subir de red. La sección es estado de UI atado a la red: no va en la URL, Atrás no la cierra y se descarta al cambiar de red. En mobile abrir una sección abre el cajón con su lista; con una sección abierta la hamburguesa abre solo la lista.
+
 - Aparece al entrar a una sub-red. Lista de nodos de la sub-red (mismo dato que el grafo) + botón **VOLVER** arriba de la lista.
 - Escritorio: fijo a la izquierda, `left 24px`, centrado vertical, `min-width 200px`, `border-radius 12px`. Convive con el panel (el panel se corre: `padding-left` del panel = ancho del lateral + 24px cuando ambos están visibles). Default (reajustable).
 - Mobile: drawer full-height desde la izquierda (`translateX(-110%)` oculto), `min-width 240px`, cerrar con `.close-lateral` (32x32, `aria-label="Cerrar lista"`).
@@ -150,6 +155,8 @@ Colores por área (`--ColorPalette-Turquesa #8AE2C8`, `Cian #578CCB`, `Violeta #
 
 ### 4. Panel de foco `.panel` (D-01, D-12, D-15)
 > (enmendado tras el UAT, ver 04-UAT-GAPS.md y D-03) Al enfocar otro nodo el orden es: **el panel sale** con el contenido viejo (0.3 s) → **cambia el contenido** ya oculto → **se mueve la cámara** → **el panel entra** (0.6 s). Reemplaza el cross-fade de contenido de abajo. Excepción: si solo cambia lo sumado ("Sumar sus obras") el panel no se oculta ni se mueve la cámara.
+
+> (enmendado en 4.1, ver 04.1-CONTEXT.md D-35) **Panel fluido en escritorio:** el contenido (`.panel__contenido`) ocupa el ancho libre entre el borde izquierdo (o el lateral) y la neurona: `width: min(100%, var(--columna-texto))` con `margin-inline-start: var(--panel-margen)`. `.overlay` define `--columna-texto: 660px` (UI-11, la misma de la ficha) y `--panel-margen: 0` (alineado a la izquierda por defecto; con `auto` se alinea contra la neurona). El lateral conserva su ancho (260px) y el panel cede el ancho que le queda. Reemplaza los 420px alineados a la derecha. Nombre 34px, subtipo 16px y descripción 18px en escritorio; el diseño final de tamaños es de Figma.
 
 Contenido, en este orden, alineado a la izquierda, columna con padding `48px 24px 24px` (escritorio) / `16px` (mobile):
 1. Nombre (Heading 26px).
@@ -167,7 +174,9 @@ Comportamiento:
 ### 5. Tipos de botón (D-02)
 > (enmendado tras el UAT, ver 04-UAT-GAPS.md, D-16 y D-22) Se suma la acción `sumar` y `entrar` carga con reemplazo también para ENTIDAD (la tabla de abajo dice "ENTIDAD = filtrado": ya no).
 
-Un "tipo de botón" es un dato `{ etiqueta, accion, destino?, hijos? }`. La lista de acciones es abierta; el contrato de esta fase define tres:
+> (enmendado en 4.1, ver 04.1-CONTEXT.md D-33 y D-36) **Los botones salen de los datos, no del `nodeType`.** `expandir` aparece en una OBRA o EVENTO que no es stub y tiene al menos una sección; la etiqueta es **"Expandir"** y no cambia al abrir (la ficha tiene su propio Volver; "Ver más / Ver menos" y el panel que crece ya no existen). `entrar` aparece si el nodo compone algo (un COMPONE que sale de él) o tiene secciones, **para los cuatro `nodeType`**, siempre con reemplazo (zoom in); una OBRA o un EVENTO entra a `/obra/<slug>`, con su panel y el foco puesto. Un área sin miembros no ofrece Entrar. Orden: Expandir, Entrar a {nombre}, Sumar sus obras. `hijos` ya no existe en el contrato (nadie lo leía).
+
+Un "tipo de botón" es un dato `{ etiqueta, accion, destino? }`. La lista de acciones es abierta; el contrato de esta fase define tres:
 
 | Acción | Nodo por defecto | Etiqueta por defecto | Efecto |
 |--------|------------------|----------------------|--------|
@@ -176,12 +185,19 @@ Un "tipo de botón" es un dato `{ etiqueta, accion, destino?, hijos? }`. La list
 | `sumar` | ENTIDAD con obras o eventos fuera de la escena | **Sumar sus obras** | Agrega a la red visible las obras y eventos de la entidad (D-22). No navega, no cambia la URL, no es paso de historial y no oculta el panel. No se ofrece estando "entrado" ni cuando no queda nada por sumar |
 | `enlace` | cualquiera con URL | etiqueta del dato (ej. "Sitio web") | Abre en pestaña nueva, `rel="noopener noreferrer"`, ícono `.ico` cuando el destino es conocido |
 
-- Un botón puede tener sub-botones (`hijos`): se renderizan como fila secundaria bajo el botón principal, mismo estilo `.bn`, 14px.
 - Estilo: `.bn` (relleno `rgb(46,46,46)`, `border-radius 32px`, glow arcoíris en hover, 14px/500). Primario y secundarios comparten estilo; el primario va primero. No hay variante "destructivo".
 - **Volver** en el panel es un `.bn` que aparece cuando hay historial dentro de la app (el botón atrás del navegador hace lo mismo, UI-05).
 - Estados: hover (glow), `:focus-visible` (anillo acento), `:active` (borde 5px original), `disabled` (opacity 0.4, sin glow), `aria-busy="true"` mientras la promesa de `setVista` está pendiente.
 
 ### 6. Ficha extendida de OBRA (D-13)
+> (enmendado en 4.1, ver 04.1-CONTEXT.md D-27, D-32, D-33 y D-34) La ficha es hoy la **capa expandida de la variante A**, no un panel que crece (el texto de abajo describe el contrato original; vale lo siguiente, que lo reemplaza):
+> - **Capa:** `position: fixed; inset: 0; z-index: 150` (por encima del overlay y debajo del loader de 200), `role="dialog"`, `aria-modal="true"`, `aria-labelledby` al nombre. Estado de UI: no toca la URL ni el historial; la cámara queda quieta porque el panel sigue maquetado debajo (`visibility: hidden`, sin `transform`) y el puente lee el mismo rect. Cualquier cambio de URL la cierra.
+> - **Cabecera fija** (`position: sticky`, 100px escritorio / 64px mobile): nombre del nodo, menú de **secciones** derivadas de los roles (D-32; scroll-spy con `aria-current` y el color del nodo dueño; en mobile se desliza en horizontal) y **Volver** a la derecha.
+> - **Portada** (mín. 55vh): tipo y fecha larga (`subtipo · 21 de enero de 2023`) y la bajada (`descripcionBreve`, 26px). Debajo, el **bloque** de contenido con el borde superior fundido (degradado de transparente a `#0a0a0a`), que sube con el scroll sobre la escena.
+> - **Columna de 620-680px** (`--columna-texto: 660px`, `--panel-margen`, la misma que el panel): texto largo (`white-space: pre-line`, nunca HTML), **secciones** (título con el color del dato; cada nombre es un `<a>` a la ruta del nodo que entra a esa sección, D-37; " — rol" en Otros), galería, enlaces y video, en este orden. Bloques sin dato se omiten. El padding inferior deja subir la última sección hasta la cabecera.
+> - **Teclado:** Esc en dos niveles (con la ficha abierta la cierra; si no, hace Volver); Tab no sale de la capa; al cerrar, el foco vuelve al nombre del panel.
+> - **Reemplaza los "Créditos"** de la lista de abajo: los créditos son las secciones.
+
 Se abre con `expandir`; el panel crece hacia abajo y el contenido interno hace scroll (`overflow-y: auto`, `max-height: 100dvh` escritorio / `70dvh` mobile, `overscroll-behavior: contain`). Bloques separados por 32px, en este orden:
 1. **Créditos:** lista `nombre — rol`. Cada nombre es un `<button>` (o link a `/entidad/[slug]`) que enfoca el nodo (D-03, UI-04). Rol en Label, 70% blanco.
 2. **Texto descriptivo largo** (Cuerpo, medida máxima `65ch`).
@@ -225,6 +241,7 @@ Orden estricto de cada navegación (UI-10): **(1)** cambia la ruta/URL → **(2)
 
 ## Mobile (<=800px)
 
+- (enmendado en 4.1, ver 04.1-CONTEXT.md D-35) **Título grande arriba:** adentro de una red, `.tituloRed` va debajo de la hamburguesa (`top: 64px`), a todo el ancho (`left/right: 16px`), `clamp(28px, 9vw, 44px)` y hasta **dos líneas**; es el nombre de la red. El puente suma su borde inferior al **área segura** (`top`, vía `tituloRef`): el nodo enfocado queda entre el título y la banda del panel (unos 435 a 490px libres en 360x740 a 390x800). **La ficha en mobile:** cabecera de 64px con el nombre en una línea con elipsis y el menú de secciones deslizable, columna = viewport menos 32px, sin desborde horizontal. En mobile abrir una sección abre el cajón con su lista; con una sección abierta la hamburguesa abre solo esa lista.
 - Panel = banda inferior, ancho 100%, altura del resumen `auto` con tope `45dvh` (original: `max-height 45vh`); ficha extendida sube hasta `70dvh`. Default (reajustable).
 - El canvas conserva gestos (arrastre, pellizco). El panel captura solo su propio scroll (`touch-action: pan-y`).
 - Botones en columna, ancho 100%, mínimo 44px de alto.
@@ -241,6 +258,7 @@ Orden estricto de cada navegación (UI-10): **(1)** cambia la ruta/URL → **(2)
 - Contraste: texto blanco sobre `rgba(0,0,0,>=0.55)` sobre canvas; el peor caso es sobre nodos claros, por eso el piso de alfa del panel es 0.55.
 - `aria-live="polite"` al cambiar de nodo; `aria-label` en hamburguesa y cerrar; `lang="es"`.
 - El canvas es decorativo para lectores de pantalla (`aria-hidden="true"`); la alternativa navegable es el menú lateral (lista de nodos).
+- (enmendado en 4.1, ver 04.1-CONTEXT.md D-34) **Ficha expandida:** `role="dialog"` con `aria-modal="true"` y `aria-labelledby` al nombre; mientras está abierta el overlay base queda `inert` (atributo nativo) y la capa atrapa Tab y Shift+Tab; Esc la cierra (Esc en dos niveles: si no hay ficha, hace Volver) y el foco vuelve al nombre del panel (`#panel-nombre`). Las secciones del menú de la ficha y del menú superior marcan la activa con `aria-current`, no solo con color; el `<nav>` de la ficha lleva `aria-label="Secciones de {nombre}"`. `scroll-behavior: smooth` se desactiva con `prefers-reduced-motion`.
 
 ---
 
@@ -265,6 +283,8 @@ Orden estricto de cada navegación (UI-10): **(1)** cambia la ruta/URL → **(2)
 | Error: topología | "No pudimos cargar la red. Revisá tu conexión e intentá de nuevo." + botón "Reintentar" |
 | Error: video no carga | Ninguno propio; el iframe muestra su estado nativo |
 | Acciones destructivas | Ninguna en esta fase |
+
+(enmendado en 4.1, ver 04.1-CONTEXT.md D-32, D-33 y D-36) Copy nuevo: **"Expandir"** (reemplaza "Ver más / Ver menos"; no cambia al abrir), **"Volver"** en la cabecera de la ficha, **"Entrar a {nombre}"** para cualquier nodo con algo adentro, **"Otros"** como última sección (cada ítem lleva " — {rol}" con la grafía original). Las **etiquetas de sección salen del vocabulario** `src/lib/red/roles.json` (Producción, Meditación, Actividades, Performance, Bandas en vivo, DJ, VJ…), no del copy de la interfaz; el encabezado "Créditos" ya no existe (los créditos son las secciones). `aria-label` de la ficha: "Secciones de {nombre}".
 
 Tono: rioplatense, voseo ("Volvé", "Revisá", "Intentá"). Siempre "creadxr", nunca "artista".
 
