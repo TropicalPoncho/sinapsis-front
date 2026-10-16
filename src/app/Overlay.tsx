@@ -9,10 +9,9 @@ import type { EstadoRed, subgrafoDe } from '../lib/red/url.ts'
 import { claveEstado, urlDe } from '../lib/red/url.ts'
 import { botonesDe } from '../lib/red/botones.ts'
 import type { Boton } from '../lib/red/botones.ts'
-import { transicionEntrada } from '../lib/red/navegacion.ts'
 import type { Transicion } from '../types/vista.ts'
 import { agrupadoresDe, nodosDeLaRed, obrasDe, padreDe, seccionesDe } from '../lib/red/menus.ts'
-import type { VocabularioRoles } from '../lib/red/menus.ts'
+import type { Seccion, VocabularioRoles } from '../lib/red/menus.ts'
 import roles from '../lib/red/roles.json'
 import { Ficha } from './Ficha.tsx'
 import { MenuLateral, MenuSuperior } from './Menus.tsx'
@@ -75,12 +74,25 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
   const entidadId = !ady || !redNodo || !redId ? null
     : redNodo.nodeType === 'ENTIDAD' ? redId
     : redNodo.nodeType === 'AGRUPACION' ? padreDe(ady, redId, 'ENTIDAD') : null
-  const items = ady && entidadId ? agrupadoresDe(ady, entidadId) : []
-  // Activa: el área en la que se está o, al previsualizar, la enfocada. El padre se marca solo si es otra.
-  const activoId = (items.find((i) => i.id === redId) ?? items.find((i) => i.id === enfocadoId))?.id ?? null
-  const padre = ady && enfocadoId ? padreDe(ady, enfocadoId) : null
+  const areas = ady && entidadId ? agrupadoresDe(ady, entidadId) : []
+  // D-29/D-36: sin áreas reales, el menú superior lista las secciones derivadas de los roles de la red (mismo componente).
+  const seccionesRed = ady && redId ? seccionesDe(ady, redId, roles as VocabularioRoles) : []
+  const deSecciones = areas.length === 0 && seccionesRed.length > 0
+  const items = deSecciones ? seccionesRed : areas
+  // D-37: la sección abierta es una lista de UI atada a la red en la que se abrió, no una Vista: no toca la URL ni la escena.
+  // `llegada`: ya se vio la URL en esa red (la entrada desde la ficha la guarda antes de que la URL llegue).
+  const [seccion, setSeccion] = useState<{ red: string; id: string; llegada: boolean } | null>(null)
+  if (seccion) {
+    if (!seccion.llegada && seccion.red === estado.red) setSeccion({ ...seccion, llegada: true })
+    else if (seccion.llegada && seccion.red !== estado.red) setSeccion(null) // cambio de red: se descarta sola
+  }
+  const seccionActiva = deSecciones && seccion && seccion.red === estado.red ? seccionesRed.find((s) => s.id === seccion.id) ?? null : null
+  // Activa: el área en la que se está o, al previsualizar, la enfocada (o la sección abierta). El padre se marca solo si es otra.
+  const activoId = deSecciones ? seccionActiva?.id ?? null
+    : (areas.find((i) => i.id === redId) ?? areas.find((i) => i.id === enfocadoId))?.id ?? null
+  const padre = ady && enfocadoId && !deSecciones ? padreDe(ady, enfocadoId) : null
   const padreId = padre !== activoId ? padre : null
-  const lateral = sub !== null && redId !== null && estado.red !== null && ady?.nodos.get(redId)?.nodeType === 'AGRUPACION'
+  const lateral = (sub !== null && redId !== null && estado.red !== null && redNodo?.nodeType === 'AGRUPACION') || seccionActiva !== null
   const [lateralAbierto, setLateralAbierto] = useState(false)
   const [menuAbierto, setMenuAbierto] = useState(false)
   // Un solo botón hamburger en mobile, sea cual sea el menú que exista en este contexto (áreas de
@@ -129,6 +141,20 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     else aLaDuena(redId)
   }
 
+  // D-37: abrir una sección guarda `{ red, id }` y abre la lista (en mobile, el cajón); la escena no cambia. Tocar la activa no hace nada.
+  const abrirSeccion = (id: string) => {
+    if (id === seccionActiva?.id || !estado.red) return
+    setSeccion({ red: estado.red, id, llegada: true })
+    setMenuAbierto(false)
+    setLateralAbierto(true)
+  }
+  // VOLVER de una sección la cierra y, si el foco era otro nodo, vuelve a enfocar la raíz (misma Vista: el puente usa aditivo).
+  const cerrarSeccion = () => {
+    setSeccion(null)
+    if (redId && enfocadoId !== redId) irA(redId, true)
+  }
+  const elegirItem = (id: string) => (deSecciones ? abrirSeccion(id) : elegirArea(id))
+
   // Volver del panel (y Esc). Al previsualizar un área en la red de su entidad, sube al "home" de la entidad
   // (sin foco en el área) en vez de deshacer el historial: Atrás volvería a entrar al área, que es lo contrario.
   const volverDelPanel = useCallback(() => {
@@ -170,13 +196,14 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
 
   // Las secciones del nodo del panel se calculan una vez: la misma lista decide el botón Expandir y llena la ficha.
   const secciones = nodo && ady ? seccionesDe(ady, nodo.id, roles as VocabularioRoles) : []
-  const grado = nodo && ady ? (ady.sale.get(nodo.id)?.length ?? 0) + (ady.entra.get(nodo.id)?.length ?? 0) : 0
+  // D-26: el nodo compone algo si le sale un COMPONE.
+  const compone = nodo && ady ? (ady.sale.get(nodo.id) ?? []).some((v) => v.tipoVinculo === 'COMPONE') : false
   // Las obras/eventos de la entidad enfocada que todavía no están en escena (D-22: se suman sin navegar).
   const porSumar = nodo && ady && escena && nodo.nodeType === 'ENTIDAD'
     ? obrasDe(ady, nodo.id).filter((id) => !escena.sub.nodos.some((n) => n.id === id))
     : []
   const botones = nodo
-    ? botonesDe(nodo, { grado, secciones: secciones.length, obrasPorSumar: porSumar.length }).filter((b) => !((b.accion === 'entrar' || b.accion === 'sumar') && mostrado.red === mostrado.enfocado))
+    ? botonesDe(nodo, { compone, secciones: secciones.length, obrasPorSumar: porSumar.length }).filter((b) => !((b.accion === 'entrar' || b.accion === 'sumar') && mostrado.red === mostrado.enfocado))
     : []
 
   const ejecutar = (b: Boton) => {
@@ -187,10 +214,9 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
         break
       case 'entrar': {
         const slug = idx.slugPorId.get(nodo.id) ?? ''
-        navegar(
-          urlDe(rutaDe(nodo, idx), { enfocado: slug, red: slug, prof: estado.prof, semilla: null, raiz: null, puentes: null }),
-          transicionEntrada(nodo.nodeType),
-        )
+        // Todo Entrar es zoom in (D-16 enmendada, D-26): reemplazo para los cuatro nodeType. El default vive solo
+        // en código (D-20); para variar por tipo, acá.
+        navegar(urlDe(rutaDe(nodo, idx), { enfocado: slug, red: slug, prof: estado.prof, semilla: null, raiz: null, puentes: null }), 'reemplazo')
         break
       }
       case 'sumar':
@@ -204,6 +230,12 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
   const alPanelScroll = (el: HTMLElement) =>
     // ponytail: escala 400px reajustable
     [el, el.parentElement!].forEach((e) => e.style.setProperty('--panel-alpha', String(Math.min(0.9, 0.55 + el.scrollTop / 400))))
+
+  // Los nodos de una sección como lista lateral; en "Otros" cada uno lleva " — rol".
+  const itemsDe = (s: Seccion) => s.nodos.flatMap(({ id, rol }) => {
+    const n = ady?.nodos.get(id)
+    return n ? [{ id, label: rol ? `${n.label} — ${rol}` : n.label, subtipo: n.subtipo }] : []
+  })
 
   const volverBtn = puedeVolver && <button className="accion accion--volver" onClick={volverDelPanel}>Volver</button>
 
@@ -235,16 +267,16 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
         padreId={padreId}
         abierto={menuAbierto}
         enArea={lateral}
-        onElegir={elegirArea}
+        onElegir={elegirItem}
       />
       <div className={'izquierda' + (visible ? ' izquierda--visible' : '')}>
-      {lateral && sub && redId && (
+      {lateral && ady && redId && (seccionActiva || sub) && (
         <MenuLateral
-          nodos={nodosDeLaRed(sub, redId)}
+          nodos={seccionActiva ? itemsDe(seccionActiva) : nodosDeLaRed(sub!, redId)}
           enfocadoId={enfocadoId}
           abierto={lateralAbierto}
           onElegir={(id) => irA(id, false)}
-          onVolver={volverAlArea}
+          onVolver={seccionActiva ? cerrarSeccion : volverAlArea}
           onCerrar={() => setLateralAbierto(false)}
         />
       )}
