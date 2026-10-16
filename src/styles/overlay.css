@@ -181,21 +181,23 @@
 /* Título a la izquierda y menú de áreas a la derecha comparten fila: el menú envuelve y no invade el título. */
 @media (min-width: 801px) {
   .overlay .floatingTitle { max-width: 38vw; }
-  .floatingMenu { left: 46vw; right: 24px; gap: 2px; align-items: center; flex-wrap: wrap; }
+  .floatingMenu { left: 38vw; right: 24px; gap: 2px; align-items: center; flex-wrap: nowrap; }
 }
 
-/* Maqueta de la captura de diseño (G-10, D-25), solo escritorio: título de la entidad, menú en mayúsculas
-   con el área activa grande y del color del dato, lista lateral grande y liviana sin riel. */
+/* Escritorio, adentro de un área (G-10, D-25): la entidad queda fija arriba a la izquierda, chica y en una
+   línea; el menú de áreas va a la derecha en UNA línea con el activo del color del dato. La lista lateral
+   conserva el estilo de BranchedMenu (riel, tamaño y minúsculas originales): de la captura de diseño solo se
+   toma la disposición, no la tipografía. */
 @media (min-width: 801px) {
-  .tituloRed, .nav-item { text-transform: uppercase; }
-  /* En mayúsculas el título (Briller es ancha) no entra en 38vw a 32px: una línea, achica con el
-     ancho, y el menú (arriba, desde 46vw) envuelve en vez de pisarlo. */
-  .tituloRed { font-size: clamp(22px, 2.3vw, 32px); max-width: 44vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .nav-item--activo { font-size: 26px; font-weight: 400; border-bottom-color: transparent; }
-  .izquierda .lateralFloatingMenu { flex-basis: 340px; max-height: calc(100dvh - 100px); overflow-y: auto; scrollbar-width: thin; }
-  .lateralFloatingMenu .branched-menu { max-width: 100%; }
-  .lateralFloatingMenu .branched-menu::before { display: none; }
-  .lateralFloatingMenu .branched-menu__head { font-size: 26px; font-weight: 400; text-transform: uppercase; color: rgba(255,255,255,.9); }
+  .tituloRed { top: 24px; height: 36px; line-height: 36px; font-size: 22px; text-transform: uppercase; max-width: 34vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* menú y nombre comparten fila: misma altura y centrado vertical */
+  .floatingMenu { top: 24px; height: 36px; align-items: center; left: 38vw; flex-wrap: nowrap; }
+  .nav-item--activo { border-bottom-color: transparent; font-size: 16px; }
+  /* sin barra visible: si la lista no entra en pantalla igual scrollea con la rueda */
+  .izquierda .lateralFloatingMenu { max-height: calc(100dvh - 100px); overflow-y: auto; scrollbar-width: none; }
+  .izquierda .lateralFloatingMenu::-webkit-scrollbar { display: none; }
+  /* la marca va al centro abajo: a la derecha la tapaba el botón del panel de debug */
+  .marca { right: auto; left: 50%; transform: translateX(-50%); }
 }
 
 /* Panel de debug (DebugPanel.tsx): sólo dev, minimalista, no forma parte del diseño final. */

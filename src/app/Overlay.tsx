@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react'
 import type { Adyacencia } from '../lib/vista/adyacencia.ts'
 import type { IndiceSlugs } from '../lib/red/slugs.ts'
@@ -120,6 +120,16 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     else aLaDuena(redId)
   }
 
+  // Volver del panel (y Esc). Al previsualizar un área en la red de su entidad, sube al "home" de la entidad
+  // (sin foco en el área) en vez de deshacer el historial: Atrás volvería a entrar al área, que es lo contrario.
+  const volverDelPanel = useCallback(() => {
+    const slugEntidad = idx && entidadId ? idx.slugPorId.get(entidadId) : undefined
+    const entidad = ady && entidadId ? ady.nodos.get(entidadId) : undefined
+    if (nodo?.nodeType === 'AGRUPACION' && nodo.id !== redId && entidad && idx && slugEntidad) {
+      navegar(urlDe(rutaDe(entidad, idx), { enfocado: slugEntidad, red: slugEntidad, prof: null, semilla: null, raiz: null, puentes: null }), 'aditivo')
+    } else volver()
+  }, [ady, idx, entidadId, nodo, redId, navegar, volver])
+
   // Cuando cambia la URL el panel empieza a salir en ese mismo render, con el contenido viejo.
   const coincide = claveEstado(mostrado) === claveEstado(estado)
   // Adentro de una red sin nada más que ella misma (un área sin miembros). Espera a `coincide`: si no, el
@@ -135,10 +145,10 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
   }, [mostrado])
   useEffect(() => {
     if (!nodo) return
-    const f = (e: KeyboardEvent) => { if (e.key === 'Escape') volver() }
+    const f = (e: KeyboardEvent) => { if (e.key === 'Escape') volverDelPanel() }
     window.addEventListener('keydown', f)
     return () => window.removeEventListener('keydown', f)
-  }, [nodo, volver])
+  }, [nodo, volver, volverDelPanel])
   useEffect(() => {
     if (visible) h2Ref.current?.focus({ preventScroll: true })
   }, [visible, nodo?.id, error])
@@ -178,7 +188,7 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     // ponytail: escala 400px reajustable
     [el, el.parentElement!].forEach((e) => e.style.setProperty('--panel-alpha', String(Math.min(0.9, 0.55 + el.scrollTop / 400))))
 
-  const volverBtn = puedeVolver && <button className="accion accion--volver" onClick={volver}>Volver</button>
+  const volverBtn = puedeVolver && <button className="accion accion--volver" onClick={volverDelPanel}>Volver</button>
 
   return (
     <div className="overlay">
