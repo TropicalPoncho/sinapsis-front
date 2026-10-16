@@ -243,6 +243,10 @@
   .tituloRed { top: 24px; height: 36px; line-height: 36px; font-size: 22px; text-transform: uppercase; max-width: 34vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   /* menú y nombre comparten fila: misma altura y centrado vertical */
   .floatingMenu { top: 24px; height: 36px; align-items: center; left: 38vw; flex-wrap: nowrap; }
+  /* muchas secciones (Tempistica I tiene 14): una sola línea que scrollea en horizontal, sin barra como el lateral */
+  .floatingMenu { overflow-x: auto; scrollbar-width: none; justify-content: safe flex-end; }
+  .floatingMenu .nav-item { flex: none; }
+  .floatingMenu::-webkit-scrollbar { display: none; }
   .nav-item--activo { border-bottom-color: transparent; font-size: 16px; }
   /* sin barra visible: si la lista no entra en pantalla igual scrollea con la rueda */
   .izquierda .lateralFloatingMenu { max-height: calc(100dvh - 100px); overflow-y: auto; scrollbar-width: none; }

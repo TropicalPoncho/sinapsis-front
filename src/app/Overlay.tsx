@@ -153,6 +153,21 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     setSeccion(null)
     if (redId && enfocadoId !== redId) irA(redId, true)
   }
+  // D-30/D-37: desde la ficha, un nodo de una sección lleva a esa sección en la red del nodo de la ficha. Si no se está en esa
+  // red se entra con zoom in (reemplazo) enfocando al tocado; la sección queda guardada y se activa apenas la URL llega a la red.
+  const entrarASeccion = (seccionId: string, id: string) => {
+    const n = ady?.nodos.get(id)
+    const slug = idx?.slugPorId.get(id)
+    const slugFicha = nodo && idx ? idx.slugPorId.get(nodo.id) : undefined
+    if (!n || !idx || !slug || !slugFicha) return
+    setExpandidoEn(null)
+    setLateralAbierto(false)
+    setMenuAbierto(false)
+    const dentro = estado.red === slugFicha
+    setSeccion({ red: slugFicha, id: seccionId, llegada: dentro })
+    if (dentro) irA(id, false)
+    else navegar(urlDe(rutaDe(n, idx), { enfocado: slug, red: slugFicha, prof: null, semilla: null, raiz: null, puentes: null }), 'reemplazo')
+  }
   const elegirItem = (id: string) => (deSecciones ? abrirSeccion(id) : elegirArea(id))
 
   // Volver del panel (y Esc). Al previsualizar un área en la red de su entidad, sube al "home" de la entidad
@@ -340,7 +355,7 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
           secciones={secciones}
           nodos={ady.nodos}
           hrefDe={(id) => rutaDe(ady.nodos.get(id)!, idx)}
-          onMiembro={(id) => { setExpandidoEn(null); irA(id, false) }}
+          onMiembro={entrarASeccion}
           onCerrar={cerrarFicha}
         />
       )}

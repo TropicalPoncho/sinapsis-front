@@ -25,7 +25,7 @@ export function Ficha({ nodo, secciones, nodos, hrefDe, onMiembro, onCerrar }: {
   secciones: Seccion[]
   nodos: ReadonlyMap<string, NodoGrafo>
   hrefDe: (id: string) => string
-  onMiembro: (id: string) => void
+  onMiembro: (seccionId: string, id: string) => void
   onCerrar: () => void
 }) {
   const [det, setDet] = useState<DetalleNodo | null>(cache.get(nodo.id) ?? null)
@@ -60,10 +60,10 @@ export function Ficha({ nodo, secciones, nodos, hrefDe, onMiembro, onCerrar }: {
     return () => ac.abort()
   }, [nodo.id])
 
-  const alClick = (e: React.MouseEvent, id: string) => {
+  const alClick = (e: React.MouseEvent, seccionId: string, id: string) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
     e.preventDefault()
-    onMiembro(id)
+    onMiembro(seccionId, id)
   }
   // Sin `href="#…"`: cambiaría el hash y sumaría una entrada al historial.
   const irA = (id: string) => document.getElementById('seccion-' + id)?.scrollIntoView({ block: 'start' })
@@ -119,7 +119,7 @@ export function Ficha({ nodo, secciones, nodos, hrefDe, onMiembro, onCerrar }: {
                   const n = nodos.get(m.id)
                   return n && (
                     <li key={m.id}>
-                      <a href={hrefDe(m.id)} onClick={(e) => alClick(e, m.id)}>{n.label}</a>
+                      <a href={hrefDe(m.id)} onClick={(e) => alClick(e, s.id, m.id)}>{n.label}</a>
                       {m.rol && <> — <span className="expandido__rol">{m.rol}</span></>}
                     </li>
                   )
