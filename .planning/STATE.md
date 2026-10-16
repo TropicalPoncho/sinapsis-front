@@ -4,16 +4,16 @@ milestone: v1.0
 current_phase: 04
 current_phase_name: UI & Navigation
 status: executing
-stopped_at: Completed 04.1-02-PLAN.md
-last_updated: "2026-10-16T15:30:43.705Z"
+stopped_at: Completed 04.1-03-PLAN.md
+last_updated: "2026-10-16T16:01:39.436Z"
 last_activity: 2026-10-08
 last_activity_desc: Phase 04 execution started
-state_head: 4f02f83f2c5d3c26d6bc07a7e83b9556e788e50c
+state_head: 883f43d55ceed2b7b8bae15ade9afba3e6a41863
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 32
-  completed_plans: 29
+  completed_plans: 30
 milestone_name: milestone
 ---
 
@@ -86,6 +86,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P12 | 1 sesion | 3 tasks | 12 files |
 | Phase 04.1 P01 | 12min | 2 tasks | 3 files |
 | Phase 04.1 P02 | 35min | 3 tasks | 10 files |
+| Phase 04.1 P03 | 22 min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -127,6 +128,8 @@ Recent decisions affecting current work:
 - [Phase 04.1]: D-33: Expandir sale de los datos (OBRA/EVENTO no stub con al menos una seccion)
 - [Phase 04.1]: D-34: la ficha expandida es estado de UI atado a la clave de la URL; no es Vista ni URL
 - [Phase 04.1]: D-35: panel fluido con --columna-texto/--panel-margen y titulo grande de mobile sumado al area segura (tituloRef)
+- [Phase 04.1]: D-36: Entrar sale de los datos (COMPONE saliente o secciones) para los cuatro nodeType; todo Entrar es reemplazo y una obra o evento entra a /obra/<slug> con su panel
+- [Phase 04.1]: D-37: la seccion es una lista de UI atada a la red ({red,id,llegada} en Overlay), no una Vista: sin URL ni nodos nuevos en la escena
 
 ### Pending Todos
 
@@ -169,8 +172,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-10-16T15:30:43.472Z
-Stopped at: Completed 04.1-02-PLAN.md
+Last session: 2026-10-16T16:01:39.197Z
+Stopped at: Completed 04.1-03-PLAN.md
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's
