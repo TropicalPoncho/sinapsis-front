@@ -85,7 +85,7 @@ id,descartar,node_type,subtipo,label,descripcion_breve,disciplina,is_stub,fecha,
 669a4715e1452d0f79a8debe,,AGRUPACION,area,Laboratorios,Otras de las maneras de expandir el arte es por medio de la experimentación colectiva y la sociabilización de saberes que enriquezcan la obra individual,,,,,Lights,,sitio,Otras de las maneras de expandir el arte es por medio de la experimentación colectiva y la sociabilización de saberes que enriquezcan la obra individual,0,0,
 669a4715e1452d0f79a8dec1,,EVENTO,festival,Kutral,El Fuego: Primer festival/experiencia en la Comarca Andina,,,2021-09-04,,Fire,,sitio,El Fuego: Primer festival/experiencia en la Comarca Andina,1,0,
 669a4715e1452d0f79a8dec2,,EVENTO,festival,Tempistica I,La sincronicidad,,,2021-12-19,,CrossedLines,,sitio,La sincronicidad,1,0,
-669a4715e1452d0f79a8dec3,,EVENTO,festival,Tempistica II,,,si,2022-01-27,,CrossedLines,,sitio,,1,0,
+669a4715e1452d0f79a8dec3,,EVENTO,festival,Tempistica II,,,,2022-01-27,,CrossedLines,,sitio,,1,0,
 669a4715e1452d0f79a8dec4,,EVENTO,fiesta,Tropical Posporno,Tropical Posporno,,,2022-06-01,obras/tropical-posporno.png,Lights,,sitio,Tropical Posporno,1,0,
 669a4715e1452d0f79a8dec5,,EVENTO,festival,SOMA beta,SOMAbeta,,,2022-11-26,,Particles,#FFBC00,sitio,SOMAbeta,1,0,"REVISAR: ""SOMA beta"" aparece en las dos fuentes con ids distintos — reconciliar"
 669a4715e1452d0f79a8dec6,,EVENTO,festival,SOMA,SOMA,,,2023-01-21,,Particles,#FFFFFF,sitio,SOMA,1,0,"REVISAR: ""SOMA"" aparece en las dos fuentes con ids distintos — reconciliar"
