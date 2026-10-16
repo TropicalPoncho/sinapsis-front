@@ -171,8 +171,10 @@
 .tituloRed { position: fixed; z-index: 40; top: 20px; left: 24px; margin: 0; font-family: 'Briller', Gotham, sans-serif; font-size: 32px; font-weight: 400; color: #fff; }
 .marca { position: fixed; z-index: 40; top: 24px; right: 24px; font-family: 'Briller', Gotham, sans-serif; font-size: 16px; color: rgba(255,255,255,.7); text-decoration: none; }
 @media (max-width: 800px) {
-  /* Un nombre largo nunca desborda: deja la hamburguesa (72px) y el margen. */
-  .tituloRed { left: 72px; top: 20px; font-size: 20px; max-width: calc(100vw - 88px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* D-28/D-35: el nombre de la red va grande a todo el ancho, debajo de la hamburguesa (que termina en 60px), en dos líneas
+     como máximo. El puente suma su borde inferior al área segura (CanvasSinapsis). */
+  .tituloRed { left: 16px; right: 16px; top: 64px; max-width: none; font-size: clamp(28px, 9vw, 44px); line-height: 1.1; white-space: normal;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   /* Mobile no cambia de layout: el título es el nombre de la red (adentro de un área, el área). */
   .tituloRed__entidad { display: none; }
   .tituloRed__red { display: inline; }
@@ -217,7 +219,9 @@
   .panel__botones { margin-top: 40px; }
 }
 
-@media (min-width: 801px) { .izquierda .panel__contenido { margin-left: auto; width: min(420px, 100%); } }
+/* D-28: el contenido arranca contra el borde izquierdo del panel (o a la derecha del lateral, que conserva su ancho) y no pasa de la
+   columna; `--panel-margen: auto` lo alinea contra la neurona. */
+@media (min-width: 801px) { .izquierda .panel__contenido { margin-inline-start: var(--panel-margen); width: min(100%, var(--columna-texto)); } }
 
 /* Título a la izquierda y menú de áreas a la derecha comparten fila: el menú envuelve y no invade el título. */
 @media (min-width: 801px) {

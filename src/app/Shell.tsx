@@ -40,6 +40,7 @@ export default function Shell() {
   const pathname = usePathname()
   const search = useSearchParams().toString()
   const panelRef = useRef<HTMLElement | null>(null)
+  const tituloRef = useRef<HTMLHeadingElement | null>(null)
   const entradaRef = useRef<Entrada | null>(null)
   const llegadaRef = useRef<{ t: Transicion }>({ t: 'reemplazo' })
 
@@ -102,9 +103,9 @@ export default function Shell() {
 
   return (
     <>
-      <CanvasSinapsis ady={ady} idx={idx} estado={estado} escena={escena} llegadaRef={llegadaRef} panelRef={panelRef}
+      <CanvasSinapsis ady={ady} idx={idx} estado={estado} escena={escena} llegadaRef={llegadaRef} panelRef={panelRef} tituloRef={tituloRef}
         onFase={setFase} onMostrar={setMostrado} onNodoClick={enfocar} onEngineReady={setEngine} />
-      <Overlay estado={estado} mostrado={mostrado} ady={ady} idx={idx} escena={escena} fase={fase} error={error} panelRef={panelRef}
+      <Overlay estado={estado} mostrado={mostrado} ady={ady} idx={idx} escena={escena} fase={fase} error={error} panelRef={panelRef} tituloRef={tituloRef}
         navegar={navegar} volver={volver} reintentar={reintentar} sumar={sumar} />
       {process.env.NODE_ENV !== 'production' && engine && <DebugPanel engine={engine} />}
     </>

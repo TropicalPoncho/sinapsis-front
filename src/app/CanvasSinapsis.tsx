@@ -19,6 +19,7 @@ interface Props {
   escena: ReturnType<typeof subgrafoDe> | null;
   llegadaRef: RefObject<{ t: Transicion }>;
   panelRef: RefObject<HTMLElement | null>;
+  tituloRef: RefObject<HTMLHeadingElement | null>;
   onFase: (f: Fase) => void;
   onMostrar: (e: EstadoRed) => void;
   onNodoClick: (id: string) => void;
@@ -30,7 +31,7 @@ interface Tarea { sub: Subgrafo; enfocadoId: string | null; transicion: Transici
 const pausa = (ms: number) => new Promise<void>(r => setTimeout(r, ms));
 const frame = () => new Promise<void>(r => requestAnimationFrame(() => r()));
 
-export default function CanvasSinapsis({ ady, idx, estado, escena, llegadaRef, panelRef, onFase, onMostrar, onNodoClick, onEngineReady }: Props) {
+export default function CanvasSinapsis({ ady, idx, estado, escena, llegadaRef, panelRef, tituloRef, onFase, onMostrar, onNodoClick, onEngineReady }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   // ponytail: `any` para el motor es deliberado — el motor es JS y `allowJs` infiere suelto.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,9 +79,10 @@ export default function CanvasSinapsis({ ady, idx, estado, escena, llegadaRef, p
           const sin = { top: 0, right: 0, bottom: 0, left: 0 };
           if (!panelRef.current) return sin; // siempre el rect del panel: el motor decide cuándo aplicarlo (_nodoEnfocado)
           const r = panelRef.current.getBoundingClientRect();
+          // El puente le pasa al motor todo lo que tapa el canvas: el título grande de mobile tapa arriba.
           return window.innerWidth >= 800
             ? { ...sin, left: r.right }
-            : { ...sin, bottom: Math.max(0, window.innerHeight - r.top) };
+            : { ...sin, top: tituloRef.current?.getBoundingClientRect().bottom ?? 0, bottom: Math.max(0, window.innerHeight - r.top) };
         },
         charge: num('charge'),
         escalaNodos: num('escala'),
@@ -109,7 +111,7 @@ export default function CanvasSinapsis({ ady, idx, estado, escena, llegadaRef, p
       engineRef.current = null;
       onEngineReadyRef.current?.(null);
     };
-  }, [panelRef]);
+  }, [panelRef, tituloRef]);
 
   // Effect 2: navegación — sigue la URL, secuencia Vista, cámara, overlay.
   useEffect(() => {

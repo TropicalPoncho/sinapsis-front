@@ -30,6 +30,8 @@ export interface OverlayProps {
   fase: Fase
   error: 'topologia' | 'no-encontrado' | null
   panelRef: RefObject<HTMLElement | null>
+  // El título de la red: en mobile es grande y tapa arriba, así que el puente lo mide (área segura `top`).
+  tituloRef: RefObject<HTMLHeadingElement | null>
   navegar: (url: string, t: Transicion) => void
   volver: () => void
   reintentar: () => void
@@ -37,7 +39,7 @@ export interface OverlayProps {
 }
 
 // El panel siempre está maquetado (nunca display:none): la cámara mide su rect antes de que aparezca.
-export default function Overlay({ estado, mostrado, ady, idx, escena, fase, error, panelRef, navegar, volver, reintentar, sumar }: OverlayProps) {
+export default function Overlay({ estado, mostrado, ady, idx, escena, fase, error, panelRef, tituloRef, navegar, volver, reintentar, sumar }: OverlayProps) {
   const h2Ref = useRef<HTMLHeadingElement>(null)
   // D-34: la ficha expandida es estado de UI, no Vista. Se guarda la clave de la URL en la que se abrió: cualquier
   // cambio de URL (Atrás, un nodo de una sección, el menú) la cierra en ese mismo render.
@@ -216,7 +218,7 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
       <div className="overlay__base" inert={expandido}>
       {redNodo
         // Escritorio muestra la entidad de contexto; mobile, el nombre de la red (el área adentro de un área): el CSS elige.
-        ? <h1 className="tituloRed"><span className="tituloRed__entidad">{(entidadId && ady?.nodos.get(entidadId)?.label) || redNodo.label}</span><span className="tituloRed__red">{redNodo.label}</span></h1>
+        ? <h1 className="tituloRed" ref={tituloRef}><span className="tituloRed__entidad">{(entidadId && ady?.nodos.get(entidadId)?.label) || redNodo.label}</span><span className="tituloRed__red">{redNodo.label}</span></h1>
         : <h1 className={'floatingTitle' + (estado.enfocado ? ' title-hidden' : '')}>Sinápsis</h1>}
       {/* <a> a propósito: la navegación la coreografía Shell vía navegar(); next/link la saltearía. */}
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
