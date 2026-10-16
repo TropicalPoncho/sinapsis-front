@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { NodoGrafo } from '../types/vista.ts'
 import type { DetalleNodo } from '../lib/red/detalle.ts'
+import type { Seccion } from '../lib/red/menus.ts'
 
 // ponytail: hoy los assets salen de public/; cuando lxs creadxrs suban obras pasa a la URL del bucket R2
 // y no se reescribe ninguna fila (thumb es clave relativa por invariante).
@@ -10,72 +11,120 @@ export const BASE_ASSETS = '/'
 
 const cache = new Map<string, DetalleNodo>()
 
-export function Ficha({ nodo, creditos, hrefDe, onEnfocar }: {
+// D-27: la capa expandida (variante A). Va por encima de todo el canvas y no mueve la cámara: el panel sigue
+// maquetado debajo. Estado de UI, no Vista: no toca la URL ni el historial (D-34).
+// La fecha llega como medianoche UTC; sin `timeZone` en Argentina se vería el día anterior.
+const fechaLarga = (iso?: string) => {
+  const d = iso ? new Date(iso) : null
+  return d && !Number.isNaN(d.getTime()) ? d.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : null
+}
+
+export function Ficha({ nodo, secciones, nodos, hrefDe, onMiembro, onCerrar }: {
   nodo: NodoGrafo
-  creditos: { id: string; nombre: string; rol?: string }[]
+  secciones: Seccion[]
+  nodos: ReadonlyMap<string, NodoGrafo>
   hrefDe: (id: string) => string
-  onEnfocar: (id: string) => void
+  onMiembro: (id: string) => void
+  onCerrar: () => void
 }) {
   const [det, setDet] = useState<DetalleNodo | null>(cache.get(nodo.id) ?? null)
+  const capaRef = useRef<HTMLElement>(null)
+  const nombreRef = useRef<HTMLHeadingElement>(null)
 
+  useEffect(() => { nombreRef.current?.focus({ preventScroll: true }) }, [])
   useEffect(() => {
     if (cache.has(nodo.id)) return
     const ac = new AbortController()
     fetch(`/api/nodo/${nodo.id}`, { signal: ac.signal })
       .then((r) => (r.ok ? (r.json() as Promise<DetalleNodo>) : {}))
       .then((d) => { cache.set(nodo.id, d); setDet(d) })
-      .catch(() => { /* abort o error: se muestran solo los créditos */ })
+      .catch(() => { /* abort o error: se muestran solo las secciones */ })
     return () => ac.abort()
   }, [nodo.id])
 
   const alClick = (e: React.MouseEvent, id: string) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
     e.preventDefault()
-    onEnfocar(id)
+    onMiembro(id)
+  }
+  // Sin `href="#…"`: cambiaría el hash y sumaría una entrada al historial.
+  const irA = (id: string) => document.getElementById('seccion-' + id)?.scrollIntoView({ block: 'start' })
+
+  // aria-modal: el foco no sale de la capa (el resto del overlay está `inert`, pero también existen el panel de debug y el navegador).
+  const alTeclado = (e: React.KeyboardEvent) => {
+    if (e.key !== 'Tab' || !capaRef.current) return
+    const f = [...capaRef.current.querySelectorAll<HTMLElement>('button, a[href], [tabindex]:not([tabindex="-1"])')]
+    if (!f.length) return
+    const sale = e.shiftKey ? document.activeElement === f[0] || document.activeElement === nombreRef.current : document.activeElement === f[f.length - 1]
+    if (!sale) return
+    e.preventDefault()
+    f[e.shiftKey ? f.length - 1 : 0].focus()
   }
 
+  const fecha = fechaLarga(nodo.fecha)
   return (
-    <div className="ficha">
-      {creditos.length > 0 && (
-        <section>
-          <h3 className="ficha__titulo">Créditos</h3>
-          <ul className="ficha__creditos">
-            {creditos.map((c) => (
-              <li key={c.id}>
-                <a href={hrefDe(c.id)} onClick={(e) => alClick(e, c.id)}>{c.nombre}</a>
-                {c.rol && <> — <span className="ficha__rol">{c.rol}</span></>}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-      {det?.texto && <p className="ficha__texto">{det.texto}</p>}
-      {det?.galeria && (
-        <section>
-          <h3 className="ficha__titulo">Galería</h3>
-          <div className="ficha__galeria">
-            {det.galeria.map((g) => (
-              <img key={g.thumb} src={BASE_ASSETS + g.thumb} alt={g.alt ?? ''} loading="lazy" />
-            ))}
-          </div>
-        </section>
-      )}
-      {det?.enlaces && (
-        <div className="ficha__enlaces">
-          {det.enlaces.map((e) => (
-            <a key={e.url} className="accion" href={e.url} target="_blank" rel="noopener noreferrer">{e.etiqueta || 'Ir al sitio'}</a>
+    <section ref={capaRef} className="expandido" role="dialog" aria-modal="true" aria-labelledby="expandido-nombre" onKeyDown={alTeclado}>
+      <header className="expandido__cabecera">
+        <h2 id="expandido-nombre" className="expandido__nombre" tabIndex={-1} ref={nombreRef}>{nodo.label}</h2>
+        <nav className="expandido__menu" aria-label={'Secciones de ' + nodo.label}>
+          {secciones.map((s) => (
+            <button key={s.id} type="button" className="expandido__item" onClick={() => irA(s.id)}>{s.label}</button>
           ))}
+        </nav>
+        <button type="button" className="accion accion--volver expandido__volver" onClick={onCerrar}>Volver</button>
+      </header>
+
+      <div className="expandido__portada">
+        <div className="expandido__columna">
+          <p className="expandido__tipo">{nodo.subtipo}{fecha && ` · ${fecha}`}</p>
+          {nodo.descripcionBreve && <p className="expandido__bajada">{nodo.descripcionBreve}</p>}
         </div>
-      )}
-      {det?.youtube && (
-        <iframe
-          className="ficha__video"
-          src={`https://www.youtube-nocookie.com/embed/${det.youtube}`}
-          title={`Video de ${nodo.label}`}
-          loading="lazy"
-          allowFullScreen
-        />
-      )}
-    </div>
+      </div>
+
+      <div className="expandido__bloque">
+        <div className="expandido__columna">
+          {det?.texto && <p className="expandido__texto">{det.texto}</p>}
+          {secciones.map((s) => (
+            <section key={s.id} id={'seccion-' + s.id} className="expandido__seccion" aria-labelledby={'seccion-' + s.id + '-t'}>
+              <h3 id={'seccion-' + s.id + '-t'} className="expandido__titulo">{s.label}</h3>
+              <ul className="expandido__nodos">
+                {s.nodos.map((m) => {
+                  const n = nodos.get(m.id)
+                  return n && (
+                    <li key={m.id}>
+                      <a href={hrefDe(m.id)} onClick={(e) => alClick(e, m.id)}>{n.label}</a>
+                      {m.rol && <> — <span className="expandido__rol">{m.rol}</span></>}
+                    </li>
+                  )
+                })}
+              </ul>
+            </section>
+          ))}
+          {det?.galeria && (
+            <div className="expandido__galeria">
+              {det.galeria.map((g) => (
+                <img key={g.thumb} src={BASE_ASSETS + g.thumb} alt={g.alt ?? ''} loading="lazy" />
+              ))}
+            </div>
+          )}
+          {det?.enlaces && (
+            <div className="expandido__enlaces">
+              {det.enlaces.map((e) => (
+                <a key={e.url} className="accion" href={e.url} target="_blank" rel="noopener noreferrer">{e.etiqueta || 'Ir al sitio'}</a>
+              ))}
+            </div>
+          )}
+          {det?.youtube && (
+            <iframe
+              className="expandido__video"
+              src={`https://www.youtube-nocookie.com/embed/${det.youtube}`}
+              title={`Video de ${nodo.label}`}
+              loading="lazy"
+              allowFullScreen
+            />
+          )}
+        </div>
+      </div>
+    </section>
   )
 }

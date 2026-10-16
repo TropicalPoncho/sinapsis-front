@@ -11,7 +11,9 @@ import { botonesDe } from '../lib/red/botones.ts'
 import type { Boton } from '../lib/red/botones.ts'
 import { transicionEntrada } from '../lib/red/navegacion.ts'
 import type { Transicion } from '../types/vista.ts'
-import { agrupadoresDe, creditosDe, nodosDeLaRed, obrasDe, padreDe } from '../lib/red/menus.ts'
+import { agrupadoresDe, nodosDeLaRed, obrasDe, padreDe, seccionesDe } from '../lib/red/menus.ts'
+import type { VocabularioRoles } from '../lib/red/menus.ts'
+import roles from '../lib/red/roles.json'
 import { Ficha } from './Ficha.tsx'
 import { MenuLateral, MenuSuperior } from './Menus.tsx'
 
@@ -37,7 +39,9 @@ export interface OverlayProps {
 // El panel siempre está maquetado (nunca display:none): la cámara mide su rect antes de que aparezca.
 export default function Overlay({ estado, mostrado, ady, idx, escena, fase, error, panelRef, navegar, volver, reintentar, sumar }: OverlayProps) {
   const h2Ref = useRef<HTMLHeadingElement>(null)
-  const [abierto, setAbierto] = useState(false)
+  // D-34: la ficha expandida es estado de UI, no Vista. Se guarda la clave de la URL en la que se abrió: cualquier
+  // cambio de URL (Atrás, un nodo de una sección, el menú) la cierra en ese mismo render.
+  const [expandidoEn, setExpandidoEn] = useState<string | null>(null)
   const [puedeVolver, setPuedeVolver] = useState(false)
 
   const nodoDe = (e: EstadoRed) => ady && idx && e.enfocado
@@ -46,6 +50,9 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
   // El título y los menús siguen a la URL; todo lo de ADENTRO del panel sigue a `mostrado`.
   const nodoUrl = nodoDe(estado)
   const nodo = nodoDe(mostrado)
+  const claveUrl = claveEstado(estado)
+  if (expandidoEn !== null && expandidoEn !== claveUrl) setExpandidoEn(null)
+  const expandido = expandidoEn === claveUrl
 
   const redId = ady && idx && estado.red ? idx.idPorSlug.get(estado.red) ?? null : null
   const enfocadoId = nodoUrl?.id ?? null
@@ -137,36 +144,44 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
   const vacia = entrado && coincide && sub !== null && sub.nodos.every((n) => n.id === redId)
   const visible = fase === 'listo' && ((nodo !== undefined && !entrado && coincide) || error !== null || vacia)
 
-  useEffect(() => { setAbierto(false) }, [mostrado.enfocado])
   // Sigue a `mostrado`, no a la URL: si el botón desaparece apenas cambia la URL, el panel (en mobile,
   // de alto automático) se achica mientras sale y el encuadre salta antes de que la cámara se mueva.
   useEffect(() => {
     setPuedeVolver(((history.state as { sinapsis?: { idx?: number } } | null)?.sinapsis?.idx ?? 0) > 0)
   }, [mostrado])
+  // Cierra la ficha y devuelve el foco al título del panel; en el cuadro siguiente, porque mientras el overlay base
+  // siga `inert` el foco no puede entrar.
+  const cerrarFicha = useCallback(() => {
+    setExpandidoEn(null)
+    requestAnimationFrame(() => h2Ref.current?.focus({ preventScroll: true }))
+  }, [])
+  // Esc en dos niveles: con la ficha abierta la cierra; si no, hace lo del Volver del panel.
   useEffect(() => {
     if (!nodo) return
-    const f = (e: KeyboardEvent) => { if (e.key === 'Escape') volverDelPanel() }
+    const f = (e: KeyboardEvent) => { if (e.key === 'Escape') { if (expandido) cerrarFicha(); else volverDelPanel() } }
     window.addEventListener('keydown', f)
     return () => window.removeEventListener('keydown', f)
-  }, [nodo, volver, volverDelPanel])
+  }, [nodo, expandido, cerrarFicha, volverDelPanel])
   useEffect(() => {
     if (visible) h2Ref.current?.focus({ preventScroll: true })
   }, [visible, nodo?.id, error])
 
+  // Las secciones del nodo del panel se calculan una vez: la misma lista decide el botón Expandir y llena la ficha.
+  const secciones = nodo && ady ? seccionesDe(ady, nodo.id, roles as VocabularioRoles) : []
   const grado = nodo && ady ? (ady.sale.get(nodo.id)?.length ?? 0) + (ady.entra.get(nodo.id)?.length ?? 0) : 0
   // Las obras/eventos de la entidad enfocada que todavía no están en escena (D-22: se suman sin navegar).
   const porSumar = nodo && ady && escena && nodo.nodeType === 'ENTIDAD'
     ? obrasDe(ady, nodo.id).filter((id) => !escena.sub.nodos.some((n) => n.id === id))
     : []
   const botones = nodo
-    ? botonesDe(nodo, { grado, obrasPorSumar: porSumar.length }).filter((b) => !((b.accion === 'entrar' || b.accion === 'sumar') && mostrado.red === mostrado.enfocado))
+    ? botonesDe(nodo, { grado, secciones: secciones.length, obrasPorSumar: porSumar.length }).filter((b) => !((b.accion === 'entrar' || b.accion === 'sumar') && mostrado.red === mostrado.enfocado))
     : []
 
   const ejecutar = (b: Boton) => {
     if (!nodo || !idx) return
     switch (b.accion) {
       case 'expandir':
-        setAbierto((a) => !a)
+        setExpandidoEn(claveUrl)
         break
       case 'entrar': {
         const slug = idx.slugPorId.get(nodo.id) ?? ''
@@ -197,6 +212,8 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
         <div className="cargando__barra" />
       </div>
 
+      {/* D-34: con la ficha abierta el resto del overlay queda inert (nativo) y oculto; el panel sigue maquetado, así el rect que lee el puente no cambia. */}
+      <div className="overlay__base" inert={expandido}>
       {redNodo
         // Escritorio muestra la entidad de contexto; mobile, el nombre de la red (el área adentro de un área): el CSS elige.
         ? <h1 className="tituloRed"><span className="tituloRed__entidad">{(entidadId && ady?.nodos.get(entidadId)?.label) || redNodo.label}</span><span className="tituloRed__red">{redNodo.label}</span></h1>
@@ -232,12 +249,11 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
 
       <aside
         ref={panelRef}
-        className={'panel' + (lateral ? ' panel--con-lateral' : '') + (visible ? ' panel--visible' : '') + (abierto ? ' panel--extendido' : '')}
+        className={'panel' + (lateral ? ' panel--con-lateral' : '') + (visible ? ' panel--visible' : '')}
         role="region"
         aria-labelledby="panel-nombre"
         aria-live="polite"
         aria-busy={fase === 'moviendo'}
-        data-abierto={abierto}
         onScroll={(e) => alPanelScroll(e.currentTarget)}
       >
         {error === 'topologia' ? (
@@ -271,25 +287,29 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
                   <a key={b.etiqueta} className="accion" href={b.destino} target="_blank" rel="noopener noreferrer">{b.etiqueta}</a>
                 ) : (
                   <button key={b.etiqueta} className="accion" disabled={fase !== 'listo'} aria-busy={fase !== 'listo'} onClick={() => ejecutar(b)}>
-                    {b.accion === 'expandir' && abierto ? 'Ver menos' : b.accion === 'entrar' && !b.etiqueta ? 'Entrar' : b.etiqueta}
+                    {b.accion === 'entrar' && !b.etiqueta ? 'Entrar' : b.etiqueta}
                   </button>
                 ),
               )}
               {volverBtn}
             </div>
-            {abierto && ady && idx && (nodo.nodeType === 'OBRA' || nodo.nodeType === 'EVENTO') && (
-              <Ficha
-                key={nodo.id}
-                nodo={nodo}
-                creditos={creditosDe(ady, nodo.id)}
-                hrefDe={(id) => rutaDe(ady.nodos.get(id)!, idx)}
-                onEnfocar={(id) => irA(id, false)}
-              />
-            )}
           </div>
         ) : null}
       </aside>
       </div>
+      </div>
+
+      {expandido && nodo && ady && idx && (
+        <Ficha
+          key={nodo.id}
+          nodo={nodo}
+          secciones={secciones}
+          nodos={ady.nodos}
+          hrefDe={(id) => rutaDe(ady.nodos.get(id)!, idx)}
+          onMiembro={(id) => { setExpandidoEn(null); irA(id, false) }}
+          onCerrar={cerrarFicha}
+        />
+      )}
     </div>
   )
 }

@@ -1,4 +1,13 @@
-.overlay { position: fixed; inset: 0; pointer-events: none; }
+.overlay {
+  position: fixed; inset: 0; pointer-events: none;
+  /* D-28 / UI-11: ancho de la columna de texto (620-680) y su alineación. 0 = contra el borde izquierdo; auto = contra la neurona. */
+  --columna-texto: 660px; --panel-margen: 0;
+}
+/* D-34: con la ficha abierta el overlay base queda inert y oculto. visibility (no display, no transform): el rect del panel
+   es lo que mide el puente, y tiene que quedar igual para que la cámara no se mueva. El panel visible declara visibility:
+   visible, así que hace falta pisarlo explícito. */
+.overlay__base { display: contents; }
+.overlay__base[inert], .overlay__base[inert] .panel { visibility: hidden; }
 .overlay button, .overlay a, .overlay .panel__contenido { pointer-events: auto; }
 
 .panel {
@@ -32,7 +41,6 @@
     transform: translateY(16px); touch-action: pan-y;
   }
   .panel--visible { transform: none; }
-  .panel--extendido { max-height: 70dvh; }
   .panel__botones { flex-direction: column; gap: 8px; }
   .panel__botones .accion { width: 100%; min-height: 44px; justify-content: center; }
 }
@@ -111,19 +119,52 @@
   .lateralFloatingMenu .close-lateral { display: block; align-self: flex-end; min-width: 48px; min-height: 48px; background: none; border: 0; color: #fff; font-size: 26px; }
 }
 
-/* Ficha (plan 06) */
-.panel--extendido { max-height: 100dvh; }
-.ficha { margin-top: 32px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 32px; }
-.ficha__titulo { font-size: 18px; font-weight: 500; margin: 0 0 8px; }
-.ficha__creditos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
-.ficha__creditos a { color: #fff; text-decoration: underline; }
-.ficha__rol { font-size: 14px; font-weight: 500; text-transform: uppercase; color: rgba(255,255,255,.7); }
-.ficha__texto { white-space: pre-line; max-width: 65ch; font-size: 14px; font-weight: 400; line-height: 1.5; margin: 0; }
-.ficha__galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
-.ficha__galeria img { width: 100%; height: auto; display: block; }
-.ficha__enlaces { display: flex; flex-wrap: wrap; gap: 16px; }
-.ficha__video { width: 100%; aspect-ratio: 16 / 9; border: 0; }
-@media (max-width: 800px) { .panel--extendido { max-height: 70dvh; } }
+/* Ficha expandida (variante A, D-27): capa por encima de todo el canvas, bloque que sube con el scroll y se funde
+   con la escena, cabecera fija con el nombre, las secciones y Volver. Debajo del loader (200). */
+.expandido {
+  position: fixed; inset: 0; z-index: 150; overflow-y: auto; overscroll-behavior: contain; pointer-events: auto;
+  scroll-behavior: smooth; text-align: left; font-family: Gotham, sans-serif;
+}
+@media (prefers-reduced-motion: reduce) { .expandido { scroll-behavior: auto; } }
+.expandido__nombre:focus { outline: none; }
+.expandido__cabecera {
+  position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 56px; min-height: 100px; padding: 0 48px; box-sizing: border-box;
+  background: linear-gradient(#0a0a0a 55%, rgba(10,10,10,0));
+}
+.expandido__nombre { font-family: 'Briller', Gotham, sans-serif; font-size: 26px; font-weight: 400; line-height: 1.2; margin: 0; letter-spacing: .02em; flex: none; }
+.expandido__menu { display: flex; gap: 30px; min-width: 0; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+.expandido__menu::-webkit-scrollbar { display: none; }
+.expandido__item {
+  padding: 6px 0; margin: 0; border: 0; background: none; color: rgba(255,255,255,.6); font: inherit; font-size: 14px; font-weight: 500;
+  letter-spacing: .06em; text-transform: uppercase; cursor: pointer; transition: color 150ms ease;
+}
+.expandido__item:hover, .expandido__item[aria-current] { color: #fff; }
+.expandido__volver { margin-left: auto; flex: none; }
+.expandido__portada { min-height: 55vh; padding: 30px 48px 0; box-sizing: border-box; }
+.expandido__bloque {
+  background: linear-gradient(rgba(10,10,10,0), rgba(10,10,10,.82) 140px, #0a0a0a 260px);
+  padding: 240px 48px 64px; box-sizing: border-box; min-height: 60vh;
+}
+.expandido__columna { width: min(100%, var(--columna-texto)); margin-inline-start: var(--panel-margen); display: flex; flex-direction: column; gap: 56px; }
+.expandido__portada .expandido__columna { gap: 14px; }
+.expandido__tipo { font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: .14em; color: rgba(255,255,255,.7); margin: 0; }
+.expandido__bajada { font-size: 26px; font-weight: 400; line-height: 1.3; margin: 0; }
+.expandido__texto { white-space: pre-line; font-size: 18px; font-weight: 400; line-height: 1.6; margin: 0; }
+.expandido__seccion { scroll-margin-top: 120px; }
+.expandido__titulo { font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: .14em; margin: 0 0 14px; color: rgba(255,255,255,.7); }
+.expandido__nodos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 18px; line-height: 1.6; }
+.expandido__nodos a { color: #fff; text-decoration: none; }
+.expandido__nodos a:hover { text-decoration: underline; }
+.expandido__rol { font-size: 14px; font-weight: 500; text-transform: uppercase; color: rgba(255,255,255,.7); }
+.expandido__galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+.expandido__galeria img { width: 100%; height: auto; display: block; }
+.expandido__enlaces { display: flex; flex-wrap: wrap; gap: 16px; }
+.expandido__video { width: 100%; aspect-ratio: 16 / 9; border: 0; }
+@media (max-width: 800px) {
+  .expandido__cabecera { padding: 0 16px; gap: 16px; }
+  .expandido__portada { padding: 16px 16px 0; }
+  .expandido__bloque { padding: 160px 16px 64px; }
+}
 
 /* Título de la red en la que se entró; "Sinápsis" pasa a marca chica arriba a la derecha */
 .tituloRed__red { display: none; }
