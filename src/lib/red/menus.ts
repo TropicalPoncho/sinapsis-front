@@ -60,20 +60,6 @@ export function obrasDe(ady: Adyacencia, entidadId: string): string[] {
   return [...vistos.values()].sort(porFecha).map((n) => n.id)
 }
 
-// ponytail: sin ordenar por relevancia del rol; sale cuando el dato traiga un orden explícito.
-export function creditosDe(ady: Adyacencia, obraId: string) {
-  const porEntidad = new Map<string, { nombre: string; roles: string[] }>()
-  for (const { nodo, v } of vecinos(ady, obraId)) {
-    if (nodo.nodeType !== 'ENTIDAD') continue
-    const c = porEntidad.get(nodo.id) ?? { nombre: nodo.label, roles: [] }
-    if (v.rol && !c.roles.includes(v.rol)) c.roles.push(v.rol)
-    porEntidad.set(nodo.id, c)
-  }
-  return [...porEntidad]
-    .map(([id, c]) => ({ id, nombre: c.nombre, ...(c.roles.length ? { rol: c.roles.join(', ') } : {}) }))
-    .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
-}
-
 // D-29 / D-32: una sección agrupa a los vecinos de un nodo por el `rol` normalizado de sus vínculos de
 // participación. Mismo `{ id, label, color }` que las áreas reales de `agrupadoresDe`, más los `nodos`: el menú
 // superior dibuja las dos con el mismo componente. `rol` solo viaja en "Otros": la grafía que no encajó.

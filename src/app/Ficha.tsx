@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { NodoGrafo } from '../types/vista.ts'
 import type { DetalleNodo } from '../lib/red/detalle.ts'
 import type { Seccion } from '../lib/red/menus.ts'
+import { HEX } from './Menus.tsx'
 
 // ponytail: hoy los assets salen de public/; cuando lxs creadxrs suban obras pasa a la URL del bucket R2
 // y no se reescribe ninguna fila (thumb es clave relativa por invariante).
@@ -30,8 +31,25 @@ export function Ficha({ nodo, secciones, nodos, hrefDe, onMiembro, onCerrar }: {
   const [det, setDet] = useState<DetalleNodo | null>(cache.get(nodo.id) ?? null)
   const capaRef = useRef<HTMLElement>(null)
   const nombreRef = useRef<HTMLHeadingElement>(null)
+  const [activa, setActiva] = useState(secciones[0]?.id)
 
   useEffect(() => { nombreRef.current?.focus({ preventScroll: true }) }, [])
+  // Scroll-spy (D-27): activa es la última sección cuyo borde superior ya pasó la línea bajo la cabecera. El observer solo avisa
+  // cuándo un borde cruza esa franja de 40px; la sección se decide midiendo, así volver arriba deja la primera.
+  // ponytail: la franja se calcula al montar; rotar el celular con la ficha abierta la deja desfasada hasta reabrirla.
+  useEffect(() => {
+    const capa = capaRef.current
+    const alto = capa?.querySelector('.expandido__cabecera')?.getBoundingClientRect().height
+    if (!capa || !alto) return
+    const els = [...capa.querySelectorAll<HTMLElement>('.expandido__seccion')]
+    const linea = alto + 56
+    const io = new IntersectionObserver(
+      () => setActiva((els.filter((e) => e.getBoundingClientRect().top <= linea).pop() ?? els[0])?.id.slice('seccion-'.length)),
+      { root: capa, rootMargin: `-${alto + 16}px 0px -${Math.max(0, capa.clientHeight - linea)}px 0px` },
+    )
+    els.forEach((e) => io.observe(e))
+    return () => io.disconnect()
+  }, [nodo.id])
   useEffect(() => {
     if (cache.has(nodo.id)) return
     const ac = new AbortController()
@@ -68,7 +86,16 @@ export function Ficha({ nodo, secciones, nodos, hrefDe, onMiembro, onCerrar }: {
         <h2 id="expandido-nombre" className="expandido__nombre" tabIndex={-1} ref={nombreRef}>{nodo.label}</h2>
         <nav className="expandido__menu" aria-label={'Secciones de ' + nodo.label}>
           {secciones.map((s) => (
-            <button key={s.id} type="button" className="expandido__item" onClick={() => irA(s.id)}>{s.label}</button>
+            <button
+              key={s.id}
+              type="button"
+              className="expandido__item"
+              aria-current={s.id === activa ? 'true' : undefined}
+              style={s.id === activa && HEX.test(s.color) ? { color: s.color } : undefined}
+              onClick={() => irA(s.id)}
+            >
+              {s.label}
+            </button>
           ))}
         </nav>
         <button type="button" className="accion accion--volver expandido__volver" onClick={onCerrar}>Volver</button>
@@ -86,7 +113,7 @@ export function Ficha({ nodo, secciones, nodos, hrefDe, onMiembro, onCerrar }: {
           {det?.texto && <p className="expandido__texto">{det.texto}</p>}
           {secciones.map((s) => (
             <section key={s.id} id={'seccion-' + s.id} className="expandido__seccion" aria-labelledby={'seccion-' + s.id + '-t'}>
-              <h3 id={'seccion-' + s.id + '-t'} className="expandido__titulo">{s.label}</h3>
+              <h3 id={'seccion-' + s.id + '-t'} className="expandido__titulo" style={HEX.test(s.color) ? { color: s.color } : undefined}>{s.label}</h3>
               <ul className="expandido__nodos">
                 {s.nodos.map((m) => {
                   const n = nodos.get(m.id)

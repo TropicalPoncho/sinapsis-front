@@ -11,7 +11,7 @@ interface BranchedMenuItem {
 }
 
 // Dato en el borde: solo un hex de 6 dígitos llega a style.
-const HEX = /^#[0-9a-fA-F]{6}$/
+export const HEX = /^#[0-9a-fA-F]{6}$/
 
 // El hamburger vive en Overlay, no acá: adentro de un área este menú no tiene items (las áreas
 // son de la entidad), y si el botón dependiera de este componente, en mobile no habría forma de

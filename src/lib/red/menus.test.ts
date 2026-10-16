@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { agrupadoresDe, padreDe, nodosDeLaRed, creditosDe, obrasDe, seccionesDe, claveRol, type VocabularioRoles } from './menus.ts'
+import { agrupadoresDe, padreDe, nodosDeLaRed, obrasDe, seccionesDe, claveRol, type VocabularioRoles } from './menus.ts'
 import { construirAdyacencia } from '../vista/adyacencia.ts'
 import { leerCsv } from '../../../scripts/migracion/csv.ts'
 import type { NodoGrafo, NodeType, TipoVinculo } from '../../types/vista.ts'
@@ -43,15 +43,10 @@ test('nodosDeLaRed sin raíz y ordenados', () => {
   const r = nodosDeLaRed({ nodos: [n('r', 'ENTIDAD'), n('2', 'OBRA', 'b'), n('1', 'OBRA', 'a')], vinculos: [] }, 'r')
   assert.deepEqual(r.map((x) => x.id), ['1', '2'])
 })
-test('creditosDe: dedup, une roles, sin rol vacío', () => {
-  assert.deepEqual(creditosDe(ady, 'o'), [{ id: 'z', nombre: 'Ana' }, { id: 'p', nombre: 'Persona', rol: 'voz, dj' }])
-})
-test('creditosDe: obra sin vínculos', () => assert.deepEqual(creditosDe(ady, 'solo'), []))
 test('obrasDe: obras y eventos vecinos en ambos sentidos, sin repetidos', () => {
   assert.deepEqual(obrasDe(ady, 'p'), ['o'])
   assert.deepEqual(obrasDe(ady, 'o'), [])
 })
-test('creditosDe ignora no-ENTIDAD', () => assert.ok(creditosDe(ady, 'o').every((c) => c.id !== 'a')))
 
 // --- Secciones derivadas de los roles (D-29, D-32) ---
 const nf = (id: string, nodeType: NodeType, label: string, fecha?: string, color = '#111'): NodoGrafo => ({ ...n(id, nodeType, label, color), fecha })

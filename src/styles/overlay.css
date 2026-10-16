@@ -143,7 +143,8 @@
 .expandido__portada { min-height: 55vh; padding: 30px 48px 0; box-sizing: border-box; }
 .expandido__bloque {
   background: linear-gradient(rgba(10,10,10,0), rgba(10,10,10,.82) 140px, #0a0a0a 260px);
-  padding: 240px 48px 64px; box-sizing: border-box; min-height: 60vh;
+  /* abajo, lo que falta para que la última sección también pueda subir hasta la cabecera: sin esto el menú nunca la marca */
+  padding: 240px 48px max(64px, calc(100dvh - 160px)); box-sizing: border-box; min-height: 60vh;
 }
 .expandido__columna { width: min(100%, var(--columna-texto)); margin-inline-start: var(--panel-margen); display: flex; flex-direction: column; gap: 56px; }
 .expandido__portada .expandido__columna { gap: 14px; }
@@ -161,9 +162,14 @@
 .expandido__enlaces { display: flex; flex-wrap: wrap; gap: 16px; }
 .expandido__video { width: 100%; aspect-ratio: 16 / 9; border: 0; }
 @media (max-width: 800px) {
-  .expandido__cabecera { padding: 0 16px; gap: 16px; }
-  .expandido__portada { padding: 16px 16px 0; }
-  .expandido__bloque { padding: 160px 16px 64px; }
+  .expandido { touch-action: pan-y; }
+  /* cabecera de 64px: nombre chico y el menú en una franja que scrollea en horizontal */
+  .expandido__cabecera { height: 64px; min-height: 64px; padding: 0 16px; gap: 16px; }
+  .expandido__nombre { font-size: 18px; max-width: 40vw; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .expandido__menu { flex: 1 1 auto; gap: 24px; }
+  .expandido__portada { min-height: 40dvh; padding: 16px 16px 0; }
+  .expandido__bloque { padding: 160px 16px max(64px, calc(100dvh - 160px)); }
+  .expandido__seccion { scroll-margin-top: 84px; }
 }
 
 /* Título de la red en la que se entró; "Sinápsis" pasa a marca chica arriba a la derecha */
