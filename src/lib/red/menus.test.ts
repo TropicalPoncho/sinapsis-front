@@ -1,8 +1,11 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { agrupadoresDe, padreDe, nodosDeLaRed, creditosDe, obrasDe } from './menus.ts'
+import { readFileSync } from 'node:fs'
+import { agrupadoresDe, padreDe, nodosDeLaRed, creditosDe, obrasDe, seccionesDe, type VocabularioRoles } from './menus.ts'
 import { construirAdyacencia } from '../vista/adyacencia.ts'
 import type { NodoGrafo, NodeType, TipoVinculo } from '../../types/vista.ts'
+
+const vocab: VocabularioRoles = JSON.parse(readFileSync(new URL('./roles.json', import.meta.url), 'utf8'))
 
 const n = (id: string, nodeType: NodeType, label = id, color = '#111'): NodoGrafo => ({
   id, nodeType, subtipo: 's', label, vizParams: { shape: 's', color }, isStub: false,
@@ -48,3 +51,42 @@ test('obrasDe: obras y eventos vecinos en ambos sentidos, sin repetidos', () => 
   assert.deepEqual(obrasDe(ady, 'o'), [])
 })
 test('creditosDe ignora no-ENTIDAD', () => assert.ok(creditosDe(ady, 'o').every((c) => c.id !== 'a')))
+
+// --- Secciones derivadas de los roles (D-29, D-32) ---
+const nf = (id: string, nodeType: NodeType, label: string, fecha?: string, color = '#111'): NodoGrafo => ({ ...n(id, nodeType, label, color), fecha })
+const labels = (ids: { id: string }[], a: { nodos: ReadonlyMap<string, NodoGrafo> }) => ids.map((x) => a.nodos.get(x.id)!.label)
+
+// Los 16 vínculos reales de SOMA en la base (el evento es el origen de los COLABORO_EN).
+const soma = construirAdyacencia({
+  nodos: [nf('soma', 'EVENTO', 'SOMA', '2023-01-21', '#abc'), nf('tp', 'ENTIDAD', 'Tropical Poncho'), nf('is', 'ENTIDAD', 'In Session'),
+    nf('obras', 'AGRUPACION', 'Obras'), nf('beta', 'EVENTO', 'SOMA beta', '2022-11-26'), nf('nudo', 'EVENTO', 'NUDO', '2024-01-01'),
+    nf('juli', 'ENTIDAD', 'Juli Garro Yoga'), nf('trama', 'OBRA', 'Trama', '2023-01-10'), nf('fedah', 'ENTIDAD', 'Fedah'),
+    nf('kirtan', 'ENTIDAD', 'KIRTAN ROCK'), nf('astro', 'ENTIDAD', 'Astronautas De La Mente'), nf('marian', 'ENTIDAD', 'Marian Basti'),
+    nf('e11', 'ENTIDAD', 'E110101'), nf('rama', 'ENTIDAD', 'Rama Cerratto'), nf('ludmila', 'ENTIDAD', 'Ludmila Di Pascuale'), nf('luciano', 'ENTIDAD', 'Luciano Rodriguez')],
+  vinculos: [v('tp', 'soma', 'PRODUJO'), v('is', 'soma', 'PRODUJO'), v('obras', 'soma', 'COMPONE'), v('beta', 'soma', 'PRECEDE', 'Edición'),
+    v('beta', 'soma', 'COLABORO_EN'), v('soma', 'nudo', 'PRECEDE'),
+    v('soma', 'juli', 'COLABORO_EN', 'MEDITACIÓN ACTIVA'), v('soma', 'trama', 'COLABORO_EN', 'ACTIVIDADES'), v('soma', 'fedah', 'COLABORO_EN', 'PERFORMANCES'),
+    v('soma', 'kirtan', 'COLABORO_EN', 'BANDAS EN VIVO'), v('soma', 'astro', 'COLABORO_EN', 'BANDAS EN VIVO'), v('soma', 'marian', 'COLABORO_EN', 'VJ'),
+    v('soma', 'e11', 'COLABORO_EN', 'VINYLS DJ SETS'), v('soma', 'rama', 'COLABORO_EN', 'VINYLS DJ SETS'),
+    v('soma', 'ludmila', 'COLABORO_EN', 'VINYLS DJ SETS'), v('soma', 'luciano', 'COLABORO_EN', 'VINYLS DJ SETS')],
+})
+
+test('seccionesDe: SOMA con sus vínculos reales y el vocabulario del repo', () => {
+  const s = seccionesDe(soma, 'soma', vocab)
+  assert.deepEqual(s.map((x) => x.id), ['produccion', 'meditacion', 'actividades', 'performance', 'bandas-en-vivo', 'dj', 'vj', 'otros'])
+  const de = (id: string) => labels(s.find((x) => x.id === id)!.nodos, soma)
+  assert.deepEqual(de('produccion'), ['In Session', 'Tropical Poncho'])
+  assert.deepEqual(de('actividades'), ['Trama'])
+  assert.deepEqual(de('bandas-en-vivo'), ['Astronautas De La Mente', 'KIRTAN ROCK'])
+  assert.deepEqual(de('dj'), ['E110101', 'Luciano Rodriguez', 'Ludmila Di Pascuale', 'Rama Cerratto'])
+  assert.deepEqual(s.find((x) => x.id === 'otros')!.nodos, [{ id: 'beta' }])
+  assert.ok(s.every((x) => x.color === '#abc'))
+  assert.equal(s.find((x) => x.id === 'bandas-en-vivo')!.label, 'Bandas en vivo')
+  assert.equal(s.find((x) => x.id === 'dj')!.label, 'DJ')
+})
+test('seccionesDe: COMPONE y PRECEDE no forman sección; SOMA beta aparece una sola vez', () => {
+  const todos = seccionesDe(soma, 'soma', vocab).flatMap((x) => x.nodos.map((nn) => nn.id))
+  assert.ok(!todos.includes('obras') && !todos.includes('nudo'))
+  assert.equal(todos.filter((id) => id === 'beta').length, 1)
+})
+test('seccionesDe: sin vínculos de participación devuelve []', () => assert.deepEqual(seccionesDe(soma, 'obras', vocab), []))

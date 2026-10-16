@@ -1,5 +1,6 @@
 import type { Adyacencia } from '../vista/adyacencia.ts'
 import type { NodeType, NodoGrafo, Subgrafo, VinculoGrafo } from '../../types/vista.ts'
+import { slugDe } from './slugs.ts'
 
 const porLabel = (a: { label: string }, b: { label: string }) => a.label.localeCompare(b.label, 'es')
 
@@ -71,4 +72,75 @@ export function creditosDe(ady: Adyacencia, obraId: string) {
   return [...porEntidad]
     .map(([id, c]) => ({ id, nombre: c.nombre, ...(c.roles.length ? { rol: c.roles.join(', ') } : {}) }))
     .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
+}
+
+// D-29 / D-32: una sección agrupa a los vecinos de un nodo por el `rol` normalizado de sus vínculos de
+// participación. Mismo `{ id, label, color }` que las áreas reales de `agrupadoresDe`, más los `nodos`: el menú
+// superior dibuja las dos con el mismo componente. `rol` solo viaja en "Otros": la grafía que no encajó.
+export interface Seccion {
+  id: string
+  label: string
+  color: string
+  nodos: { id: string; rol?: string }[]
+}
+// roles.json: `secciones` en el orden en que se muestran; `sinRol` por `TIPO` o `TIPO:sale|entra` (sentido del nodo dueño).
+export interface VocabularioRoles {
+  secciones: { etiqueta: string; roles: string[] }[]
+  sinRol: Record<string, string>
+}
+
+// Solo compara, nunca se muestra: sin tildes ni mayúsculas, y en cada palabra de 3+ letras sin plural ni `e` final
+// ("LIVE SETs" = "Live Set", "Artistas Convocades" = "Artista Convocade").
+export const claveRol = (rol: string) =>
+  rol.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim().split(/\s+/)
+    .map((w) => (w.length >= 3 ? w.replace(/(es|s)$/, '').replace(/e$/, '') : w)).join(' ')
+
+// ponytail: los tipos de participación son una lista fija; salida: sumar uno cuando aparezca un vínculo de participación
+// nuevo. El vocabulario llega por parámetro desde un JSON del repo; salida: una tabla `roles` servida con la topología
+// cuando lxs creadxrs carguen roles (M2), sin tocar esta función.
+const PARTICIPACION = new Set<string>(['COLABORO_EN', 'CORREALIZO', 'PRODUJO', 'INTEGRA'])
+const SEPARADOR = /\s*[,+/]\s*|\s+y\s+/i // constante: el dato nunca arma el RegExp
+const OTROS = 'Otros'
+const esObra = (n: NodoGrafo) => n.nodeType === 'OBRA' || n.nodeType === 'EVENTO'
+
+// En los dos sentidos: en la base el evento es el origen del COLABORO_EN, en la fixture lo es la creadxr; contar solo
+// uno dejaría sin secciones a la mitad de los nodos. Así la misma regla da las de un evento y las áreas derivadas de una creadxr.
+export function seccionesDe(ady: Adyacencia, nodoId: string, vocabulario: VocabularioRoles): Seccion[] {
+  const dueno = ady.nodos.get(nodoId)
+  if (!dueno) return []
+  const indice = new Map(vocabulario.secciones.flatMap((s) => s.roles.map((r) => [claveRol(r), s.etiqueta] as const)))
+  const grupos = new Map<string, Map<string, { nodo: NodoGrafo; roles: string[] }>>()
+  const poner = (etiqueta: string, nodo: NodoGrafo, rol?: string) => {
+    const g = grupos.get(etiqueta) ?? new Map()
+    const e = g.get(nodo.id) ?? { nodo, roles: [] }
+    if (rol && !e.roles.includes(rol)) e.roles.push(rol)
+    g.set(nodo.id, e)
+    grupos.set(etiqueta, g)
+  }
+  for (const { nodo, v } of vecinos(ady, nodoId)) {
+    if (!PARTICIPACION.has(v.tipoVinculo)) continue
+    const partes = (v.rol ?? '').split(SEPARADOR).map((p) => p.trim()).filter(Boolean)
+    if (!partes.length) {
+      const sinRol = vocabulario.sinRol
+      poner(sinRol[`${v.tipoVinculo}:${v.origen === nodoId ? 'sale' : 'entra'}`] ?? sinRol[v.tipoVinculo] ?? OTROS, nodo)
+    }
+    for (const p of partes) {
+      const etiqueta = indice.get(claveRol(p))
+      if (etiqueta) poner(etiqueta, nodo)
+      else poner(OTROS, nodo, p)
+    }
+  }
+  // Vocabulario, después las etiquetas de `sinRol` fuera de la lista por nombre, "Otros" al final.
+  const orden = vocabulario.secciones.map((s) => s.etiqueta)
+  const lugar = (e: string) => (e === OTROS ? Infinity : orden.indexOf(e) < 0 ? orden.length : orden.indexOf(e))
+  return [...grupos.keys()]
+    .sort((a, b) => lugar(a) - lugar(b) || a.localeCompare(b, 'es'))
+    .map((etiqueta) => ({
+      id: slugDe(etiqueta),
+      label: etiqueta,
+      color: dueno.vizParams.color,
+      nodos: [...grupos.get(etiqueta)!.values()]
+        .sort((a, b) => (esObra(a.nodo) !== esObra(b.nodo) ? (esObra(a.nodo) ? -1 : 1) : esObra(a.nodo) ? porFecha(a.nodo, b.nodo) : porLabel(a.nodo, b.nodo)))
+        .map(({ nodo, roles }) => (roles.length ? { id: nodo.id, rol: roles.join(', ') } : { id: nodo.id })),
+    }))
 }
