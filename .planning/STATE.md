@@ -4,16 +4,16 @@ milestone: v1.0
 current_phase: 04
 current_phase_name: UI & Navigation
 status: executing
-stopped_at: Completed 04.1-01-PLAN.md
-last_updated: "2026-10-16T02:51:58.176Z"
+stopped_at: Completed 04.1-02-PLAN.md
+last_updated: "2026-10-16T15:30:43.705Z"
 last_activity: 2026-10-08
 last_activity_desc: Phase 04 execution started
-state_head: ca2dd10b9b391381f4d4204cea77dac2ddb346a0
+state_head: 4f02f83f2c5d3c26d6bc07a7e83b9556e788e50c
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 32
-  completed_plans: 28
+  completed_plans: 29
 milestone_name: milestone
 ---
 
@@ -85,6 +85,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P11 | 2 sesiones | 3 tasks | 6 files |
 | Phase 04 P12 | 1 sesion | 3 tasks | 12 files |
 | Phase 04.1 P01 | 12min | 2 tasks | 3 files |
+| Phase 04.1 P02 | 35min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -123,6 +124,9 @@ Recent decisions affecting current work:
 - [Phase 04]: D-24: una entidad con areas entra como la raiz y sus areas, unidas por vinculos virtuales derivados de sus miembros (Vista.vinculosEntreAgrupaciones)
 - [Phase 04]: D-25: adentro de un area el contexto es la entidad duena; VOLVER sube un nivel y navegar ignora la URL actual (G-09 causa H1+H2)
 - [Phase 04.1]: D-32: secciones derivadas de los roles de COLABORO_EN/CORREALIZO/PRODUJO/INTEGRA en ambos sentidos; vocabulario curado en src/lib/red/roles.json (se pasa por parametro a seccionesDe); lo no mapeado va a Otros con su grafia original. Los roles son del productor: la normalizacion es un default de presentacion (dueno, 2026-10-16)
+- [Phase 04.1]: D-33: Expandir sale de los datos (OBRA/EVENTO no stub con al menos una seccion)
+- [Phase 04.1]: D-34: la ficha expandida es estado de UI atado a la clave de la URL; no es Vista ni URL
+- [Phase 04.1]: D-35: panel fluido con --columna-texto/--panel-margen y titulo grande de mobile sumado al area segura (tituloRef)
 
 ### Pending Todos
 
@@ -165,8 +169,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-10-16T02:51:57.524Z
-Stopped at: Completed 04.1-01-PLAN.md
+Last session: 2026-10-16T15:30:43.472Z
+Stopped at: Completed 04.1-02-PLAN.md
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's
