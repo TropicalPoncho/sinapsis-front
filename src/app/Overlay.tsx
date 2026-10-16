@@ -80,6 +80,7 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
   const deSecciones = areas.length === 0 && seccionesRed.length > 0
   const items = deSecciones ? seccionesRed : areas
   // D-37: la sección abierta es una lista de UI atada a la red en la que se abrió, no una Vista: no toca la URL ni la escena.
+  // ponytail: la sección no vive en la URL (Atrás no la cierra, un link no la reproduce); salida: `?seccion=` más `filtroRoles` en la Vista.
   // `llegada`: ya se vio la URL en esa red (la entrada desde la ficha la guarda antes de que la URL llegue).
   const [seccion, setSeccion] = useState<{ red: string; id: string; llegada: boolean } | null>(null)
   if (seccion) {
@@ -141,13 +142,6 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     else aLaDuena(redId)
   }
 
-  // D-37: abrir una sección guarda `{ red, id }` y abre la lista (en mobile, el cajón); la escena no cambia. Tocar la activa no hace nada.
-  const abrirSeccion = (id: string) => {
-    if (id === seccionActiva?.id || !estado.red) return
-    setSeccion({ red: estado.red, id, llegada: true })
-    setMenuAbierto(false)
-    setLateralAbierto(true)
-  }
   // VOLVER de una sección la cierra y, si el foco era otro nodo, vuelve a enfocar la raíz (misma Vista: el puente usa aditivo).
   const cerrarSeccion = () => {
     setSeccion(null)
@@ -168,7 +162,14 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     if (dentro) irA(id, false)
     else navegar(urlDe(rutaDe(n, idx), { enfocado: slug, red: slugFicha, prof: null, semilla: null, raiz: null, puentes: null }), 'reemplazo')
   }
-  const elegirItem = (id: string) => (deSecciones ? abrirSeccion(id) : elegirArea(id))
+  // D-37: abrir una sección guarda `{ red, id }` y abre la lista (en mobile, el cajón); la escena no cambia. Tocar la activa no hace nada.
+  const elegirItem = (id: string) => {
+    if (!deSecciones) return elegirArea(id)
+    if (id === seccionActiva?.id || !estado.red) return
+    setSeccion({ red: estado.red, id, llegada: true })
+    setMenuAbierto(false)
+    setLateralAbierto(true)
+  }
 
   // Volver del panel (y Esc). Al previsualizar un área en la red de su entidad, sube al "home" de la entidad
   // (sin foco en el área) en vez de deshacer el historial: Atrás volvería a entrar al área, que es lo contrario.

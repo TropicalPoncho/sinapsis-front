@@ -30,7 +30,6 @@
 .panel__subtipo { font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; color: rgba(255,255,255,.7); margin: 8px 0 0; }
 .panel__desc { font-family: Gotham, sans-serif; font-size: 14px; font-weight: 400; line-height: 1.5; max-width: 65ch; margin: 16px 0 0; }
 .panel__botones { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 32px; }
-.panel__hijos { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
 
 .home__bajada { position: fixed; z-index: 10; top: 12%; left: 50%; transform: translateX(-50%); font-size: 18px; font-weight: 400; margin: 0; text-align: center; }
 
