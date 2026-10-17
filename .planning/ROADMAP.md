@@ -135,13 +135,15 @@ Plans:
 **Goal**: Cada nodo se puede expandir (ficha de lectura que sube por encima del canvas) o ingresar (red interna), con las acciones derivadas de los datos; el panel de preview ocupa el ancho libre; y un evento u obra muestra secciones virtuales derivadas de los roles de sus vínculos, con un recorrido recursivo hasta lxs creadxrs y sus propias áreas.
 **Requirements**: UI-04, UI-11, UI-12, UI-13, UI-14, UI-15, UI-16
 **Depends on:** Phase 4
-**Plans:** 3/4 plans executed in 4 waves
+**Plans:** 4/4 plans executed in 4 waves
 
 Plans:
 - [x] 04.1-01-PLAN.md — Secciones derivadas de los roles: vocabulario curado en datos (`roles.json`) y `seccionesDe` pura, probada con SOMA, Rama y el censo de roles reales (D-29, D-32) (wave 1)
 - [x] 04.1-02-PLAN.md — Expandir (variante A) desde los datos: ficha sobre el canvas sin mover la cámara, cabecera con secciones y scroll-spy, columna de 620-680 px; panel fluido y título grande en mobile dentro del área segura; auditoría de D-31 (D-26, D-27, D-28, D-31, D-33..D-35) (wave 2)
 - [x] 04.1-03-PLAN.md — Entrar desde los datos (también obras y eventos), menú de secciones derivadas, lista lateral de una sección y recorrido recursivo hasta lxs creadxrs y sus propias secciones o áreas, también desde la ficha (D-26, D-29, D-30, D-36, D-37) (wave 3)
-- [ ] 04.1-04-PLAN.md — Auditoría ponytail, D-32..D-37 en CONTEXT y enmiendas de la Fase 4 (CONTEXT y UI-SPEC), re-smoke headless y UAT del dueño (wave 4)
+- [x] 04.1-04-PLAN.md — Auditoría ponytail, D-32..D-37 en CONTEXT y enmiendas de la Fase 4 (CONTEXT y UI-SPEC), re-smoke headless y UAT del dueño (wave 4)
+
+**Fase abierta tras el UAT del dueño (2026-10-17, "bastante bien"):** gaps G41-01 (etiquetas de sección según el contexto del nodo, UI-14) y G41-02 (auditoría de qué neuronas aparecen en cada situación, UI-15) en `04.1-UAT-GAPS.md`; falta un plan de seguimiento (`/gsd-plan-phase 04.1 --gaps`).
 
 ### Phase 5: Tropical Poncho Launch
 

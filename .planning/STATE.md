@@ -4,16 +4,16 @@ milestone: v1.0
 current_phase: 04
 current_phase_name: UI & Navigation
 status: executing
-stopped_at: Completed 04.1-03-PLAN.md
-last_updated: "2026-10-16T16:01:39.436Z"
+stopped_at: Completed 04.1-04-PLAN.md (UAT hecho; fase 4.1 abierta por G41-01 y G41-02)
+last_updated: "2026-10-17T23:38:41.109Z"
 last_activity: 2026-10-08
 last_activity_desc: Phase 04 execution started
-state_head: 883f43d55ceed2b7b8bae15ade9afba3e6a41863
+state_head: 71f6099c6d0b4d70d6f57e74e82b3ab1ed5d8bf8
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 32
-  completed_plans: 30
+  completed_plans: 31
 milestone_name: milestone
 ---
 
@@ -31,7 +31,8 @@ See: .planning/PROJECT.md (updated 2026-08-06)
 Phase: 04 (UI & Navigation) — EXECUTING
 Plan: 12 de 13 ejecutados (04-12 completo; falta 04-13)
 Status: Fase 4 abierta: G-08, G-09 y G-10 implementados (04-12), pendientes del UAT del dueño (04-13); G-06 (celular) abierto
-Last activity: 2026-10-08 — 04-12 completo (G-08, G-09, G-10)
+Fase 4.1 (INSERTED): 4 de 4 planes ejecutados (04.1-04 completo, UAT del dueño 2026-10-17: "bastante bien"); **la fase sigue abierta** por G41-01 (etiquetas de sección por contexto, UI-14) y G41-02 (auditoría de neuronas por contexto, UI-15), ver 04.1-UAT-GAPS.md; siguiente: /gsd-plan-phase 04.1 --gaps
+Last activity: 2026-10-17 — 04.1-04 completo (auditoría ponytail, D-32..D-37, re-smoke y UAT)
 
 Phase 02 (data-vista-backend) closed 2026-10-01 — see 02-05-SUMMARY.md.
 
@@ -87,6 +88,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04.1 P01 | 12min | 2 tasks | 3 files |
 | Phase 04.1 P02 | 35min | 3 tasks | 10 files |
 | Phase 04.1 P03 | 22 min | 2 tasks | 7 files |
+| Phase 04.1 P04 | sesion larga | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -130,6 +132,7 @@ Recent decisions affecting current work:
 - [Phase 04.1]: D-35: panel fluido con --columna-texto/--panel-margen y titulo grande de mobile sumado al area segura (tituloRef)
 - [Phase 04.1]: D-36: Entrar sale de los datos (COMPONE saliente o secciones) para los cuatro nodeType; todo Entrar es reemplazo y una obra o evento entra a /obra/<slug> con su panel
 - [Phase 04.1]: D-37: la seccion es una lista de UI atada a la red ({red,id,llegada} en Overlay), no una Vista: sin URL ni nodos nuevos en la escena
+- [Phase 04.1]: D-32 confirmada con ajuste pendiente: las etiquetas de seccion se leen segun el contexto del nodo (G41-01); D-33..D-37 confirmadas en el UAT (2026-10-17). Fase 4.1 abierta por G41-01 y G41-02
 
 ### Pending Todos
 
@@ -172,8 +175,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-10-16T16:01:39.197Z
-Stopped at: Completed 04.1-03-PLAN.md
+Last session: 2026-10-17T23:38:40.890Z
+Stopped at: Completed 04.1-04-PLAN.md (UAT hecho; fase 4.1 abierta por G41-01 y G41-02)
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's
