@@ -73,6 +73,8 @@ export interface Seccion {
 export interface VocabularioRoles {
   secciones: { etiqueta: string; roles: string[] }[]
   sinRol: Record<string, string>
+  // Etiqueta de la sección cuyos nodos son el lugar del evento (D-44).
+  lugar?: string
 }
 
 // Solo compara, nunca se muestra: sin tildes ni mayúsculas, y en cada palabra de 3+ letras sin plural ni `e` final

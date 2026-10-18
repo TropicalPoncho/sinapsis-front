@@ -7,6 +7,7 @@ import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { Pool } from 'pg'
 import type { Subgrafo, NodoGrafo, VinculoGrafo } from '@/types/vista'
+import { horarioOk } from '../../../lib/red/detalle'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -25,6 +26,7 @@ interface FilaNodo {
   fecha: Date | null
   disciplina: string | null
   location_id: string | null
+  horario: string | null
 }
 
 interface FilaVinculo {
@@ -48,6 +50,7 @@ function aNodoGrafo(f: FilaNodo): NodoGrafo {
     ...(f.fecha !== null && { fecha: f.fecha.toISOString() }),
     ...(f.disciplina !== null && { disciplina: f.disciplina }),
     ...(f.location_id !== null && { locationId: f.location_id }),
+    ...(horarioOk(f.horario) && { horario: f.horario }),
   }
 }
 
@@ -69,10 +72,12 @@ export async function GET() {
   }
   try {
     const [nodosRes, vinculosRes] = await Promise.all([
-      // metadata queda afuera: es la data profunda (DATA-02), se pide al abrir el nodo.
+      // metadata queda afuera: es la data profunda (DATA-02), se pide al abrir el nodo. Única excepción, D-44: `ficha.horario`
+      // ("22–04hs", tope 40 en el import y en horarioOk) viaja porque el preview de un evento futuro no pide nada al servidor.
+      // ponytail: un solo campo de metadata en la topología; si viajan más, columna propia en una migración.
       pool.query<FilaNodo>(
         `SELECT id, node_type, subtipo, label, descripcion_breve, thumb, viz_params,
-                is_stub, fecha, disciplina, location_id
+                is_stub, fecha, disciplina, location_id, metadata #>> '{ficha,horario}' AS horario
          FROM nodos`,
       ),
       // descripcion queda afuera: es prosa no filtrable (DATA-04), se pide al abrir el vínculo.

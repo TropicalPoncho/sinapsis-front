@@ -13,6 +13,7 @@ import type { Transicion } from '../types/vista.ts'
 import { agrupadoresDe, nodosDeLaRed, obrasDe, padreDe, seccionesDe } from '../lib/red/menus.ts'
 import type { Seccion, VocabularioRoles } from '../lib/red/menus.ts'
 import roles from '../lib/red/roles.json'
+import { esFuturo, fechaLarga, hoyLocal } from '../lib/red/fechas.ts'
 import { Ficha } from './Ficha.tsx'
 import { MenuLateral, MenuSuperior } from './Menus.tsx'
 
@@ -212,6 +213,11 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
 
   // Las secciones del nodo del panel se calculan una vez: la misma lista decide el botón Expandir y llena la ficha.
   const secciones = nodo && ady ? seccionesDe(ady, nodo.id, roles as VocabularioRoles) : []
+  // D-44: un evento de hoy en adelante (la fecha local del visitante, en el cliente) muestra cuándo y dónde. El espacio es el primer nodo
+  // de la sección "lugar" de roles.json. Un solo cálculo, para el panel y para la ficha.
+  const futuro = nodo?.nodeType === 'EVENTO' && esFuturo(nodo.fecha, hoyLocal())
+  const seccionLugar = futuro ? secciones.find((s) => s.label === (roles as VocabularioRoles).lugar) : undefined
+  const espacio = seccionLugar?.nodos[0] ? { id: seccionLugar.nodos[0].id, seccion: seccionLugar.id } : undefined
   // D-26: el nodo compone algo si le sale un COMPONE.
   const compone = nodo && ady ? (ady.sale.get(nodo.id) ?? []).some((v) => v.tipoVinculo === 'COMPONE') : false
   // Las obras/eventos de la entidad enfocada que todavía no están en escena (D-22: se suman sin navegar).
@@ -330,6 +336,8 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
           <div className="panel__contenido" key={nodo.id}>
             <h2 id="panel-nombre" tabIndex={-1} className="panel__nombre" ref={h2Ref}>{nodo.label}</h2>
             <p className="panel__subtipo">{nodo.subtipo}</p>
+            {futuro && <p className="panel__cuando">{fechaLarga(nodo.fecha, true)}{nodo.horario && ` · ${nodo.horario}`}</p>}
+            {espacio && <button type="button" className="panel__lugar" onClick={() => irA(espacio.id, false)}>{ady?.nodos.get(espacio.id)?.label}</button>}
             {nodo.descripcionBreve && <p className="panel__desc">{nodo.descripcionBreve}</p>}
             <div className="panel__botones">
               {botones.map((b) =>
@@ -354,6 +362,8 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
           key={nodo.id}
           nodo={nodo}
           secciones={secciones}
+          futuro={futuro}
+          espacio={espacio}
           nodos={ady.nodos}
           hrefDe={(id) => rutaDe(ady.nodos.get(id)!, idx)}
           onMiembro={entrarASeccion}

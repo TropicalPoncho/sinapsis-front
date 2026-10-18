@@ -93,6 +93,9 @@ export interface NodoGrafo {
   fecha?: string                 // ISO 8601 — creación, o fecha del evento
   disciplina?: string
   locationId?: string
+  // Texto corto del evento ("22–04hs"), sale de `metadata.ficha.horario` (D-44). No es filtrable: viaja porque el preview no pide
+  // nada al servidor (D-12, VIST-04).
+  horario?: string
 }
 
 // Escalares únicamente. Si esto pudiera contener GLSL, instancing queda

@@ -28,6 +28,9 @@
 
 .panel__nombre { font-family: 'Briller', Gotham, sans-serif; font-size: 26px; font-weight: 400; line-height: 1.2; margin: 0; }
 .panel__subtipo { font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; color: rgba(255,255,255,.7); margin: 8px 0 0; }
+.panel__cuando { font-size: 18px; font-weight: 500; line-height: 1.25; color: #fff; margin: 14px 0 0; }
+.panel__lugar { display: block; padding: 0; margin: 4px 0 0; border: 0; background: none; color: #fff; font: inherit; font-size: 18px; font-weight: 500; text-align: left; cursor: pointer; pointer-events: auto; }
+.panel__lugar:hover { text-decoration: underline; }
 .panel__desc { font-family: Gotham, sans-serif; font-size: 14px; font-weight: 400; line-height: 1.5; max-width: 65ch; margin: 16px 0 0; }
 .panel__botones { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 32px; }
 
@@ -158,6 +161,13 @@
 .expandido__creditos .expandido__titulo { margin: 0; }
 .expandido__portada .expandido__columna { gap: 14px; }
 .expandido__tipo { font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: .14em; color: rgba(255,255,255,.7); margin: 0; }
+.expandido__cuando { font-size: 34px; font-weight: 500; line-height: 1.2; margin: 0; }
+.expandido__lugar { font-size: 24px; font-weight: 500; line-height: 1.2; margin: 0; }
+.expandido__lugar a { color: #fff; text-decoration: none; }
+.expandido__lugar a:hover { text-decoration: underline; }
+.expandido__entradas { border: 1px solid rgba(255,255,255,.2); border-radius: 6px; padding: 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.expandido__entradas .expandido__titulo, .expandido__entradas .expandido__texto { margin: 0; }
+.expandido__entradas .expandido__texto { font-size: 16px; }
 .expandido__bajada { font-size: 26px; font-weight: 400; line-height: 1.3; margin: 0; }
 .expandido__texto { white-space: pre-line; font-size: 18px; font-weight: 400; line-height: 1.6; margin: 0; }
 .expandido__contenido { scroll-margin-top: 120px; }
@@ -177,6 +187,8 @@
   .expandido__cabecera { height: 64px; min-height: 64px; padding: 0 16px; gap: 16px; }
   .expandido__nombre { font-size: 18px; max-width: 40vw; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .expandido__menu { flex: 1 1 auto; gap: 24px; }
+  .expandido__cuando { font-size: 24px; }
+  .expandido__lugar { font-size: 18px; }
   .expandido__portada { min-height: 40dvh; padding: 16px 16px 0; }
   .expandido__bloque { padding: 160px 16px max(64px, calc(100dvh - 160px)); }
   .expandido__contenido { scroll-margin-top: 84px; }
@@ -236,6 +248,8 @@
   .panel__nombre { font-size: 34px; }
   .panel__subtipo { font-size: 16px; }
   .panel__desc { font-size: 18px; }
+  .panel__cuando { font-size: 22px; }
+  .panel__lugar { font-size: 22px; }
   .panel__botones { margin-top: 40px; }
 }
 

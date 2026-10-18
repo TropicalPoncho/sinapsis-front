@@ -30,5 +30,6 @@
     {"etiqueta":"Rush","roles":["Rush"]},
     {"etiqueta":"Espacio","roles":["Espacio"]}
   ],
+  "lugar": "Espacio",
   "sinRol": {"PRODUJO":"Producción","INTEGRA:entra":"Integrantes","INTEGRA:sale":"Integra"}
 }

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { NodoGrafo } from '../types/vista.ts'
 import type { DetalleNodo } from '../lib/red/detalle.ts'
 import type { Seccion } from '../lib/red/menus.ts'
+import { fechaLarga } from '../lib/red/fechas.ts'
 import { HEX } from './Menus.tsx'
 
 // ponytail: hoy los assets salen de public/; cuando lxs creadxrs suban obras pasa a la URL del bucket R2
@@ -14,15 +15,13 @@ const cache = new Map<string, DetalleNodo>()
 
 // D-27: la capa expandida (variante A). Va por encima de todo el canvas y no mueve la cámara: el panel sigue
 // maquetado debajo. Estado de UI, no Vista: no toca la URL ni el historial (D-34).
-// La fecha llega como medianoche UTC; sin `timeZone` en Argentina se vería el día anterior.
-const fechaLarga = (iso?: string) => {
-  const d = iso ? new Date(iso) : null
-  return d && !Number.isNaN(d.getTime()) ? d.toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) : null
-}
 
-export function Ficha({ nodo, secciones, nodos, hrefDe, onMiembro, onCerrar }: {
+export function Ficha({ nodo, secciones, futuro, espacio, nodos, hrefDe, onMiembro, onCerrar }: {
   nodo: NodoGrafo
   secciones: Seccion[]
+  // D-44: evento de hoy en adelante (lo decide Overlay, en el cliente) y su lugar, de la sección "lugar".
+  futuro: boolean
+  espacio?: { id: string; seccion: string }
   nodos: ReadonlyMap<string, NodoGrafo>
   hrefDe: (id: string) => string
   onMiembro: (seccionId: string, id: string) => void
@@ -108,8 +107,20 @@ export function Ficha({ nodo, secciones, nodos, hrefDe, onMiembro, onCerrar }: {
 
       <div className="expandido__portada">
         <div className="expandido__columna">
-          <p className="expandido__tipo">{nodo.subtipo}{fecha && ` · ${fecha}`}</p>
+          <p className="expandido__tipo">{nodo.subtipo}{!futuro && fecha && ` · ${fecha}`}</p>
+          {futuro && <p className="expandido__cuando">{fechaLarga(nodo.fecha, true)}{nodo.horario && ` · ${nodo.horario}`}</p>}
+          {futuro && espacio && nodos.get(espacio.id) && (
+            <p className="expandido__lugar"><a href={hrefDe(espacio.id)} onClick={(e) => alClick(e, espacio.seccion, espacio.id)}>{nodos.get(espacio.id)!.label}</a></p>
+          )}
           {nodo.descripcionBreve && <p className="expandido__bajada">{nodo.descripcionBreve}</p>}
+          {futuro && det?.entradas && (
+            <section className="expandido__entradas" aria-labelledby="entradas-t">
+              <h3 id="entradas-t" className="expandido__titulo">Entradas</h3>
+              {det.entradas.texto && <p className="expandido__texto">{det.entradas.texto}</p>}
+              {/* Sinápsis no vende ni cobra (D-44): el llamado es texto y un enlace a quien vende, sin datos de pago ni personales. */}
+              {det.entradas.url && <a className="accion" href={det.entradas.url} target="_blank" rel="noopener noreferrer">{det.entradas.etiqueta ?? 'Conseguir entradas'}</a>}
+            </section>
+          )}
         </div>
       </div>
 
