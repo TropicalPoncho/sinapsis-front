@@ -4,16 +4,16 @@ milestone: v1.0
 current_phase: 04
 current_phase_name: UI & Navigation
 status: executing
-stopped_at: Completed 04.1-04-PLAN.md (UAT hecho; fase 4.1 abierta por G41-01 y G41-02)
-last_updated: "2026-10-17T23:38:41.109Z"
-last_activity: 2026-10-08
+stopped_at: Completed 04.1-05-PLAN.md
+last_updated: "2026-10-18T16:03:15.063Z"
+last_activity: 2026-10-17
 last_activity_desc: Phase 04 execution started
-state_head: 71f6099c6d0b4d70d6f57e74e82b3ab1ed5d8bf8
+state_head: 2ec147fbfed17ac6b46a784f0c4a30f4309ac0ec
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 32
-  completed_plans: 31
+  total_plans: 35
+  completed_plans: 32
 milestone_name: milestone
 ---
 
@@ -31,8 +31,8 @@ See: .planning/PROJECT.md (updated 2026-08-06)
 Phase: 04 (UI & Navigation) — EXECUTING
 Plan: 12 de 13 ejecutados (04-12 completo; falta 04-13)
 Status: Fase 4 abierta: G-08, G-09 y G-10 implementados (04-12), pendientes del UAT del dueño (04-13); G-06 (celular) abierto
-Fase 4.1 (INSERTED): 4 de 4 planes ejecutados (04.1-04 completo, UAT del dueño 2026-10-17: "bastante bien"); **la fase sigue abierta** por G41-01 (etiquetas de sección por contexto, UI-14) y G41-02 (auditoría de neuronas por contexto, UI-15), ver 04.1-UAT-GAPS.md; siguiente: /gsd-plan-phase 04.1 --gaps
-Last activity: 2026-10-17 — 04.1-04 completo (auditoría ponytail, D-32..D-37, re-smoke y UAT)
+Fase 4.1 (INSERTED): 5 de 7 planes ejecutados (04.1-05 completo: ficha por bloques, créditos a la derecha, Alterego de punta a punta, evento futuro con Entradas y animación de expandir; medido sobre la topología de los CSV, no la base viva; el SELECT del horario contra Postgres queda para el UAT del dueño con su base local); **la fase sigue abierta** por G41-01 (UI-14) y G41-02 (UI-15); siguiente: 04.1-06 y 04.1-07
+Last activity: 2026-10-18 — 04.1-05 completo (D-38, D-39, D-42..D-44)
 
 Phase 02 (data-vista-backend) closed 2026-10-01 — see 02-05-SUMMARY.md.
 
@@ -89,6 +89,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04.1 P02 | 35min | 3 tasks | 10 files |
 | Phase 04.1 P03 | 22 min | 2 tasks | 7 files |
 | Phase 04.1 P04 | sesion larga | 3 tasks | 8 files |
+| Phase 04.1 P05 | 32 min | 3 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -133,6 +134,11 @@ Recent decisions affecting current work:
 - [Phase 04.1]: D-36: Entrar sale de los datos (COMPONE saliente o secciones) para los cuatro nodeType; todo Entrar es reemplazo y una obra o evento entra a /obra/<slug> con su panel
 - [Phase 04.1]: D-37: la seccion es una lista de UI atada a la red ({red,id,llegada} en Overlay), no una Vista: sin URL ni nodos nuevos en la escena
 - [Phase 04.1]: D-32 confirmada con ajuste pendiente: las etiquetas de seccion se leen segun el contexto del nodo (G41-01); D-33..D-37 confirmadas en el UAT (2026-10-17). Fase 4.1 abierta por G41-01 y G41-02
+- [Phase 04.1]: [04.1-05] D-38: la cabecera de la ficha son bloques de contenido (texto, galeria, video, enlaces) con nombre libre; esquema por defecto en bloques.json por nodeType/subtipo, override en metadata.ficha.bloques; resuelto en el servidor
+- [Phase 04.1]: [04.1-05] D-39: creditos siempre en columna a la derecha (sticky) agrupados por rol con seccionesDe; mobile una columna
+- [Phase 04.1]: [04.1-05] D-42: expandir sube desde abajo (~700 ms) solo con CSS, velo y escalonado --i; overlay base se funde con animacion salir; camara y rect quietos; cierre inmediato
+- [Phase 04.1]: [04.1-05] D-43: fichas.json es el camino de carga hasta M2; validarDetalle(metadata, porDefecto, descartes) es el unico borde y el import falla entero si descarta algo; el TRUNCATE sigue siendo riesgo sobre produccion
+- [Phase 04.1]: [04.1-05] D-44: evento futuro decidido en el cliente (fecha local); horario viaja en la topologia desde metadata.ficha.horario sin DDL; Entradas es texto mas enlace externo, sin pasarela de pago
 
 ### Pending Todos
 
@@ -175,8 +181,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-10-17T23:38:40.890Z
-Stopped at: Completed 04.1-04-PLAN.md (UAT hecho; fase 4.1 abierta por G41-01 y G41-02)
+Last session: 2026-10-18T16:03:14.606Z
+Stopped at: Completed 04.1-05-PLAN.md
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's

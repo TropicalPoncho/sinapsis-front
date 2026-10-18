@@ -72,9 +72,9 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 - [ ] **UI-14**: Los vínculos de participación de un nodo, agrupados por `rol` normalizado (roles múltiples, mayúsculas y plurales, vocabulario curado en datos, "Otros"), forman secciones virtuales que no se persisten, con etiquetas que se leen según el contexto del nodo dueño (tipo/subtipo del dueño, sección y tipo de la contraparte, config en datos; un espacio lee "Eventos"); el mismo componente de UI muestra las secciones derivadas y las áreas reales de una entidad (Fase 4.1, D-29, D-40)
 - [x] **UI-15**: Entrar a una sección muestra a la izquierda la lista de sus nodos para pasar de uno a otro; cada uno se previsualiza, se expande o se entra, y su red muestra sus áreas reales o derivadas, recursivamente. Las listas son UI y no crean nodos de escena (tope 40 + 12) y la URL lleva solo el ancla (Fase 4.1, D-30, D-22)
 - [x] **UI-16**: El panel de preview ocupa el ancho libre entre el borde izquierdo (o el menú lateral) y la neurona, con la alineación como un valor de CSS (izquierda por defecto); en mobile el nombre de la red se ve grande a todo el ancho superior y el motor lo esquiva (Fase 4.1, D-28)
-- [ ] **UI-17**: La ficha expandida muestra bloques de contenido de cuatro tipos (texto, galería, video, enlaces) con nombre libre: el esquema por defecto sale de un archivo de datos por `nodeType`/`subtipo` y cada nodo puede reemplazarlo desde su `metadata`; el menú de la cabecera lista los bloques solo si hay dos o más. Los créditos van en una columna a la derecha en escritorio, agrupados por rol (una columna en mobile). El contenido de curaduría entra por `data/curaduria/fichas.json` → `metadata.ficha`, validado en el borde de confianza (Fase 4.1, D-38, D-39, D-43)
-- [ ] **UI-18**: Un evento futuro (fecha de hoy en adelante, calculado en el cliente) muestra fecha, horario y espacio bien visibles en el preview y en la ficha, y la ficha suma un llamado de Entradas (texto y/o enlace externo); el preview sigue sin pedir nada al servidor; sin pasarela de pago (Fase 4.1, D-44)
-- [ ] **UI-19**: Expandir se anima sin cortes: el contenido sube desde abajo (~700 ms), la escena se atenúa con un velo y los bloques entran escalonados, sin mover la cámara y respetando `prefers-reduced-motion` (Fase 4.1, D-42)
+- [x] **UI-17**: La ficha expandida muestra bloques de contenido de cuatro tipos (texto, galería, video, enlaces) con nombre libre: el esquema por defecto sale de un archivo de datos por `nodeType`/`subtipo` y cada nodo puede reemplazarlo desde su `metadata`; el menú de la cabecera lista los bloques solo si hay dos o más. Los créditos van en una columna a la derecha en escritorio, agrupados por rol (una columna en mobile). El contenido de curaduría entra por `data/curaduria/fichas.json` → `metadata.ficha`, validado en el borde de confianza (Fase 4.1, D-38, D-39, D-43)
+- [x] **UI-18**: Un evento futuro (fecha de hoy en adelante, calculado en el cliente) muestra fecha, horario y espacio bien visibles en el preview y en la ficha, y la ficha suma un llamado de Entradas (texto y/o enlace externo); el preview sigue sin pedir nada al servidor; sin pasarela de pago (Fase 4.1, D-44)
+- [x] **UI-19**: Expandir se anima sin cortes: el contenido sube desde abajo (~700 ms), la escena se atenúa con un velo y los bloques entran escalonados, sin mover la cámara y respetando `prefers-reduced-motion` (Fase 4.1, D-42)
 
 ### Rendimiento
 
@@ -181,9 +181,9 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | UI-14 | Phase 4.1 | Pending (gap G41-01: etiquetas de sección por contexto; plan 04.1-06) |
 | UI-15 | Phase 4.1 | Complete (auditoría de neuronas por contexto, gap G41-02, en 04.1-06; se reabre si el dueño marca diferencias) |
 | UI-16 | Phase 4.1 | Complete |
-| UI-17 | Phase 4.1 | Pending (04.1-05) |
-| UI-18 | Phase 4.1 | Pending (04.1-05) |
-| UI-19 | Phase 4.1 | Pending (04.1-05) |
+| UI-17 | Phase 4.1 | Complete (04.1-05; UAT del dueño pendiente) |
+| UI-18 | Phase 4.1 | Complete (04.1-05; UAT del dueño pendiente) |
+| UI-19 | Phase 4.1 | Complete (04.1-05; UAT del dueño pendiente) |
 | UI-07 | Phase 5 | Pending |
 
 **Coverage:**
