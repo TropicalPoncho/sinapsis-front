@@ -82,6 +82,9 @@ export function Ficha({ nodo, secciones, futuro, espacio, nodos, hrefDe, onMiemb
   }
 
   const fecha = fechaLarga(nodo.fecha)
+  // D-42: `--i` escalona la entrada de cada elemento, numerados en el orden en que aparecen (portada, bloques, grupos de créditos).
+  let paso = 0
+  const i = () => ({ '--i': paso++ }) as React.CSSProperties
   return (
     <section ref={capaRef} className="expandido" role="dialog" aria-modal="true" aria-labelledby="expandido-nombre" onKeyDown={alTeclado}>
       <header className="expandido__cabecera">
@@ -107,14 +110,14 @@ export function Ficha({ nodo, secciones, futuro, espacio, nodos, hrefDe, onMiemb
 
       <div className="expandido__portada">
         <div className="expandido__columna">
-          <p className="expandido__tipo">{nodo.subtipo}{!futuro && fecha && ` · ${fecha}`}</p>
-          {futuro && <p className="expandido__cuando">{fechaLarga(nodo.fecha, true)}{nodo.horario && ` · ${nodo.horario}`}</p>}
+          <p className="expandido__tipo" style={i()}>{nodo.subtipo}{!futuro && fecha && ` · ${fecha}`}</p>
+          {futuro && <p className="expandido__cuando" style={i()}>{fechaLarga(nodo.fecha, true)}{nodo.horario && ` · ${nodo.horario}`}</p>}
           {futuro && espacio && nodos.get(espacio.id) && (
-            <p className="expandido__lugar"><a href={hrefDe(espacio.id)} onClick={(e) => alClick(e, espacio.seccion, espacio.id)}>{nodos.get(espacio.id)!.label}</a></p>
+            <p className="expandido__lugar" style={i()}><a href={hrefDe(espacio.id)} onClick={(e) => alClick(e, espacio.seccion, espacio.id)}>{nodos.get(espacio.id)!.label}</a></p>
           )}
-          {nodo.descripcionBreve && <p className="expandido__bajada">{nodo.descripcionBreve}</p>}
+          {nodo.descripcionBreve && <p className="expandido__bajada" style={i()}>{nodo.descripcionBreve}</p>}
           {futuro && det?.entradas && (
-            <section className="expandido__entradas" aria-labelledby="entradas-t">
+            <section className="expandido__entradas" aria-labelledby="entradas-t" style={i()}>
               <h3 id="entradas-t" className="expandido__titulo">Entradas</h3>
               {det.entradas.texto && <p className="expandido__texto">{det.entradas.texto}</p>}
               {/* Sinápsis no vende ni cobra (D-44): el llamado es texto y un enlace a quien vende, sin datos de pago ni personales. */}
@@ -128,7 +131,7 @@ export function Ficha({ nodo, secciones, futuro, espacio, nodos, hrefDe, onMiemb
         <div className="expandido__cuerpo">
           <div className="expandido__columna">
             {bloques.map((b) => (
-              <section key={b.id} id={'bloque-' + b.id} className="expandido__contenido" aria-labelledby={'bloque-' + b.id + '-t'}>
+              <section key={b.id} id={'bloque-' + b.id} className="expandido__contenido" aria-labelledby={'bloque-' + b.id + '-t'} style={i()}>
                 <h3 id={'bloque-' + b.id + '-t'} className="expandido__titulo">{b.nombre}</h3>
                 {b.tipo === 'texto' && <p className="expandido__texto">{b.texto}</p>}
                 {b.tipo === 'galeria' && (
@@ -162,7 +165,7 @@ export function Ficha({ nodo, secciones, futuro, espacio, nodos, hrefDe, onMiemb
             <aside className="expandido__creditos" aria-label={'Créditos de ' + nodo.label}>
               <h3 className="expandido__titulo">Créditos</h3>
               {secciones.map((s) => (
-                <section key={s.id} className="expandido__grupo" aria-labelledby={'credito-' + s.id}>
+                <section key={s.id} className="expandido__grupo" aria-labelledby={'credito-' + s.id} style={i()}>
                   <h4 id={'credito-' + s.id} className="expandido__grupo-titulo" style={HEX.test(s.color) ? { color: s.color } : undefined}>{s.label}</h4>
                   <ul className="expandido__nodos">
                     {s.nodos.map((m) => {

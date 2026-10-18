@@ -7,7 +7,9 @@
    es lo que mide el puente, y tiene que quedar igual para que la cámara no se mueva. El panel visible declara visibility:
    visible, así que hace falta pisarlo explícito. */
 .overlay__base { display: contents; }
-.overlay__base[inert], .overlay__base[inert] .panel { visibility: hidden; }
+.overlay__base[inert] > *, .overlay__base[inert] .panel, .overlay__base[inert] .lateralFloatingMenu { animation: salir .3s both; }
+/* D-42: se funde y recién ahí queda visibility: hidden. Solo keyframe final: lo que ya estaba oculto (el panel sin nodo) no parpadea. */
+@keyframes salir { to { opacity: 0; visibility: hidden; } }
 .overlay button, .overlay a, .overlay .panel__contenido { pointer-events: auto; }
 
 .panel {
@@ -129,6 +131,27 @@
 }
 @media (prefers-reduced-motion: reduce) { .expandido { scroll-behavior: auto; } }
 .expandido__nombre:focus { outline: none; }
+/* D-42, Expandir no es abrupto: el contenido sube desde abajo, la escena se atenúa con un velo, el overlay base se funde y cada elemento
+   entra escalonado (`--i` lo pone Ficha). Solo CSS: la cámara y el rect del panel no se tocan (D-27, D-34). `.expandido` no lleva
+   `transform`: es el contenedor de scroll y su `sticky` tiene que seguir funcionando.
+   ponytail: se escalona solo al abrir (los bloques fuera de pantalla ya están quietos cuando se llega); salida, `animation-timeline: view()`
+   dentro de `@supports`, o un IntersectionObserver que agregue una clase.
+   ponytail: sin animación de cierre, D-34 cierra en el mismo render; salida, un estado `saliendo` con `onAnimationEnd`. */
+@keyframes subir { from { opacity: 0; transform: translateY(min(30vh, 240px)); } }
+@keyframes aparecer { from { opacity: 0; transform: translateY(16px); } }
+@keyframes velo { from { background-color: rgba(10,10,10,0); } to { background-color: rgba(10,10,10,.5); } }
+@keyframes fundir { from { opacity: 0; } }
+.expandido { animation: velo .7s ease-out both; }
+.expandido__cabecera { animation: fundir .4s ease-out both; }
+.expandido__portada, .expandido__cuerpo { animation: subir .7s cubic-bezier(.22, 1, .36, 1) both; }
+.expandido__portada .expandido__columna > *, .expandido__contenido, .expandido__grupo {
+  animation: aparecer .5s cubic-bezier(.22, 1, .36, 1) calc(250ms + min(var(--i, 0), 8) * 70ms) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .expandido, .expandido__cabecera { animation-duration: .2s; }
+  .expandido__portada, .expandido__cuerpo, .expandido__portada .expandido__columna > *, .expandido__contenido, .expandido__grupo { animation: none; }
+  .overlay__base[inert] > *, .overlay__base[inert] .panel, .overlay__base[inert] .lateralFloatingMenu { animation: none; opacity: 0; visibility: hidden; }
+}
 .expandido__cabecera {
   position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 56px; min-height: 100px; padding: 0 48px; box-sizing: border-box;
   background: linear-gradient(#0a0a0a 55%, rgba(10,10,10,0));
