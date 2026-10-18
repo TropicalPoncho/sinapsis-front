@@ -133,17 +133,19 @@ Plans:
 ### Phase 04.1: Expandir nodo y secciones derivadas (INSERTED)
 
 **Goal**: Cada nodo se puede expandir (ficha de lectura que sube por encima del canvas) o ingresar (red interna), con las acciones derivadas de los datos; el panel de preview ocupa el ancho libre; y un evento u obra muestra secciones virtuales derivadas de los roles de sus vínculos, con un recorrido recursivo hasta lxs creadxrs y sus propias áreas.
-**Requirements**: UI-04, UI-11, UI-12, UI-13, UI-14, UI-15, UI-16
+**Requirements**: UI-04, UI-11, UI-12, UI-13, UI-14, UI-15, UI-16, UI-17, UI-18, UI-19
 **Depends on:** Phase 4
-**Plans:** 4/4 plans executed in 4 waves
+**Plans:** 4/6 plans executed (4 en 4 waves; 04.1-05 y 04.1-06 cierran los gaps del UAT, waves 1-2 propias)
 
 Plans:
 - [x] 04.1-01-PLAN.md — Secciones derivadas de los roles: vocabulario curado en datos (`roles.json`) y `seccionesDe` pura, probada con SOMA, Rama y el censo de roles reales (D-29, D-32) (wave 1)
 - [x] 04.1-02-PLAN.md — Expandir (variante A) desde los datos: ficha sobre el canvas sin mover la cámara, cabecera con secciones y scroll-spy, columna de 620-680 px; panel fluido y título grande en mobile dentro del área segura; auditoría de D-31 (D-26, D-27, D-28, D-31, D-33..D-35) (wave 2)
 - [x] 04.1-03-PLAN.md — Entrar desde los datos (también obras y eventos), menú de secciones derivadas, lista lateral de una sección y recorrido recursivo hasta lxs creadxrs y sus propias secciones o áreas, también desde la ficha (D-26, D-29, D-30, D-36, D-37) (wave 3)
 - [x] 04.1-04-PLAN.md — Auditoría ponytail, D-32..D-37 en CONTEXT y enmiendas de la Fase 4 (CONTEXT y UI-SPEC), re-smoke headless y UAT del dueño (wave 4)
+- [ ] 04.1-05-PLAN.md — Gaps/pedido del dueño 2026-10-18: ficha por bloques de contenido configurables en datos (`bloques.json` + override en `metadata.ficha`), créditos por rol en una columna a la derecha, carga de curaduría `fichas.json` → `importar.ts` → `metadata.ficha` validada en el borde (Alterego de punta a punta), evento futuro con fecha/horario/espacio en preview y ficha más Entradas, animación de expandir sin mover la cámara (D-38, D-39, D-42..D-44) (gap wave 1)
+- [ ] 04.1-06-PLAN.md — Gaps G41-01 y G41-02: etiquetas de sección por contexto en `roles.json` → `contextos` (un espacio lee "Eventos", una banda "Conciertos"), tabla y test de neuronas por contexto, auditoría ponytail, D-38..D-44 en CONTEXT/UI-SPEC, re-smoke y UAT del dueño con Alterego como evento futuro (D-40, D-41) (gap wave 2)
 
-**Fase abierta tras el UAT del dueño (2026-10-17, "bastante bien"):** gaps G41-01 (etiquetas de sección según el contexto del nodo, UI-14) y G41-02 (auditoría de qué neuronas aparecen en cada situación, UI-15) en `04.1-UAT-GAPS.md`; falta un plan de seguimiento (`/gsd-plan-phase 04.1 --gaps`).
+**Fase abierta tras el UAT del dueño (2026-10-17, "bastante bien"):** gaps G41-01 (etiquetas de sección según el contexto del nodo, UI-14) y G41-02 (auditoría de qué neuronas aparecen en cada situación, UI-15) en `04.1-UAT-GAPS.md`, más el pedido del dueño del 2026-10-18 (ficha por bloques, créditos a la derecha, evento futuro, animación; UI-17..UI-19): planes 04.1-05 y 04.1-06.
 
 ### Phase 5: Tropical Poncho Launch
 
