@@ -5,6 +5,8 @@ import path from 'node:path'
 import pg from 'pg'
 import { leerCsv } from './csv.ts'
 import { cargarFuentes, metadataPorId } from './dumps.ts'
+import { esquemaDe, horarioOk, validarDetalle } from '../../src/lib/red/detalle.ts'
+import type { BloqueDef } from '../../src/lib/red/detalle.ts'
 
 const NODE_TYPES = new Set(['ENTIDAD', 'OBRA', 'EVENTO', 'AGRUPACION'])
 const TIPOS_VINCULO = new Set([
@@ -95,6 +97,12 @@ const csvDir = path.resolve(process.cwd(), 'data/curaduria')
 const filasNodos = leerCsv(fs.readFileSync(path.join(csvDir, 'nodos.csv'), 'utf8'))
 const filasVinculos = leerCsv(fs.readFileSync(path.join(csvDir, 'vinculos.csv'), 'utf8'))
 
+// D-43: la ficha curada (bloques de contenido, horario, Entradas) viaja de fichas.json a metadata.ficha hasta que exista
+// la UI de alta (M2). Clave = id del nodo; `_nodo` es el label, solo de control.
+type EntradaFicha = { _nodo?: unknown; horario?: unknown } & Record<string, unknown>
+const fichas = JSON.parse(fs.readFileSync(path.join(csvDir, 'fichas.json'), 'utf8')) as Record<string, EntradaFicha>
+const bloquesPorDefecto = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'src/lib/red/bloques.json'), 'utf8')) as Record<string, BloqueDef[]>
+
 const esSi = (v: string | undefined) => (v ?? '').trim().toLowerCase() === 'si'
 
 // --- Validación: juntar todos los errores antes de escribir nada ---
@@ -159,6 +167,19 @@ filasVinculos.forEach((fila, i) => {
   }
 })
 
+// La ficha se valida con el mismo borde que la lee la API: lo que acá se descarta, allá se esconde. Falla entero.
+for (const [id, { _nodo, ...ficha }] of Object.entries(fichas)) {
+  const fila = filasNodos.find((f) => f.id === id && !esSi(f.descartar))
+  const donde = `fichas.json "${String(_nodo ?? id)}"`
+  if (!fila) { errores.push(`${donde}: el id "${id}" no es un nodo vivo de nodos.csv`); continue }
+  if (_nodo !== fila.label) errores.push(`${donde}: _nodo no coincide con el label "${fila.label}"`)
+  if (fila.node_type !== 'OBRA' && fila.node_type !== 'EVENTO') errores.push(`${donde}: la ficha de ${fila.node_type} está diferida, solo OBRA y EVENTO`)
+  if (ficha.horario !== undefined && !horarioOk(ficha.horario)) errores.push(`${donde}: horario debe ser un texto de 1 a 40 sin HTML`)
+  const descartes: string[] = []
+  validarDetalle({ ficha }, esquemaDe(bloquesPorDefecto, fila.node_type, fila.subtipo.trim()), descartes)
+  for (const dsc of descartes) errores.push(`${donde}: ${dsc}`)
+}
+
 if (errores.length > 0) {
   console.error(`${errores.length} error(es) de validación:`)
   for (const e of errores) console.error(`  - ${e}`)
@@ -175,7 +196,8 @@ const vinculosACargar = filasVinculos.filter(
 
 // Un nodo escrito a mano en la planilla no está en ningún dump: metadata vacía, no es un error.
 function metadataDe(id: string): Record<string, unknown> {
-  return metadataDeFuentes.get(id) ?? {}
+  const { _nodo, ...ficha } = fichas[id] ?? {}
+  return { ...metadataDeFuentes.get(id), ...(id in fichas && { ficha }) }
 }
 
 const nodosParaInsertar = nodosACargar.map((f) => {
@@ -236,6 +258,9 @@ await client.connect()
 
 try {
   await client.query('BEGIN')
+  // ponytail: reemplazo total de la base. Sirve mientras la planilla y fichas.json sean la única fuente; con edición en vivo (M2)
+  // reimportar borraría lo cargado por lxs creadxrs. Salida: upsert por id, o no reimportar sobre producción antes de M2. Correrlo
+  // con un .env.local que apunte a Neon reemplaza producción entera (D-43).
   await client.query('TRUNCATE vinculos, nodos RESTART IDENTITY CASCADE')
 
   for (const n of nodosParaInsertar) {

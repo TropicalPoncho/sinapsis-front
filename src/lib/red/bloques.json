@@ -1,0 +1,20 @@
+{
+  "EVENTO": [
+    {"id":"curaduria","nombre":"Curaduría","tipo":"texto"},
+    {"id":"galeria","nombre":"Galería","tipo":"galeria"},
+    {"id":"video","nombre":"Video","tipo":"video"},
+    {"id":"enlaces","nombre":"Enlaces","tipo":"enlaces"}
+  ],
+  "OBRA": [
+    {"id":"texto","nombre":"Sobre la obra","tipo":"texto"},
+    {"id":"galeria","nombre":"Galería","tipo":"galeria"},
+    {"id":"video","nombre":"Video","tipo":"video"},
+    {"id":"enlaces","nombre":"Enlaces","tipo":"enlaces"}
+  ],
+  "OBRA:video": [
+    {"id":"sinopsis","nombre":"Sinopsis","tipo":"texto"},
+    {"id":"video","nombre":"Video","tipo":"video"},
+    {"id":"galeria","nombre":"Galería","tipo":"galeria"},
+    {"id":"enlaces","nombre":"Enlaces","tipo":"enlaces"}
+  ]
+}
