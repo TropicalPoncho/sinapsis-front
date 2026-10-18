@@ -9,7 +9,7 @@
     {"etiqueta":"Performance","roles":["Performance","Perfo"]},
     {"etiqueta":"Bandas en vivo","roles":["Bandas en Vivo","Banda"]},
     {"etiqueta":"Live set","roles":["Live Set","Liveset"]},
-    {"etiqueta":"DJ","roles":["DJ","Vinyls DJ Sets","DJ Set Híbrido"]},
+    {"etiqueta":"DJ","roles":["DJ","DJ Set","Vinyls DJ Sets","DJ Set Híbrido"]},
     {"etiqueta":"VJ","roles":["VJ","Visuales"]},
     {"etiqueta":"Mapping","roles":["Mapping","Mapping con TouchDesigner"]},
     {"etiqueta":"Audiovisual","roles":["Audiovisual","Registro Audiovisual","Edición Audiovisual"]},
@@ -31,5 +31,11 @@
     {"etiqueta":"Espacio","roles":["Espacio"]}
   ],
   "lugar": "Espacio",
+  "contextos": [
+    {"dueno":"ENTIDAD:banda","seccion":"*","contraparte":"EVENTO","etiqueta":"Conciertos"},
+    {"dueno":"ENTIDAD","seccion":"Espacio","etiqueta":"Eventos"},
+    {"dueno":"ENTIDAD","seccion":"Creadxrs convocades","contraparte":"EVENTO","etiqueta":"Eventos"},
+    {"dueno":"ENTIDAD","seccion":"Creadxrs invitades","contraparte":"EVENTO","etiqueta":"Eventos"}
+  ],
   "sinRol": {"PRODUJO":"Producción","INTEGRA:entra":"Integrantes","INTEGRA:sale":"Integra"}
 }

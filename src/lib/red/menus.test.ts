@@ -159,6 +159,50 @@ test('seccionesDe: Rama Cerratto, áreas derivadas de sus vínculos reales', () 
   assert.deepEqual(s.find((x) => x.id === 'dj')!.nodos.map((q) => q.id), ['t', 'sb', 's', 'ps', 'pe', 'an', 'en'])
 })
 
+// --- Etiquetas por contexto (D-40) ---
+const sub = (id: string, nodeType: NodeType, subtipo: string, label = id, fecha?: string): NodoGrafo => ({ ...nf(id, nodeType, label, fecha), subtipo })
+test('seccionesDe (D-40): un espacio lee "Eventos" donde el evento lee "Espacio"', () => {
+  const a = construirAdyacencia({
+    nodos: [sub('esp', 'ENTIDAD', 'centro_cultural', 'Espacio'), nf('e2', 'EVENTO', 'Dos', '2025-02-01'), nf('e1', 'EVENTO', 'Uno', '2025-01-01')],
+    vinculos: [v('e1', 'esp', 'COLABORO_EN', 'Espacio'), v('e2', 'esp', 'COLABORO_EN', 'Espacio')],
+  })
+  assert.deepEqual(seccionesDe(a, 'esp', vocab).map((x) => [x.id, x.label, x.nodos.map((q) => q.id)]), [['eventos', 'Eventos', ['e1', 'e2']]])
+  assert.deepEqual(seccionesDe(a, 'e1', vocab).map((x) => [x.id, x.label]), [['espacio', 'Espacio']])
+})
+test('seccionesDe (D-40): una banda lee "Conciertos" y "Otros" conserva la grafía original', () => {
+  const a = construirAdyacencia({
+    nodos: [sub('b', 'ENTIDAD', 'banda'), nf('e1', 'EVENTO', 'Uno', '2025-01-01'), nf('e2', 'EVENTO', 'Dos', '2025-02-01'), nf('e3', 'EVENTO', 'Tres', '2025-03-01')],
+    vinculos: [v('e1', 'b', 'COLABORO_EN', 'BANDAS EN VIVO'), v('e2', 'b', 'COLABORO_EN', 'Live set'), v('e3', 'b', 'COLABORO_EN', 'Telonera')],
+  })
+  assert.deepEqual(seccionesDe(a, 'b', vocab).map((x) => [x.id, x.nodos]), [['conciertos', [{ id: 'e1' }, { id: 'e2' }, { id: 'e3', rol: 'Telonera' }]]])
+})
+test('seccionesDe (D-40): una persona convocada lee Eventos solo para los EVENTO', () => {
+  const a = construirAdyacencia({
+    nodos: [n('p', 'ENTIDAD'), nf('ev', 'EVENTO', 'Ev', '2025-01-01'), nf('ob', 'OBRA', 'Ob', '2025-01-01')],
+    vinculos: [v('ev', 'p', 'COLABORO_EN', 'Artista Convocade'), v('ob', 'p', 'COLABORO_EN', 'Artista Convocade')],
+  })
+  assert.deepEqual(seccionesDe(a, 'p', vocab).map((x) => [x.id, x.nodos.map((q) => q.id)]), [['creadxrs-convocades', ['ob']], ['eventos', ['ev']]])
+})
+test('seccionesDe (D-40): gana la primera regla que coincide; sin contextos da el resultado de siempre', () => {
+  const a = construirAdyacencia({ nodos: [n('e', 'ENTIDAD'), nf('x', 'EVENTO', 'X', '2025-01-01')], vinculos: [v('x', 'e', 'COLABORO_EN', 'DJ')] })
+  const regla = (etiqueta: string) => ({ dueno: 'ENTIDAD', seccion: 'DJ', etiqueta })
+  assert.deepEqual(seccionesDe(a, 'e', { ...vocab, contextos: [regla('Primera'), regla('Segunda')] }).map((x) => x.id), ['primera'])
+  assert.deepEqual(seccionesDe(a, 'e', { ...vocab, contextos: undefined }).map((x) => x.id), ['dj'])
+  assert.deepEqual(seccionesDe(a, 'e', { ...vocab, contextos: [{ ...regla('Nada'), dueno: 'ENTIDAD:banda' }] }).map((x) => x.id), ['dj'])
+})
+
+test('roles.json: contextos con forma válida y lugar en el vocabulario (T-04.1-15)', () => {
+  const tipos = ['ENTIDAD', 'OBRA', 'EVENTO', 'AGRUPACION']
+  const etiquetas = new Set([...vocab.secciones.map((s) => s.etiqueta), ...Object.values(vocab.sinRol), 'Otros'])
+  assert.ok(vocab.contextos && vocab.contextos.length > 0)
+  for (const r of vocab.contextos!) {
+    assert.match(r.dueno, /^(ENTIDAD|OBRA|EVENTO|AGRUPACION)(:[a-z_]+)?$/, r.dueno)
+    assert.ok(r.seccion === '*' || etiquetas.has(r.seccion), r.seccion)
+    assert.ok(!r.contraparte || tipos.includes(r.contraparte), r.contraparte)
+    assert.ok(r.etiqueta.trim() && r.etiqueta !== 'Otros' && !/artista/i.test(r.etiqueta), r.etiqueta)
+  }
+  assert.ok(vocab.secciones.some((s) => s.etiqueta === vocab.lugar))
+})
 test('roles.json: sin colisiones, sin "artista", sin "Otros", sin vacíos', () => {
   const vistas = new Map<string, string>()
   for (const { etiqueta, roles } of vocab.secciones) {
@@ -189,7 +233,7 @@ test('censo de data/curaduria/vinculos.csv: todo rol real da sección y los del 
     assert.ok(de.length > 0 && de.every((s) => s.id && s.label), `sin sección: ${x.rol}`)
   }
   const nombrados = ['DJ Set Híbrido, Visuales', 'Live Set', 'Artista Convocade', 'Edición Audiovisual', 'Expositorx', 'Exposición de Cortos', 'Productora', 'Espacio',
-    'MEDITACIÓN ACTIVA', 'ACTIVIDADES', 'PERFORMANCES', 'BANDAS EN VIVO', 'VJ', 'VINYLS DJ SETS']
+    'MEDITACIÓN ACTIVA', 'ACTIVIDADES', 'PERFORMANCES', 'BANDAS EN VIVO', 'VJ', 'VINYLS DJ SETS', 'DJ Set']
   for (const rol of nombrados) {
     const enDatos = participa.filter((x) => claveRol(x.rol!) === claveRol(rol))
     assert.ok(enDatos.length > 0, `el censo no tiene "${rol}"`)

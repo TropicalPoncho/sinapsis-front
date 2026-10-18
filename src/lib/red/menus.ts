@@ -75,6 +75,9 @@ export interface VocabularioRoles {
   sinRol: Record<string, string>
   // Etiqueta de la sección cuyos nodos son el lugar del evento (D-44).
   lugar?: string
+  // D-40: cómo se lee una sección según quién es el dueño. Gana la primera regla que coincide, en el orden del archivo.
+  // dueno: "NODETYPE" o "NODETYPE:subtipo"; seccion: etiqueta ya normalizada o "*"; contraparte: nodeType del agrupado.
+  contextos?: { dueno: string; seccion: string; contraparte?: string; etiqueta: string }[]
 }
 
 // Solo compara, nunca se muestra: sin tildes ni mayúsculas, y en cada palabra de 3+ letras sin plural ni `e` final
@@ -98,7 +101,13 @@ export function seccionesDe(ady: Adyacencia, nodoId: string, vocabulario: Vocabu
   if (!dueno) return []
   const indice = new Map(vocabulario.secciones.flatMap((s) => s.roles.map((r) => [claveRol(r), s.etiqueta] as const)))
   const grupos = new Map<string, Map<string, { nodo: NodoGrafo; roles: string[] }>>()
-  const poner = (etiqueta: string, nodo: NodoGrafo, rol?: string) => {
+  // ponytail: primera regla en el orden del archivo, sin sentido del vínculo ni `disciplina`; salida: campos opcionales nuevos
+  // en la regla, o una tabla servida con la topología en M2 sin tocar la firma.
+  const duenos = [dueno.nodeType, `${dueno.nodeType}:${dueno.subtipo}`]
+  const leer = (base: string, nodo: NodoGrafo) => (vocabulario.contextos ?? []).find((r) =>
+    duenos.includes(r.dueno) && (r.seccion === '*' || r.seccion === base) && (!r.contraparte || r.contraparte === nodo.nodeType))?.etiqueta ?? base
+  const poner = (base: string, nodo: NodoGrafo, rol?: string) => {
+    const etiqueta = leer(base, nodo)
     const g = grupos.get(etiqueta) ?? new Map()
     const e = g.get(nodo.id) ?? { nodo, roles: [] }
     if (rol && !e.roles.includes(rol)) e.roles.push(rol)
