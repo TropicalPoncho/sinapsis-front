@@ -2,7 +2,7 @@ import type { NodeType, Subgrafo, TipoVinculo, Vista, VinculoGrafo } from '../..
 import type { Adyacencia } from '../vista/adyacencia.ts'
 import { resolverVista } from '../vista/resolverVista.ts'
 import { fraccionHome } from './home.ts'
-import { agrupadoresDe } from './menus.ts'
+import { agrupadoresDe, obrasDe } from './menus.ts'
 import type { IndiceSlugs } from './slugs.ts'
 
 export interface EstadoRed {
@@ -28,8 +28,9 @@ export const LIMITE_SUMA = 12
 export const sumarIds = (actual: readonly string[], nuevos: readonly string[]): string[] =>
   [...actual.filter((id) => !nuevos.includes(id)), ...nuevos].slice(-LIMITE_SUMA)
 
-// ENTIDAD llega a 2: nodo -> evento/obra (excluidos por tipo) -> colaboradores, que quedan unidos
-// por puentes virtuales (D-puentes) a quien produjo. El resto, a 1.
+// La Vista general de una ENTIDAD llega a 2: nodo -> evento/obra (excluidos por tipo) -> colaboradores, que quedan unidos
+// por puentes virtuales (D-puentes) a quien produjo. Hoy solo se ve con `?prof` o si la entidad no tiene obras ni eventos
+// (D-45). El resto, a 1.
 export const profDefecto = (tipo?: NodeType): number => (tipo === 'ENTIDAD' ? 2 : 1)
 
 // ENTIDAD y AGRUPACION son los únicos tipos con botón "Entrar" (D-ver botones.ts).
@@ -38,10 +39,13 @@ export const profDefecto = (tipo?: NodeType): number => (tipo === 'ENTIDAD' ? 2 
 // recorrerlo en ambas direcciones la traía a profundidad 1; con la raíz fuera de `nodos` quedaba
 // flotando sin ningún vínculo dibujable. El orden curatorial entre miembros (PRECEDE) se dibuja igual:
 // resolverVista une pares ya visibles, y sin él los miembros quedarían sin ningún vínculo visible.
-// ENTIDAD sin áreas (o con `?prof`): además se ve con quién hizo cosas. Los eventos y obras que conectan a
-// esa gente quedan afuera por tipo (no se muestran) y el puente virtual une a la entidad con sus
-// colaboradores. ENTIDAD con áreas (D-24, G-08): entra como la raíz y sus áreas, unidas por vínculos
-// virtuales derivados de sus miembros; a lxs colaboradorxs se llega entrando a un área o con `?prof`.
+// ENTIDAD sin áreas y con obras o eventos (D-45): entra con la raíz y lo que hizo, sus EVENTO y OBRA a un salto por cualquier
+// vínculo (COLABORO_EN, PRODUJO, CORREALIZO, COMPONE, SUCEDE_EN), con los vínculos reales entre ellos (PRECEDE) y sin otras
+// personas; a lxs colaboradorxs se llega entrando a un evento o una obra, por los créditos, o con `?prof`.
+// ENTIDAD sin áreas ni obras ni eventos, o con `?prof`: la Vista general, con quién hizo cosas. Los eventos y obras que conectan
+// a esa gente quedan afuera por tipo y el puente virtual une a la entidad con sus colaboradores.
+// ENTIDAD con áreas (D-24, G-08): entra como la raíz y sus áreas, unidas por vínculos virtuales derivados de sus miembros;
+// a lxs colaboradorxs se llega entrando a un área o con `?prof`.
 const VINCULOS_AL_ENTRAR: TipoVinculo[] = ['COMPONE', 'PRECEDE']
 const soloComponeAlEntrar = (tipo: NodeType | undefined) => tipo === 'AGRUPACION'
 const TIPOS_AL_ENTRAR_ENTIDAD: NodeType[] = ['ENTIDAD', 'AGRUPACION']
@@ -89,7 +93,7 @@ export const claveEstado = (e: EstadoRed): string => claveVista(e) + '|' + (e.en
 // `raiz` en la URL pisa el default en cualquier sentido — la Vista queda del todo configurable.
 const incluirRaizDefecto = (tipoRed: NodeType | undefined) => tipoRed !== 'AGRUPACION'
 
-export const vistaDe = (e: EstadoRed, redId: string | null, tipoRed?: NodeType, conAreas = false): Vista => {
+export const vistaDe = (e: EstadoRed, redId: string | null, tipoRed?: NodeType, conAreas = false, conObras = false): Vista => {
   const vista: Vista = {
     raiz: redId,
     profundidad: e.prof ?? profDefecto(tipoRed),
@@ -103,11 +107,13 @@ export const vistaDe = (e: EstadoRed, redId: string | null, tipoRed?: NodeType, 
     // conectaba. `?puentes=0` lo apaga para comparar, pensando en el panel de opciones de muestra.
     vinculosVirtuales: e.puentes ?? true,
   }
-  // D-24 (G-08): una entidad con áreas entra como la raíz y sus áreas, unidas por lo que comparten sus
-  // miembros. `?prof` explícito da la Vista general de arriba.
-  return tipoRed === 'ENTIDAD' && conAreas && e.prof === null
-    ? { ...vista, profundidad: 1, filtroNodeTypes: ['AGRUPACION'], filtroVinculos: VINCULOS_AL_ENTRAR, direccion: 'sale', vinculosEntreAgrupaciones: e.puentes ?? true }
-    : vista
+  if (tipoRed !== 'ENTIDAD' || e.prof !== null) return vista // `?prof` explícito da la Vista general de arriba
+  // D-24 (G-08): una entidad con áreas entra como la raíz y sus áreas, unidas por lo que comparten sus miembros.
+  if (conAreas) return { ...vista, profundidad: 1, filtroNodeTypes: ['AGRUPACION'], filtroVinculos: VINCULOS_AL_ENTRAR, direccion: 'sale', vinculosEntreAgrupaciones: e.puentes ?? true }
+  // D-45: sin áreas y con obras o eventos, entra con lo que hizo. Con más de LIMITE_VISTA corta el peso de `resolverVista`, no la fecha.
+  // ponytail: puentes apagados por defecto (`puentesDe` uniría eventos entre sí a través de quien los produjo y vuelve el bardo; `?puentes=1`
+  // los prende); salida del tope: un orden por fecha o paginar por secciones.
+  return conObras ? { ...vista, profundidad: 1, filtroNodeTypes: ['OBRA', 'EVENTO'], vinculosVirtuales: e.puentes ?? false } : vista
 }
 
 // Lo visible para un estado (D-22): la Vista base (la home o la red) más lo sumado al recorrer.
@@ -128,7 +134,7 @@ export function subgrafoDe(
   const redId = estado.red ? idx.idPorSlug.get(estado.red) ?? null : null
   const base = redId === null
     ? fraccionHome(ady, { semilla, limite: limiteHome })
-    : resolverVista(ady, vistaDe(estado, redId, ady.nodos.get(redId)?.nodeType, agrupadoresDe(ady, redId).length > 0))
+    : resolverVista(ady, vistaDe(estado, redId, ady.nodos.get(redId)?.nodeType, agrupadoresDe(ady, redId).length > 0, obrasDe(ady, redId).length > 0))
   const enBase = new Set(base.nodos.map((n) => n.id))
   const focoId = estado.enfocado ? idx.idPorSlug.get(estado.enfocado) : undefined
   const foco = focoId && ady.nodos.has(focoId) && !enBase.has(focoId) && focoId !== redId ? [focoId] : []

@@ -5,7 +5,7 @@ import { construirAdyacencia } from '../vista/adyacencia.ts'
 import { resolverVista } from '../vista/resolverVista.ts'
 import type { Subgrafo } from '../../types/vista.ts'
 import { indexarSlugs } from './slugs.ts'
-import { agrupadoresDe } from './menus.ts'
+import { agrupadoresDe, obrasDe } from './menus.ts'
 import { estadoDesdeUrl as d, urlDe, claveVista, vistaDe, profDefecto, LIMITE_VISTA, LIMITE_SUMA, sumarIds, subgrafoDe, type EstadoRed } from './url.ts'
 
 const E = (o: Partial<EstadoRed> = {}): EstadoRed => ({ enfocado: null, red: null, prof: null, semilla: null, raiz: null, puentes: null, ...o })
@@ -99,11 +99,24 @@ test('vistaDe: entidad con áreas entra como la raíz y sus áreas (D-24)', () =
   assert.equal(vistaDe(E({ raiz: false }), 'r', 'ENTIDAD', true).incluirRaiz, false)
 })
 
+test('vistaDe: una entidad sin áreas con obras o eventos entra con lo que hizo, sin personas (D-45)', () => {
+  const v = vistaDe(E(), 'r', 'ENTIDAD', false, true)
+  assert.equal(v.profundidad, 1); assert.deepEqual(v.filtroNodeTypes, ['OBRA', 'EVENTO']); assert.deepEqual(v.filtroVinculos, [])
+  assert.equal(v.direccion, 'ambas'); assert.equal(v.incluirRaiz, true); assert.equal(v.limite, LIMITE_VISTA); assert.equal(v.vinculosVirtuales, false)
+  assert.equal(vistaDe(E({ puentes: true }), 'r', 'ENTIDAD', false, true).vinculosVirtuales, true)
+  assert.equal(vistaDe(E({ raiz: false }), 'r', 'ENTIDAD', false, true).incluirRaiz, false)
+  // Sin obras ni eventos, con `?prof` o con áreas (gana D-24), la Vista de antes; los otros tipos no cambian.
+  assert.deepEqual(vistaDe(E(), 'r', 'ENTIDAD', false, false), vistaDe(E(), 'r', 'ENTIDAD'))
+  assert.deepEqual(vistaDe(E({ prof: 2 }), 'r', 'ENTIDAD', false, true), vistaDe(E({ prof: 2 }), 'r', 'ENTIDAD'))
+  assert.deepEqual(vistaDe(E(), 'r', 'ENTIDAD', true, true), vistaDe(E(), 'r', 'ENTIDAD', true))
+  for (const t of ['AGRUPACION', 'OBRA', 'EVENTO'] as const) assert.deepEqual(vistaDe(E(), 'r', t, false, true), vistaDe(E(), 'r', t))
+})
+
 // Con la fixture (mismo contrato que la curaduría): ver qué trae de verdad cada red al entrar.
 const topo = JSON.parse(readFileSync('src/lib/red/fixtures/topologia.json', 'utf8')) as Subgrafo
 const ady = construirAdyacencia(topo)
 // Igual que subgrafoDe: la Vista de entrada depende de si la entidad tiene áreas (D-24).
-const redDe = (id: string) => { const t = ady.nodos.get(id)!.nodeType; return resolverVista(ady, vistaDe(E(), id, t, agrupadoresDe(ady, id).length > 0)) }
+const redDe = (id: string) => { const t = ady.nodos.get(id)!.nodeType; return resolverVista(ady, vistaDe(E(), id, t, agrupadoresDe(ady, id).length > 0, obrasDe(ady, id).length > 0)) }
 
 test('fixture: Tropical entra con la raíz y sus 6 áreas, unidas por un solo vínculo virtual derivado (D-24)', () => {
   const { nodos, vinculos } = redDe('tp')
@@ -113,10 +126,15 @@ test('fixture: Tropical entra con la raíz y sus 6 áreas, unidas por un solo v�
   assert.deepEqual(virtuales.map((l) => l.id), ['entre:area-editorial|area-obras'])
   assert.match(virtuales[0].rol!, /^Vinculadas por (Libro uno y Espora|Espora y Libro uno)$/)
 })
-test('fixture: una entidad sin áreas entra a su red de siempre, con la raíz y otra entidad', () => {
+test('fixture: una entidad sin áreas entra con la raíz y sus obras, sin otra ENTIDAD; sin obras ni eventos, a la Vista general (D-45)', () => {
   const r = redDe('creadxr-ana')
-  assert.deepEqual(r, resolverVista(ady, vistaDe(E(), 'creadxr-ana', 'ENTIDAD')))
-  assert.ok(r.nodos.some((n) => n.id === 'creadxr-ana') && r.nodos.some((n) => n.id !== 'creadxr-ana' && n.nodeType === 'ENTIDAD'))
+  assert.deepEqual(r, resolverVista(ady, vistaDe(E(), 'creadxr-ana', 'ENTIDAD', false, true)))
+  assert.ok(r.nodos.some((n) => n.id === 'creadxr-ana') && r.nodos.some((n) => n.nodeType === 'OBRA' || n.nodeType === 'EVENTO'))
+  assert.ok(r.nodos.every((n) => n.id === 'creadxr-ana' || n.nodeType === 'OBRA' || n.nodeType === 'EVENTO'))
+  // Sin obras ni eventos (sintético): la Vista general, no una escena de un solo nodo.
+  const sola = construirAdyacencia({ nodos: [{ ...topo.nodos[0], id: 'a', nodeType: 'ENTIDAD' }, { ...topo.nodos[0], id: 'b', nodeType: 'ENTIDAD' }], vinculos: [{ id: 'v', origen: 'a', destino: 'b', tipoVinculo: 'INTEGRA' }] })
+  assert.equal(obrasDe(sola, 'a').length, 0)
+  assert.deepEqual(resolverVista(sola, vistaDe(E(), 'a', 'ENTIDAD', false, obrasDe(sola, 'a').length > 0)).nodos.map((n) => n.id).sort(), ['a', 'b'])
 })
 test('vistaDe: una AGRUPACION recorre solo vínculos salientes (contenedor -> miembros)', () => {
   assert.equal(vistaDe(E(), 'r', 'AGRUPACION').direccion, 'sale')
@@ -127,17 +145,10 @@ test('fixture: adentro de un área no aparece la entidad dueña', () => {
   assert.ok(!ids.includes('tp'))
   assert.ok(ids.includes('obra-nudo') && ids.includes('obra-espora'))
 })
-// Únicas redes de la fixture con nodos sin vínculo dibujable, y por qué (no se relaja la regla en
-// general: cualquier otra red que aparezca acá, o una que deje de estar, hace fallar el test).
-// Son redes de creadxr cuyos colaboradores se conocen solo a través de un hub (obra-espora, o el
-// evento al que ambos aportan) con más de dos vecinos y sin PRODUJO: D-puentes no arma ese clique
-// a propósito (puentesDe, resolverVista.ts). La base real no tiene ninguno (172 redes, 165 con
-// 2+ nodos, 0 sueltos al 2026-10-08), así que es un hueco de la fixture, no del código.
-const SUELTOS_POR_HUB_SIN_PRODUCTORA = [
-  'creadxr-banda-eco', 'creadxr-dani', 'creadxr-duo-neon', 'creadxr-eli', 'creadxr-hugo',
-  'creadxr-ines', 'creadxr-stub', 'soma-beta-1', 'soma-beta-2',
-]
-test('fixture: ninguna red de entidad o área tiene nodos sueltos (salvo los hubs sin productora)', () => {
+// D-45: ninguna red de entidad o área tiene nodos sin vínculo dibujable. Antes de D-45 la Vista general de una creadxr dejaba
+// sueltos a 9 nodos de la fixture (colaboradores conocidos solo por un hub sin PRODUJO, que `puentesDe` no une a propósito);
+// ahora las entidades con obras entran con la raíz y sus obras, todas unidas a la raíz por un vínculo real.
+test('fixture: ninguna red de entidad o área tiene nodos sueltos (D-45)', () => {
   const conSueltos: string[] = []
   for (const n of topo.nodos.filter((n) => n.nodeType === 'ENTIDAD' || n.nodeType === 'AGRUPACION')) {
     const { nodos, vinculos } = redDe(n.id)
@@ -146,7 +157,7 @@ test('fixture: ninguna red de entidad o área tiene nodos sueltos (salvo los hub
     const conVinculo = new Set(vinculos.filter((v) => ids.has(v.origen) && ids.has(v.destino)).flatMap((v) => [v.origen, v.destino]))
     if (nodos.some((x) => !conVinculo.has(x.id))) conSueltos.push(n.id)
   }
-  assert.deepEqual(conSueltos.sort(), SUELTOS_POR_HUB_SIN_PRODUCTORA)
+  assert.deepEqual(conSueltos, [])
 })
 
 // D-22: lo sumado al recorrer. La red base no cambia; el foco o lo guardado que no está se suma.
