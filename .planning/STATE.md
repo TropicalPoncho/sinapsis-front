@@ -4,16 +4,16 @@ milestone: v1.0
 current_phase: 04
 current_phase_name: UI & Navigation
 status: executing
-stopped_at: Completed 04.1-05-PLAN.md
-last_updated: "2026-10-18T16:03:15.063Z"
-last_activity: 2026-10-17
+stopped_at: Completed 04.1-06-PLAN.md
+last_updated: "2026-10-18T16:31:05.893Z"
+last_activity: 2026-10-18
 last_activity_desc: Phase 04 execution started
-state_head: 2ec147fbfed17ac6b46a784f0c4a30f4309ac0ec
+state_head: b950d36275b64644622ab3a49259a3dbee110d19
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 35
-  completed_plans: 32
+  completed_plans: 33
 milestone_name: milestone
 ---
 
@@ -90,6 +90,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04.1 P03 | 22 min | 2 tasks | 7 files |
 | Phase 04.1 P04 | sesion larga | 3 tasks | 8 files |
 | Phase 04.1 P05 | 32 min | 3 tasks | 16 files |
+| Phase 04.1 P06 | 45min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -139,6 +140,9 @@ Recent decisions affecting current work:
 - [Phase 04.1]: [04.1-05] D-42: expandir sube desde abajo (~700 ms) solo con CSS, velo y escalonado --i; overlay base se funde con animacion salir; camara y rect quietos; cierre inmediato
 - [Phase 04.1]: [04.1-05] D-43: fichas.json es el camino de carga hasta M2; validarDetalle(metadata, porDefecto, descartes) es el unico borde y el import falla entero si descarta algo; el TRUNCATE sigue siendo riesgo sobre produccion
 - [Phase 04.1]: [04.1-05] D-44: evento futuro decidido en el cliente (fecha local); horario viaja en la topologia desde metadata.ficha.horario sin DDL; Entradas es texto mas enlace externo, sin pasarela de pago
+- [Phase 04.1]: D-45 (dueno): una entidad sin areas con obras o eventos entra con la raiz y sus EVENTO/OBRA a un salto, sin otras personas y con puentes apagados; sin ellos, Vista general; ?prof, areas, obra y evento sin cambio
+- [Phase 04.1]: D-40: etiquetas de seccion por contexto en roles.json (contextos), primera regla que coincide, aplicada en seccionesDe; banda -> Conciertos, espacio/convocades/invitades -> Eventos; DJ Set pasa a DJ
+- [Phase 04.1]: D-41: auditoria de neuronas por contexto fijada en neuronas.test.ts sobre los CSV (no base viva) y volcada a 04.1-NEURONAS.md
 
 ### Pending Todos
 
@@ -181,8 +185,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-10-18T16:03:14.606Z
-Stopped at: Completed 04.1-05-PLAN.md
+Last session: 2026-10-18T16:31:05.684Z
+Stopped at: Completed 04.1-06-PLAN.md
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's
