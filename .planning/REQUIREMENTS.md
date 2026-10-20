@@ -67,14 +67,16 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 - [x] **UI-09**: Al enfocar un nodo, el panel de información aparece **siempre del mismo lado** —izquierda en escritorio ocupando el 62% del ancho, banda inferior en mobile— con degradado hacia el canvas y no un corte duro, y el texto alineado a la izquierda
 - [x] **UI-11**: La columna de texto se mantiene entre 620 y 680px aunque el panel sea más ancho: el panel crece como degradado, no como largo de línea
 - [x] **UI-10**: Un cambio de ruta secuencia el cambio de Vista, la animación de cámara y la aparición del overlay, en vez de dispararlos a la vez
-- [x] **UI-12**: Las acciones del panel salen de los datos, no de configuración por nodo: "Entrar" aparece si el nodo compone algo (un COMPONE saliente) o tiene secciones derivadas, para cualquier tipo de nodo, y "Expandir" si una obra o un evento tiene contenido (créditos); un nodo puede tener las dos. Entrar es zoom in a la red interna del nodo (Fase 4.1, D-26)
+- [ ] **UI-12**: Las acciones del panel salen de los datos, no de configuración por nodo: "Entrar" aparece si el nodo compone algo (un COMPONE saliente) o tiene secciones derivadas, para cualquier tipo de nodo, y "Expandir" si una obra o un evento tiene contenido (créditos); un nodo puede tener las dos. Entrar es zoom in a la red interna del nodo (Fase 4.1, D-26). *(Enmendado al planear 04.1-09: "Expandir" también aparece si el nodo tiene ficha cargada, leído de la topología: una ENTIDAD con su About, o una obra o un evento con ficha y sin créditos. Un stub y un área nunca expanden; ver UI-21, D-48)*
 - [x] **UI-13**: Expandir abre una ficha de lectura por encima de todo el canvas sin mover la cámara, con el borde superior fundido con la escena y una cabecera fija con el nombre del nodo y el menú de sus secciones; Volver y Esc vuelven al preview (Fase 4.1, D-27). *(Enmendado al planear 04.1-05: el menú de la cabecera lista los bloques de contenido y solo si hay dos o más; los créditos pasan a una columna, ver UI-17)*
-- [ ] **UI-14**: Los vínculos de participación de un nodo, agrupados por `rol` normalizado (roles múltiples, mayúsculas y plurales, vocabulario curado en datos, "Otros"), forman secciones virtuales que no se persisten, con etiquetas que se leen según el contexto del nodo dueño (tipo/subtipo del dueño, sección y tipo de la contraparte, config en datos; un espacio lee "Eventos"); el mismo componente de UI muestra las secciones derivadas y las áreas reales de una entidad (Fase 4.1, D-29, D-40)
-- [x] **UI-15**: Entrar a una sección muestra a la izquierda la lista de sus nodos para pasar de uno a otro; cada uno se previsualiza, se expande o se entra, y su red muestra sus áreas reales o derivadas, recursivamente. Las listas son UI y no crean nodos de escena (tope 40 + 12) y la URL lleva solo el ancla (Fase 4.1, D-30, D-22)
+- [ ] **UI-14**: Los vínculos de participación de un nodo, agrupados por `rol` normalizado (roles múltiples, mayúsculas y plurales, vocabulario curado en datos, "Otros"), forman secciones virtuales que no se persisten, con etiquetas que se leen según el contexto del nodo dueño (tipo/subtipo del dueño, sección y tipo de la contraparte, config en datos; un espacio lee "Eventos"); el mismo componente de UI muestra las secciones derivadas y las áreas reales de una entidad (Fase 4.1, D-29, D-40). *(Enmendado al planear 04.1-08: la agrupación por rol queda para eventos, obras, lugares, bandas y las entidades sin portfolio; para personas y organizaciones las secciones son las de su portfolio y los roles pasan a chips de cada fila, ver UI-20, D-46)*
+- [ ] **UI-15**: Entrar a una sección muestra a la izquierda la lista de sus nodos para pasar de uno a otro; cada uno se previsualiza, se expande o se entra, y su red muestra sus áreas reales o derivadas, recursivamente. Las listas son UI y no crean nodos de escena (tope 40 + 12) y la URL lleva solo el ancla (Fase 4.1, D-30, D-22). *(Reabierto al planear 04.1-08: la lista de una sección de portfolio tiene una fila por nodo con sus chips y los eventos de hoy en adelante arriba, marcados "Próximo"; la tabla de neuronas se actualiza con el portfolio, D-46, D-47)*
 - [x] **UI-16**: El panel de preview ocupa el ancho libre entre el borde izquierdo (o el menú lateral) y la neurona, con la alineación como un valor de CSS (izquierda por defecto); en mobile el nombre de la red se ve grande a todo el ancho superior y el motor lo esquiva (Fase 4.1, D-28)
 - [x] **UI-17**: La ficha expandida muestra bloques de contenido de cuatro tipos (texto, galería, video, enlaces) con nombre libre: el esquema por defecto sale de un archivo de datos por `nodeType`/`subtipo` y cada nodo puede reemplazarlo desde su `metadata`; el menú de la cabecera lista los bloques solo si hay dos o más. Los créditos van en una columna a la derecha en escritorio, agrupados por rol (una columna en mobile). El contenido de curaduría entra por `data/curaduria/fichas.json` → `metadata.ficha`, validado en el borde de confianza (Fase 4.1, D-38, D-39, D-43)
 - [x] **UI-18**: Un evento futuro (fecha de hoy en adelante, calculado en el cliente) muestra fecha, horario y espacio bien visibles en el preview y en la ficha, y la ficha suma un llamado de Entradas (texto y/o enlace externo); el preview sigue sin pedir nada al servidor; sin pasarela de pago (Fase 4.1, D-44)
 - [x] **UI-19**: Expandir se anima sin cortes: el contenido sube desde abajo (~700 ms), la escena se atenúa con un velo y los bloques entran escalonados, sin mover la cámara y respetando `prefers-reduced-motion` (Fase 4.1, D-42)
+- [ ] **UI-20**: Una persona y una organización se leen como portfolio, con la regla en datos por tipo de dueño (`roles.json` → `portfolios`, sobreescribible por nodo más adelante). Una persona lee Participaciones, Obras y Organizaciones; una productora, un colectivo o un sello, Eventos producidos, Integrantes y Obras. Cada evento, obra u organización aparece una sola vez, con sus roles como chips ("Producción · DJ"). Lo más reciente va primero, y lo que todavía no pasó, arriba con "Próximo", calculado en el cliente. Ninguna contraparte se pierde ("Otros"). Los eventos, las obras, los lugares y las bandas conservan su lectura por rol (Fase 4.1, D-46, D-47)
+- [ ] **UI-21**: Toda entidad puede tener su About: un bloque de texto con nombre libre en `metadata.ficha`, con el mismo esquema por bloques y el mismo borde de confianza que la ficha de una obra (`bloques.json` → `ENTIDAD`, carga por `fichas.json`). "Expandir" aparece en una entidad si tiene ficha, y su ficha muestra el About a la izquierda y su portfolio a la derecha. Las áreas (AGRUPACION) no tienen ficha y no cambian (Fase 4.1, D-48)
 
 ### Rendimiento
 
@@ -176,21 +178,23 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | UI-09 | Phase 4 | Complete |
 | UI-11 | Phase 4.1 | Complete |
 | UI-10 | Phase 4 | Complete |
-| UI-12 | Phase 4.1 | Complete |
+| UI-12 | Phase 4.1 | Pending (reabierto al planear 04.1-09: Expandir por ficha cargada, D-48; UAT de 04.1-07) |
 | UI-13 | Phase 4.1 | Complete |
-| UI-14 | Phase 4.1 | Pending (gap G41-01: etiquetas de sección por contexto; plan 04.1-06) |
-| UI-15 | Phase 4.1 | Complete (auditoría de neuronas por contexto, gap G41-02, en 04.1-06; se reabre si el dueño marca diferencias) |
+| UI-14 | Phase 4.1 | Pending (04.1-06 implementó las etiquetas por contexto, D-40; para personas y organizaciones la reemplaza el portfolio de 04.1-08, D-46; UAT de 04.1-07) |
+| UI-15 | Phase 4.1 | Pending (reabierto al planear 04.1-08: la lista de una sección de portfolio y la tabla de neuronas, D-46, D-47; UAT de 04.1-07) |
 | UI-16 | Phase 4.1 | Complete |
 | UI-17 | Phase 4.1 | Complete (04.1-05; UAT del dueño pendiente) |
 | UI-18 | Phase 4.1 | Complete (04.1-05; UAT del dueño pendiente) |
 | UI-19 | Phase 4.1 | Complete (04.1-05; UAT del dueño pendiente) |
+| UI-20 | Phase 4.1 | Pending (04.1-08: portfolio por tipo de nodo, D-46, D-47; UAT de 04.1-07) |
+| UI-21 | Phase 4.1 | Pending (04.1-09: About de las entidades, D-48; UAT de 04.1-07) |
 | UI-07 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 54 total
-- Mapped to phases: 54
+- v1 requirements: 56 total
+- Mapped to phases: 56
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-08-06*
-*Last updated: 2026-10-18 al planear 04.1-05 y 04.1-06 (UI-17..UI-19 nuevos; UI-14 ampliado con las etiquetas por contexto; UI-13 enmendado)*
+*Last updated: 2026-10-20 al planear 04.1-08 y 04.1-09 (UI-20 y UI-21 nuevos; UI-12 y UI-15 reabiertos; UI-14 enmendado por el portfolio)*
