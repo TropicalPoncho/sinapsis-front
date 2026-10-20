@@ -1,14 +1,14 @@
 ---
 gsd_state_version: "1.0"
 milestone: v1.0
-current_phase: 04
-current_phase_name: UI & Navigation
-status: executing
+current_phase: "04.1"
+current_phase_name: Expandir nodo y secciones derivadas
+status: "Sitio publicado en https://sinapsis.tropicalponcho.art (Vercel + Neon). Fase 4 abierta: UAT 3 (04-13) y G-06 (celular). Fase 4.1: ficha por bloques, créditos por rol, evento futuro y animación hechos; falta el portfolio por tipo de nodo y el UAT."
 stopped_at: Completed 04.1-06-PLAN.md
-last_updated: "2026-10-18T16:31:05.893Z"
-last_activity: 2026-10-18
-last_activity_desc: Phase 04 execution started
-state_head: b950d36275b64644622ab3a49259a3dbee110d19
+last_updated: "2026-10-20T22:24:31.771Z"
+last_activity: 2026-10-20
+last_activity_desc: replanificación de 04.1-06 (portfolio), corrección de estado
+state_head: 599a982d507cea0d4119da6a472168d23601d282
 progress:
   total_phases: 6
   completed_phases: 3
@@ -24,15 +24,15 @@ milestone_name: milestone
 See: .planning/PROJECT.md (updated 2026-08-06)
 
 **Core value:** Que la red se pueda mirar desde cualquier punto de vista sin cambiar el modelo de datos.
-**Current focus:** Phase 04 — UI & Navigation
+**Current focus:** Phase 04.1 — Expandir nodo y secciones derivadas (la Fase 04 sigue abierta: UAT 3 del plan 04-13 y G-06)
 
 ## Current Position
 
-Phase: 04 (UI & Navigation) — EXECUTING
-Plan: 12 de 13 ejecutados (04-12 completo; falta 04-13)
-Status: Fase 4 abierta: G-08, G-09 y G-10 implementados (04-12), pendientes del UAT del dueño (04-13); G-06 (celular) abierto
+Phase: 04.1 (Expandir nodo y secciones derivadas) — EXECUTING
+Plan: 6 de 7 planes ejecutados; 04.1-06 se rehace con el modelo de portfolio (personas: Participaciones/Obras/Organizaciones) y 04.1-07 quedó a medio camino (auditoría y documentación commiteadas, UAT sin correr)
+Status: Sitio publicado en https://sinapsis.tropicalponcho.art (Vercel + Neon). Fase 4 abierta: UAT 3 (04-13) y G-06 (celular). Fase 4.1: ficha por bloques, créditos por rol, evento futuro y animación hechos; falta el portfolio por tipo de nodo y el UAT.
 Fase 4.1 (INSERTED): 5 de 7 planes ejecutados (04.1-05 completo: ficha por bloques, créditos a la derecha, Alterego de punta a punta, evento futuro con Entradas y animación de expandir; medido sobre la topología de los CSV, no la base viva; el SELECT del horario contra Postgres queda para el UAT del dueño con su base local); **la fase sigue abierta** por G41-01 (UI-14) y G41-02 (UI-15); siguiente: 04.1-06 y 04.1-07
-Last activity: 2026-10-18 — 04.1-05 completo (D-38, D-39, D-42..D-44)
+Last activity: 2026-10-20 — replanificación de 04.1-06 (portfolio), corrección de estado
 
 Phase 02 (data-vista-backend) closed 2026-10-01 — see 02-05-SUMMARY.md.
 

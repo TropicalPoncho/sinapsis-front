@@ -168,4 +168,15 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-06 after Phase 1 (Repo Cleanup) — REPO-01..05 complete*
+## Decisiones vigentes desde la Fase 4 (resumen; el detalle y la fecha de cada una viven en `.planning/phases/04-ui-navigation/04-CONTEXT.md` y `04.1-.../04.1-CONTEXT.md`)
+
+- **La Vista es la URL, con una excepción acotada (D-22):** los nodos que se suman al recorrer viven en memoria del Shell, atados a la red actual (tope `LIMITE_SUMA`); la URL lleva solo el ancla (red y foco). Está escrita en CLAUDE.md.
+- **Entrar y Expandir salen de los datos (D-26, D-33, D-36):** Entrar si el nodo compone algo o tiene secciones; Expandir si tiene contenido. Entrar es siempre reemplazo (zoom in).
+- **Vistas de entrada:** entidad con áreas = raíz + sus áreas con vínculos virtuales derivados (D-24); entidad sin áreas = raíz + sus eventos y obras, no otras personas (D-45); área = lo que compone (D-25).
+- **Ficha expandida (D-27, D-34, D-38, D-39, D-42):** capa que sube sobre el canvas sin mover la cámara y sin tocar la URL; contenido en bloques configurables (texto, galería, video, enlaces; esquema por tipo en `src/lib/red/bloques.json`, override en `metadata.ficha`); créditos por rol a la derecha; animación solo CSS.
+- **Secciones derivadas de los roles (D-32, D-40):** vocabulario curado en datos (`src/lib/red/roles.json`), "Otros" conserva la grafía; los roles son del productor. Pendiente de rehacer para personas como portfolio.
+- **Producción:** sitio publicado en https://sinapsis.tropicalponcho.art (Vercel proyecto `sinapsis`, Postgres en Neon; `main` publica). El importador de curaduría hace TRUNCATE: no reimportar sobre producción cuando haya edición en vivo (M2). DNS en GoDaddy; `tropicalponcho.art` sigue en el proyecto collective-conscience hasta la Fase 5.
+- **Diseño:** prototipo en Claude Design (https://claude.ai/artifact/B4HQnt5UdtgZCq3pLS2bZX); el diseño final del dueño está en Figma (archivo `mYq7GwKitb3S4nvW2ZZCh8`).
+- **ADRs pendientes en Notion (el dueño):** D-22, D-24, D-32, D-34, D-37, D-38, D-43, D-44, D-45 y la enmienda de D-16.
+
+*Last updated: 2026-10-20 — decisiones de las Fases 4 y 4.1 y publicación en producción*

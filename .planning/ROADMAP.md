@@ -27,6 +27,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Data & Vista Backend** (2026-10-01) - Postgres schema owned by SQL migrations, CSV-curated data import, and the topology endpoint plus `resolverVista`
 - [x] **Phase 3: 3D Engine** - SinapsisEngine with its three transitions, React-free, measured for its render ceiling
 - [ ] **Phase 4: UI & Navigation** - Persistent canvas above the router, Next.js routes as overlays (home, ENTIDAD, OBRA), URL-driven navigation choreographed with camera moves, data-driven menu
+- [ ] **Phase 4.1: Expandir nodo y secciones derivadas** (INSERTED) - Ficha expandida sobre el canvas, acciones derivadas de los datos, secciones por rol y portfolio por tipo de nodo
 - [ ] **Phase 5: Tropical Poncho Launch** - tropicalponcho.art live as the ENTIDAD profile page, on real migrated data, no special-cased code
 
 ## Phase Details
@@ -163,7 +164,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 (2 and 3 can run in parallel — both depend only on Phase 1)
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 (2 and 3 can run in parallel — both depend only on Phase 1)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -171,4 +172,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 (2 and 3 can run in p
 | 2. Data & Vista Backend | 5/5 | Complete | 2026-10-01 |
 | 3. 3D Engine | 6/6 | Complete | 2026-09-20 |
 | 4. UI & Navigation | 12/13 | In Progress|  |
+| 4.1 Expandir nodo y secciones derivadas (INSERTED) | 6/7 | In Progress|  |
 | 5. Tropical Poncho Launch | 0/? | Not started | - |
