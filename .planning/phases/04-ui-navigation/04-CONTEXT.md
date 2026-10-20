@@ -99,10 +99,15 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
 ### Contenido de los paneles
 - **D-12:** Panel al enfocar: **nombre, subtipo, descripción breve y botones**. Solo datos que ya
   viajan en la topología; no pide nada al servidor.
+  *(enmendada 2026-10-20 por la Fase 4.1, 04.1-05/04.1-06, ver 04.1-CONTEXT.md D-44: un EVENTO de hoy en adelante suma al panel su fecha con día,
+  su horario y su espacio, todo de la topología (el horario viaja en `NodoGrafo.horario`, leído de `metadata.ficha.horario`); sigue sin pedir nada al servidor.)*
 - **D-13:** Ficha extendida de una OBRA lleva: **créditos** (creadxrs y su rol, cada uno
   clickeable para enfocar su nodo, sale de los vínculos — UI-04), **texto descriptivo largo**,
   **galería de imágenes**, **enlaces externos** y un **iframe de video de YouTube opcional** (solo
   si el dato lo trae).
+  *(enmendada 2026-10-20 por la Fase 4.1, 04.1-05/04.1-06, ver 04.1-CONTEXT.md D-38 y D-39: el texto, la galería, los enlaces y el video pasaron a
+  **bloques de contenido** configurables por datos (`bloques.json`, override en `metadata.ficha`), a la izquierda; los **créditos** van en una
+  columna a la derecha, agrupados por rol. Sigue valiendo lo siguiente.)*
   *(enmendada 2026-10-16 por la Fase 4.1, ver 04.1-CONTEXT.md D-27, D-33 y D-34: la ficha extendida ya no es el panel que
   crece: es la capa expandida de la variante A, por encima de todo el canvas y con la cámara quieta, estado de UI fuera de la
   URL. Los créditos se muestran por sección derivada del rol (D-32), cada nombre lleva a esa sección con esx creadxr en preview;
@@ -223,6 +228,10 @@ de Overlay; no hay migraciones, datos nuevos ni gramática de URL nueva.
       y la vista de entrada salen de la misma función.
     - Fallback: entidad sin áreas, o con `?prof=N` explícito, entra a la Vista general de siempre
       (profundidad 2, ENTIDAD + AGRUPACION, puentes). `?prof` mantiene vivo el parámetro de niveles de D-08.
+      *(**enmendada 2026-10-20 por la Fase 4.1, 04.1-06, ver 04.1-CONTEXT.md D-45: el fallback cambió.** Una entidad sin áreas **con obras o eventos**
+      entra con la raíz y esos nodos a un salto (`filtroNodeTypes` OBRA y EVENTO, profundidad 1, dirección `ambas`, puentes apagados), sin otras
+      personas: Keuken Aonikenk 5 nodos, Rama Cerratto 10. La Vista general (profundidad 2, ENTIDAD + AGRUPACION, puentes) queda para las entidades sin
+      obras ni eventos y para `?prof=N`. Una entidad con áreas no cambia.)*
   - **Por qué:** es la regla literal del dueño ("hay nodos que son parte de un área que se vinculan con
     nodos de otra área, y eso genera el vínculo virtual"). Vive en `resolverVista` (pura, al lado de
     `puentesDe`) y se pide desde la Vista: la vista de entrada sigue siendo configuración de una Vista

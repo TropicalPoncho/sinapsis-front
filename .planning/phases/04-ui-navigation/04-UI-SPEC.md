@@ -158,6 +158,8 @@ Colores por área (`--ColorPalette-Turquesa #8AE2C8`, `Cian #578CCB`, `Violeta #
 
 > (enmendado en 4.1, ver 04.1-CONTEXT.md D-35) **Panel fluido en escritorio:** el contenido (`.panel__contenido`) ocupa el ancho libre entre el borde izquierdo (o el lateral) y la neurona: `width: min(100%, var(--columna-texto))` con `margin-inline-start: var(--panel-margen)`. `.overlay` define `--columna-texto: 660px` (UI-11, la misma de la ficha) y `--panel-margen: 0` (alineado a la izquierda por defecto; con `auto` se alinea contra la neurona). El lateral conserva su ancho (260px) y el panel cede el ancho que le queda. Reemplaza los 420px alineados a la derecha. Nombre 34px, subtipo 16px y descripción 18px en escritorio; el diseño final de tamaños es de Figma.
 
+> (enmendado en 4.1, 04.1-05/06, ver 04.1-CONTEXT.md D-44) **Preview de un EVENTO futuro** (fecha de hoy en adelante contra la fecha local del visitante, decidido en el cliente): debajo del subtipo, `.panel__cuando` con la fecha con día y el horario ("sábado, 31 de octubre · 22–04hs"; 18px, 22px en escritorio) y, si el evento tiene espacio, `.panel__lugar`, un `<button>` con el nombre del espacio que lo enfoca con aditivo (misma red, D-22/D-23). El espacio es el primer nodo de la sección `lugar` de `roles.json`. El horario viaja en la topología (`NodoGrafo.horario`); el preview sigue sin pedir nada al servidor. Un evento pasado, una obra y una entidad no cambian. Entradas no va en el preview (pregunta abierta del UAT).
+
 Contenido, en este orden, alineado a la izquierda, columna con padding `48px 24px 24px` (escritorio) / `16px` (mobile):
 1. Nombre (Heading 26px).
 2. Subtipo (Label uppercase, 70% blanco).
@@ -198,6 +200,13 @@ Un "tipo de botón" es un dato `{ etiqueta, accion, destino? }`. La lista de acc
 > - **Teclado:** Esc en dos niveles (con la ficha abierta la cierra; si no, hace Volver); Tab no sale de la capa; al cerrar, el foco vuelve al nombre del panel.
 > - **Reemplaza los "Créditos"** de la lista de abajo: los créditos son las secciones.
 
+> (enmendado en 4.1, 04.1-05/06, ver 04.1-CONTEXT.md D-38, D-39, D-42 y D-44) **La ficha por bloques, que reemplaza lo anterior donde difiere:**
+> - **Cabecera:** nombre, el menú de **bloques** de contenido (no de secciones por rol) y Volver. El menú aparece **solo con dos o más bloques**; con uno o ninguno queda el nombre y Volver. Scroll-spy y `aria-current` sobre los bloques.
+> - **Bloques (columna izquierda, 620-680px):** lista ordenada que el servidor resuelve contra `src/lib/red/bloques.json` (por `nodeType` o `nodeType:subtipo`) o contra `metadata.ficha.bloques` del nodo. Cuatro tipos: texto (`white-space: pre-line`, nunca HTML), galería, video (`youtube-nocookie`, `title="{nombre} de {label}"`) y enlaces. Cada bloque lleva su nombre como `h3`. Sin datos, no hay bloque ni título vacío; un nodo sin bloques deja la columna izquierda vacía bajo la portada (pregunta abierta del UAT).
+> - **Créditos (columna derecha):** `<aside>` "Créditos" con las mismas secciones por rol de `seccionesDe`, un grupo por sección con el color del dato; `position: sticky; top: 120px`, ancho `clamp(240px, 26vw, 340px)`, scroll propio sin barra visible, `gap` de 64px con los bloques. Cada nombre entra a esa sección (D-37). Sin secciones, la columna no se dibuja. Entre 801 y unos 1100px la columna de bloques baja de 620px (598px a 1024) para dejarle lugar.
+> - **Portada de un evento futuro:** tipo (solo el subtipo), `.expandido__cuando` (fecha con día y horario, 34px; 24px en mobile), el espacio como `<a>` que entra a la sección "Espacio" con el nodo enfocado (24px; 18px en mobile), la bajada y el bloque **Entradas** (`h3`, el texto y, si hay url, un enlace externo `.accion` con `target="_blank"` y `rel="noopener noreferrer"`, etiqueta del dato o "Conseguir entradas"). Un evento pasado muestra "subtipo · fecha larga" y no muestra Entradas. Sinápsis no vende ni cobra: el llamado es texto y un enlace a quien vende.
+> - **Animación al abrir (D-42):** ver Transiciones.
+
 Se abre con `expandir`; el panel crece hacia abajo y el contenido interno hace scroll (`overflow-y: auto`, `max-height: 100dvh` escritorio / `70dvh` mobile, `overscroll-behavior: contain`). Bloques separados por 32px, en este orden:
 1. **Créditos:** lista `nombre — rol`. Cada nombre es un `<button>` (o link a `/entidad/[slug]`) que enfoca el nodo (D-03, UI-04). Rol en Label, 70% blanco.
 2. **Texto descriptivo largo** (Cuerpo, medida máxima `65ch`).
@@ -214,6 +223,8 @@ Panel mínimo: solo el nombre (Heading) y el subtipo. **Sin** descripción, **si
 Mismo panel de foco. Las obras producidas no se listan en el panel: aparecen en la red al entrar y en el menú lateral. La página acepta `?prof=N` (D-04, D-08) y no contiene código específico de Tropical Poncho.
 
 (enmendado tras el UAT 2, ver D-24/D-25) **Vista de entrada (D-24):** una entidad que COMPONE al menos un área entra como la raíz más sus áreas (nada más), unidas por vínculos virtuales punteados derivados de sus miembros (miembro de una con vínculo real a miembro de otra, o miembro compartido; un vínculo curado entre áreas reemplaza al derivado). **Fallback:** una entidad sin áreas (una persona), o con `?prof=N` explícito, entra a la Vista general (profundidad 2, entidades y áreas relacionadas, con puentes); `?prof=2` en Tropical sirve de acceso a lxs colaboradorxs. Las obras aparecen al entrar al área que las compone (corrige el drift de D-14 existente desde 04-02). Con la base de hoy la entrada de Tropical no muestra vínculos entre áreas (solo Obras tiene miembros): es hueco de curaduría, no de código.
+
+(enmendado en 4.1, 04.1-05/06, ver 04.1-CONTEXT.md D-45) **El fallback de arriba cambió.** Una entidad sin áreas (persona, espacio, productora, banda) **con al menos un vecino OBRA o EVENTO** y sin `?prof` entra con la raíz y sus propios eventos y obras a un salto, por cualquier vínculo, con los vínculos reales entre ellos (los `PRECEDE` de sus series) y **sin otras personas** ni puentes: Keuken Aonikenk 5 nodos, Espacio Ave Fenix 5, Rama Cerratto 10, Club Weyba 3 (sobre los CSV). Sin eventos ni obras, o con `?prof=N`, queda la Vista general de antes (profundidad 2, entidades y áreas, con puentes; `?puentes=1` prende los puentes también en la nueva). A las personas se llega entrando a un evento o una obra, desde los créditos de la ficha, o con `?prof=2`. Una entidad con áreas, un área, una obra y un evento no cambian (D-24, D-25, D-36). Con más de 40 eventos u obras corta el peso de `resolverVista` y no la fecha (hoy el máximo es 9).
 
 ---
 
@@ -235,13 +246,16 @@ Orden estricto de cada navegación (UI-10): **(1)** cambia la ruta/URL → **(2)
 | Nodo no encontrado (slug inválido) | Se muestra la red completa/home y un aviso en el panel: ver Copywriting |
 | Error de topología (endpoint caído) | Panel mínimo con mensaje y botón `Reintentar`; el canvas queda como esté |
 
-- `prefers-reduced-motion: reduce`: se desactivan glow del `.bn`, pulso de carga y los `translate` del panel; solo queda fade de 0.2s. Las animaciones de cámara del motor siguen (son el producto) pero el motor puede recibir `duracion` reducida. Default (reajustable).
+> (enmendado en 4.1, 04.1-05/06, ver 04.1-CONTEXT.md D-42) **Expandir se anima solo con CSS y sin tocar la cámara ni el rect del panel:** la portada y el cuerpo suben desde abajo (`subir`, 700 ms, `cubic-bezier(.22, 1, .36, 1)`), la capa `.expandido` pinta un velo hasta `rgba(10,10,10,.5)` (`velo`, 700 ms), la cabecera se funde (400 ms), y cada línea de la portada, cada bloque y cada grupo de créditos entra con fundido y 16px de desplazamiento (`aparecer`, 500 ms) escalonado por `--i` con tope de 8 pasos (250 ms + 70 ms por paso). El overlay base se funde con una animación `salir` (300 ms; keyframe final `opacity: 0; visibility: hidden`) y no con transiciones, para no pisar las suyas. `.expandido` no lleva `transform` (es el contenedor de scroll y su `sticky` tiene que seguir). El cierre es inmediato (D-34). Diferidos: revelado por scroll y animación de cierre.
+
+- `prefers-reduced-motion: reduce`: se desactivan glow del `.bn`, pulso de carga y los `translate` del panel; solo queda fade de 0.2s. Las animaciones de cámara del motor siguen (son el producto) pero el motor puede recibir `duracion` reducida. Default (reajustable). (enmendado en 4.1, 04.1-05/06) En la ficha, con reduced motion no hay `subir` ni `aparecer` (sin desplazamientos ni escalonado); el velo y el fundido de la cabecera quedan en 0,2 s y el overlay base queda oculto al instante.
 
 ---
 
 ## Mobile (<=800px)
 
 - (enmendado en 4.1, ver 04.1-CONTEXT.md D-35) **Título grande arriba:** adentro de una red, `.tituloRed` va debajo de la hamburguesa (`top: 64px`), a todo el ancho (`left/right: 16px`), `clamp(28px, 9vw, 44px)` y hasta **dos líneas**; es el nombre de la red. El puente suma su borde inferior al **área segura** (`top`, vía `tituloRef`): el nodo enfocado queda entre el título y la banda del panel (unos 435 a 490px libres en 360x740 a 390x800). **La ficha en mobile:** cabecera de 64px con el nombre en una línea con elipsis y el menú de secciones deslizable, columna = viewport menos 32px, sin desborde horizontal. En mobile abrir una sección abre el cajón con su lista; con una sección abierta la hamburguesa abre solo esa lista.
+- (enmendado en 4.1, 04.1-05/06, ver 04.1-CONTEXT.md D-39 y D-44) **La ficha en mobile** tiene una sola columna: primero los bloques y después los créditos, sin `sticky` y a todo el ancho; el menú de bloques (solo con dos o más) se desliza en horizontal. El preview de un evento futuro suma **cuándo y dónde** en la banda inferior (fecha con día y horario 18px y el espacio como botón, 18px); en la portada de la ficha, la fecha 24px y el espacio 18px.
 - Panel = banda inferior, ancho 100%, altura del resumen `auto` con tope `45dvh` (original: `max-height 45vh`); ficha extendida sube hasta `70dvh`. Default (reajustable).
 - El canvas conserva gestos (arrastre, pellizco). El panel captura solo su propio scroll (`touch-action: pan-y`).
 - Botones en columna, ancho 100%, mínimo 44px de alto.
@@ -259,6 +273,7 @@ Orden estricto de cada navegación (UI-10): **(1)** cambia la ruta/URL → **(2)
 - `aria-live="polite"` al cambiar de nodo; `aria-label` en hamburguesa y cerrar; `lang="es"`.
 - El canvas es decorativo para lectores de pantalla (`aria-hidden="true"`); la alternativa navegable es el menú lateral (lista de nodos).
 - (enmendado en 4.1, ver 04.1-CONTEXT.md D-34) **Ficha expandida:** `role="dialog"` con `aria-modal="true"` y `aria-labelledby` al nombre; mientras está abierta el overlay base queda `inert` (atributo nativo) y la capa atrapa Tab y Shift+Tab; Esc la cierra (Esc en dos niveles: si no hay ficha, hace Volver) y el foco vuelve al nombre del panel (`#panel-nombre`). Las secciones del menú de la ficha y del menú superior marcan la activa con `aria-current`, no solo con color; el `<nav>` de la ficha lleva `aria-label="Secciones de {nombre}"`. `scroll-behavior: smooth` se desactiva con `prefers-reduced-motion`.
+- (enmendado en 4.1, 04.1-05/06, ver 04.1-CONTEXT.md D-38, D-39, D-42 y D-44) **Ficha por bloques:** jerarquía de títulos `h2` (nombre del nodo) > `h3` (cada bloque, "Créditos" y "Entradas") > `h4` (cada grupo de créditos); los créditos son un `<aside aria-label="Créditos de {nombre}">` y cada bloque una `<section aria-labelledby>`; el `<nav>` de bloques (solo con dos o más) conserva `aria-label="Secciones de {nombre}"` y marca el activo con `aria-current`. El enlace de Entradas abre en pestaña nueva con `rel="noopener noreferrer"`. Con `prefers-reduced-motion` no hay desplazamientos de entrada y el overlay base queda oculto sin animar.
 
 ---
 
@@ -285,6 +300,8 @@ Orden estricto de cada navegación (UI-10): **(1)** cambia la ruta/URL → **(2)
 | Acciones destructivas | Ninguna en esta fase |
 
 (enmendado en 4.1, ver 04.1-CONTEXT.md D-32, D-33 y D-36) Copy nuevo: **"Expandir"** (reemplaza "Ver más / Ver menos"; no cambia al abrir), **"Volver"** en la cabecera de la ficha, **"Entrar a {nombre}"** para cualquier nodo con algo adentro, **"Otros"** como última sección (cada ítem lleva " — {rol}" con la grafía original). Las **etiquetas de sección salen del vocabulario** `src/lib/red/roles.json` (Producción, Meditación, Actividades, Performance, Bandas en vivo, DJ, VJ…), no del copy de la interfaz; el encabezado "Créditos" ya no existe (los créditos son las secciones). `aria-label` de la ficha: "Secciones de {nombre}".
+
+(enmendado en 4.1, 04.1-05/06, ver 04.1-CONTEXT.md D-38, D-39, D-40 y D-44) **Copy de la ficha por bloques:** vuelve **"Créditos"** como título de la columna derecha (en lugar de las secciones en la cabecera); **"Entradas"** como título del bloque de un evento futuro y **"Conseguir entradas"** como etiqueta del enlace si el dato no trae otra. Los **nombres de bloque** salen de `src/lib/red/bloques.json` o del override del nodo (Curaduría, Sobre la obra, Sinopsis, Galería, Video, Enlaces), no del copy de la interfaz; las **etiquetas por contexto** salen de `roles.json` → `contextos` (por ejemplo "Eventos" para un espacio, "Conciertos" para una banda). Reemplaza la frase de arriba que decía que el encabezado "Créditos" ya no existe.
 
 Tono: rioplatense, voseo ("Volvé", "Revisá", "Intentá"). Siempre "creadxr", nunca "artista".
 
