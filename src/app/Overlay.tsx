@@ -12,10 +12,13 @@ import type { Boton } from '../lib/red/botones.ts'
 import type { Transicion } from '../types/vista.ts'
 import { agrupadoresDe, nodosDeLaRed, obrasDe, padreDe, seccionesDe } from '../lib/red/menus.ts'
 import type { Seccion, VocabularioRoles } from '../lib/red/menus.ts'
-import roles from '../lib/red/roles.json'
+import rolesJson from '../lib/red/roles.json'
 import { esFuturo, fechaLarga, hoyLocal } from '../lib/red/fechas.ts'
 import { Ficha } from './Ficha.tsx'
 import { MenuLateral, MenuSuperior } from './Menus.tsx'
+
+// Único lector del vocabulario de roles (D-32): un solo cast del JSON.
+const roles = rolesJson as VocabularioRoles
 
 export type Fase = 'cargando' | 'moviendo' | 'listo'
 
@@ -77,7 +80,7 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     : redNodo.nodeType === 'AGRUPACION' ? padreDe(ady, redId, 'ENTIDAD') : null
   const areas = ady && entidadId ? agrupadoresDe(ady, entidadId) : []
   // D-29/D-36: sin áreas reales, el menú superior lista las secciones derivadas de los roles de la red (mismo componente).
-  const seccionesRed = ady && redId ? seccionesDe(ady, redId, roles as VocabularioRoles) : []
+  const seccionesRed = ady && redId ? seccionesDe(ady, redId, roles) : []
   const deSecciones = areas.length === 0 && seccionesRed.length > 0
   const items = deSecciones ? seccionesRed : areas
   // D-37: la sección abierta es una lista de UI atada a la red en la que se abrió, no una Vista: no toca la URL ni la escena.
@@ -212,11 +215,11 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
   }, [visible, nodo?.id, error])
 
   // Las secciones del nodo del panel se calculan una vez: la misma lista decide el botón Expandir y llena la ficha.
-  const secciones = nodo && ady ? seccionesDe(ady, nodo.id, roles as VocabularioRoles) : []
+  const secciones = nodo && ady ? seccionesDe(ady, nodo.id, roles) : []
   // D-44: un evento de hoy en adelante (la fecha local del visitante, en el cliente) muestra cuándo y dónde. El espacio es el primer nodo
   // de la sección "lugar" de roles.json. Un solo cálculo, para el panel y para la ficha.
   const futuro = nodo?.nodeType === 'EVENTO' && esFuturo(nodo.fecha, hoyLocal())
-  const seccionLugar = futuro ? secciones.find((s) => s.label === (roles as VocabularioRoles).lugar) : undefined
+  const seccionLugar = futuro ? secciones.find((s) => s.label === roles.lugar) : undefined
   const espacio = seccionLugar?.nodos[0] ? { id: seccionLugar.nodos[0].id, seccion: seccionLugar.id } : undefined
   // D-26: el nodo compone algo si le sale un COMPONE.
   const compone = nodo && ady ? (ady.sale.get(nodo.id) ?? []).some((v) => v.tipoVinculo === 'COMPONE') : false
