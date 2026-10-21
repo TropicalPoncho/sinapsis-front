@@ -219,6 +219,20 @@ test('seccionesDe (D-46): sin portfolio (evento, centro cultural, banda, subtipo
   assert.deepEqual(seccionesDe(a, 'A', vocab).map((s) => s.id), ['produccion', 'dj'])
   assert.deepEqual(seccionesDe(a, 'D', vocab).map((s) => s.id), ['fundacion'])
 })
+test('seccionesDe (D-46): una productora separa Eventos producidos de Participaciones y no repite lo que la sección ya dice', () => {
+  const a = construirAdyacencia({
+    nodos: [sub('org', 'ENTIDAD', 'productora'), nf('p1', 'EVENTO', 'P1'), nf('p2', 'EVENTO', 'P2', '2025-01-01'), nf('c1', 'EVENTO', 'C1', '2026-01-01'),
+      sub('i1', 'ENTIDAD', 'persona', 'I1'), sub('i2', 'ENTIDAD', 'persona', 'I2'), nf('ob', 'OBRA', 'Ob', '2024-01-01'), sub('otra', 'ENTIDAD', 'sello', 'Otra')],
+    vinculos: [v('org', 'p1', 'PRODUJO'), v('org', 'p2', 'PRODUJO'), v('p2', 'org', 'COLABORO_EN', 'DJ'), v('c1', 'org', 'COLABORO_EN'),
+      v('i1', 'org', 'INTEGRA'), v('i2', 'org', 'INTEGRA', 'Fundador'), v('ob', 'org', 'COLABORO_EN', 'Gráfica'), v('org', 'otra', 'INTEGRA')],
+  })
+  assert.deepEqual(resumen(a, 'org'), [['eventos-producidos', ['p2:DJ', 'p1']], ['participaciones', ['c1']], ['integrantes', ['i1', 'i2:Fundadxr']],
+    ['obras', ['ob:Gráfica']], ['organizaciones', ['otra:Integra']]])
+})
+test('seccionesDe (D-46): `con` sin coincidencia pasa a la sección siguiente del mismo tipo y nada se pierde', () => {
+  const a = construirAdyacencia({ nodos: [sub('org', 'ENTIDAD', 'colectivo'), nf('e', 'EVENTO', 'E', '2025-01-01'), nf('g', 'AGRUPACION', 'G')], vinculos: [v('org', 'e', 'COLABORO_EN', 'DJ'), v('g', 'org', 'COLABORO_EN', 'Telas')] })
+  assert.deepEqual(resumen(a, 'org'), [['participaciones', ['e:DJ']], ['otros', ['g:Telas']]])
+})
 test('seccionesDe (D-47): con hoy los eventos de hoy en adelante van primero, el más cercano antes; sin hoy no hay proximos', () => {
   const a = construirAdyacencia({
     nodos: [sub('yo', 'ENTIDAD', 'persona'), nf('e1', 'EVENTO', 'Lejano', '2026-11-05'), nf('e2', 'EVENTO', 'Cerca', '2026-10-31'), nf('e3', 'EVENTO', 'Viejo', '2025-01-01'), nf('e4', 'EVENTO', 'Hoy', '2026-10-20')],
@@ -266,6 +280,12 @@ test('roles.json: portfolios y chips con forma válida (T-04.1-19)', () => {
     }
   }
   for (const { etiqueta, chip } of vocab.secciones) if (chip !== undefined) assert.ok(texto(chip) && chip.length <= 30, `${etiqueta}: ${chip}`)
+})
+test('roles.json: cada `con` es una etiqueta del vocabulario o de sinRol (T-04.1-19)', () => {
+  const etiquetas = new Set([...vocab.secciones.map((s) => s.etiqueta), ...Object.values(vocab.sinRol)])
+  const cons = vocab.portfolios!.flatMap((p) => p.secciones.flatMap((s) => s.con ?? []))
+  assert.ok(cons.length > 0)
+  for (const c of cons) assert.ok(etiquetas.has(c), c)
 })
 test('roles.json: sin colisiones, sin "artista", sin "Otros", sin vacíos', () => {
   const vistas = new Map<string, string>()

@@ -59,6 +59,13 @@ const entrar: [string, number, number, Record<string, number>, number][] = [
   ['kirtan-rock', 12, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['cultura-del-sur', 23, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['federico-urdinez', 6, 6, { ENTIDAD: 6 }, 0],
+  ['luca-zisa', 17, 4, { ENTIDAD: 1, EVENTO: 3 }, 1],
+  ['juan-balladobres', 18, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['laura-trotta', 28, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['melodrumma', 12, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['julieta-agriano', 15, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['aggromance', 23, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['rochi', 1, 1, { ENTIDAD: 1 }, 0], // sin vínculos: la escena es ella sola
 ]
 for (const [slug, antes, ahora, tipos, precede] of entrar) {
   test(`neuronas: entrar a ${slug} ve ${ahora} (antes de D-45, ${antes})`, () => {
@@ -187,8 +194,8 @@ test('menú de cada red: etiquetas y cantidad por sección (D-40, y D-46 para pe
   assert.equal(menu('entropia-mapping'), 'Mapping(2)')
   assert.equal(menu('keuken-aonikenk'), 'Eventos(4)'); assert.equal(menu('espacio-ave-fenix'), 'Eventos(4)')
   assert.equal(menu('rama-cerratto'), 'Participaciones(8), Obras(1), Organizaciones(1)')
-  assert.equal(menu('rayo'), 'Participaciones(2)'); assert.equal(menu('club-weyba'), 'Producción(2), Fundación(1)')
-  assert.equal(menu('in-session'), 'Producción(1), Integrantes(2)'); assert.equal(menu('kirtan-rock'), 'Conciertos(1)')
+  assert.equal(menu('rayo'), 'Participaciones(2)'); assert.equal(menu('club-weyba'), 'Eventos producidos(2), Integrantes(1)')
+  assert.equal(menu('in-session'), 'Eventos producidos(1), Integrantes(2)'); assert.equal(menu('kirtan-rock'), 'Conciertos(1)')
   assert.equal(menu('cultura-del-sur'), ''); assert.equal(menu('federico-urdinez'), 'Organizaciones(2)')
 })
 
@@ -202,7 +209,7 @@ test('etiquetas por contexto (D-40) sobre los CSV', () => {
   assert.deepEqual(ids('alterego'), ['produccion', 'dj', 'espacio'])
   assert.deepEqual(ids('soma'), ['produccion', 'meditacion', 'actividades', 'performance', 'bandas-en-vivo', 'dj', 'vj', 'otros'])
   assert.deepEqual(secciones('rama-cerratto').find((s) => s.id === 'participaciones')!.nodos.length, 8) // los 8 eventos, una vez cada uno
-  assert.deepEqual(secciones('club-weyba').map((s) => s.id), ['produccion', 'fundacion'])
+  assert.deepEqual(secciones('club-weyba').map((s) => s.id), ['eventos-producidos', 'integrantes'])
   // El área de Tropical y el menú de una entidad con áreas no usan secciones (D-24).
   assert.equal(padreDe(ady, id('obras'), 'ENTIDAD'), id('tropical-poncho'))
 })
@@ -225,4 +232,50 @@ test('D-47: con hoy = 2026-10-20 el único evento próximo de Rama y de Keuken A
   const e = seccionesDe(ady, id('keuken-aonikenk'), vocab, '2026-10-20').find((s) => s.id === 'eventos')!
   assert.equal(e.proximos, 1); assert.equal(ady.nodos.get(e.nodos[0].id)!.label, 'Alterego')
   assert.ok(!('proximos' in secciones('rama-cerratto')[0]))
+})
+
+test('D-46: personas de referencia, sección por sección (los números de 04.1-NEURONAS.md)', () => {
+  assert.deepEqual(portafolio('luca-zisa'), [
+    'Participaciones: Alterego — DJ | Punk Estelar — Live set | Punk Solar — Live set',
+    'Organizaciones: Club Weyba — Fundadxr | Luca Zisa x Gaspar Fatum — Integra',
+  ])
+  assert.deepEqual(portafolio('juan-balladobres'), ['Participaciones: ESPORA — Live set · Charla', 'Organizaciones: Outro x Melodrumma — Integra | Sello Rojo — Integra'])
+  assert.deepEqual(portafolio('laura-trotta'), [
+    'Participaciones: Anomalia — Audiovisual', 'Organizaciones: Post.xno — Integra | Tropical Poncho — Trabajó en Comunicación', 'Colaboraciones: Agus Mansilla',
+  ])
+  assert.deepEqual(portafolio('melodrumma'), ['Participaciones: C.E.P.A. — Producción · Convocade', 'Organizaciones: Outro x Melodrumma — Integra'])
+  assert.deepEqual(portafolio('julieta-agriano'), ['Participaciones: ESPORA — Charla', 'Organizaciones: WIP — Producción · Fundadxr'])
+  assert.deepEqual(portafolio('rayo'), ['Participaciones: Tropical Posporno: Distopia — Convocade | Tropical Posporno — Invitade'])
+  assert.deepEqual(portafolio('aggromance'), ['Participaciones: Anomalia — DJ'])
+  assert.deepEqual(portafolio('rochi'), []); assert.deepEqual(portafolio('mailen-lazzarone'), [])
+})
+
+test('D-46: una organización lee Eventos producidos, Participaciones e Integrantes', () => {
+  assert.deepEqual(portafolio('club-weyba'), ['Eventos producidos: Alterego | Luca Zisa en Ave Fenix', 'Integrantes: Luca Zisa — Fundadxr'])
+  assert.deepEqual(portafolio('in-session'), ['Eventos producidos: SOMA', 'Integrantes: Fede Fragas | Luciano Rodriguez'])
+  assert.equal(secciones('tropical-poncho').map((s) => `${s.label}(${s.nodos.length})`).join(', '), 'Eventos producidos(15), Participaciones(2), Integrantes(4)')
+  // Los dos COLABORO_EN sin rol de Tropical no se leen como producidos.
+  const part = secciones('tropical-poncho').find((s) => s.id === 'participaciones')!.nodos.map((q) => ady.nodos.get(q.id)!.label).sort()
+  assert.deepEqual(part, ['Concierto Público #4 ft Tropical Poncho', 'Luca Zisa en Ave Fenix'])
+  assert.ok(secciones('tropical-poncho').find((s) => s.id === 'eventos-producidos')!.nodos.every((q) => !q.rol?.includes('Producción'))) // la sección ya lo dice
+  // Su red sigue mostrando las 5 áreas en el menú (D-24): el portfolio es solo la ficha (04.1-09).
+  assert.equal(agrupadoresDe(ady, id('tropical-poncho')).length, 5)
+})
+
+test('D-46: sin portfolio nada cambia (eventos, obras, lugares, bandas)', () => {
+  assert.equal(secciones('tempistica-i').length, 14); assert.deepEqual(secciones('entropia-mapping').map((s) => s.id), ['mapping'])
+  assert.deepEqual(secciones('espacio-ave-fenix').map((s) => s.id), ['eventos']); assert.deepEqual(secciones('cultura-del-sur'), [])
+})
+
+test('censo D-46: en toda entidad con portfolio ningún nodo se repite y ninguna contraparte de participación se pierde', () => {
+  const PART = ['COLABORO_EN', 'CORREALIZO', 'PRODUJO', 'INTEGRA']
+  let con = 0
+  for (const n of nodos.filter((x) => x.nodeType === 'ENTIDAD' && ['persona', 'productora', 'colectivo', 'sello'].includes(x.subtipo))) {
+    const ids = seccionesDe(ady, n.id, vocab).flatMap((s) => s.nodos.map((q) => q.id))
+    const contrapartes = new Set(vinculos.filter((v) => PART.includes(v.tipoVinculo) && (v.origen === n.id || v.destino === n.id)).map((v) => (v.origen === n.id ? v.destino : v.origen)))
+    assert.equal(new Set(ids).size, ids.length, `${n.label}: nodo repetido`)
+    assert.deepEqual([...new Set(ids)].sort(), [...contrapartes].sort(), `${n.label}: contraparte perdida`)
+    con++
+  }
+  assert.equal(con, 150)
 })
