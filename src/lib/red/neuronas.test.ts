@@ -46,24 +46,24 @@ const secciones = (slug: string) => seccionesDe(ady, id(slug), vocab)
 const entrar: [string, number, number, Record<string, number>, number][] = [
   ['tropical-poncho', 6, 6, { ENTIDAD: 1, AGRUPACION: 5 }, 0],
   ['obras', 17, 17, { EVENTO: 17 }, 18],
-  ['soma', 16, 16, { EVENTO: 3, ENTIDAD: 11, OBRA: 1, AGRUPACION: 1 }, 2],
+  ['soma', 17, 17, { EVENTO: 3, ENTIDAD: 12, OBRA: 1, AGRUPACION: 1 }, 2],
   ['tempistica-i', 40, 40, { EVENTO: 3, ENTIDAD: 36, AGRUPACION: 1 }, 2],
   ['alterego', 8, 8, { EVENTO: 2, ENTIDAD: 5, AGRUPACION: 1 }, 1],
   ['entropia-mapping', 3, 3, { OBRA: 1, ENTIDAD: 1, EVENTO: 1 }, 0],
   ['keuken-aonikenk', 17, 5, { ENTIDAD: 1, EVENTO: 4 }, 1],
-  ['espacio-ave-fenix', 27, 5, { ENTIDAD: 1, EVENTO: 4 }, 1],
-  ['rama-cerratto', 40, 10, { ENTIDAD: 1, EVENTO: 8, OBRA: 1 }, 4],
-  ['rayo', 38, 3, { ENTIDAD: 1, EVENTO: 2 }, 1],
+  ['espacio-ave-fenix', 30, 5, { ENTIDAD: 1, EVENTO: 4 }, 1],
+  ['rama-cerratto', 40, 17, { ENTIDAD: 1, EVENTO: 15, OBRA: 1 }, 14],
+  ['rayo', 39, 3, { ENTIDAD: 1, EVENTO: 2 }, 1],
   ['club-weyba', 9, 3, { ENTIDAD: 1, EVENTO: 2 }, 1],
-  ['in-session', 13, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
-  ['kirtan-rock', 12, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['in-session', 14, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['kirtan-rock', 13, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['cultura-del-sur', 23, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['federico-urdinez', 6, 6, { ENTIDAD: 6 }, 0],
   ['luca-zisa', 17, 4, { ENTIDAD: 1, EVENTO: 3 }, 1],
-  ['juan-balladobres', 18, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['juan-balladobres', 19, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['laura-trotta', 28, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
-  ['melodrumma', 12, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
-  ['julieta-agriano', 15, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['melodrumma', 13, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['julieta-agriano', 16, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['aggromance', 23, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['rochi', 1, 1, { ENTIDAD: 1 }, 0], // sin vínculos: la escena es ella sola
 ]
@@ -73,8 +73,8 @@ for (const [slug, antes, ahora, tipos, precede] of entrar) {
     assert.equal(baseDe(slug, false).nodos.length, antes)
     assert.equal(r.sub.nodos.length, ahora); assert.deepEqual(tiposDe(r.sub), tipos); assert.deepEqual(r.sumados, [])
     assert.equal(r.sub.vinculos.filter((v) => v.tipoVinculo === 'PRECEDE').length, precede)
-    // Lo que alcanzaría sin tope: solo Tempistica I se pasa (por 1).
-    assert.equal(baseDe(slug, obrasDe(ady, id(slug)).length > 0, 1e9).nodos.length, slug === 'tempistica-i' ? 41 : ahora)
+    // Lo que alcanzaría sin tope: solo Tempistica I se pasa (por 2).
+    assert.equal(baseDe(slug, obrasDe(ady, id(slug)).length > 0, 1e9).nodos.length, slug === 'tempistica-i' ? 42 : ahora)
   })
 }
 
@@ -88,7 +88,7 @@ test('D-45: una entidad sin áreas ve su raíz y sus eventos y obras, sin otras 
   const casos: [string, string[], number][] = [
     ['keuken-aonikenk', ['Alterego', 'Entropía', 'Punk Estelar', 'Punk Solar'], 1],
     ['espacio-ave-fenix', ['C.E.P.A.', 'Concierto Público #4 ft Tropical Poncho', 'ESPORA', 'Luca Zisa en Ave Fenix'], 1],
-    ['rama-cerratto', ['Alterego', 'Anomalia', 'Entropía', 'Entropía (Mapping)', 'Punk Estelar', 'Punk Solar', 'SOMA', 'SOMA beta', 'Tempistica I'], 4],
+    ['rama-cerratto', ['Alterego', 'Anomalia', 'C.E.P.A.', 'ESPORA', 'Entropía', 'Entropía (Mapping)', 'Kutral', 'NUDO', 'Punk Estelar', 'Punk Solar', 'SOMA', 'SOMA beta', 'Tempistica I', 'Tempistica II', 'Tropical Posporno', 'Tropical Posporno: Distopia'], 14],
     ['club-weyba', ['Alterego', 'Luca Zisa en Ave Fenix'], 1],
     ['kirtan-rock', ['SOMA'], 0],
     ['in-session', ['SOMA'], 0],
@@ -112,14 +112,14 @@ test('D-45: una entidad sin áreas ve su raíz y sus eventos y obras, sin otras 
 test('D-45: las entidades sin obras ni eventos entran a la Vista general; con ?prof=2 la tienen todas', () => {
   const sinAreas = nodos.filter((n) => n.nodeType === 'ENTIDAD' && agrupadoresDe(ady, n.id).length === 0)
   const sinObras = sinAreas.filter((n) => obrasDe(ady, n.id).length === 0)
-  assert.equal(sinAreas.length, 165); assert.equal(sinObras.length, 13)
-  assert.equal(Math.max(...sinAreas.map((n) => obrasDe(ady, n.id).length)), 9) // Rama: el tope de 40 no se toca
+  assert.equal(sinAreas.length, 165); assert.equal(sinObras.length, 11)
+  assert.equal(Math.max(...sinAreas.map((n) => obrasDe(ady, n.id).length)), 16) // Rama: el tope de 40 no se toca
   const e = E('federico-urdinez', 'federico-urdinez')
   assert.deepEqual(escena(e).sub.nodos.map((n) => n.id), baseDe('federico-urdinez', false).nodos.map((n) => n.id))
   assert.equal(escena(E('rama-cerratto', 'rama-cerratto', 2)).sub.nodos.length, 40)
-  assert.deepEqual(tiposDe(escena(E('rama-cerratto', 'rama-cerratto', 2)).sub), { ENTIDAD: 35, AGRUPACION: 5 })
-  // Sin tope serían 100: lo que queda afuera de la Vista general de Rama.
-  assert.equal(baseDe('rama-cerratto', false, 1e9).nodos.length, 100)
+  assert.deepEqual(tiposDe(escena(E('rama-cerratto', 'rama-cerratto', 2)).sub), { ENTIDAD: 39, AGRUPACION: 1 })
+  // Sin tope serían 153: lo que queda afuera de la Vista general de Rama.
+  assert.equal(baseDe('rama-cerratto', false, 1e9).nodos.length, 153)
 })
 
 test('D-45: ninguna entidad sin áreas con obras o eventos pasa del tope ni queda con la escena vacía', () => {
@@ -137,8 +137,8 @@ test('D-36: entrar a una obra o un evento muestra solo su red (SOMA, Alterego, E
   assert.deepEqual(labels(escena(E('entropia-mapping', 'entropia-mapping')).sub), ['Entropía', 'Entropía (Mapping)', 'Rama Cerratto'])
 })
 
-test('tope: Tempistica I alcanza 41 nodos y entran 40; lo que queda afuera sigue en sus secciones', () => {
-  assert.equal(baseDe('tempistica-i', false, 1e9).nodos.length, 41)
+test('tope: Tempistica I alcanza 42 nodos y entran 40; lo que queda afuera sigue en sus secciones', () => {
+  assert.equal(baseDe('tempistica-i', false, 1e9).nodos.length, 42)
   assert.equal(escena(E('tempistica-i', 'tempistica-i')).sub.nodos.length, LIMITE_VISTA)
 })
 
@@ -154,17 +154,17 @@ test('abrir una sección no cambia la escena y sus nodos ya están (DJ en SOMA, 
 
 test('tocar un nodo de la lista que no está en la base suma uno (Organizaciones de Rama -> Tropical Poncho)', () => {
   const base = escena(E('rama-cerratto', 'rama-cerratto')).sub.nodos.length
-  assert.equal(base, 10)
+  assert.equal(base, 17)
   const organizaciones = secciones('rama-cerratto').find((s) => s.id === 'organizaciones')!
   assert.deepEqual(organizaciones.nodos.map((q) => ady.nodos.get(q.id)!.label), ['Tropical Poncho'])
   const r = escena(E('rama-cerratto', 'tropical-poncho'))
-  assert.equal(r.sub.nodos.length, 11); assert.deepEqual(r.sumados, [id('tropical-poncho')])
-  assert.deepEqual(tiposDe(r.sub), { ENTIDAD: 2, EVENTO: 8, OBRA: 1 })
+  assert.equal(r.sub.nodos.length, 18); assert.deepEqual(r.sumados, [id('tropical-poncho')])
+  assert.deepEqual(tiposDe(r.sub), { ENTIDAD: 2, EVENTO: 15, OBRA: 1 })
 })
 
 test('desde la ficha de SOMA, Rama Cerratto entra a la red de SOMA con Rama enfocada y sin sumar', () => {
   const r = escena(E('soma', 'rama-cerratto'))
-  assert.equal(r.sub.nodos.length, 16); assert.deepEqual(r.sumados, [])
+  assert.equal(r.sub.nodos.length, 17); assert.deepEqual(r.sumados, [])
   assert.ok(r.sub.nodos.some((n) => n.id === id('rama-cerratto')))
 })
 
@@ -174,10 +174,10 @@ test('"Sumar sus obras" de Rama en otra red: lo que falta, con tope de LIMITE_SU
     return obrasDe(ady, id('rama-cerratto')).filter((x) => !en.has(x))
   }
   const tempistica = escena(E('tempistica-i', 'rama-cerratto'), faltan('tempistica-i'))
-  assert.equal(tempistica.sumados.length, 8); assert.equal(tempistica.sub.nodos.length, 48)
-  assert.deepEqual(tiposDe(tempistica.sub), { EVENTO: 10, ENTIDAD: 36, AGRUPACION: 1, OBRA: 1 })
+  assert.equal(tempistica.sumados.length, LIMITE_SUMA); assert.equal(tempistica.sub.nodos.length, LIMITE_VISTA + LIMITE_SUMA) // faltan 13, entran 12
+  assert.deepEqual(tiposDe(tempistica.sub), { EVENTO: 14, ENTIDAD: 36, AGRUPACION: 1, OBRA: 1 })
   const keuken = escena(E('keuken-aonikenk', 'rama-cerratto'), faltan('keuken-aonikenk'))
-  assert.equal(keuken.sumados.length, 6); assert.equal(keuken.sub.nodos.length, 11)
+  assert.equal(keuken.sumados.length, LIMITE_SUMA); assert.equal(keuken.sub.nodos.length, 17) // faltan 12 más Rama: 13, entran 12
   // Con más de LIMITE_SUMA guardados gana lo último y el total no pasa de 40 + 12.
   const base = new Set(escena(E('tempistica-i', 'tempistica-i')).sub.nodos.map((n) => n.id))
   const libres = nodos.map((n) => n.id).filter((x) => !base.has(x))
@@ -186,14 +186,14 @@ test('"Sumar sus obras" de Rama en otra red: lo que falta, con tope de LIMITE_SU
 })
 
 test('menú de cada red: etiquetas y cantidad por sección (D-40, y D-46 para personas)', () => {
-  // Producción(3) en SOMA: Tropical, In Session y, desde 2026-10-20, Rama Cerratto (PRODUJO confirmado por el dueño).
+  // Producción(4) en SOMA: Tropical, In Session, Rama Cerratto (desde 2026-10-20) y Mechi Botta (PRODUJO confirmados por el dueño).
   const menu = (slug: string) => secciones(slug).map((x) => `${x.label}(${x.nodos.length})`).join(', ')
-  assert.equal(menu('soma'), 'Producción(3), Meditación(1), Actividades(1), Performance(1), Bandas en vivo(2), DJ(4), VJ(1), Otros(1)')
-  assert.equal(menu('tempistica-i'), 'Producción(1), Meditación(1), Performance(3), Bandas en vivo(1), DJ(3), Audiovisual(3), Exposición(1), Charlas(2), Pintura en vivo(1), Circo(2), Cocina(7), Armonía(2), Rush(5), Otros(6)')
-  assert.equal(menu('alterego'), 'Producción(2), DJ(2), Espacio(1)')
+  assert.equal(menu('soma'), 'Producción(4), Meditación(1), Actividades(1), Performance(1), Bandas en vivo(2), DJ(4), VJ(1), Otros(1)')
+  assert.equal(menu('tempistica-i'), 'Producción(3), Meditación(1), Performance(3), Bandas en vivo(1), DJ(3), Audiovisual(3), Exposición(1), Charlas(2), Pintura en vivo(1), Circo(2), Cocina(7), Armonía(2), Rush(5), Otros(6)')
+  assert.equal(menu('alterego'), 'Producción(3), DJ(2), Espacio(1)')
   assert.equal(menu('entropia-mapping'), 'Mapping(2)')
   assert.equal(menu('keuken-aonikenk'), 'Eventos(4)'); assert.equal(menu('espacio-ave-fenix'), 'Eventos(4)')
-  assert.equal(menu('rama-cerratto'), 'Participaciones(8), Obras(1), Organizaciones(1)')
+  assert.equal(menu('rama-cerratto'), 'Participaciones(15), Obras(1), Organizaciones(1)')
   assert.equal(menu('rayo'), 'Participaciones(2)'); assert.equal(menu('club-weyba'), 'Eventos producidos(2), Integrantes(1)')
   assert.equal(menu('in-session'), 'Eventos producidos(1), Integrantes(2)'); assert.equal(menu('kirtan-rock'), 'Conciertos(1)')
   assert.equal(menu('cultura-del-sur'), ''); assert.equal(menu('federico-urdinez'), 'Organizaciones(2)')
@@ -208,7 +208,7 @@ test('etiquetas por contexto (D-40) sobre los CSV', () => {
   assert.deepEqual(ids('rama-cerratto'), ['participaciones', 'obras', 'organizaciones'])
   assert.deepEqual(ids('alterego'), ['produccion', 'dj', 'espacio'])
   assert.deepEqual(ids('soma'), ['produccion', 'meditacion', 'actividades', 'performance', 'bandas-en-vivo', 'dj', 'vj', 'otros'])
-  assert.deepEqual(secciones('rama-cerratto').find((s) => s.id === 'participaciones')!.nodos.length, 8) // los 8 eventos, una vez cada uno
+  assert.deepEqual(secciones('rama-cerratto').find((s) => s.id === 'participaciones')!.nodos.length, 15) // los 15 eventos, una vez cada uno
   assert.deepEqual(secciones('club-weyba').map((s) => s.id), ['eventos-producidos', 'integrantes'])
   // El área de Tropical y el menú de una entidad con áreas no usan secciones (D-24).
   assert.equal(padreDe(ady, id('obras'), 'ENTIDAD'), id('tropical-poncho'))
@@ -220,7 +220,7 @@ const portafolio = (slug: string, hoy?: string) => seccionesDe(ady, id(slug), vo
 
 test('D-46: Rama Cerratto lee su portfolio; SOMA una vez, "Producción · DJ"', () => {
   assert.deepEqual(portafolio('rama-cerratto'), [
-    'Participaciones: Alterego — DJ | Entropía — DJ · VJ | Anomalia — DJ | Punk Estelar — DJ | Punk Solar — DJ | SOMA — Producción · DJ | SOMA beta — DJ | Tempistica I — DJ',
+    'Participaciones: Alterego — Producción · DJ | Entropía — Producción · DJ · VJ | Anomalia — Producción · DJ | Punk Estelar — Producción · DJ | Punk Solar — Producción · DJ | ESPORA — Producción | Tropical Posporno: Distopia — Producción | C.E.P.A. — Producción | NUDO — Producción | SOMA — Producción · DJ | SOMA beta — Producción · DJ | Tropical Posporno — Producción | Tempistica II — Producción | Tempistica I — Producción · DJ | Kutral — Producción',
     'Obras: Entropía (Mapping) — Mapping',
     'Organizaciones: Tropical Poncho — Fundadxr',
   ])
@@ -236,7 +236,7 @@ test('D-47: con hoy = 2026-10-20 el único evento próximo de Rama y de Keuken A
 
 test('D-46: personas de referencia, sección por sección (los números de 04.1-NEURONAS.md)', () => {
   assert.deepEqual(portafolio('luca-zisa'), [
-    'Participaciones: Alterego — DJ | Punk Estelar — Live set | Punk Solar — Live set',
+    'Participaciones: Alterego — DJ | Punk Estelar — Producción · Live set | Punk Solar — Producción · Live set',
     'Organizaciones: Club Weyba — Fundadxr | Luca Zisa x Gaspar Fatum — Integra',
   ])
   assert.deepEqual(portafolio('juan-balladobres'), ['Participaciones: ESPORA — Live set · Charla', 'Organizaciones: Outro x Melodrumma — Integra | Sello Rojo — Integra'])
@@ -253,7 +253,10 @@ test('D-46: personas de referencia, sección por sección (los números de 04.1-
 test('D-46: una organización lee Eventos producidos, Participaciones e Integrantes', () => {
   assert.deepEqual(portafolio('club-weyba'), ['Eventos producidos: Alterego | Luca Zisa en Ave Fenix', 'Integrantes: Luca Zisa — Fundadxr'])
   assert.deepEqual(portafolio('in-session'), ['Eventos producidos: SOMA', 'Integrantes: Fede Fragas | Luciano Rodriguez'])
-  assert.equal(secciones('tropical-poncho').map((s) => `${s.label}(${s.nodos.length})`).join(', '), 'Eventos producidos(15), Participaciones(2), Integrantes(4)')
+  assert.equal(secciones('tropical-poncho').map((s) => `${s.label}(${s.nodos.length})`).join(', '), 'Eventos producidos(15), Participaciones(2), Integrantes(5)')
+  // Integrantes: Rama, Mechi, Laura y, ex-integrantes sin fecha de salida todavía, Malvon Di Ritta y La Er (INTEGRA, 2026-10-20); el PRODUJO al revés Tropical -> Malvon está descartado.
+  assert.deepEqual(portafolio('tropical-poncho').at(-1), 'Integrantes: La Er | Laura Trotta — Trabajó en Comunicación | Malvon Di Ritta | Mechi Botta — Producción | Rama Cerratto — Fundadxr')
+  assert.deepEqual(portafolio('malvon-di-ritta').at(-1), 'Organizaciones: Post.xno — Fundadxr | Tropical Poncho — Integra')
   // Los dos COLABORO_EN sin rol de Tropical no se leen como producidos.
   const part = secciones('tropical-poncho').find((s) => s.id === 'participaciones')!.nodos.map((q) => ady.nodos.get(q.id)!.label).sort()
   assert.deepEqual(part, ['Concierto Público #4 ft Tropical Poncho', 'Luca Zisa en Ave Fenix'])
