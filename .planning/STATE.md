@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 milestone: v1.0
 current_phase: "04.1"
 current_phase_name: Expandir nodo y secciones derivadas
-status: "Sitio publicado en https://sinapsis.tropicalponcho.art (Vercel + Neon). Fase 4 abierta: UAT 3 (04-13) y G-06 (celular). Fase 4.1: ficha por bloques, créditos por rol, evento futuro y animación hechos; falta el portfolio por tipo de nodo y el UAT."
-stopped_at: Completed 04.1-06-PLAN.md
-last_updated: "2026-10-20T22:24:31.771Z"
+status: "Sitio publicado en https://sinapsis.tropicalponcho.art (Vercel + Neon). Fase 4 abierta: UAT 3 (04-13) y G-06 (celular). Fase 4.1: ficha por bloques, créditos por rol, evento futuro y animación hechos; portfolio por tipo de nodo y Próximo hechos (04.1-08); faltan la ficha de entidad (04.1-09) y el cierre con UAT (04.1-07)."
+stopped_at: Completed 04.1-08-PLAN.md
+last_updated: "2026-10-21T01:07:32.403Z"
 last_activity: 2026-10-20
-last_activity_desc: replanificación de 04.1-06 (portfolio), corrección de estado
-state_head: 599a982d507cea0d4119da6a472168d23601d282
+last_activity_desc: 04.1-08 completo (D-46 portfolio, D-47 Próximo; Rama produjo SOMA)
+state_head: cffbba8ed322d7fa7c2c0d0370cc52261ce326b5
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 35
-  completed_plans: 33
+  total_plans: 37
+  completed_plans: 34
 milestone_name: milestone
 ---
 
@@ -91,6 +91,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04.1 P04 | sesion larga | 3 tasks | 8 files |
 | Phase 04.1 P05 | 32 min | 3 tasks | 16 files |
 | Phase 04.1 P06 | 45min | 2 tasks | 7 files |
+| Phase 04.1 P08 | 80 min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -143,6 +144,8 @@ Recent decisions affecting current work:
 - [Phase 04.1]: D-45 (dueno): una entidad sin areas con obras o eventos entra con la raiz y sus EVENTO/OBRA a un salto, sin otras personas y con puentes apagados; sin ellos, Vista general; ?prof, areas, obra y evento sin cambio
 - [Phase 04.1]: D-40: etiquetas de seccion por contexto en roles.json (contextos), primera regla que coincide, aplicada en seccionesDe; banda -> Conciertos, espacio/convocades/invitades -> Eventos; DJ Set pasa a DJ
 - [Phase 04.1]: D-41: auditoria de neuronas por contexto fijada en neuronas.test.ts sobre los CSV (no base viva) y volcada a 04.1-NEURONAS.md
+- [Phase 04.1]: D-46: personas y organizaciones se leen como portfolio (una fila por nodo, roles como chips, regla en roles.json -> portfolios); supersede D-40 para ellas
+- [Phase 04.1]: D-47: el evento de hoy en adelante va arriba de su lista como Proximo, calculado en el cliente con el mismo hoyLocal() de D-44
 
 ### Pending Todos
 
@@ -185,8 +188,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-10-18T16:31:05.684Z
-Stopped at: Completed 04.1-06-PLAN.md
+Last session: 2026-10-21T01:07:31.960Z
+Stopped at: Completed 04.1-08-PLAN.md
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's
