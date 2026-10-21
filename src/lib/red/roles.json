@@ -1,20 +1,20 @@
 {
   "secciones": [
     {"etiqueta":"Producción","roles":["Productora","Coproducción","Producción","Trabajó en Producción"]},
-    {"etiqueta":"Fundación","roles":["Fundador","Fundadora"]},
-    {"etiqueta":"Creadxrs convocades","roles":["Artista Convocade","Artistas Convocades"]},
-    {"etiqueta":"Creadxrs invitades","roles":["Artista Invitade"]},
+    {"etiqueta":"Fundación","roles":["Fundador","Fundadora"],"chip":"Fundadxr"},
+    {"etiqueta":"Creadxrs convocades","roles":["Artista Convocade","Artistas Convocades"],"chip":"Convocade"},
+    {"etiqueta":"Creadxrs invitades","roles":["Artista Invitade"],"chip":"Invitade"},
     {"etiqueta":"Meditación","roles":["Meditación","Meditación Activa"]},
     {"etiqueta":"Actividades","roles":["Actividades"]},
     {"etiqueta":"Performance","roles":["Performance","Perfo"]},
-    {"etiqueta":"Bandas en vivo","roles":["Bandas en Vivo","Banda"]},
+    {"etiqueta":"Bandas en vivo","roles":["Bandas en Vivo","Banda"],"chip":"Banda en vivo"},
     {"etiqueta":"Live set","roles":["Live Set","Liveset"]},
     {"etiqueta":"DJ","roles":["DJ","DJ Set","Vinyls DJ Sets","DJ Set Híbrido"]},
     {"etiqueta":"VJ","roles":["VJ","Visuales"]},
     {"etiqueta":"Mapping","roles":["Mapping","Mapping con TouchDesigner"]},
     {"etiqueta":"Audiovisual","roles":["Audiovisual","Registro Audiovisual","Edición Audiovisual"]},
     {"etiqueta":"Exposición","roles":["Expositorx","Expositora","Artista Expositore","Exposiciones","Expo","Expo Pintura","Exposición de Cortos"]},
-    {"etiqueta":"Charlas","roles":["Charla","Conversaciones"]},
+    {"etiqueta":"Charlas","roles":["Charla","Conversaciones"],"chip":"Charla"},
     {"etiqueta":"Pintura en vivo","roles":["Pintura en Vivo"]},
     {"etiqueta":"Movimiento","roles":["Movimiento"]},
     {"etiqueta":"Danza","roles":["Danza Teatro","Danza Aérea","Coreografía"]},
@@ -36,6 +36,14 @@
     {"dueno":"ENTIDAD","seccion":"Espacio","etiqueta":"Eventos"},
     {"dueno":"ENTIDAD","seccion":"Creadxrs convocades","contraparte":"EVENTO","etiqueta":"Eventos"},
     {"dueno":"ENTIDAD","seccion":"Creadxrs invitades","contraparte":"EVENTO","etiqueta":"Eventos"}
+  ],
+  "portfolios": [
+    {"id":"persona","duenos":["ENTIDAD:persona"],"secciones":[
+      {"etiqueta":"Participaciones","contraparte":"EVENTO"},
+      {"etiqueta":"Obras","contraparte":"OBRA"},
+      {"etiqueta":"Organizaciones","contraparte":"ENTIDAD"},
+      {"etiqueta":"Colaboraciones","contraparte":"ENTIDAD:persona"}
+    ]}
   ],
   "sinRol": {"PRODUJO":"Producción","INTEGRA:entra":"Integrantes","INTEGRA:sale":"Integra"}
 }

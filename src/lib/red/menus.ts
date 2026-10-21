@@ -1,6 +1,7 @@
 import type { Adyacencia } from '../vista/adyacencia.ts'
 import type { NodeType, NodoGrafo, Subgrafo, VinculoGrafo } from '../../types/vista.ts'
 import { slugDe } from './slugs.ts'
+import { esFuturo } from './fechas.ts'
 
 const porLabel = (a: { label: string }, b: { label: string }) => a.label.localeCompare(b.label, 'es')
 
@@ -8,6 +9,10 @@ const porLabel = (a: { label: string }, b: { label: string }) => a.label.localeC
 // las ediciones de un evento tienen que leerse en el orden en que pasaron.
 const porFecha = (a: { fecha?: string; label: string }, b: { fecha?: string; label: string }) =>
   a.fecha && b.fecha ? a.fecha.localeCompare(b.fecha) || porLabel(a, b) : a.fecha ? -1 : b.fecha ? 1 : porLabel(a, b)
+
+// D-46: lo más reciente primero; sin fecha, al final y por nombre.
+const porReciente = (a: { fecha?: string; label: string }, b: { fecha?: string; label: string }) =>
+  a.fecha && b.fecha ? b.fecha.localeCompare(a.fecha) || porLabel(a, b) : a.fecha ? -1 : b.fecha ? 1 : porLabel(a, b)
 
 // Une `sale` y `entra`: el otro extremo de cada vínculo del nodo.
 function vecinos(ady: Adyacencia, id: string): { nodo: NodoGrafo; v: VinculoGrafo }[] {
@@ -62,22 +67,29 @@ export function obrasDe(ady: Adyacencia, entidadId: string): string[] {
 
 // D-29 / D-32: una sección agrupa a los vecinos de un nodo por el `rol` normalizado de sus vínculos de
 // participación. Mismo `{ id, label, color }` que las áreas reales de `agrupadoresDe`, más los `nodos`: el menú
-// superior dibuja las dos con el mismo componente. `rol` solo viaja en "Otros": la grafía que no encajó.
+// superior dibuja las dos con el mismo componente. `rol` viaja en "Otros" (la grafía que no encajó) y, en el modo
+// portfolio (D-46), son los chips del nodo unidos con " · ".
 export interface Seccion {
   id: string
   label: string
   color: string
   nodos: { id: string; rol?: string }[]
+  // D-47: cuántos de los primeros `nodos` son eventos de hoy en adelante ("Próximo"). Solo existe si hay alguno.
+  proximos?: number
 }
-// roles.json: `secciones` en el orden en que se muestran; `sinRol` por `TIPO` o `TIPO:sale|entra` (sentido del nodo dueño).
+// roles.json: `secciones` en el orden en que se muestran (y en el que se ordenan los chips); `sinRol` por `TIPO` o `TIPO:sale|entra`
+// (sentido del nodo dueño).
 export interface VocabularioRoles {
-  secciones: { etiqueta: string; roles: string[] }[]
+  secciones: { etiqueta: string; roles: string[]; chip?: string }[]
   sinRol: Record<string, string>
   // Etiqueta de la sección cuyos nodos son el lugar del evento (D-44).
   lugar?: string
   // D-40: cómo se lee una sección según quién es el dueño. Gana la primera regla que coincide, en el orden del archivo.
   // dueno: "NODETYPE" o "NODETYPE:subtipo"; seccion: etiqueta ya normalizada o "*"; contraparte: nodeType del agrupado.
   contextos?: { dueno: string; seccion: string; contraparte?: string; etiqueta: string }[]
+  // D-46: portfolio por tipo de dueño. Gana el primero que incluye el dueño; el `id` es para el override por nodo futuro.
+  // contraparte: "NODETYPE" o "NODETYPE:subtipo"; `con`: el nodo solo entra si alguna de sus etiquetas está en la lista.
+  portfolios?: { id: string; duenos: string[]; secciones: { etiqueta: string; contraparte: string; con?: string[] }[] }[]
 }
 
 // Solo compara, nunca se muestra: sin tildes ni mayúsculas, y en cada palabra de 3+ letras sin plural ni `e` final
@@ -93,51 +105,90 @@ const PARTICIPACION = new Set<string>(['COLABORO_EN', 'CORREALIZO', 'PRODUJO', '
 const SEPARADOR = /\s*[,+/]\s*|\s+y\s+/i // constante: el dato nunca arma el RegExp
 const OTROS = 'Otros'
 const esObra = (n: NodoGrafo) => n.nodeType === 'OBRA' || n.nodeType === 'EVENTO'
+const puesto = (lista: string[]) => (e: string) => (e === OTROS ? Infinity : lista.indexOf(e) < 0 ? lista.length : lista.indexOf(e))
 
 // En los dos sentidos: en la base el evento es el origen del COLABORO_EN, en la fixture lo es la creadxr; contar solo
 // uno dejaría sin secciones a la mitad de los nodos. Así la misma regla da las de un evento y las áreas derivadas de una creadxr.
-export function seccionesDe(ady: Adyacencia, nodoId: string, vocabulario: VocabularioRoles): Seccion[] {
+// `hoy` ('YYYY-MM-DD', la fecha local de quien llama): sin él, el orden de siempre (D-47).
+// ponytail: (a) gana el primer portfolio por tipo de dueño, sin override por nodo; salida: un `portfolio` (id) por nodo servido
+// con la topología o una tabla en M2, sin tocar la firma. (b) Los chips siguen el orden del vocabulario. (c) "Próximo" es contra la
+// fecha que pasa quien llama (la local, D-44).
+export function seccionesDe(ady: Adyacencia, nodoId: string, vocabulario: VocabularioRoles, hoy?: string): Seccion[] {
   const dueno = ady.nodos.get(nodoId)
   if (!dueno) return []
   const indice = new Map(vocabulario.secciones.flatMap((s) => s.roles.map((r) => [claveRol(r), s.etiqueta] as const)))
-  const grupos = new Map<string, Map<string, { nodo: NodoGrafo; roles: string[] }>>()
-  // ponytail: primera regla en el orden del archivo, sin sentido del vínculo ni `disciplina`; salida: campos opcionales nuevos
-  // en la regla, o una tabla servida con la topología en M2 sin tocar la firma.
+  const vocab = vocabulario.secciones.map((s) => s.etiqueta)
   const duenos = [dueno.nodeType, `${dueno.nodeType}:${dueno.subtipo}`]
-  const leer = (base: string, nodo: NodoGrafo) => (vocabulario.contextos ?? []).find((r) =>
-    duenos.includes(r.dueno) && (r.seccion === '*' || r.seccion === base) && (!r.contraparte || r.contraparte === nodo.nodeType))?.etiqueta ?? base
-  const poner = (base: string, nodo: NodoGrafo, rol?: string) => {
-    const etiqueta = leer(base, nodo)
+  const portfolio = vocabulario.portfolios?.find((p) => p.duenos.some((d) => duenos.includes(d)))
+  const grupos = new Map<string, Map<string, { nodo: NodoGrafo; roles: string[] }>>()
+  const poner = (etiqueta: string, nodo: NodoGrafo, roles: string[]) => {
     const g = grupos.get(etiqueta) ?? new Map()
     const e = g.get(nodo.id) ?? { nodo, roles: [] }
-    if (rol && !e.roles.includes(rol)) e.roles.push(rol)
+    for (const r of roles) if (!e.roles.includes(r)) e.roles.push(r)
     g.set(nodo.id, e)
     grupos.set(etiqueta, g)
   }
-  for (const { nodo, v } of vecinos(ady, nodoId)) {
-    if (!PARTICIPACION.has(v.tipoVinculo)) continue
+  // Cómo lee un vínculo: la etiqueta normalizada de cada parte del rol (o la de `sinRol`), y la grafía que no encajó.
+  type Lectura = { etiqueta?: string; rol?: string }
+  const lecturas = (v: VinculoGrafo): Lectura[] => {
     const partes = (v.rol ?? '').split(SEPARADOR).map((p) => p.trim()).filter(Boolean)
     if (!partes.length) {
       const sinRol = vocabulario.sinRol
-      poner(sinRol[`${v.tipoVinculo}:${v.origen === nodoId ? 'sale' : 'entra'}`] ?? sinRol[v.tipoVinculo] ?? OTROS, nodo)
+      return [{ etiqueta: sinRol[`${v.tipoVinculo}:${v.origen === nodoId ? 'sale' : 'entra'}`] ?? sinRol[v.tipoVinculo] }]
     }
-    for (const p of partes) {
-      const etiqueta = indice.get(claveRol(p))
-      if (etiqueta) poner(etiqueta, nodo)
-      else poner(OTROS, nodo, p)
+    return partes.map((p) => { const etiqueta = indice.get(claveRol(p)); return etiqueta ? { etiqueta } : { rol: p } })
+  }
+  const participan = vecinos(ady, nodoId).filter(({ v }) => PARTICIPACION.has(v.tipoVinculo))
+
+  if (!portfolio) {
+    // ponytail: primera regla en el orden del archivo, sin sentido del vínculo ni `disciplina`; salida: campos opcionales nuevos
+    // en la regla, o una tabla servida con la topología en M2 sin tocar la firma.
+    const leer = (base: string, nodo: NodoGrafo) => (vocabulario.contextos ?? []).find((r) =>
+      duenos.includes(r.dueno) && (r.seccion === '*' || r.seccion === base) && (!r.contraparte || r.contraparte === nodo.nodeType))?.etiqueta ?? base
+    for (const { nodo, v } of participan) for (const l of lecturas(v)) {
+      const base = l.etiqueta ?? OTROS
+      poner(leer(base, nodo), nodo, l.rol ? [l.rol] : [])
+    }
+  } else {
+    // D-46: una fila por nodo (todos sus vínculos juntos) y a una sola sección; los roles pasan a ser chips.
+    const filas = new Map<string, { nodo: NodoGrafo; etiquetas: Set<string>; chips: Map<string, number> }>()
+    const chipDe = (e: string) => vocabulario.secciones.find((s) => s.etiqueta === e)?.chip ?? e
+    for (const { nodo, v } of participan) {
+      const f = filas.get(nodo.id) ?? { nodo, etiquetas: new Set(), chips: new Map() }
+      for (const { etiqueta, rol } of lecturas(v)) {
+        if (etiqueta) f.etiquetas.add(etiqueta)
+        const chip = etiqueta ? chipDe(etiqueta) : rol
+        if (chip) f.chips.set(chip, puesto(vocab)(etiqueta ?? ''))
+      }
+      filas.set(nodo.id, f)
+    }
+    for (const { nodo, etiquetas, chips } of filas.values()) {
+      // Gana el subtipo, después el nodeType; `con` exige alguna de las etiquetas del nodo.
+      const sec = [`${nodo.nodeType}:${nodo.subtipo}`, nodo.nodeType].map((k) => portfolio.secciones.find((s) => s.contraparte === k && (!s.con || s.con.some((c) => etiquetas.has(c))))).find(Boolean)
+      const dice = new Set([sec?.etiqueta, ...(sec?.con ?? []).map(chipDe)])
+      const orden = [...chips].filter(([c]) => !dice.has(c)).sort(([a, i], [b, j]) => i - j || a.localeCompare(b, 'es')).map(([c]) => c)
+      poner(sec?.etiqueta ?? OTROS, nodo, orden)
     }
   }
-  // Vocabulario, después las etiquetas de `sinRol` fuera de la lista por nombre, "Otros" al final.
-  const orden = vocabulario.secciones.map((s) => s.etiqueta)
-  const lugar = (e: string) => (e === OTROS ? Infinity : orden.indexOf(e) < 0 ? orden.length : orden.indexOf(e))
+
+  // Modo por rol: vocabulario, después las etiquetas de `sinRol` fuera de la lista por nombre, "Otros" al final. Portfolio: su orden.
+  const lugar = puesto(portfolio ? portfolio.secciones.map((s) => s.etiqueta) : vocab)
+  const entre = portfolio ? porReciente : porFecha
   return [...grupos.keys()]
     .sort((a, b) => lugar(a) - lugar(b) || a.localeCompare(b, 'es'))
-    .map((etiqueta) => ({
-      id: slugDe(etiqueta),
-      label: etiqueta,
-      color: dueno.vizParams.color,
-      nodos: [...grupos.get(etiqueta)!.values()]
-        .sort((a, b) => (esObra(a.nodo) !== esObra(b.nodo) ? (esObra(a.nodo) ? -1 : 1) : esObra(a.nodo) ? porFecha(a.nodo, b.nodo) : porLabel(a.nodo, b.nodo)))
-        .map(({ nodo, roles }) => (roles.length ? { id: nodo.id, rol: roles.join(', ') } : { id: nodo.id })),
-    }))
+    .map((etiqueta) => {
+      const filas = [...grupos.get(etiqueta)!.values()]
+        .sort((a, b) => (esObra(a.nodo) !== esObra(b.nodo) ? (esObra(a.nodo) ? -1 : 1) : esObra(a.nodo) ? entre(a.nodo, b.nodo) : porLabel(a.nodo, b.nodo)))
+      // D-47: los eventos de hoy en adelante van primero, el más cercano antes.
+      const proximos = hoy ? filas.filter((f) => f.nodo.nodeType === 'EVENTO' && esFuturo(f.nodo.fecha, hoy)).sort((a, b) => porFecha(a.nodo, b.nodo)) : []
+      return {
+        id: slugDe(etiqueta),
+        label: etiqueta,
+        color: dueno.vizParams.color,
+        nodos: [...proximos, ...filas.filter((f) => !proximos.includes(f))]
+          .map(({ nodo, roles }) => (roles.length ? { id: nodo.id, rol: roles.join(portfolio ? ' · ' : ', ') } : { id: nodo.id })),
+        ...(proximos.length ? { proximos: proximos.length } : {}),
+      }
+    })
 }
+

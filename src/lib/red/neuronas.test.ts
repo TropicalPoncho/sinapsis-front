@@ -145,11 +145,11 @@ test('abrir una sección no cambia la escena y sus nodos ya están (DJ en SOMA, 
   }
 })
 
-test('tocar un nodo de la lista que no está en la base suma uno (Fundación de Rama -> Tropical Poncho)', () => {
+test('tocar un nodo de la lista que no está en la base suma uno (Organizaciones de Rama -> Tropical Poncho)', () => {
   const base = escena(E('rama-cerratto', 'rama-cerratto')).sub.nodos.length
   assert.equal(base, 10)
-  const fundacion = secciones('rama-cerratto').find((s) => s.id === 'fundacion')!
-  assert.deepEqual(fundacion.nodos.map((q) => ady.nodos.get(q.id)!.label), ['Tropical Poncho'])
+  const organizaciones = secciones('rama-cerratto').find((s) => s.id === 'organizaciones')!
+  assert.deepEqual(organizaciones.nodos.map((q) => ady.nodos.get(q.id)!.label), ['Tropical Poncho'])
   const r = escena(E('rama-cerratto', 'tropical-poncho'))
   assert.equal(r.sub.nodos.length, 11); assert.deepEqual(r.sumados, [id('tropical-poncho')])
   assert.deepEqual(tiposDe(r.sub), { ENTIDAD: 2, EVENTO: 8, OBRA: 1 })
@@ -178,17 +178,18 @@ test('"Sumar sus obras" de Rama en otra red: lo que falta, con tope de LIMITE_SU
   assert.equal(lleno.sumados.length, LIMITE_SUMA); assert.equal(lleno.sub.nodos.length, LIMITE_VISTA + LIMITE_SUMA)
 })
 
-test('menú de cada red: etiquetas y cantidad por sección (D-40)', () => {
+test('menú de cada red: etiquetas y cantidad por sección (D-40, y D-46 para personas)', () => {
+  // Producción(3) en SOMA: Tropical, In Session y, desde 2026-10-20, Rama Cerratto (PRODUJO confirmado por el dueño).
   const menu = (slug: string) => secciones(slug).map((x) => `${x.label}(${x.nodos.length})`).join(', ')
-  assert.equal(menu('soma'), 'Producción(2), Meditación(1), Actividades(1), Performance(1), Bandas en vivo(2), DJ(4), VJ(1), Otros(1)')
+  assert.equal(menu('soma'), 'Producción(3), Meditación(1), Actividades(1), Performance(1), Bandas en vivo(2), DJ(4), VJ(1), Otros(1)')
   assert.equal(menu('tempistica-i'), 'Producción(1), Meditación(1), Performance(3), Bandas en vivo(1), DJ(3), Audiovisual(3), Exposición(1), Charlas(2), Pintura en vivo(1), Circo(2), Cocina(7), Armonía(2), Rush(5), Otros(6)')
   assert.equal(menu('alterego'), 'Producción(2), DJ(2), Espacio(1)')
   assert.equal(menu('entropia-mapping'), 'Mapping(2)')
   assert.equal(menu('keuken-aonikenk'), 'Eventos(4)'); assert.equal(menu('espacio-ave-fenix'), 'Eventos(4)')
-  assert.equal(menu('rama-cerratto'), 'Fundación(1), DJ(8), VJ(1), Mapping(1)')
-  assert.equal(menu('rayo'), 'Eventos(2)'); assert.equal(menu('club-weyba'), 'Producción(2), Fundación(1)')
+  assert.equal(menu('rama-cerratto'), 'Participaciones(8), Obras(1), Organizaciones(1)')
+  assert.equal(menu('rayo'), 'Participaciones(2)'); assert.equal(menu('club-weyba'), 'Producción(2), Fundación(1)')
   assert.equal(menu('in-session'), 'Producción(1), Integrantes(2)'); assert.equal(menu('kirtan-rock'), 'Conciertos(1)')
-  assert.equal(menu('cultura-del-sur'), ''); assert.equal(menu('federico-urdinez'), 'Integra(2)')
+  assert.equal(menu('cultura-del-sur'), ''); assert.equal(menu('federico-urdinez'), 'Organizaciones(2)')
 })
 
 test('etiquetas por contexto (D-40) sobre los CSV', () => {
@@ -196,12 +197,32 @@ test('etiquetas por contexto (D-40) sobre los CSV', () => {
   assert.deepEqual(ids('keuken-aonikenk'), ['eventos'])
   assert.deepEqual(ids('espacio-ave-fenix'), ['eventos'])
   assert.deepEqual(ids('kirtan-rock'), ['conciertos'])
-  assert.deepEqual(ids('rayo'), ['eventos'])
-  assert.deepEqual(ids('rama-cerratto'), ['fundacion', 'dj', 'vj', 'mapping'])
+  assert.deepEqual(ids('rayo'), ['participaciones'])
+  assert.deepEqual(ids('rama-cerratto'), ['participaciones', 'obras', 'organizaciones'])
   assert.deepEqual(ids('alterego'), ['produccion', 'dj', 'espacio'])
   assert.deepEqual(ids('soma'), ['produccion', 'meditacion', 'actividades', 'performance', 'bandas-en-vivo', 'dj', 'vj', 'otros'])
-  assert.deepEqual(secciones('rama-cerratto').find((s) => s.id === 'dj')!.nodos.length, 8) // incluye Alterego ("DJ Set")
+  assert.deepEqual(secciones('rama-cerratto').find((s) => s.id === 'participaciones')!.nodos.length, 8) // los 8 eventos, una vez cada uno
   assert.deepEqual(secciones('club-weyba').map((s) => s.id), ['produccion', 'fundacion'])
   // El área de Tropical y el menú de una entidad con áreas no usan secciones (D-24).
   assert.equal(padreDe(ady, id('obras'), 'ENTIDAD'), id('tropical-poncho'))
+})
+
+// D-46 / D-47: el portfolio de una persona sobre los CSV. `rol` son los chips; SOMA une el PRODUJO y el COLABORO_EN de Rama en una sola fila.
+const portafolio = (slug: string, hoy?: string) => seccionesDe(ady, id(slug), vocab, hoy)
+  .map((s) => `${s.label}: ` + s.nodos.map((q) => ady.nodos.get(q.id)!.label + (q.rol ? ` — ${q.rol}` : '')).join(' | '))
+
+test('D-46: Rama Cerratto lee su portfolio; SOMA una vez, "Producción · DJ"', () => {
+  assert.deepEqual(portafolio('rama-cerratto'), [
+    'Participaciones: Alterego — DJ | Entropía — DJ · VJ | Anomalia — DJ | Punk Estelar — DJ | Punk Solar — DJ | SOMA — Producción · DJ | SOMA beta — DJ | Tempistica I — DJ',
+    'Obras: Entropía (Mapping) — Mapping',
+    'Organizaciones: Tropical Poncho — Fundadxr',
+  ])
+})
+
+test('D-47: con hoy = 2026-10-20 el único evento próximo de Rama y de Keuken Aonikenk es Alterego, arriba', () => {
+  const p = seccionesDe(ady, id('rama-cerratto'), vocab, '2026-10-20').find((s) => s.id === 'participaciones')!
+  assert.equal(p.proximos, 1); assert.equal(ady.nodos.get(p.nodos[0].id)!.label, 'Alterego')
+  const e = seccionesDe(ady, id('keuken-aonikenk'), vocab, '2026-10-20').find((s) => s.id === 'eventos')!
+  assert.equal(e.proximos, 1); assert.equal(ady.nodos.get(e.nodos[0].id)!.label, 'Alterego')
+  assert.ok(!('proximos' in secciones('rama-cerratto')[0]))
 })

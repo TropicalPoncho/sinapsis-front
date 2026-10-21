@@ -79,8 +79,10 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     : redNodo.nodeType === 'ENTIDAD' ? redId
     : redNodo.nodeType === 'AGRUPACION' ? padreDe(ady, redId, 'ENTIDAD') : null
   const areas = ady && entidadId ? agrupadoresDe(ady, entidadId) : []
+  // D-44/D-47: la fecha local del visitante, una vez por render. Es la misma para "Próximo" en las dos listas de secciones y para `futuro`.
+  const hoy = hoyLocal()
   // D-29/D-36: sin áreas reales, el menú superior lista las secciones derivadas de los roles de la red (mismo componente).
-  const seccionesRed = ady && redId ? seccionesDe(ady, redId, roles) : []
+  const seccionesRed = ady && redId ? seccionesDe(ady, redId, roles, hoy) : []
   const deSecciones = areas.length === 0 && seccionesRed.length > 0
   const items = deSecciones ? seccionesRed : areas
   // D-37: la sección abierta es una lista de UI atada a la red en la que se abrió, no una Vista: no toca la URL ni la escena.
@@ -215,10 +217,10 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
   }, [visible, nodo?.id, error])
 
   // Las secciones del nodo del panel se calculan una vez: la misma lista decide el botón Expandir y llena la ficha.
-  const secciones = nodo && ady ? seccionesDe(ady, nodo.id, roles) : []
+  const secciones = nodo && ady ? seccionesDe(ady, nodo.id, roles, hoy) : []
   // D-44: un evento de hoy en adelante (la fecha local del visitante, en el cliente) muestra cuándo y dónde. El espacio es el primer nodo
   // de la sección "lugar" de roles.json. Un solo cálculo, para el panel y para la ficha.
-  const futuro = nodo?.nodeType === 'EVENTO' && esFuturo(nodo.fecha, hoyLocal())
+  const futuro = nodo?.nodeType === 'EVENTO' && esFuturo(nodo.fecha, hoy)
   const seccionLugar = futuro ? secciones.find((s) => s.label === roles.lugar) : undefined
   const espacio = seccionLugar?.nodos[0] ? { id: seccionLugar.nodos[0].id, seccion: seccionLugar.id } : undefined
   // D-26: el nodo compone algo si le sale un COMPONE.
@@ -256,10 +258,11 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     // ponytail: escala 400px reajustable
     [el, el.parentElement!].forEach((e) => e.style.setProperty('--panel-alpha', String(Math.min(0.9, 0.55 + el.scrollTop / 400))))
 
-  // Los nodos de una sección como lista lateral; en "Otros" cada uno lleva " — rol".
-  const itemsDe = (s: Seccion) => s.nodos.flatMap(({ id, rol }) => {
+  // Los nodos de una sección como lista lateral; cada uno con `rol` lleva " — rol" (en "Otros" y los chips de un portfolio, D-46) y los
+  // primeros `proximos` llevan la marca "Próximo" (D-47).
+  const itemsDe = (s: Seccion) => s.nodos.flatMap(({ id, rol }, i) => {
     const n = ady?.nodos.get(id)
-    return n ? [{ id, label: rol ? `${n.label} — ${rol}` : n.label, subtipo: n.subtipo }] : []
+    return n ? [{ id, label: `${i < (s.proximos ?? 0) ? 'Próximo · ' : ''}${rol ? `${n.label} — ${rol}` : n.label}`, subtipo: n.subtipo }] : []
   })
 
   const volverBtn = puedeVolver && <button className="accion accion--volver" onClick={volverDelPanel}>Volver</button>

@@ -191,6 +191,54 @@ test('seccionesDe (D-40): gana la primera regla que coincide; sin contextos da e
   assert.deepEqual(seccionesDe(a, 'e', { ...vocab, contextos: [{ ...regla('Nada'), dueno: 'ENTIDAD:banda' }] }).map((x) => x.id), ['dj'])
 })
 
+// --- Portfolio por tipo de dueño (D-46) y "Próximo" (D-47) ---
+const resumen = (a: ReturnType<typeof construirAdyacencia>, id: string, hoy?: string) =>
+  seccionesDe(a, id, vocab, hoy).map((s) => [s.id, s.nodos.map((q) => (q.rol === undefined ? q.id : `${q.id}:${q.rol}`))])
+const personaConTodo = () => construirAdyacencia({
+  nodos: [sub('yo', 'ENTIDAD', 'persona'), nf('A', 'EVENTO', 'A', '2026-01-01'), nf('B', 'EVENTO', 'B', '2026-06-01'), nf('C', 'OBRA', 'C', '2025-01-01'),
+    sub('D', 'ENTIDAD', 'centro_cultural'), sub('E', 'ENTIDAD', 'persona'), nf('G', 'AGRUPACION', 'G')],
+  vinculos: [v('A', 'yo', 'COLABORO_EN', 'DJ'), v('yo', 'A', 'PRODUJO'), v('B', 'yo', 'COLABORO_EN', 'DJ Set Híbrido, Visuales'),
+    v('C', 'yo', 'COLABORO_EN', 'Mapping'), v('yo', 'D', 'INTEGRA', 'Fundador'), v('yo', 'E', 'COLABORO_EN'), v('yo', 'G', 'INTEGRA')],
+})
+test('seccionesDe (D-46): una persona lee su portfolio, una fila por nodo, más reciente primero y roles como chips', () => {
+  assert.deepEqual(resumen(personaConTodo(), 'yo'), [
+    ['participaciones', ['B:DJ · VJ', 'A:Producción · DJ']], ['obras', ['C:Mapping']], ['organizaciones', ['D:Fundadxr']],
+    ['colaboraciones', ['E']], ['otros', ['G:Integra']],
+  ])
+})
+test('seccionesDe (D-46): sin fecha al final y por nombre; misma fecha por nombre', () => {
+  const a = construirAdyacencia({
+    nodos: [sub('yo', 'ENTIDAD', 'persona'), nf('s2', 'EVENTO', 'Zeta'), nf('s1', 'EVENTO', 'Alfa'), nf('d2', 'EVENTO', 'Dos', '2025-01-01'), nf('d1', 'EVENTO', 'Uno', '2025-01-01'), nf('n', 'EVENTO', 'Nuevo', '2026-01-01')],
+    vinculos: ['s2', 's1', 'd2', 'd1', 'n'].map((id) => v(id, 'yo', 'COLABORO_EN', 'DJ')),
+  })
+  assert.deepEqual(resumen(a, 'yo').map(([, ns]) => ns), [['n:DJ', 'd2:DJ', 'd1:DJ', 's1:DJ', 's2:DJ']])
+})
+test('seccionesDe (D-46): sin portfolio (evento, centro cultural, banda, subtipo desconocido o vocabulario sin portfolios) da lo de siempre', () => {
+  const a = personaConTodo()
+  assert.deepEqual(seccionesDe(a, 'yo', { ...vocab, portfolios: undefined }).map((s) => s.id), ['produccion', 'fundacion', 'dj', 'vj', 'mapping', 'integra', 'otros'])
+  assert.deepEqual(seccionesDe(a, 'A', vocab).map((s) => s.id), ['produccion', 'dj'])
+  assert.deepEqual(seccionesDe(a, 'D', vocab).map((s) => s.id), ['fundacion'])
+})
+test('seccionesDe (D-47): con hoy los eventos de hoy en adelante van primero, el más cercano antes; sin hoy no hay proximos', () => {
+  const a = construirAdyacencia({
+    nodos: [sub('yo', 'ENTIDAD', 'persona'), nf('e1', 'EVENTO', 'Lejano', '2026-11-05'), nf('e2', 'EVENTO', 'Cerca', '2026-10-31'), nf('e3', 'EVENTO', 'Viejo', '2025-01-01'), nf('e4', 'EVENTO', 'Hoy', '2026-10-20')],
+    vinculos: ['e1', 'e2', 'e3', 'e4'].map((id) => v(id, 'yo', 'COLABORO_EN', 'DJ')),
+  })
+  const s = seccionesDe(a, 'yo', vocab, '2026-10-20')[0]
+  assert.deepEqual(s.nodos.map((q) => q.id), ['e4', 'e2', 'e1', 'e3']); assert.equal(s.proximos, 3)
+  const sin = seccionesDe(a, 'yo', vocab)[0]
+  assert.deepEqual(sin.nodos.map((q) => q.id), ['e1', 'e2', 'e4', 'e3']); assert.ok(!('proximos' in sin))
+  assert.ok(!('proximos' in seccionesDe(a, 'yo', vocab, '2030-01-01')[0]))
+})
+test('seccionesDe (D-47): vale también en el modo por rol; el resto no cambia de orden', () => {
+  const a = construirAdyacencia({
+    nodos: [sub('esp', 'ENTIDAD', 'centro_cultural'), nf('v1', 'EVENTO', 'Viejo1', '2025-01-01'), nf('v2', 'EVENTO', 'Viejo2', '2025-06-01'), nf('f', 'EVENTO', 'Futuro', '2026-10-31')],
+    vinculos: ['v2', 'f', 'v1'].map((id) => v(id, 'esp', 'COLABORO_EN', 'Espacio')),
+  })
+  const s = seccionesDe(a, 'esp', vocab, '2026-10-20')[0]
+  assert.deepEqual(s.nodos.map((q) => q.id), ['f', 'v1', 'v2']); assert.equal(s.proximos, 1)
+})
+
 test('roles.json: contextos con forma válida y lugar en el vocabulario (T-04.1-15)', () => {
   const tipos = ['ENTIDAD', 'OBRA', 'EVENTO', 'AGRUPACION']
   const etiquetas = new Set([...vocab.secciones.map((s) => s.etiqueta), ...Object.values(vocab.sinRol), 'Otros'])
@@ -202,6 +250,22 @@ test('roles.json: contextos con forma válida y lugar en el vocabulario (T-04.1-
     assert.ok(r.etiqueta.trim() && r.etiqueta !== 'Otros' && !/artista/i.test(r.etiqueta), r.etiqueta)
   }
   assert.ok(vocab.secciones.some((s) => s.etiqueta === vocab.lugar))
+})
+test('roles.json: portfolios y chips con forma válida (T-04.1-19)', () => {
+  const clave = /^(ENTIDAD|OBRA|EVENTO|AGRUPACION)(:[a-z_]+)?$/
+  const texto = (t: string) => t.trim() && !/artista/i.test(t) && t !== 'Otros'
+  assert.ok(vocab.portfolios && vocab.portfolios.length > 0)
+  const ids = new Set<string>(); const duenos = new Set<string>()
+  for (const p of vocab.portfolios!) {
+    assert.ok(p.id.trim() && !ids.has(p.id), p.id); ids.add(p.id)
+    for (const d of p.duenos) { assert.match(d, clave, d); assert.ok(!duenos.has(d), `${d} está en dos portfolios`); duenos.add(d) }
+    const etiquetas = new Set<string>()
+    for (const s of p.secciones) {
+      assert.ok(texto(s.etiqueta) && !etiquetas.has(s.etiqueta), s.etiqueta); etiquetas.add(s.etiqueta)
+      assert.match(s.contraparte, clave, s.contraparte)
+    }
+  }
+  for (const { etiqueta, chip } of vocab.secciones) if (chip !== undefined) assert.ok(texto(chip) && chip.length <= 30, `${etiqueta}: ${chip}`)
 })
 test('roles.json: sin colisiones, sin "artista", sin "Otros", sin vacíos', () => {
   const vistas = new Map<string, string>()
