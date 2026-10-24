@@ -23,5 +23,19 @@
         "texto": "Espora: una obra que se propaga."
       }
     }
+  },
+  "tp": {
+    "ficha": {
+      "contenido": {
+        "about": "Tropical Poncho (texto de fixture): una productora de experiencias artísticas inventada para probar la ficha de una entidad.\n\nSegundo párrafo de fixture."
+      }
+    }
+  },
+  "creadxr-ana": {
+    "ficha": {
+      "contenido": {
+        "about": "Ana Ruiz (texto de fixture): una creadxr inventada para probar la bio."
+      }
+    }
   }
 }

@@ -30,3 +30,11 @@ test('fixture de topología cumple el contrato', () => {
   assert.ok(nodos.some((n: N) => n.nodeType === 'OBRA' && !n.descripcionBreve))
   assert.equal(nodos.find((n: N) => n.id === 'obra-nudo')?.thumb, 'obras/nudo.png')
 })
+
+test('fixture: ficha: true en la topología <=> contenido en detalles (D-48)', () => {
+  const detalles = JSON.parse(readFileSync('src/lib/red/fixtures/detalles.json', 'utf8')) as Record<string, { ficha?: { contenido?: object } }>
+  const conFlag = nodos.filter((n) => (n as N & { ficha?: true }).ficha).map((n) => n.id).sort()
+  const conContenido = Object.entries(detalles).filter(([, d]) => Object.keys(d.ficha?.contenido ?? {}).length > 0).map(([id]) => id).sort()
+  assert.deepEqual(conFlag, conContenido)
+  assert.deepEqual(conFlag, ['creadxr-ana', 'obra-espora', 'obra-nudo', 'tp'])
+})

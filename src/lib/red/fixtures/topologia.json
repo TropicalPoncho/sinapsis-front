@@ -10,7 +10,8 @@
         "color": "#ffffff"
       },
       "isStub": false,
-      "descripcionBreve": "Productora de Experiencias Artísticas"
+      "descripcionBreve": "Productora de Experiencias Artísticas",
+      "ficha": true
     },
     {
       "id": "area-concepto",
@@ -89,7 +90,8 @@
       },
       "isStub": false,
       "descripcionBreve": "Obra de prueba Nudo",
-      "thumb": "obras/nudo.png"
+      "thumb": "obras/nudo.png",
+      "ficha": true
     },
     {
       "id": "obra-espora",
@@ -102,7 +104,8 @@
       },
       "isStub": false,
       "descripcionBreve": "Obra de prueba Espora",
-      "thumb": "obras/espora.png"
+      "thumb": "obras/espora.png",
+      "ficha": true
     },
     {
       "id": "obra-cepa",
@@ -188,7 +191,8 @@
         "color": "#77bbee"
       },
       "isStub": false,
-      "descripcionBreve": "Creadxr de prueba"
+      "descripcionBreve": "Creadxr de prueba",
+      "ficha": true
     },
     {
       "id": "creadxr-beto",

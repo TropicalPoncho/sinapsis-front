@@ -140,3 +140,38 @@ test('datos reales: fichas.json con bloques.json pasa el borde sin tocar el text
   assert.equal(r.entradas?.texto, alterego.entradas?.texto)
   assert.equal(_nodo, 'Alterego')
 })
+
+// D-48: la ficha de una ENTIDAD es el mismo mecanismo de bloques, con el bloques.json real.
+const real = JSON.parse(fs.readFileSync('src/lib/red/bloques.json', 'utf8')) as Record<string, BloqueDef[]>
+
+test('ENTIDAD: persona da Bio, el resto Quiénes somos, un área nada, un evento lo de siempre', () => {
+  assert.deepEqual(esquemaDe(real, 'ENTIDAD', 'persona'), [{ id: 'about', nombre: 'Bio', tipo: 'texto' }])
+  assert.deepEqual(esquemaDe(real, 'ENTIDAD', 'productora'), [{ id: 'about', nombre: 'Quiénes somos', tipo: 'texto' }])
+  assert.deepEqual(esquemaDe(real, 'AGRUPACION', 'area'), [])
+  assert.deepEqual(esquemaDe(real, 'EVENTO', 'fiesta').map((b) => b.id), ['curaduria', 'galeria', 'video', 'enlaces'])
+})
+
+test('ENTIDAD: el About es un solo bloque de texto', () => {
+  const r = validarDetalle(ficha({ about: 'x' }), esquemaDe(real, 'ENTIDAD', 'productora'))
+  assert.deepEqual(r.bloques, [{ id: 'about', nombre: 'Quiénes somos', tipo: 'texto', texto: 'x' }])
+})
+
+test('ENTIDAD: un override renombra el About y suma Enlaces, en ese orden', () => {
+  const r = validarDetalle(
+    ficha({ about: 'x', enlaces: [{ etiqueta: 'Sitio', url: 'https://example.org' }] }, { bloques: [{ id: 'about', nombre: 'Nosotrxs', tipo: 'texto' }, { id: 'enlaces', nombre: 'Enlaces', tipo: 'enlaces' }] }),
+    esquemaDe(real, 'ENTIDAD', 'productora'),
+  )
+  assert.deepEqual(r.bloques.map((b) => [b.id, b.nombre, b.tipo]), [['about', 'Nosotrxs', 'texto'], ['enlaces', 'Enlaces', 'enlaces']])
+})
+
+test('varios bloques de texto: salen en el orden del esquema con su nombre; sin contenido para uno, no sale', () => {
+  const esquema: BloqueDef[] = [
+    { id: 'sinopsis', nombre: 'Sinopsis', tipo: 'texto' },
+    { id: 'justificacion', nombre: 'Justificación', tipo: 'texto' },
+    { id: 'antecedentes', nombre: 'Antecedentes', tipo: 'texto' },
+  ]
+  const tres = validarDetalle(ficha({ antecedentes: 'c', sinopsis: 'a', justificacion: 'b' }), esquema)
+  assert.deepEqual(tres.bloques.map((b) => [b.nombre, b.tipo === 'texto' && b.texto]), [['Sinopsis', 'a'], ['Justificación', 'b'], ['Antecedentes', 'c']])
+  const dos = validarDetalle(ficha({ sinopsis: 'a', antecedentes: 'c' }), esquema)
+  assert.deepEqual(dos.bloques.map((b) => b.id), ['sinopsis', 'antecedentes'])
+})

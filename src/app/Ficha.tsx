@@ -81,8 +81,20 @@ export function Ficha({ nodo, secciones, futuro, espacio, nodos, hrefDe, onMiemb
     f[e.shiftKey ? f.length - 1 : 0].focus()
   }
 
-  const fecha = fechaLarga(nodo.fecha)
+  // D-48: la fecha de una ENTIDAD es la de alta en el sitio viejo, no un dato para el visitante: solo obras y eventos la muestran.
+  const fecha = (nodo.nodeType === 'OBRA' || nodo.nodeType === 'EVENTO') ? fechaLarga(nodo.fecha) : ''
+  const entidad = nodo.nodeType === 'ENTIDAD'
+  const titulo = entidad ? 'Portfolio' : 'Créditos'
   // D-42: `--i` escalona la entrada de cada elemento, numerados en el orden en que aparecen (portada, bloques, grupos de créditos).
+  const item = (s: Seccion, m: Seccion['nodos'][number]) => {
+    const n = nodos.get(m.id)
+    return n && (
+      <li key={m.id}>
+        <a href={hrefDe(m.id)} onClick={(e) => alClick(e, s.id, m.id)}>{n.label}</a>
+        {m.rol && <> — <span className="expandido__rol">{m.rol}</span></>}
+      </li>
+    )
+  }
   let paso = 0
   const i = () => ({ '--i': paso++ }) as React.CSSProperties
   return (
@@ -162,22 +174,15 @@ export function Ficha({ nodo, secciones, futuro, espacio, nodos, hrefDe, onMiemb
           </div>
           {/* D-39: los créditos son la misma agrupación por rol de siempre (seccionesDe), en su columna. Cada nombre entra a esa sección (D-37). */}
           {secciones.length > 0 && (
-            <aside className="expandido__creditos" aria-label={'Créditos de ' + nodo.label}>
-              <h3 className="expandido__titulo">Créditos</h3>
+            <aside className="expandido__creditos" aria-label={titulo + ' de ' + nodo.label}>
+              <h3 className="expandido__titulo">{titulo}</h3>
               {secciones.map((s) => (
                 <section key={s.id} className="expandido__grupo" aria-labelledby={'credito-' + s.id} style={i()}>
                   <h4 id={'credito-' + s.id} className="expandido__grupo-titulo" style={HEX.test(s.color) ? { color: s.color } : undefined}>{s.label}</h4>
-                  <ul className="expandido__nodos">
-                    {s.nodos.map((m) => {
-                      const n = nodos.get(m.id)
-                      return n && (
-                        <li key={m.id}>
-                          <a href={hrefDe(m.id)} onClick={(e) => alClick(e, s.id, m.id)}>{n.label}</a>
-                          {m.rol && <> — <span className="expandido__rol">{m.rol}</span></>}
-                        </li>
-                      )
-                    })}
-                  </ul>
+                  {/* D-47: los primeros `proximos` son eventos de hoy en adelante, bajo su propio rótulo. */}
+                  {s.proximos && <p className="expandido__proximo">Próximo</p>}
+                  {s.proximos && <ul className="expandido__nodos">{s.nodos.slice(0, s.proximos).map((m) => item(s, m))}</ul>}
+                  {s.nodos.length > (s.proximos ?? 0) && <ul className="expandido__nodos">{s.nodos.slice(s.proximos ?? 0).map((m) => item(s, m))}</ul>}
                 </section>
               ))}
             </aside>
