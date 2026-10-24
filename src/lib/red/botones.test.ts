@@ -24,10 +24,26 @@ test('OBRA/EVENTO sin secciones y sin compone: nada, aunque tenga descripción',
 })
 test('OBRA/EVENTO que compone algo sin secciones: Entrar, no Expandir', () =>
   assert.deepEqual(botonesDe(n('EVENTO'), { compone: true, secciones: 0 }), [ENTRAR]))
-test('ENTIDAD: sin compone ni secciones nada; con secciones o con compone, Entrar; nunca Expandir', () => {
+test('ENTIDAD sin ficha: sin compone ni secciones nada; con secciones o con compone, Entrar; nunca Expandir', () => {
   assert.deepEqual(botonesDe(n('ENTIDAD'), { compone: false, secciones: 0 }), [])
   assert.deepEqual(botonesDe(n('ENTIDAD'), { compone: false, secciones: 2 }), [ENTRAR])
   assert.deepEqual(botonesDe(n('ENTIDAD', { isStub: true }), { compone: true, secciones: 0 }), [ENTRAR])
+})
+test('ENTIDAD con ficha: Expandir primero, aun sin secciones; luego Entrar y Sumar (D-48, D-36)', () => {
+  assert.deepEqual(botonesDe(n('ENTIDAD', { ficha: true }), { compone: false, secciones: 3 }), [EXPANDIR, ENTRAR])
+  assert.deepEqual(botonesDe(n('ENTIDAD', { ficha: true }), { compone: false, secciones: 0 }), [EXPANDIR])
+  assert.deepEqual(botonesDe(n('ENTIDAD', { ficha: true }), { compone: false, secciones: 3, obrasPorSumar: 2 }), [EXPANDIR, ENTRAR, SUMAR])
+})
+test('con ficha: un stub y una AGRUPACION nunca expanden (D-15, D-48)', () => {
+  assert.deepEqual(botonesDe(n('ENTIDAD', { ficha: true, isStub: true }), { compone: false, secciones: 0 }), [])
+  assert.deepEqual(botonesDe(n('OBRA', { ficha: true, isStub: true }), { compone: false, secciones: 2 }), [ENTRAR])
+  assert.deepEqual(botonesDe(n('AGRUPACION', { ficha: true }), { compone: true, secciones: 0 }), [ENTRAR])
+})
+test('OBRA/EVENTO con ficha y sin secciones: Expandir (el riesgo de D-33, cerrado); con secciones y sin ficha, como siempre', () => {
+  for (const t of ['OBRA', 'EVENTO'] as const) {
+    assert.deepEqual(botonesDe(n(t, { ficha: true }), { compone: false, secciones: 0 }), [EXPANDIR])
+    assert.deepEqual(botonesDe(n(t), { compone: false, secciones: 2 }), [EXPANDIR, ENTRAR])
+  }
 })
 test('ENTIDAD con obras por sumar: Entrar y Sumar sus obras', () => {
   assert.deepEqual(botonesDe(n('ENTIDAD'), { compone: false, secciones: 2, obrasPorSumar: 2 }), [ENTRAR, SUMAR])

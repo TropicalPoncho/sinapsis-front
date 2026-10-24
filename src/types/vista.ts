@@ -96,6 +96,9 @@ export interface NodoGrafo {
   // Texto corto del evento ("22–04hs"), sale de `metadata.ficha.horario` (D-44). No es filtrable: viaja porque el preview no pide
   // nada al servidor (D-12, VIST-04).
   horario?: string
+  // El nodo tiene contenido de ficha cargado (`metadata.ficha.contenido` no vacío). Decide Expandir sin pedir el detalle
+  // (D-12, D-48). No es filtrable.
+  ficha?: true
 }
 
 // Escalares únicamente. Si esto pudiera contener GLSL, instancing queda

@@ -173,7 +173,7 @@ for (const [id, { _nodo, ...ficha }] of Object.entries(fichas)) {
   const donde = `fichas.json "${String(_nodo ?? id)}"`
   if (!fila) { errores.push(`${donde}: el id "${id}" no es un nodo vivo de nodos.csv`); continue }
   if (_nodo !== fila.label) errores.push(`${donde}: _nodo no coincide con el label "${fila.label}"`)
-  if (fila.node_type !== 'OBRA' && fila.node_type !== 'EVENTO') errores.push(`${donde}: la ficha de ${fila.node_type} está diferida, solo OBRA y EVENTO`)
+  if (fila.node_type === 'AGRUPACION') errores.push(`${donde}: un área es una neurona navegable, no contenido; la ficha es solo de ENTIDAD, OBRA y EVENTO`)
   if (ficha.horario !== undefined && !horarioOk(ficha.horario)) errores.push(`${donde}: horario debe ser un texto de 1 a 40 sin HTML`)
   const descartes: string[] = []
   validarDetalle({ ficha }, esquemaDe(bloquesPorDefecto, fila.node_type, fila.subtipo.trim()), descartes)

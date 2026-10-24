@@ -1,4 +1,10 @@
 {
+  "ENTIDAD": [
+    {"id":"about","nombre":"Quiénes somos","tipo":"texto"}
+  ],
+  "ENTIDAD:persona": [
+    {"id":"about","nombre":"Bio","tipo":"texto"}
+  ],
   "EVENTO": [
     {"id":"curaduria","nombre":"Curaduría","tipo":"texto"},
     {"id":"galeria","nombre":"Galería","tipo":"galeria"},

@@ -27,6 +27,7 @@ interface FilaNodo {
   disciplina: string | null
   location_id: string | null
   horario: string | null
+  ficha: boolean
 }
 
 interface FilaVinculo {
@@ -51,6 +52,7 @@ function aNodoGrafo(f: FilaNodo): NodoGrafo {
     ...(f.disciplina !== null && { disciplina: f.disciplina }),
     ...(f.location_id !== null && { locationId: f.location_id }),
     ...(horarioOk(f.horario) && { horario: f.horario }),
+    ...(f.ficha && { ficha: true as const }),
   }
 }
 
@@ -72,12 +74,15 @@ export async function GET() {
   }
   try {
     const [nodosRes, vinculosRes] = await Promise.all([
-      // metadata queda afuera: es la data profunda (DATA-02), se pide al abrir el nodo. Única excepción, D-44: `ficha.horario`
-      // ("22–04hs", tope 40 en el import y en horarioOk) viaja porque el preview de un evento futuro no pide nada al servidor.
-      // ponytail: un solo campo de metadata en la topología; si viajan más, columna propia en una migración.
+      // metadata queda afuera: es la data profunda (DATA-02), se pide al abrir el nodo. Excepción, dos derivados: D-44, `ficha.horario`
+      // ("22–04hs", tope 40 en el import y en horarioOk), porque el preview de un evento futuro no pide nada al servidor; y D-48, si
+      // hay `ficha.contenido` (un booleano, no el texto), porque Expandir se decide en el preview sin pedir el detalle.
+      // ponytail: dos derivados de metadata en la topología; si viajan más, columna propia en una migración. `ficha` dice "hay
+      // contenido", no "es válido": lo garantiza el import, que valida todo antes de escribir.
       pool.query<FilaNodo>(
         `SELECT id, node_type, subtipo, label, descripcion_breve, thumb, viz_params,
-                is_stub, fecha, disciplina, location_id, metadata #>> '{ficha,horario}' AS horario
+                is_stub, fecha, disciplina, location_id, metadata #>> '{ficha,horario}' AS horario,
+                COALESCE(metadata #> '{ficha,contenido}' <> '{}'::jsonb, false) AS ficha
          FROM nodos`,
       ),
       // descripcion queda afuera: es prosa no filtrable (DATA-04), se pide al abrir el vínculo.
