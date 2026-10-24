@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 milestone: v1.0
 current_phase: "04.1"
 current_phase_name: Expandir nodo y secciones derivadas
-status: "Sitio publicado en https://sinapsis.tropicalponcho.art (Vercel + Neon). Fase 4 abierta: UAT 3 (04-13) y G-06 (celular). Fase 4.1: ficha por bloques, créditos por rol, evento futuro y animación hechos; portfolio por tipo de nodo y Próximo hechos (04.1-08); faltan la ficha de entidad (04.1-09) y el cierre con UAT (04.1-07)."
-stopped_at: Completed 04.1-09-PLAN.md
-last_updated: "2026-10-24T14:54:47.417Z"
+status: "Sitio publicado en https://sinapsis.tropicalponcho.art (Vercel + Neon). Fase 4 abierta: UAT 3 (04-13) y G-06 (celular). Fase 4.1: ficha por bloques, créditos por rol, evento futuro y animación hechos; portfolio por tipo de nodo y Próximo (04.1-08), ficha de entidad (04.1-09) y vigencia de vínculos con Ex integrantes (04.1-10, D-49) hechos; falta el cierre con UAT (04.1-07). Migración 002 sin correr: el dueño la corre en su base local y en Neon ANTES de desplegar."
+stopped_at: Completed 04.1-10-PLAN.md
+last_updated: "2026-10-24T15:14:14.515Z"
 last_activity: 2026-10-20
 last_activity_desc: 04.1-08 completo (D-46 portfolio, D-47 Próximo; Rama produjo SOMA)
-state_head: ae00e56847fc20c36185a5ee56370b8ca7f2f5e2
+state_head: c27442f7996a0d50d5cc4c801ae3c18778b4e104
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 38
-  completed_plans: 35
+  completed_plans: 36
 milestone_name: milestone
 ---
 
@@ -93,6 +93,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04.1 P06 | 45min | 2 tasks | 7 files |
 | Phase 04.1 P08 | 80 min | 2 tasks | 6 files |
 | Phase 04.1 P09 | ~1 h 30 min | 2 tasks | 12 files |
+| Phase 04.1 P10 | 3h | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -148,6 +149,7 @@ Recent decisions affecting current work:
 - [Phase 04.1]: D-46: personas y organizaciones se leen como portfolio (una fila por nodo, roles como chips, regla en roles.json -> portfolios); supersede D-40 para ellas
 - [Phase 04.1]: D-47: el evento de hoy en adelante va arriba de su lista como Proximo, calculado en el cliente con el mismo hoyLocal() de D-44
 - [Phase 04.1]: D-48: la ficha de una ENTIDAD es un bloque About en metadata.ficha (ENTIDAD Quiénes somos, persona Bio) y Expandir sale del booleano NodoGrafo.ficha de la topología; enmienda D-26 y D-33. Áreas sin cambio.
+- [Phase 04.1]: D-49 (dueño, 2026-10-24): el período de un vínculo es desde/hasta de fecha parcial (texto con CHECK), no un booleano; sin hasta el vínculo es vigente; hoy solo INTEGRA lo lee. Migración 002 antes de desplegar (si no, /api/topologia da 503)
 
 ### Pending Todos
 
@@ -190,8 +192,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-10-24T14:54:47.106Z
-Stopped at: Completed 04.1-09-PLAN.md
+Last session: 2026-10-24T15:14:14.168Z
+Stopped at: Completed 04.1-10-PLAN.md
 Resume file: None
 
 Note: 02-02's executor agent hit the account's monthly spend limit right after finishing Task 3's
