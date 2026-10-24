@@ -28,6 +28,7 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 - [x] **DATA-06**: La data actual de Mongo (`config/dumps/` de `collectiveConscience`) queda migrada al modelo nuevo, con los `neuronType` y `synapseType` numéricos traducidos a los enums nombrados
 - [x] **DATA-07**: El tipo `concept` del modelo viejo no se migra — se descarta con las categorías del sitio institucional
 - [x] **DATA-08**: `descripcion_breve` está limitada a 200 caracteres a nivel de base — el tope es lo que mantiene enviable el dump de topología
+- [ ] **DATA-11**: `vinculos` tiene `desde` y `hasta` opcionales: texto con fecha parcial (`AAAA`, `AAAA-MM` o `AAAA-MM-DD`), validado en la base por un CHECK de forma y uno de orden (`hasta` no antes que `desde`). Las agrega una migración aditiva del repo (`002_vigencia_vinculos.sql`). Entran por dos columnas opcionales de `vinculos.csv`, que el import valida en el borde de confianza y acepta solo en INTEGRA, y viajan en la topología como contenido público. Sin `hasta`, el vínculo es vigente (Fase 4.1, D-49)
 
 ### Vista
 
@@ -75,8 +76,9 @@ La data la carga el dueño por un pipeline de CSV versionado; no hay autenticaci
 - [x] **UI-17**: La ficha expandida muestra bloques de contenido de cuatro tipos (texto, galería, video, enlaces) con nombre libre: el esquema por defecto sale de un archivo de datos por `nodeType`/`subtipo` y cada nodo puede reemplazarlo desde su `metadata`; el menú de la cabecera lista los bloques solo si hay dos o más. Los créditos van en una columna a la derecha en escritorio, agrupados por rol (una columna en mobile). El contenido de curaduría entra por `data/curaduria/fichas.json` → `metadata.ficha`, validado en el borde de confianza (Fase 4.1, D-38, D-39, D-43)
 - [x] **UI-18**: Un evento futuro (fecha de hoy en adelante, calculado en el cliente) muestra fecha, horario y espacio bien visibles en el preview y en la ficha, y la ficha suma un llamado de Entradas (texto y/o enlace externo); el preview sigue sin pedir nada al servidor; sin pasarela de pago (Fase 4.1, D-44)
 - [x] **UI-19**: Expandir se anima sin cortes: el contenido sube desde abajo (~700 ms), la escena se atenúa con un velo y los bloques entran escalonados, sin mover la cámara y respetando `prefers-reduced-motion` (Fase 4.1, D-42)
-- [ ] **UI-20**: Una persona y una organización se leen como portfolio, con la regla en datos por tipo de dueño (`roles.json` → `portfolios`, sobreescribible por nodo más adelante). Una persona lee Participaciones, Obras y Organizaciones; una productora, un colectivo o un sello, Eventos producidos, Integrantes y Obras. Cada evento, obra u organización aparece una sola vez, con sus roles como chips ("Producción · DJ"). Lo más reciente va primero, y lo que todavía no pasó, arriba con "Próximo", calculado en el cliente. Ninguna contraparte se pierde ("Otros"). Los eventos, las obras, los lugares y las bandas conservan su lectura por rol (Fase 4.1, D-46, D-47)
+- [ ] **UI-20**: Una persona y una organización se leen como portfolio, con la regla en datos por tipo de dueño (`roles.json` → `portfolios`, sobreescribible por nodo más adelante). Una persona lee Participaciones, Obras y Organizaciones; una productora, un colectivo o un sello, Eventos producidos, Integrantes y Obras. Cada evento, obra u organización aparece una sola vez, con sus roles como chips ("Producción · DJ"). Lo más reciente va primero, y lo que todavía no pasó, arriba con "Próximo", calculado en el cliente. Ninguna contraparte se pierde ("Otros"). Los eventos, las obras, los lugares y las bandas conservan su lectura por rol (Fase 4.1, D-46, D-47). *(Enmendado al planear 04.1-10: Integrantes son los integrantes vigentes; quien ya se fue va a Ex integrantes, ver UI-22, D-49)*
 - [ ] **UI-21**: Toda entidad puede tener su About: un bloque de texto con nombre libre en `metadata.ficha`, con el mismo esquema por bloques y el mismo borde de confianza que la ficha de una obra (`bloques.json` → `ENTIDAD`, carga por `fichas.json`). "Expandir" aparece en una entidad si tiene ficha, y su ficha muestra el About a la izquierda y su portfolio a la derecha. Las áreas (AGRUPACION) no tienen ficha y no cambian (Fase 4.1, D-48)
+- [ ] **UI-22**: Una organización distingue a sus integrantes vigentes de los que ya se fueron, según el período del INTEGRA (DATA-11), calculado en el cliente contra la fecha local (la misma de "Próximo"). Integrantes lista a los vigentes y Ex integrantes a los demás, con el período como chip ("hasta 2023", "2019–2024"), del que se fue más tarde al que se fue antes. Una persona ve sus organizaciones pasadas en Organizaciones, después de las vigentes, con "Integró · hasta 2024" o su rol con el período. Cada nodo aparece una sola vez, los nombres salen de `roles.json` y la UI no suma componentes (Fase 4.1, D-49)
 
 ### Rendimiento
 
@@ -188,13 +190,15 @@ Diferidos a milestone 2. Reconocidos pero fuera del roadmap actual.
 | UI-19 | Phase 4.1 | Complete (04.1-05; UAT del dueño pendiente) |
 | UI-20 | Phase 4.1 | Pending (04.1-08: portfolio por tipo de nodo, D-46, D-47; UAT de 04.1-07) |
 | UI-21 | Phase 4.1 | Pending (04.1-09: About de las entidades, D-48; UAT de 04.1-07) |
+| UI-22 | Phase 4.1 | Pending (04.1-10: Integrantes y Ex integrantes, organizaciones pasadas de una persona, D-49; UAT de 04.1-07) |
+| DATA-11 | Phase 4.1 | Pending (04.1-10: migración 002 escrita y no corrida en el entorno headless; la corre el dueño, local y después Neon, antes de desplegar; UAT de 04.1-07) |
 | UI-07 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 56 total
-- Mapped to phases: 56
+- v1 requirements: 58 total
+- Mapped to phases: 58
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-08-06*
-*Last updated: 2026-10-20 al planear 04.1-08 y 04.1-09 (UI-20 y UI-21 nuevos; UI-12 y UI-15 reabiertos; UI-14 enmendado por el portfolio)*
+*Last updated: 2026-10-24 al planear 04.1-10 (DATA-11 y UI-22 nuevos; UI-20 enmendado por la vigencia de INTEGRA). Antes: 2026-10-20 al planear 04.1-08 y 04.1-09 (UI-20 y UI-21 nuevos; UI-12 y UI-15 reabiertos; UI-14 enmendado por el portfolio)*
