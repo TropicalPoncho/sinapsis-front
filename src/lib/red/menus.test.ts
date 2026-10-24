@@ -253,6 +253,47 @@ test('seccionesDe (D-47): vale también en el modo por rol; el resto no cambia d
   assert.deepEqual(s.nodos.map((q) => q.id), ['f', 'v1', 'v2']); assert.equal(s.proximos, 1)
 })
 
+// --- Vigencia de los vínculos INTEGRA (D-49) ---
+const HOY = '2026-10-24'
+const orgConIntegrantes = () => construirAdyacencia({
+  nodos: [sub('org', 'ENTIDAD', 'productora'), ...['i1', 'i2', 'i3', 'i4', 'i5'].map((id) => sub(id, 'ENTIDAD', 'persona', id))],
+  vinculos: [v('i1', 'org', 'INTEGRA'), v('i2', 'org', 'INTEGRA', 'Fundador'), { ...v('i3', 'org', 'INTEGRA'), hasta: '2023-01-21' },
+    { ...v('i4', 'org', 'INTEGRA', 'Producción'), desde: '2019', hasta: '2024-06-08' }, { ...v('i5', 'org', 'INTEGRA'), hasta: '2027' }],
+})
+test('seccionesDe (D-49): una organización lee Integrantes (vigentes) y Ex integrantes con el período, del que se fue más tarde al que se fue antes', () => {
+  assert.deepEqual(resumen(orgConIntegrantes(), 'org', HOY), [['integrantes', ['i1', 'i2:Fundadxr', 'i5']], ['ex-integrantes', ['i4:Producción · 2019–2024', 'i3:hasta 2023']]])
+})
+test('seccionesDe (D-49): sin hoy no hay vigencia, los cinco quedan en Integrantes y sin chips de período', () => {
+  assert.deepEqual(resumen(orgConIntegrantes(), 'org'), [['integrantes', ['i1', 'i2:Fundadxr', 'i3', 'i4:Producción', 'i5']]])
+})
+test('seccionesDe (D-49): una persona ve sus organizaciones pasadas después de las vigentes, con "Integró" o con su rol', () => {
+  const a = construirAdyacencia({
+    nodos: [sub('yo', 'ENTIDAD', 'persona'), ...['o1', 'o2', 'o3'].map((id) => sub(id, 'ENTIDAD', 'productora', id))],
+    vinculos: [{ ...v('yo', 'o1', 'INTEGRA'), hasta: '2023' }, v('yo', 'o2', 'INTEGRA'), { ...v('yo', 'o3', 'INTEGRA', 'Fundador'), hasta: '2024-06' }],
+  })
+  assert.deepEqual(resumen(a, 'yo', HOY), [['organizaciones', ['o2:Integra', 'o3:Fundadxr · hasta 2024', 'o1:Integró · hasta 2023']]])
+})
+test('seccionesDe (D-49): una fila aparece una vez; la vigencia es de la fila y no de cada vínculo', () => {
+  const a = construirAdyacencia({
+    nodos: [sub('org', 'ENTIDAD', 'productora'), sub('p', 'ENTIDAD', 'persona'), sub('q', 'ENTIDAD', 'persona')],
+    vinculos: [v('p', 'org', 'INTEGRA', 'Fundador'), { ...v('p', 'org', 'INTEGRA', 'Producción'), hasta: '2023' },
+      { ...v('q', 'org', 'INTEGRA', 'Fundador'), hasta: '2023' }],
+  })
+  // p: un INTEGRA vigente y uno terminado = una fila vigente con los dos roles; q: Fundadxr y ex integrante es una sola fila pasada.
+  assert.deepEqual(resumen(a, 'org', HOY), [['integrantes', ['p:Producción · Fundadxr']], ['ex-integrantes', ['q:Fundadxr · hasta 2023']]])
+})
+test('seccionesDe (D-49): en el modo por rol un INTEGRA terminado sin rol cae en Ex integrantes, sin chip de período', () => {
+  const a = construirAdyacencia({ nodos: [sub('org', 'ENTIDAD', 'productora'), sub('p', 'ENTIDAD', 'persona')], vinculos: [{ ...v('p', 'org', 'INTEGRA'), hasta: '2023' }] })
+  assert.deepEqual(seccionesDe(a, 'org', { ...vocab, portfolios: undefined }, HOY).map((s) => [s.id, s.nodos]), [['ex-integrantes', [{ id: 'p' }]]])
+})
+test('seccionesDe (D-49): solo INTEGRA lee vigencia; un hasta en un COLABORO_EN no cambia nada', () => {
+  const a = construirAdyacencia({
+    nodos: [sub('yo', 'ENTIDAD', 'persona'), nf('e', 'EVENTO', 'E', '2025-01-01')],
+    vinculos: [{ ...v('e', 'yo', 'COLABORO_EN', 'DJ'), hasta: '2023' }],
+  })
+  assert.deepEqual(resumen(a, 'yo', HOY), [['participaciones', ['e:DJ']]])
+})
+
 test('roles.json: contextos con forma válida y lugar en el vocabulario (T-04.1-15)', () => {
   const tipos = ['ENTIDAD', 'OBRA', 'EVENTO', 'AGRUPACION']
   const etiquetas = new Set([...vocab.secciones.map((s) => s.etiqueta), ...Object.values(vocab.sinRol), 'Otros'])
@@ -280,6 +321,7 @@ test('roles.json: portfolios y chips con forma válida (T-04.1-19)', () => {
     }
   }
   for (const { etiqueta, chip } of vocab.secciones) if (chip !== undefined) assert.ok(texto(chip) && chip.length <= 30, `${etiqueta}: ${chip}`)
+  for (const p of vocab.portfolios!) for (const s of p.secciones) assert.ok(s.vigente === undefined || typeof s.vigente === 'boolean', s.etiqueta)
 })
 test('roles.json: cada `con` es una etiqueta del vocabulario o de sinRol (T-04.1-19)', () => {
   const etiquetas = new Set([...vocab.secciones.map((s) => s.etiqueta), ...Object.values(vocab.sinRol)])
@@ -299,6 +341,7 @@ test('roles.json: sin colisiones, sin "artista", sin "Otros", sin vacíos', () =
     }
   }
   for (const [clave, etiqueta] of Object.entries(vocab.sinRol)) assert.ok(clave && typeof etiqueta === 'string' && etiqueta.trim() && !/artista/i.test(etiqueta), clave)
+  for (const clave of Object.keys(vocab.sinRol)) assert.match(clave, /^[A-Z_]+(:(sale|entra)(:pasado)?)?$/, clave)
 })
 
 test('censo de data/curaduria/vinculos.csv: todo rol real da sección y los del PRD no caen en Otros', () => {

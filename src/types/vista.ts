@@ -124,6 +124,10 @@ export interface VinculoGrafo {
   destino: string
   tipoVinculo: TipoVinculo
   rol?: string                   // corto, filtrable
+  // Período del vínculo, fecha parcial `AAAA[-MM[-DD]]`; sin `hasta` el vínculo es vigente (D-49). Hoy solo lo lee INTEGRA, en
+  // `seccionesDe`. Viaja en el dump como el `rol`: es contenido público; la autorización no va en `vinculos`.
+  desde?: string
+  hasta?: string
   // true = vínculo calculado por resolverVista, nunca persistido: un puente (D-puentes) o un vínculo
   // entre agrupaciones (D-24, id `entre:`). El puente reemplaza el camino
   // A-nodo_excluido-B por A-B cuando `nodo_excluido` quedó fuera de la Vista. El motor puede

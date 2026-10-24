@@ -1,7 +1,7 @@
 import type { Adyacencia } from '../vista/adyacencia.ts'
 import type { NodeType, NodoGrafo, Subgrafo, VinculoGrafo } from '../../types/vista.ts'
 import { slugDe } from './slugs.ts'
-import { esFuturo } from './fechas.ts'
+import { esFuturo, finDe, periodo, vigente } from './fechas.ts'
 
 const porLabel = (a: { label: string }, b: { label: string }) => a.label.localeCompare(b.label, 'es')
 
@@ -77,8 +77,8 @@ export interface Seccion {
   // D-47: cuántos de los primeros `nodos` son eventos de hoy en adelante ("Próximo"). Solo existe si hay alguno.
   proximos?: number
 }
-// roles.json: `secciones` en el orden en que se muestran (y en el que se ordenan los chips); `sinRol` por `TIPO` o `TIPO:sale|entra`
-// (sentido del nodo dueño).
+// roles.json: `secciones` en el orden en que se muestran (y en el que se ordenan los chips); `sinRol` por `TIPO`, `TIPO:sale|entra` o
+// `TIPO:sale|entra:pasado` (sentido del nodo dueño; la última, para un INTEGRA terminado, D-49).
 export interface VocabularioRoles {
   secciones: { etiqueta: string; roles: string[]; chip?: string }[]
   sinRol: Record<string, string>
@@ -89,7 +89,8 @@ export interface VocabularioRoles {
   contextos?: { dueno: string; seccion: string; contraparte?: string; etiqueta: string }[]
   // D-46: portfolio por tipo de dueño. Gana el primero que incluye el dueño; el `id` es para el override por nodo futuro.
   // contraparte: "NODETYPE" o "NODETYPE:subtipo"; `con`: el nodo solo entra si alguna de sus etiquetas está en la lista.
-  portfolios?: { id: string; duenos: string[]; secciones: { etiqueta: string; contraparte: string; con?: string[] }[] }[]
+  // D-49, `vigente`: true = solo filas vigentes, false = solo pasadas (sin `hoy` no hay pasadas); ausente = las dos.
+  portfolios?: { id: string; duenos: string[]; secciones: { etiqueta: string; contraparte: string; con?: string[]; vigente?: boolean }[] }[]
 }
 
 // Solo compara, nunca se muestra: sin tildes ni mayúsculas, y en cada palabra de 3+ letras sin plural ni `e` final
@@ -120,21 +121,26 @@ export function seccionesDe(ady: Adyacencia, nodoId: string, vocabulario: Vocabu
   const vocab = vocabulario.secciones.map((s) => s.etiqueta)
   const duenos = [dueno.nodeType, `${dueno.nodeType}:${dueno.subtipo}`]
   const portfolio = vocabulario.portfolios?.find((p) => p.duenos.some((d) => duenos.includes(d)))
-  const grupos = new Map<string, Map<string, { nodo: NodoGrafo; roles: string[] }>>()
-  const poner = (etiqueta: string, nodo: NodoGrafo, roles: string[]) => {
+  const grupos = new Map<string, Map<string, { nodo: NodoGrafo; roles: string[]; hasta?: string }>>()
+  // `hasta`: solo una fila pasada de portfolio lo trae (su `finDe`), para ordenar (D-49).
+  const poner = (etiqueta: string, nodo: NodoGrafo, roles: string[], hasta?: string) => {
     const g = grupos.get(etiqueta) ?? new Map()
-    const e = g.get(nodo.id) ?? { nodo, roles: [] }
+    const e = g.get(nodo.id) ?? { nodo, roles: [], hasta }
     for (const r of roles) if (!e.roles.includes(r)) e.roles.push(r)
     g.set(nodo.id, e)
     grupos.set(etiqueta, g)
   }
   // Cómo lee un vínculo: la etiqueta normalizada de cada parte del rol (o la de `sinRol`), y la grafía que no encajó.
   type Lectura = { etiqueta?: string; rol?: string }
+  // D-49: sin `hoy` no hay vigencia (como "Próximo"). Un INTEGRA terminado es el que tiene `hasta` anterior a hoy.
+  // ponytail: solo INTEGRA lee vigencia; salida: sumar el tipo acá y en el import cuando otro vínculo la necesite.
+  const terminado = (v: VinculoGrafo) => !!hoy && v.tipoVinculo === 'INTEGRA' && !vigente(v, hoy)
   const lecturas = (v: VinculoGrafo): Lectura[] => {
     const partes = (v.rol ?? '').split(SEPARADOR).map((p) => p.trim()).filter(Boolean)
     if (!partes.length) {
       const sinRol = vocabulario.sinRol
-      return [{ etiqueta: sinRol[`${v.tipoVinculo}:${v.origen === nodoId ? 'sale' : 'entra'}`] ?? sinRol[v.tipoVinculo] }]
+      const clave = `${v.tipoVinculo}:${v.origen === nodoId ? 'sale' : 'entra'}`
+      return [{ etiqueta: (terminado(v) ? sinRol[`${clave}:pasado`] : undefined) ?? sinRol[clave] ?? sinRol[v.tipoVinculo] }]
     }
     return partes.map((p) => { const etiqueta = indice.get(claveRol(p)); return etiqueta ? { etiqueta } : { rol: p } })
   }
@@ -151,34 +157,46 @@ export function seccionesDe(ady: Adyacencia, nodoId: string, vocabulario: Vocabu
     }
   } else {
     // D-46: una fila por nodo (todos sus vínculos juntos) y a una sola sección; los roles pasan a ser chips.
-    const filas = new Map<string, { nodo: NodoGrafo; etiquetas: Set<string>; chips: Map<string, number> }>()
+    // D-49: `vigenteInt` = tiene un INTEGRA vigente; `ultimo` = su INTEGRA terminado que termina último. Pasada = `ultimo` y no `vigenteInt`.
+    // ponytail: con dos períodos se muestra el último; una fila vigente muestra todos sus roles, también los de un período terminado;
+    // salida: período por chip si aparece el caso. En el modo por rol solo cambia la etiqueta (`:pasado`), sin chip de período.
+    type Fila = { nodo: NodoGrafo; etiquetas: Set<string>; chips: Map<string, number>; vigenteInt?: boolean; ultimo?: VinculoGrafo }
+    const filas = new Map<string, Fila>()
     const chipDe = (e: string) => vocabulario.secciones.find((s) => s.etiqueta === e)?.chip ?? e
     for (const { nodo, v } of participan) {
-      const f = filas.get(nodo.id) ?? { nodo, etiquetas: new Set(), chips: new Map() }
+      const f: Fila = filas.get(nodo.id) ?? { nodo, etiquetas: new Set(), chips: new Map() }
       for (const { etiqueta, rol } of lecturas(v)) {
         if (etiqueta) f.etiquetas.add(etiqueta)
         const chip = etiqueta ? chipDe(etiqueta) : rol
         if (chip) f.chips.set(chip, puesto(vocab)(etiqueta ?? ''))
       }
+      if (v.tipoVinculo === 'INTEGRA') {
+        if (!terminado(v)) f.vigenteInt = true
+        else if (!f.ultimo || finDe(v.hasta!) > finDe(f.ultimo.hasta!)) f.ultimo = v
+      }
       filas.set(nodo.id, f)
     }
-    for (const { nodo, etiquetas, chips } of filas.values()) {
-      // Gana el subtipo, después el nodeType; `con` exige alguna de las etiquetas del nodo.
-      const sec = [`${nodo.nodeType}:${nodo.subtipo}`, nodo.nodeType].map((k) => portfolio.secciones.find((s) => s.contraparte === k && (!s.con || s.con.some((c) => etiquetas.has(c))))).find(Boolean)
+    for (const { nodo, etiquetas, chips, vigenteInt, ultimo } of filas.values()) {
+      const pasada = !!ultimo && !vigenteInt
+      // Gana el subtipo, después el nodeType; `con` exige alguna de las etiquetas del nodo; `vigente` exige que la fila lo sea (o no lo sea).
+      const sec = [`${nodo.nodeType}:${nodo.subtipo}`, nodo.nodeType].map((k) => portfolio.secciones.find((s) => s.contraparte === k && (!s.con || s.con.some((c) => etiquetas.has(c))) && (s.vigente === undefined || s.vigente === !pasada))).find(Boolean)
       const dice = new Set([sec?.etiqueta, ...(sec?.con ?? []).map(chipDe)])
       const orden = [...chips].filter(([c]) => !dice.has(c)).sort(([a, i], [b, j]) => i - j || a.localeCompare(b, 'es')).map(([c]) => c)
-      poner(sec?.etiqueta ?? OTROS, nodo, orden)
+      poner(sec?.etiqueta ?? OTROS, nodo, pasada ? [...orden, periodo(ultimo!.hasta!, ultimo!.desde)] : orden, pasada ? finDe(ultimo!.hasta!) : undefined)
     }
   }
 
   // Modo por rol: vocabulario, después las etiquetas de `sinRol` fuera de la lista por nombre, "Otros" al final. Portfolio: su orden.
   const lugar = puesto(portfolio ? portfolio.secciones.map((s) => s.etiqueta) : vocab)
   const entre = portfolio ? porReciente : porFecha
+  // D-49: vigentes antes (por nombre); después las pasadas, de la que terminó más tarde a la que terminó antes. Cadenas por código.
+  const porHasta = (a: { nodo: NodoGrafo; hasta?: string }, b: { nodo: NodoGrafo; hasta?: string }) =>
+    (a.hasta ?? '') === (b.hasta ?? '') ? porLabel(a.nodo, b.nodo) : !a.hasta ? -1 : !b.hasta ? 1 : a.hasta < b.hasta ? 1 : -1
   return [...grupos.keys()]
     .sort((a, b) => lugar(a) - lugar(b) || a.localeCompare(b, 'es'))
     .map((etiqueta) => {
       const filas = [...grupos.get(etiqueta)!.values()]
-        .sort((a, b) => (esObra(a.nodo) !== esObra(b.nodo) ? (esObra(a.nodo) ? -1 : 1) : esObra(a.nodo) ? entre(a.nodo, b.nodo) : porLabel(a.nodo, b.nodo)))
+        .sort((a, b) => (esObra(a.nodo) !== esObra(b.nodo) ? (esObra(a.nodo) ? -1 : 1) : esObra(a.nodo) ? entre(a.nodo, b.nodo) : porHasta(a, b)))
       // D-47: los eventos de hoy en adelante van primero, el más cercano antes.
       const proximos = hoy ? filas.filter((f) => f.nodo.nodeType === 'EVENTO' && esFuturo(f.nodo.fecha, hoy)).sort((a, b) => porFecha(a.nodo, b.nodo)) : []
       return {

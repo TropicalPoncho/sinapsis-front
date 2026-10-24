@@ -36,6 +36,8 @@ interface FilaVinculo {
   destino: string
   tipo_vinculo: VinculoGrafo['tipoVinculo']
   rol: string | null
+  desde: string | null
+  hasta: string | null
 }
 
 function aNodoGrafo(f: FilaNodo): NodoGrafo {
@@ -63,6 +65,8 @@ function aVinculoGrafo(f: FilaVinculo): VinculoGrafo {
     destino: f.destino,
     tipoVinculo: f.tipo_vinculo,
     ...(f.rol !== null && { rol: f.rol }),
+    ...(f.desde !== null && { desde: f.desde }),
+    ...(f.hasta !== null && { hasta: f.hasta }),
   }
 }
 
@@ -85,9 +89,11 @@ export async function GET() {
                 COALESCE(metadata #> '{ficha,contenido}' <> '{}'::jsonb, false) AS ficha
          FROM nodos`,
       ),
-      // descripcion queda afuera: es prosa no filtrable (DATA-04), se pide al abrir el vínculo.
+      // descripcion queda afuera: es prosa no filtrable (DATA-04), se pide al abrir el vínculo. `desde, hasta` (D-49) viajan: el
+      // período es contenido público, como el rol. OJO: esta consulta necesita db/migrations/002_vigencia_vinculos.sql; contra una
+      // base sin ella /api/topologia da 503. Migrar (Neon incluida) ANTES de desplegar.
       pool.query<FilaVinculo>(
-        `SELECT id, origen, destino, tipo_vinculo, rol
+        `SELECT id, origen, destino, tipo_vinculo, rol, desde, hasta
          FROM vinculos`,
       ),
     ])

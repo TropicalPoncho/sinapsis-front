@@ -48,10 +48,11 @@
     {"id":"organizacion","duenos":["ENTIDAD:productora","ENTIDAD:colectivo","ENTIDAD:sello"],"secciones":[
       {"etiqueta":"Eventos producidos","contraparte":"EVENTO","con":["Producción"]},
       {"etiqueta":"Participaciones","contraparte":"EVENTO"},
-      {"etiqueta":"Integrantes","contraparte":"ENTIDAD:persona"},
+      {"etiqueta":"Integrantes","contraparte":"ENTIDAD:persona","vigente":true},
+      {"etiqueta":"Ex integrantes","contraparte":"ENTIDAD:persona","vigente":false},
       {"etiqueta":"Obras","contraparte":"OBRA"},
       {"etiqueta":"Organizaciones","contraparte":"ENTIDAD"}
     ]}
   ],
-  "sinRol": {"PRODUJO":"Producción","INTEGRA:entra":"Integrantes","INTEGRA:sale":"Integra"}
+  "sinRol": {"PRODUJO":"Producción","INTEGRA:entra":"Integrantes","INTEGRA:sale":"Integra","INTEGRA:entra:pasado":"Ex integrantes","INTEGRA:sale:pasado":"Integró"}
 }

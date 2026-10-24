@@ -7,6 +7,7 @@ import { leerCsv } from './csv.ts'
 import { cargarFuentes, metadataPorId } from './dumps.ts'
 import { esquemaDe, horarioOk, validarDetalle } from '../../src/lib/red/detalle.ts'
 import type { BloqueDef } from '../../src/lib/red/detalle.ts'
+import { vigenciaOk } from '../../src/lib/red/fechas.ts'
 
 const NODE_TYPES = new Set(['ENTIDAD', 'OBRA', 'EVENTO', 'AGRUPACION'])
 const TIPOS_VINCULO = new Set([
@@ -165,6 +166,14 @@ filasVinculos.forEach((fila, i) => {
   if (fila.origen === fila.destino) {
     errores.push(`vinculos.csv línea ${numeroFila}: origen y destino iguales "${fila.origen}"`)
   }
+  // D-49: el período solo se lee en INTEGRA; un evento ya tiene su fecha y un dato que la app no lee no entra callado.
+  const desde = fila.desde?.trim() ?? ''
+  const hasta = fila.hasta?.trim() ?? ''
+  if ((desde || hasta) && fila.tipo_vinculo !== 'INTEGRA') {
+    errores.push(`vinculos.csv línea ${numeroFila}: desde/hasta solo se leen en INTEGRA (D-49); un evento ya tiene su fecha`)
+  } else if (!vigenciaOk(desde, hasta)) {
+    errores.push(`vinculos.csv línea ${numeroFila}: desde/hasta deben ser AAAA, AAAA-MM o AAAA-MM-DD, y hasta no puede ser anterior a desde`)
+  }
 })
 
 // La ficha se valida con el mismo borde que la lee la API: lo que acá se descarta, allá se esconde. Falla entero.
@@ -242,6 +251,8 @@ const vinculosParaInsertar = vinculosACargar.map((f) => ({
   destino: f.destino,
   tipo_vinculo: f.tipo_vinculo,
   rol: f.rol || null,
+  desde: f.desde?.trim() || null,
+  hasta: f.hasta?.trim() || null,
   descripcion: null as string | null,
 }))
 
@@ -278,9 +289,9 @@ try {
 
   for (const v of vinculosParaInsertar) {
     await client.query(
-      `INSERT INTO vinculos (id, origen, destino, tipo_vinculo, rol, descripcion)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [v.id, v.origen, v.destino, v.tipo_vinculo, v.rol, v.descripcion]
+      `INSERT INTO vinculos (id, origen, destino, tipo_vinculo, rol, desde, hasta, descripcion)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [v.id, v.origen, v.destino, v.tipo_vinculo, v.rol, v.desde, v.hasta, v.descripcion]
     )
   }
 
