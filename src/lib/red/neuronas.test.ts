@@ -46,7 +46,7 @@ const secciones = (slug: string) => seccionesDe(ady, id(slug), vocab)
 const entrar: [string, number, number, Record<string, number>, number][] = [
   ['tropical-poncho', 6, 6, { ENTIDAD: 1, AGRUPACION: 5 }, 0],
   ['obras', 17, 17, { EVENTO: 17 }, 18],
-  ['soma', 17, 17, { EVENTO: 3, ENTIDAD: 12, OBRA: 1, AGRUPACION: 1 }, 2],
+  ['soma', 18, 18, { EVENTO: 3, ENTIDAD: 13, OBRA: 1, AGRUPACION: 1 }, 2],
   ['tempistica-i', 40, 40, { EVENTO: 3, ENTIDAD: 36, AGRUPACION: 1 }, 2],
   ['alterego', 8, 8, { EVENTO: 2, ENTIDAD: 5, AGRUPACION: 1 }, 1],
   ['entropia-mapping', 3, 3, { OBRA: 1, ENTIDAD: 1, EVENTO: 1 }, 0],
@@ -55,14 +55,14 @@ const entrar: [string, number, number, Record<string, number>, number][] = [
   ['rama-cerratto', 40, 17, { ENTIDAD: 1, EVENTO: 15, OBRA: 1 }, 14],
   ['rayo', 39, 3, { ENTIDAD: 1, EVENTO: 2 }, 1],
   ['club-weyba', 9, 3, { ENTIDAD: 1, EVENTO: 2 }, 1],
-  ['in-session', 14, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
-  ['kirtan-rock', 13, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['in-session', 15, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['kirtan-rock', 14, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['cultura-del-sur', 23, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['federico-urdinez', 6, 6, { ENTIDAD: 6 }, 0],
   ['luca-zisa', 17, 4, { ENTIDAD: 1, EVENTO: 3 }, 1],
   ['juan-balladobres', 19, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['laura-trotta', 28, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
-  ['melodrumma', 13, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['melodrumma', 14, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['julieta-agriano', 16, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['aggromance', 23, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['rochi', 1, 1, { ENTIDAD: 1 }, 0], // sin vínculos: la escena es ella sola
@@ -164,7 +164,7 @@ test('tocar un nodo de la lista que no está en la base suma uno (Organizaciones
 
 test('desde la ficha de SOMA, Rama Cerratto entra a la red de SOMA con Rama enfocada y sin sumar', () => {
   const r = escena(E('soma', 'rama-cerratto'))
-  assert.equal(r.sub.nodos.length, 17); assert.deepEqual(r.sumados, [])
+  assert.equal(r.sub.nodos.length, 18); assert.deepEqual(r.sumados, [])
   assert.ok(r.sub.nodos.some((n) => n.id === id('rama-cerratto')))
 })
 
@@ -186,10 +186,10 @@ test('"Sumar sus obras" de Rama en otra red: lo que falta, con tope de LIMITE_SU
 })
 
 test('menú de cada red: etiquetas y cantidad por sección (D-40, y D-46 para personas)', () => {
-  // Producción(4) en SOMA: Tropical, In Session, Rama Cerratto (desde 2026-10-20) y Mechi Botta (PRODUJO confirmados por el dueño).
+  // Producción(5) en SOMA: Tropical, In Session, Rama Cerratto, Mechi Botta (PRODUJO confirmados por el dueño, 2026-10-20) y Malvon Di Ritta (2026-10-24).
   const menu = (slug: string) => secciones(slug).map((x) => `${x.label}(${x.nodos.length})`).join(', ')
-  assert.equal(menu('soma'), 'Producción(4), Meditación(1), Actividades(1), Performance(1), Bandas en vivo(2), DJ(4), VJ(1), Otros(1)')
-  assert.equal(menu('tempistica-i'), 'Producción(3), Meditación(1), Performance(3), Bandas en vivo(1), DJ(3), Audiovisual(3), Exposición(1), Charlas(2), Pintura en vivo(1), Circo(2), Cocina(7), Armonía(2), Rush(5), Otros(6)')
+  assert.equal(menu('soma'), 'Producción(5), Meditación(1), Actividades(1), Performance(1), Bandas en vivo(2), DJ(4), VJ(1), Otros(1)')
+  assert.equal(menu('tempistica-i'), 'Producción(3), Creadxrs(1), Meditación(1), Performance(3), Bandas en vivo(1), DJ(3), Audiovisual(3), Exposición(1), Charlas(2), Pintura en vivo(1), Circo(2), Cocina(7), Armonía(2), Rush(5), Otros(6)')
   assert.equal(menu('alterego'), 'Producción(3), DJ(2), Espacio(1)')
   assert.equal(menu('entropia-mapping'), 'Mapping(2)')
   assert.equal(menu('keuken-aonikenk'), 'Eventos(4)'); assert.equal(menu('espacio-ave-fenix'), 'Eventos(4)')
@@ -241,13 +241,23 @@ test('D-46: personas de referencia, sección por sección (los números de 04.1-
   ])
   assert.deepEqual(portafolio('juan-balladobres'), ['Participaciones: ESPORA — Live set · Charla', 'Organizaciones: Outro x Melodrumma — Integra | Sello Rojo — Integra'])
   assert.deepEqual(portafolio('laura-trotta'), [
-    'Participaciones: Anomalia — Audiovisual', 'Organizaciones: Post.xno — Integra | Tropical Poncho — Trabajó en Comunicación', 'Colaboraciones: Agus Mansilla',
+    'Participaciones: Anomalia — Producción · Audiovisual', 'Organizaciones: Post.xno — Integra | Tropical Poncho — Trabajó en Comunicación', 'Colaboraciones: Agus Mansilla',
   ])
   assert.deepEqual(portafolio('melodrumma'), ['Participaciones: C.E.P.A. — Producción · Convocade', 'Organizaciones: Outro x Melodrumma — Integra'])
   assert.deepEqual(portafolio('julieta-agriano'), ['Participaciones: ESPORA — Charla', 'Organizaciones: WIP — Producción · Fundadxr'])
   assert.deepEqual(portafolio('rayo'), ['Participaciones: Tropical Posporno: Distopia — Convocade | Tropical Posporno — Invitade'])
   assert.deepEqual(portafolio('aggromance'), ['Participaciones: Anomalia — DJ'])
   assert.deepEqual(portafolio('rochi'), []); assert.deepEqual(portafolio('mailen-lazzarone'), [])
+})
+
+test('D-46: un PRODUJO y un COLABORO_EN "Artista" de la misma persona son UNA fila con dos chips (Mechi Botta, Malvon Di Ritta; 2026-10-24)', () => {
+  const filasDe = (slug: string, evento: string) => seccionesDe(ady, id(slug), vocab).filter((s) => s.id === 'participaciones')
+    .flatMap((s) => s.nodos.filter((q) => ady.nodos.get(q.id)!.label === evento).map((q) => q.rol))
+  assert.deepEqual(filasDe('mechi-botta', 'Tempistica I'), ['Producción · Creadxr'])
+  assert.deepEqual(filasDe('mechi-botta', 'Tempistica II'), ['Producción · Creadxr'])
+  assert.deepEqual(filasDe('mechi-botta', 'Kutral'), ['Creadxr']) // sin PRODUJO: solo el chip de creadxr
+  assert.deepEqual(filasDe('malvon-di-ritta', 'SOMA'), ['Producción']) // una sola fila
+  assert.deepEqual(filasDe('malvon-di-ritta', 'Kutral'), ['Creadxr'])
 })
 
 test('D-46: una organización lee Eventos producidos, Participaciones e Integrantes', () => {
@@ -266,7 +276,7 @@ test('D-46: una organización lee Eventos producidos, Participaciones e Integran
 })
 
 test('D-46: sin portfolio nada cambia (eventos, obras, lugares, bandas)', () => {
-  assert.equal(secciones('tempistica-i').length, 14); assert.deepEqual(secciones('entropia-mapping').map((s) => s.id), ['mapping'])
+  assert.equal(secciones('tempistica-i').length, 15) // 14 + Creadxrs (Mechi Botta, 2026-10-24); assert.deepEqual(secciones('entropia-mapping').map((s) => s.id), ['mapping'])
   assert.deepEqual(secciones('espacio-ave-fenix').map((s) => s.id), ['eventos']); assert.deepEqual(secciones('cultura-del-sur'), [])
 })
 

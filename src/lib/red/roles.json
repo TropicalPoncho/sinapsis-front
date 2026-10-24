@@ -4,6 +4,7 @@
     {"etiqueta":"Fundación","roles":["Fundador","Fundadora"],"chip":"Fundadxr"},
     {"etiqueta":"Creadxrs convocades","roles":["Artista Convocade","Artistas Convocades"],"chip":"Convocade"},
     {"etiqueta":"Creadxrs invitades","roles":["Artista Invitade"],"chip":"Invitade"},
+    {"etiqueta":"Creadxrs","roles":["Artista","Artistas","Creadxr","Creadxrs"],"chip":"Creadxr"},
     {"etiqueta":"Meditación","roles":["Meditación","Meditación Activa"]},
     {"etiqueta":"Actividades","roles":["Actividades"]},
     {"etiqueta":"Performance","roles":["Performance","Perfo"]},
