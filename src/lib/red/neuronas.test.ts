@@ -22,7 +22,7 @@ const nodos: NodoGrafo[] = filas.map((r) => ({
   isStub: r.is_stub === 'si', fecha: r.fecha || undefined,
 }))
 const vinculos = leer('vinculos.csv').filter((r) => r.descartar !== 'si' && vivos.has(r.origen) && vivos.has(r.destino))
-  .map((r) => ({ id: r.id, origen: r.origen, destino: r.destino, tipoVinculo: r.tipo_vinculo as TipoVinculo, rol: r.rol || undefined }))
+  .map((r) => ({ id: r.id, origen: r.origen, destino: r.destino, tipoVinculo: r.tipo_vinculo as TipoVinculo, rol: r.rol || undefined, desde: r.desde || undefined, hasta: r.hasta || undefined }))
 const ady = construirAdyacencia({ nodos, vinculos })
 const idx = indexarSlugs(nodos)
 
@@ -41,6 +41,8 @@ const baseDe = (slug: string, conObras: boolean, limite?: number) => {
   return resolverVista(ady, { ...vistaDe(E(slug, slug), r, ady.nodos.get(r)!.nodeType, agrupadoresDe(ady, r).length > 0, conObras), ...(limite && { limite }) })
 }
 const secciones = (slug: string) => seccionesDe(ady, id(slug), vocab)
+// D-49: la vigencia se mide con una fecha fija, nunca con el reloj.
+const HOY = '2026-10-24'
 
 // Contexto -> [escena antes de D-45, escena ahora, tipos ahora, vínculos PRECEDE dibujados]. Entrar a una red es `red = enfocado = slug` (Overlay: Entrar / irA(.., true)).
 const entrar: [string, number, number, Record<string, number>, number][] = [
@@ -241,7 +243,7 @@ test('D-46: personas de referencia, sección por sección (los números de 04.1-
   ])
   assert.deepEqual(portafolio('juan-balladobres'), ['Participaciones: ESPORA — Live set · Charla', 'Organizaciones: Outro x Melodrumma — Integra | Sello Rojo — Integra'])
   assert.deepEqual(portafolio('laura-trotta'), [
-    'Participaciones: Anomalia — Producción · Audiovisual', 'Organizaciones: Post.xno — Integra | Tropical Poncho — Trabajó en Comunicación', 'Colaboraciones: Agus Mansilla',
+    'Participaciones: Anomalia — Producción · Audiovisual', 'Organizaciones: Post.xno — Integra | Tropical Poncho — Comunicación', 'Colaboraciones: Agus Mansilla',
   ])
   assert.deepEqual(portafolio('melodrumma'), ['Participaciones: C.E.P.A. — Producción · Convocade', 'Organizaciones: Outro x Melodrumma — Integra'])
   assert.deepEqual(portafolio('julieta-agriano'), ['Participaciones: ESPORA — Charla', 'Organizaciones: WIP — Producción · Fundadxr'])
@@ -264,8 +266,8 @@ test('D-46: una organización lee Eventos producidos, Participaciones e Integran
   assert.deepEqual(portafolio('club-weyba'), ['Eventos producidos: Alterego | Luca Zisa en Ave Fenix', 'Integrantes: Luca Zisa — Fundadxr'])
   assert.deepEqual(portafolio('in-session'), ['Eventos producidos: SOMA', 'Integrantes: Fede Fragas | Luciano Rodriguez'])
   assert.equal(secciones('tropical-poncho').map((s) => `${s.label}(${s.nodos.length})`).join(', '), 'Eventos producidos(15), Participaciones(2), Integrantes(5)')
-  // Integrantes: Rama, Mechi, Laura y, ex-integrantes sin fecha de salida todavía, Malvon Di Ritta y La Er (INTEGRA, 2026-10-20); el PRODUJO al revés Tropical -> Malvon está descartado.
-  assert.deepEqual(portafolio('tropical-poncho').at(-1), 'Integrantes: La Er | Laura Trotta — Trabajó en Comunicación | Malvon Di Ritta | Mechi Botta — Producción | Rama Cerratto — Fundadxr')
+  // Sin `hoy` no hay vigencia (D-49): los cinco INTEGRA son Integrantes. Con HOY, solo Rama; los otros cuatro son Ex integrantes (test de abajo). El PRODUJO al revés Tropical -> Malvon está descartado.
+  assert.deepEqual(portafolio('tropical-poncho').at(-1), 'Integrantes: La Er | Laura Trotta — Comunicación | Malvon Di Ritta | Mechi Botta — Producción | Rama Cerratto — Fundadxr')
   assert.deepEqual(portafolio('malvon-di-ritta').at(-1), 'Organizaciones: Post.xno — Fundadxr | Tropical Poncho — Integra')
   // Los dos COLABORO_EN sin rol de Tropical no se leen como producidos.
   const part = secciones('tropical-poncho').find((s) => s.id === 'participaciones')!.nodos.map((q) => ady.nodos.get(q.id)!.label).sort()
@@ -273,6 +275,22 @@ test('D-46: una organización lee Eventos producidos, Participaciones e Integran
   assert.ok(secciones('tropical-poncho').find((s) => s.id === 'eventos-producidos')!.nodos.every((q) => !q.rol?.includes('Producción'))) // la sección ya lo dice
   // Su red sigue mostrando las 5 áreas en el menú (D-24): el portfolio es solo la ficha (04.1-09).
   assert.equal(agrupadoresDe(ady, id('tropical-poncho')).length, 5)
+})
+
+test('D-49: con HOY, Tropical lee Integrantes y Ex integrantes, y cada ex integrante ve su organización pasada', () => {
+  const resumen = (slug: string) => seccionesDe(ady, id(slug), vocab, HOY).map((s) => `${s.label}(${s.nodos.length})`).join(', ')
+  assert.equal(resumen('tropical-poncho'), 'Eventos producidos(15), Participaciones(2), Integrantes(1), Ex integrantes(4)')
+  assert.equal(portafolio('tropical-poncho', HOY).at(-2), 'Integrantes: Rama Cerratto — Fundadxr')
+  assert.equal(portafolio('tropical-poncho', HOY).at(-1),
+    'Ex integrantes: La Er — hasta 2024 | Malvon Di Ritta — hasta 2024 | Laura Trotta — Comunicación · hasta 2023 | Mechi Botta — Producción · hasta 2023')
+  assert.equal(portafolio('mechi-botta', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Tropical Poncho — Producción · hasta 2023')
+  assert.equal(portafolio('laura-trotta', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Post.xno — Integra | Tropical Poncho — Comunicación · hasta 2023')
+  assert.equal(portafolio('la-er', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Tropical Poncho — Integró · hasta 2024')
+  assert.equal(portafolio('malvon-di-ritta', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Post.xno — Fundadxr | Tropical Poncho — Integró · hasta 2024')
+  // Sin cambio: Rama sigue integrando Tropical y Post.xno sigue con sus dos integrantes.
+  assert.equal(portafolio('rama-cerratto', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Tropical Poncho — Fundadxr')
+  assert.deepEqual(portafolio('post-xno', HOY), portafolio('post-xno'))
+  assert.deepEqual(portafolio('post-xno', HOY).at(-1), 'Integrantes: Laura Trotta | Malvon Di Ritta — Fundadxr')
 })
 
 test('D-46: sin portfolio nada cambia (eventos, obras, lugares, bandas)', () => {
@@ -283,12 +301,12 @@ test('D-46: sin portfolio nada cambia (eventos, obras, lugares, bandas)', () => 
 test('censo D-46: en toda entidad con portfolio ningún nodo se repite y ninguna contraparte de participación se pierde', () => {
   const PART = ['COLABORO_EN', 'CORREALIZO', 'PRODUJO', 'INTEGRA']
   let con = 0
-  for (const n of nodos.filter((x) => x.nodeType === 'ENTIDAD' && ['persona', 'productora', 'colectivo', 'sello'].includes(x.subtipo))) {
-    const ids = seccionesDe(ady, n.id, vocab).flatMap((s) => s.nodos.map((q) => q.id))
+  for (const hoy of [undefined, HOY]) for (const n of nodos.filter((x) => x.nodeType === 'ENTIDAD' && ['persona', 'productora', 'colectivo', 'sello'].includes(x.subtipo))) {
+    const ids = seccionesDe(ady, n.id, vocab, hoy).flatMap((s) => s.nodos.map((q) => q.id))
     const contrapartes = new Set(vinculos.filter((v) => PART.includes(v.tipoVinculo) && (v.origen === n.id || v.destino === n.id)).map((v) => (v.origen === n.id ? v.destino : v.origen)))
     assert.equal(new Set(ids).size, ids.length, `${n.label}: nodo repetido`)
     assert.deepEqual([...new Set(ids)].sort(), [...contrapartes].sort(), `${n.label}: contraparte perdida`)
     con++
   }
-  assert.equal(con, 150)
+  assert.equal(con, 300) // 150 entidades, sin `hoy` y con HOY (D-49)
 })

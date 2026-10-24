@@ -14,11 +14,12 @@ const rutaNodos = path.join(outDir, 'nodos.csv')
 const rutaVinculos = path.join(outDir, 'vinculos.csv')
 
 // Lo que edita la persona en la planilla. Si la fila ya existía, esto no se pisa.
+// Una columna curada nueva va en estas listas Y en `columnasNodos`/`columnasVinculos` de abajo, o el export la borra.
 const CURADAS_NODO = [
   'descartar', 'node_type', 'subtipo', 'label', 'descripcion_breve',
-  'disciplina', 'is_stub', 'fecha', 'thumb', 'shape',
+  'disciplina', 'is_stub', 'fecha', 'thumb', 'shape', 'color',
 ]
-const CURADAS_VINCULO = ['descartar', 'tipo_vinculo', 'rol']
+const CURADAS_VINCULO = ['descartar', 'tipo_vinculo', 'rol', 'desde', 'hasta']
 
 function previas(ruta: string): Map<string, Record<string, string>> {
   if (!fs.existsSync(ruta)) return new Map()
@@ -132,11 +133,11 @@ fs.mkdirSync(outDir, { recursive: true })
 
 const columnasNodos = [
   'id', 'descartar', 'node_type', 'subtipo', 'label', 'descripcion_breve', 'disciplina',
-  'is_stub', 'fecha', 'thumb', 'shape', 'ref_fuente', 'ref_sub', 'ref_grado_entrada',
+  'is_stub', 'fecha', 'thumb', 'shape', 'color', 'ref_fuente', 'ref_sub', 'ref_grado_entrada',
   'ref_grado_salida', 'ref_revisar',
 ]
 const columnasVinculos = [
-  'id', 'descartar', 'origen', 'destino', 'tipo_vinculo', 'rol',
+  'id', 'descartar', 'origen', 'destino', 'tipo_vinculo', 'rol', 'desde', 'hasta',
   'ref_fuente', 'ref_origen_label', 'ref_destino_label',
 ]
 
