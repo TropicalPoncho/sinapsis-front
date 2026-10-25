@@ -209,4 +209,3 @@ export function seccionesDe(ady: Adyacencia, nodoId: string, vocabulario: Vocabu
       }
     })
 }
-
