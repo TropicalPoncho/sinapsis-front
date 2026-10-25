@@ -167,6 +167,7 @@ filasVinculos.forEach((fila, i) => {
     errores.push(`vinculos.csv línea ${numeroFila}: origen y destino iguales "${fila.origen}"`)
   }
   // D-49: el período solo se lee en INTEGRA; un evento ya tiene su fecha y un dato que la app no lee no entra callado.
+  // ponytail: literal INTEGRA, el mismo que en seccionesDe; salida: sumar el tipo acá y allá cuando otro vínculo lea vigencia.
   const desde = fila.desde?.trim() ?? ''
   const hasta = fila.hasta?.trim() ?? ''
   if ((desde || hasta) && fila.tipo_vinculo !== 'INTEGRA') {
