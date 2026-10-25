@@ -41,6 +41,8 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   datos. Expandir aparece en una OBRA o EVENTO no stub con secciones (créditos); Entrar aparece si el nodo compone algo
   (COMPONE saliente) o tiene secciones, para cualquier `nodeType`. El "Ver más" que extendía el panel se reemplazó por la
   ficha expandida.)*
+  *(enmendada 2026-10-25 por la Fase 4.1, 04.1-08/04.1-09, ver 04.1-CONTEXT.md D-48: una ENTIDAD con ficha cargada (su About) también ofrece Expandir, decidido
+  por `NodoGrafo.ficha` de la topología; sin ficha sigue sin Expandir, y un área nunca.)*
 - **D-03:** Mientras hay un nodo enfocado, un click en otro nodo visible **enfoca ese nodo**
   (cambia foco y URL; atrás vuelve al anterior; el panel no cambia de lado) — UI-02.
   *(enmendada 2026-10-07, G-02/G-04, ver "Decisiones tras el UAT": el panel ya no hace cross-fade de
@@ -112,11 +114,16 @@ UI-09, UI-10. (UI-07, tropicalponcho.art como perfil de la entidad, es la Fase 5
   crece: es la capa expandida de la variante A, por encima de todo el canvas y con la cámara quieta, estado de UI fuera de la
   URL. Los créditos se muestran por sección derivada del rol (D-32), cada nombre lleva a esa sección con esx creadxr en preview;
   el resto (texto, galería, enlaces, video) se pide al abrir y se omite si no hay dato.)*
+  *(enmendada 2026-10-25 por la Fase 4.1, 04.1-09, ver 04.1-CONTEXT.md D-48: la ficha de una ENTIDAD es el mismo componente, con el About a la izquierda y su
+  portfolio a la derecha bajo "Portfolio"; en una OBRA o un EVENTO la columna derecha sigue siendo "Créditos".)*
 - **D-14:** En una ENTIDAD, las obras producidas aparecen **solo en la red al entrar** (y en el
   menú lateral), no como lista dentro del panel.
   *(enmendada 2026-10-08 por D-24, ver "Decisiones tras el UAT 2": drift existente desde 04-02. La Vista
   de ENTIDAD filtra por tipo (ENTIDAD + AGRUPACION), así que las obras de una entidad no aparecen al
   entrar a ella; con D-24 aparecen al entrar al área que las compone, y en el lateral.)*
+  *(enmendada 2026-10-25 por la Fase 4.1, 04.1-08/04.1-09, ver 04.1-CONTEXT.md D-46, D-47, D-48 y D-49: el menú de una persona o de una organización es su
+  **portfolio** (una fila por nodo, los roles como chips, "Próximo" arriba; una organización lee además Integrantes y Ex integrantes con su período), y su ficha
+  tiene el About y el portfolio. Con D-45, la red de una entidad sin áreas muestra sus eventos y obras.)*
 - **D-15:** Un nodo stub o sin descripción muestra un **panel mínimo con el nombre**: sin
   descripción, sin botón de expandir, sin aviso de "perfil pendiente".
   *(enmendada 2026-10-16 por la Fase 4.1, ver 04.1-CONTEXT.md D-33: "sin descripción" ya no quita Expandir si el nodo tiene
