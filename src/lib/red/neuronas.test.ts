@@ -48,22 +48,22 @@ const HOY = '2026-10-24'
 const entrar: [string, number, number, Record<string, number>, number][] = [
   ['tropical-poncho', 6, 6, { ENTIDAD: 1, AGRUPACION: 5 }, 0],
   ['obras', 17, 17, { EVENTO: 17 }, 18],
-  ['soma', 18, 18, { EVENTO: 3, ENTIDAD: 13, OBRA: 1, AGRUPACION: 1 }, 2],
+  ['soma', 19, 19, { EVENTO: 3, ENTIDAD: 14, OBRA: 1, AGRUPACION: 1 }, 2],
   ['tempistica-i', 40, 40, { EVENTO: 3, ENTIDAD: 36, AGRUPACION: 1 }, 2],
   ['alterego', 8, 8, { EVENTO: 2, ENTIDAD: 5, AGRUPACION: 1 }, 1],
   ['entropia-mapping', 3, 3, { OBRA: 1, ENTIDAD: 1, EVENTO: 1 }, 0],
   ['keuken-aonikenk', 16, 5, { ENTIDAD: 1, EVENTO: 4 }, 1],
   ['espacio-ave-fenix', 30, 5, { ENTIDAD: 1, EVENTO: 4 }, 1],
   ['rama-cerratto', 40, 17, { ENTIDAD: 1, EVENTO: 15, OBRA: 1 }, 14],
-  ['rayo', 39, 3, { ENTIDAD: 1, EVENTO: 2 }, 1],
+  ['rayo', 40, 3, { ENTIDAD: 1, EVENTO: 2 }, 1],
   ['club-weyba', 9, 3, { ENTIDAD: 1, EVENTO: 2 }, 1],
-  ['in-session', 15, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
-  ['kirtan-rock', 14, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['in-session', 16, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['kirtan-rock', 15, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['cultura-del-sur', 23, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['federico-urdinez', 6, 6, { ENTIDAD: 6 }, 0],
   ['luca-zisa', 16, 4, { ENTIDAD: 1, EVENTO: 3 }, 1],
   ['juan-balladobres', 19, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
-  ['laura-trotta', 28, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
+  ['laura-trotta', 37, 3, { ENTIDAD: 1, EVENTO: 2 }, 0],
   ['melodrumma', 14, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['julieta-agriano', 16, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
   ['aggromance', 23, 2, { ENTIDAD: 1, EVENTO: 1 }, 0],
@@ -166,7 +166,7 @@ test('tocar un nodo de la lista que no está en la base suma uno (Organizaciones
 
 test('desde la ficha de SOMA, Rama Cerratto entra a la red de SOMA con Rama enfocada y sin sumar', () => {
   const r = escena(E('soma', 'rama-cerratto'))
-  assert.equal(r.sub.nodos.length, 18); assert.deepEqual(r.sumados, [])
+  assert.equal(r.sub.nodos.length, 19); assert.deepEqual(r.sumados, [])
   assert.ok(r.sub.nodos.some((n) => n.id === id('rama-cerratto')))
 })
 
@@ -188,9 +188,9 @@ test('"Sumar sus obras" de Rama en otra red: lo que falta, con tope de LIMITE_SU
 })
 
 test('menú de cada red: etiquetas y cantidad por sección (D-40, y D-46 para personas)', () => {
-  // Producción(5) en SOMA: Tropical, In Session, Rama Cerratto, Mechi Botta (PRODUJO confirmados por el dueño, 2026-10-20) y Malvon Di Ritta (2026-10-24).
+  // Producción(6) en SOMA: Tropical, In Session, Rama Cerratto, Mechi Botta (PRODUJO confirmados por el dueño, 2026-10-20), Malvon Di Ritta (2026-10-24) y Laura Trotta (2026-10-26).
   const menu = (slug: string) => secciones(slug).map((x) => `${x.label}(${x.nodos.length})`).join(', ')
-  assert.equal(menu('soma'), 'Producción(5), Meditación(1), Actividades(1), Performance(1), Bandas en vivo(2), DJ(4), VJ(1), Otros(1)')
+  assert.equal(menu('soma'), 'Producción(6), Meditación(1), Actividades(1), Performance(1), Bandas en vivo(2), DJ(4), VJ(1), Otros(1)')
   assert.equal(menu('tempistica-i'), 'Producción(3), Creadxrs(1), Meditación(1), Performance(3), Bandas en vivo(1), DJ(3), Audiovisual(3), Exposición(1), Charlas(2), Pintura en vivo(1), Circo(2), Cocina(7), Armonía(2), Rush(5), Otros(6)')
   assert.equal(menu('alterego'), 'Producción(3), DJ(2), Espacio(1)')
   assert.equal(menu('entropia-mapping'), 'Mapping(2)')
@@ -239,14 +239,14 @@ test('D-47: con hoy = 2026-10-20 el único evento próximo de Rama y de Keuken A
 test('D-46: personas de referencia, sección por sección (los números de 04.1-NEURONAS.md)', () => {
   assert.deepEqual(portafolio('luca-zisa'), [
     'Participaciones: Alterego — DJ | Punk Estelar — Producción · Live set | Punk Solar — Producción · Live set',
-    'Organizaciones: Club Weyba — Fundadxr | Luca Zisa x Gaspar Fatum — Integra',
+    'Organizaciones: Club Weyba — Fundador | Luca Zisa x Gaspar Fatum — Integra',
   ])
   assert.deepEqual(portafolio('juan-balladobres'), ['Participaciones: ESPORA — Live set · Charla', 'Organizaciones: Outro x Melodrumma — Integra | Sello Rojo — Integra'])
   assert.deepEqual(portafolio('laura-trotta'), [
-    'Participaciones: Anomalia — Producción · Audiovisual', 'Organizaciones: Post.xno — Integra | Tropical Poncho — Comunicación', 'Colaboraciones: Agus Mansilla',
+    'Participaciones: Anomalia — Producción · Audiovisual | SOMA — Producción', 'Organizaciones: Post.xno — Integra | Tropical Poncho — Comunicación', 'Colaboraciones: Agus Mansilla',
   ])
   assert.deepEqual(portafolio('melodrumma'), ['Participaciones: C.E.P.A. — Producción · Convocade', 'Organizaciones: Outro x Melodrumma — Integra'])
-  assert.deepEqual(portafolio('julieta-agriano'), ['Participaciones: ESPORA — Charla', 'Organizaciones: WIP — Producción · Fundadxr'])
+  assert.deepEqual(portafolio('julieta-agriano'), ['Participaciones: ESPORA — Charla', 'Organizaciones: WIP — Producción · Fundadora'])
   assert.deepEqual(portafolio('rayo'), ['Participaciones: Tropical Posporno: Distopia — Convocade | Tropical Posporno — Invitade'])
   assert.deepEqual(portafolio('aggromance'), ['Participaciones: Anomalia — DJ'])
   assert.deepEqual(portafolio('rochi'), []); assert.deepEqual(portafolio('mailen-lazzarone'), [])
@@ -263,12 +263,12 @@ test('D-46: un PRODUJO y un COLABORO_EN "Artista" de la misma persona son UNA fi
 })
 
 test('D-46: una organización lee Eventos producidos, Participaciones e Integrantes', () => {
-  assert.deepEqual(portafolio('club-weyba'), ['Eventos producidos: Alterego | Luca Zisa en Ave Fenix', 'Integrantes: Luca Zisa — Fundadxr'])
+  assert.deepEqual(portafolio('club-weyba'), ['Eventos producidos: Alterego | Luca Zisa en Ave Fenix', 'Integrantes: Luca Zisa — Fundador'])
   assert.deepEqual(portafolio('in-session'), ['Eventos producidos: SOMA', 'Integrantes: Fede Fragas | Luciano Rodriguez'])
   assert.equal(secciones('tropical-poncho').map((s) => `${s.label}(${s.nodos.length})`).join(', '), 'Eventos producidos(15), Participaciones(2), Integrantes(5)')
   // Sin `hoy` no hay vigencia (D-49): los cinco INTEGRA son Integrantes. Con HOY, solo Rama; los otros cuatro son Ex integrantes (test de abajo). El PRODUJO al revés Tropical -> Malvon está descartado.
   assert.deepEqual(portafolio('tropical-poncho').at(-1), 'Integrantes: La Er | Laura Trotta — Comunicación | Malvon Di Ritta | Mechi Botta — Producción | Rama Cerratto — Fundadxr')
-  assert.deepEqual(portafolio('malvon-di-ritta').at(-1), 'Organizaciones: Post.xno — Fundadxr | Tropical Poncho — Integra')
+  assert.deepEqual(portafolio('malvon-di-ritta').at(-1), 'Organizaciones: Post.xno — Fundador | Tropical Poncho — Integra')
   // Los dos COLABORO_EN sin rol de Tropical no se leen como producidos.
   const part = secciones('tropical-poncho').find((s) => s.id === 'participaciones')!.nodos.map((q) => ady.nodos.get(q.id)!.label).sort()
   assert.deepEqual(part, ['Concierto Público #4 ft Tropical Poncho', 'Luca Zisa en Ave Fenix'])
@@ -282,15 +282,15 @@ test('D-49: con HOY, Tropical lee Integrantes y Ex integrantes, y cada ex integr
   assert.equal(resumen('tropical-poncho'), 'Eventos producidos(15), Participaciones(2), Integrantes(1), Ex integrantes(4)')
   assert.equal(portafolio('tropical-poncho', HOY).at(-2), 'Integrantes: Rama Cerratto — Fundadxr')
   assert.equal(portafolio('tropical-poncho', HOY).at(-1),
-    'Ex integrantes: La Er — hasta 2024 | Malvon Di Ritta — hasta 2024 | Laura Trotta — Comunicación · hasta 2023 | Mechi Botta — Producción · hasta 2023')
-  assert.equal(portafolio('mechi-botta', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Tropical Poncho — Producción · hasta 2023')
+    'Ex integrantes: La Er — 2023–2024 | Malvon Di Ritta — 2022–2024 | Laura Trotta — Comunicación · hasta 2023 | Mechi Botta — Producción · 2021–2023')
+  assert.equal(portafolio('mechi-botta', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Tropical Poncho — Producción · 2021–2023')
   assert.equal(portafolio('laura-trotta', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Post.xno — Integra | Tropical Poncho — Comunicación · hasta 2023')
-  assert.equal(portafolio('la-er', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Tropical Poncho — Integró · hasta 2024')
-  assert.equal(portafolio('malvon-di-ritta', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Post.xno — Fundadxr | Tropical Poncho — Integró · hasta 2024')
+  assert.equal(portafolio('la-er', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Tropical Poncho — Integró · 2023–2024')
+  assert.equal(portafolio('malvon-di-ritta', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Post.xno — Fundador | Tropical Poncho — Integró · 2022–2024')
   // Sin cambio: Rama sigue integrando Tropical y Post.xno sigue con sus dos integrantes.
   assert.equal(portafolio('rama-cerratto', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Tropical Poncho — Fundadxr')
   assert.deepEqual(portafolio('post-xno', HOY), portafolio('post-xno'))
-  assert.deepEqual(portafolio('post-xno', HOY).at(-1), 'Integrantes: Laura Trotta | Malvon Di Ritta — Fundadxr')
+  assert.deepEqual(portafolio('post-xno', HOY).at(-1), 'Integrantes: Laura Trotta | Malvon Di Ritta — Fundador')
 })
 
 test('D-46: sin portfolio nada cambia (eventos, obras, lugares, bandas)', () => {

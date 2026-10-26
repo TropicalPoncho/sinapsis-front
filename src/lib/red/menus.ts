@@ -131,7 +131,7 @@ export function seccionesDe(ady: Adyacencia, nodoId: string, vocabulario: Vocabu
     grupos.set(etiqueta, g)
   }
   // Cómo lee un vínculo: la etiqueta normalizada de cada parte del rol (o la de `sinRol`), y la grafía que no encajó.
-  type Lectura = { etiqueta?: string; rol?: string }
+  type Lectura = { etiqueta?: string; rol?: string; texto?: string }
   // D-49: sin `hoy` no hay vigencia (como "Próximo"). Un INTEGRA terminado es el que tiene `hasta` anterior a hoy.
   // ponytail: solo INTEGRA lee vigencia; salida: sumar el tipo acá y en el import cuando otro vínculo la necesite.
   const terminado = (v: VinculoGrafo) => !!hoy && v.tipoVinculo === 'INTEGRA' && !vigente(v, hoy)
@@ -142,7 +142,7 @@ export function seccionesDe(ady: Adyacencia, nodoId: string, vocabulario: Vocabu
       const clave = `${v.tipoVinculo}:${v.origen === nodoId ? 'sale' : 'entra'}`
       return [{ etiqueta: (terminado(v) ? sinRol[`${clave}:pasado`] : undefined) ?? sinRol[clave] ?? sinRol[v.tipoVinculo] }]
     }
-    return partes.map((p) => { const etiqueta = indice.get(claveRol(p)); return etiqueta ? { etiqueta } : { rol: p } })
+    return partes.map((p) => { const etiqueta = indice.get(claveRol(p)); return etiqueta ? { etiqueta, texto: p } : { rol: p } })
   }
   const participan = vecinos(ady, nodoId).filter(({ v }) => PARTICIPACION.has(v.tipoVinculo))
 
@@ -162,12 +162,13 @@ export function seccionesDe(ady: Adyacencia, nodoId: string, vocabulario: Vocabu
     // salida: período por chip si aparece el caso. En el modo por rol solo cambia la etiqueta (`:pasado`), sin chip de período.
     type Fila = { nodo: NodoGrafo; etiquetas: Set<string>; chips: Map<string, number>; vigenteInt?: boolean; ultimo?: VinculoGrafo }
     const filas = new Map<string, Fila>()
-    const chipDe = (e: string) => vocabulario.secciones.find((s) => s.etiqueta === e)?.chip ?? e
+    // chip "rol": se lee el rol como lo escribió quien cura (Fundador, Fundadora, Fundadxr): el género es de la persona, no del vocabulario.
+    const chipDe = (e: string, rol?: string) => { const c = vocabulario.secciones.find((s) => s.etiqueta === e)?.chip; return c === 'rol' ? rol ?? e : c ?? e }
     for (const { nodo, v } of participan) {
       const f: Fila = filas.get(nodo.id) ?? { nodo, etiquetas: new Set(), chips: new Map() }
-      for (const { etiqueta, rol } of lecturas(v)) {
+      for (const { etiqueta, rol, texto } of lecturas(v)) {
         if (etiqueta) f.etiquetas.add(etiqueta)
-        const chip = etiqueta ? chipDe(etiqueta) : rol
+        const chip = etiqueta ? chipDe(etiqueta, texto) : rol
         if (chip) f.chips.set(chip, puesto(vocab)(etiqueta ?? ''))
       }
       if (v.tipoVinculo === 'INTEGRA') {
@@ -180,7 +181,7 @@ export function seccionesDe(ady: Adyacencia, nodoId: string, vocabulario: Vocabu
       const pasada = !!ultimo && !vigenteInt
       // Gana el subtipo, después el nodeType; `con` exige alguna de las etiquetas del nodo; `vigente` exige que la fila lo sea (o no lo sea).
       const sec = [`${nodo.nodeType}:${nodo.subtipo}`, nodo.nodeType].map((k) => portfolio.secciones.find((s) => s.contraparte === k && (!s.con || s.con.some((c) => etiquetas.has(c))) && (s.vigente === undefined || s.vigente === !pasada))).find(Boolean)
-      const dice = new Set([sec?.etiqueta, ...(sec?.con ?? []).map(chipDe)])
+      const dice = new Set([sec?.etiqueta, ...(sec?.con ?? []).map((c) => chipDe(c))])
       const orden = [...chips].filter(([c]) => !dice.has(c)).sort(([a, i], [b, j]) => i - j || a.localeCompare(b, 'es')).map(([c]) => c)
       poner(sec?.etiqueta ?? OTROS, nodo, pasada ? [...orden, periodo(ultimo!.hasta!, ultimo!.desde)] : orden, pasada ? finDe(ultimo!.hasta!) : undefined)
     }
@@ -188,7 +189,7 @@ export function seccionesDe(ady: Adyacencia, nodoId: string, vocabulario: Vocabu
 
   // Modo por rol: vocabulario, después las etiquetas de `sinRol` fuera de la lista por nombre, "Otros" al final. Portfolio: su orden.
   const lugar = puesto(portfolio ? portfolio.secciones.map((s) => s.etiqueta) : vocab)
-  const entre = portfolio ? porReciente : porFecha
+  const entre = dueno.nodeType === 'ENTIDAD' ? porReciente : porFecha
   // D-49: vigentes antes (por nombre); después las pasadas, de la que terminó más tarde a la que terminó antes. Cadenas por código.
   const porHasta = (a: { nodo: NodoGrafo; hasta?: string }, b: { nodo: NodoGrafo; hasta?: string }) =>
     (a.hasta ?? '') === (b.hasta ?? '') ? porLabel(a.nodo, b.nodo) : !a.hasta ? -1 : !b.hasta ? 1 : a.hasta < b.hasta ? 1 : -1

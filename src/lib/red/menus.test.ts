@@ -142,7 +142,7 @@ test('seccionesDe: en una sección mixta, obras y eventos (por fecha) van antes 
     nodos: [n('g', 'ENTIDAD'), n('z', 'ENTIDAD', 'Zeta'), nf('o2', 'OBRA', 'Dos', '2025-01-01'), nf('o1', 'EVENTO', 'Uno', '2024-01-01'), n('a', 'ENTIDAD', 'Abel')],
     vinculos: ['z', 'o2', 'o1', 'a'].map((id) => v(id, 'g', 'COLABORO_EN', 'Luces')),
   })
-  assert.deepEqual(seccionesDe(a, 'g', vocab)[0].nodos.map((q) => q.id), ['o1', 'o2', 'a', 'z'])
+  assert.deepEqual(seccionesDe(a, 'g', vocab)[0].nodos.map((q) => q.id), ['o2', 'o1', 'a', 'z'])
 })
 test('seccionesDe: Rama Cerratto, áreas derivadas de sus vínculos reales', () => {
   const ev = (id: string, label: string, fecha: string, tipo: NodeType = 'EVENTO') => nf(id, tipo, label, fecha)
@@ -150,13 +150,13 @@ test('seccionesDe: Rama Cerratto, áreas derivadas de sus vínculos reales', () 
     nodos: [n('rama', 'ENTIDAD', 'Rama Cerratto'), n('tp', 'ENTIDAD', 'Tropical Poncho'), ev('t', 'Tempistica I', '2021-12-19'), ev('sb', 'SOMA beta', '2022-11-26'),
       ev('s', 'SOMA', '2023-01-21'), ev('ps', 'Punk Solar', '2025-03-15'), ev('pe', 'Punk Estelar', '2025-05-02'), ev('an', 'Anomalia', '2026-02-14'),
       ev('en', 'Entropía', '2026-05-23'), ev('em', 'Entropía (Mapping)', '2026-05-23', 'OBRA')],
-    vinculos: [v('rama', 'tp', 'INTEGRA', 'Fundador'), v('s', 'rama', 'COLABORO_EN', 'VINYLS DJ SETS'), v('sb', 'rama', 'COLABORO_EN', 'DJ'), v('an', 'rama', 'COLABORO_EN', 'DJ'),
+    vinculos: [v('rama', 'tp', 'INTEGRA', 'Fundadxr'), v('s', 'rama', 'COLABORO_EN', 'VINYLS DJ SETS'), v('sb', 'rama', 'COLABORO_EN', 'DJ'), v('an', 'rama', 'COLABORO_EN', 'DJ'),
       v('t', 'rama', 'COLABORO_EN', 'DJ'), v('ps', 'rama', 'COLABORO_EN', 'DJ Set Híbrido'), v('pe', 'rama', 'COLABORO_EN', 'DJ Set Híbrido'),
       v('en', 'rama', 'COLABORO_EN', 'DJ Set Híbrido, Visuales'), v('em', 'rama', 'COLABORO_EN', 'Mapping con TouchDesigner')],
   })
   const s = seccionesDe(a, 'rama', vocab)
   assert.deepEqual(s.map((x) => x.id), ['fundacion', 'dj', 'vj', 'mapping'])
-  assert.deepEqual(s.find((x) => x.id === 'dj')!.nodos.map((q) => q.id), ['t', 'sb', 's', 'ps', 'pe', 'an', 'en'])
+  assert.deepEqual(s.find((x) => x.id === 'dj')!.nodos.map((q) => q.id), ['en', 'an', 'pe', 'ps', 's', 'sb', 't'])
 })
 
 // --- Etiquetas por contexto (D-40) ---
@@ -166,7 +166,7 @@ test('seccionesDe (D-40): un espacio lee "Eventos" donde el evento lee "Espacio"
     nodos: [sub('esp', 'ENTIDAD', 'centro_cultural', 'Espacio'), nf('e2', 'EVENTO', 'Dos', '2025-02-01'), nf('e1', 'EVENTO', 'Uno', '2025-01-01')],
     vinculos: [v('e1', 'esp', 'COLABORO_EN', 'Espacio'), v('e2', 'esp', 'COLABORO_EN', 'Espacio')],
   })
-  assert.deepEqual(seccionesDe(a, 'esp', vocab).map((x) => [x.id, x.label, x.nodos.map((q) => q.id)]), [['eventos', 'Eventos', ['e1', 'e2']]])
+  assert.deepEqual(seccionesDe(a, 'esp', vocab).map((x) => [x.id, x.label, x.nodos.map((q) => q.id)]), [['eventos', 'Eventos', ['e2', 'e1']]])
   assert.deepEqual(seccionesDe(a, 'e1', vocab).map((x) => [x.id, x.label]), [['espacio', 'Espacio']])
 })
 test('seccionesDe (D-40): una banda lee "Conciertos" y "Otros" conserva la grafía original', () => {
@@ -174,7 +174,7 @@ test('seccionesDe (D-40): una banda lee "Conciertos" y "Otros" conserva la graf�
     nodos: [sub('b', 'ENTIDAD', 'banda'), nf('e1', 'EVENTO', 'Uno', '2025-01-01'), nf('e2', 'EVENTO', 'Dos', '2025-02-01'), nf('e3', 'EVENTO', 'Tres', '2025-03-01')],
     vinculos: [v('e1', 'b', 'COLABORO_EN', 'BANDAS EN VIVO'), v('e2', 'b', 'COLABORO_EN', 'Live set'), v('e3', 'b', 'COLABORO_EN', 'Telonera')],
   })
-  assert.deepEqual(seccionesDe(a, 'b', vocab).map((x) => [x.id, x.nodos]), [['conciertos', [{ id: 'e1' }, { id: 'e2' }, { id: 'e3', rol: 'Telonera' }]]])
+  assert.deepEqual(seccionesDe(a, 'b', vocab).map((x) => [x.id, x.nodos]), [['conciertos', [{ id: 'e3', rol: 'Telonera' }, { id: 'e2' }, { id: 'e1' }]]])
 })
 test('seccionesDe (D-40): una persona convocada lee Eventos solo para los EVENTO', () => {
   const a = construirAdyacencia({
@@ -198,7 +198,7 @@ const personaConTodo = () => construirAdyacencia({
   nodos: [sub('yo', 'ENTIDAD', 'persona'), nf('A', 'EVENTO', 'A', '2026-01-01'), nf('B', 'EVENTO', 'B', '2026-06-01'), nf('C', 'OBRA', 'C', '2025-01-01'),
     sub('D', 'ENTIDAD', 'centro_cultural'), sub('E', 'ENTIDAD', 'persona'), nf('G', 'AGRUPACION', 'G')],
   vinculos: [v('A', 'yo', 'COLABORO_EN', 'DJ'), v('yo', 'A', 'PRODUJO'), v('B', 'yo', 'COLABORO_EN', 'DJ Set Híbrido, Visuales'),
-    v('C', 'yo', 'COLABORO_EN', 'Mapping'), v('yo', 'D', 'INTEGRA', 'Fundador'), v('yo', 'E', 'COLABORO_EN'), v('yo', 'G', 'INTEGRA')],
+    v('C', 'yo', 'COLABORO_EN', 'Mapping'), v('yo', 'D', 'INTEGRA', 'Fundadxr'), v('yo', 'E', 'COLABORO_EN'), v('yo', 'G', 'INTEGRA')],
 })
 test('seccionesDe (D-46): una persona lee su portfolio, una fila por nodo, más reciente primero y roles como chips', () => {
   assert.deepEqual(resumen(personaConTodo(), 'yo'), [
@@ -224,7 +224,7 @@ test('seccionesDe (D-46): una productora separa Eventos producidos de Participac
     nodos: [sub('org', 'ENTIDAD', 'productora'), nf('p1', 'EVENTO', 'P1'), nf('p2', 'EVENTO', 'P2', '2025-01-01'), nf('c1', 'EVENTO', 'C1', '2026-01-01'),
       sub('i1', 'ENTIDAD', 'persona', 'I1'), sub('i2', 'ENTIDAD', 'persona', 'I2'), nf('ob', 'OBRA', 'Ob', '2024-01-01'), sub('otra', 'ENTIDAD', 'sello', 'Otra')],
     vinculos: [v('org', 'p1', 'PRODUJO'), v('org', 'p2', 'PRODUJO'), v('p2', 'org', 'COLABORO_EN', 'DJ'), v('c1', 'org', 'COLABORO_EN'),
-      v('i1', 'org', 'INTEGRA'), v('i2', 'org', 'INTEGRA', 'Fundador'), v('ob', 'org', 'COLABORO_EN', 'Gráfica'), v('org', 'otra', 'INTEGRA')],
+      v('i1', 'org', 'INTEGRA'), v('i2', 'org', 'INTEGRA', 'Fundadxr'), v('ob', 'org', 'COLABORO_EN', 'Gráfica'), v('org', 'otra', 'INTEGRA')],
   })
   assert.deepEqual(resumen(a, 'org'), [['eventos-producidos', ['p2:DJ', 'p1']], ['participaciones', ['c1']], ['integrantes', ['i1', 'i2:Fundadxr']],
     ['obras', ['ob:Gráfica']], ['organizaciones', ['otra:Integra']]])
@@ -250,14 +250,14 @@ test('seccionesDe (D-47): vale también en el modo por rol; el resto no cambia d
     vinculos: ['v2', 'f', 'v1'].map((id) => v(id, 'esp', 'COLABORO_EN', 'Espacio')),
   })
   const s = seccionesDe(a, 'esp', vocab, '2026-10-20')[0]
-  assert.deepEqual(s.nodos.map((q) => q.id), ['f', 'v1', 'v2']); assert.equal(s.proximos, 1)
+  assert.deepEqual(s.nodos.map((q) => q.id), ['f', 'v2', 'v1']); assert.equal(s.proximos, 1)
 })
 
 // --- Vigencia de los vínculos INTEGRA (D-49) ---
 const HOY = '2026-10-24'
 const orgConIntegrantes = () => construirAdyacencia({
   nodos: [sub('org', 'ENTIDAD', 'productora'), ...['i1', 'i2', 'i3', 'i4', 'i5'].map((id) => sub(id, 'ENTIDAD', 'persona', id))],
-  vinculos: [v('i1', 'org', 'INTEGRA'), v('i2', 'org', 'INTEGRA', 'Fundador'), { ...v('i3', 'org', 'INTEGRA'), hasta: '2023-01-21' },
+  vinculos: [v('i1', 'org', 'INTEGRA'), v('i2', 'org', 'INTEGRA', 'Fundadxr'), { ...v('i3', 'org', 'INTEGRA'), hasta: '2023-01-21' },
     { ...v('i4', 'org', 'INTEGRA', 'Producción'), desde: '2019', hasta: '2024-06-08' }, { ...v('i5', 'org', 'INTEGRA'), hasta: '2027' }],
 })
 test('seccionesDe (D-49): una organización lee Integrantes (vigentes) y Ex integrantes con el período, del que se fue más tarde al que se fue antes', () => {
@@ -269,15 +269,15 @@ test('seccionesDe (D-49): sin hoy no hay vigencia, los cinco quedan en Integrant
 test('seccionesDe (D-49): una persona ve sus organizaciones pasadas después de las vigentes, con "Integró" o con su rol', () => {
   const a = construirAdyacencia({
     nodos: [sub('yo', 'ENTIDAD', 'persona'), ...['o1', 'o2', 'o3'].map((id) => sub(id, 'ENTIDAD', 'productora', id))],
-    vinculos: [{ ...v('yo', 'o1', 'INTEGRA'), hasta: '2023' }, v('yo', 'o2', 'INTEGRA'), { ...v('yo', 'o3', 'INTEGRA', 'Fundador'), hasta: '2024-06' }],
+    vinculos: [{ ...v('yo', 'o1', 'INTEGRA'), hasta: '2023' }, v('yo', 'o2', 'INTEGRA'), { ...v('yo', 'o3', 'INTEGRA', 'Fundadxr'), hasta: '2024-06' }],
   })
   assert.deepEqual(resumen(a, 'yo', HOY), [['organizaciones', ['o2:Integra', 'o3:Fundadxr · hasta 2024', 'o1:Integró · hasta 2023']]])
 })
 test('seccionesDe (D-49): una fila aparece una vez; la vigencia es de la fila y no de cada vínculo', () => {
   const a = construirAdyacencia({
     nodos: [sub('org', 'ENTIDAD', 'productora'), sub('p', 'ENTIDAD', 'persona'), sub('q', 'ENTIDAD', 'persona')],
-    vinculos: [v('p', 'org', 'INTEGRA', 'Fundador'), { ...v('p', 'org', 'INTEGRA', 'Producción'), hasta: '2023' },
-      { ...v('q', 'org', 'INTEGRA', 'Fundador'), hasta: '2023' }],
+    vinculos: [v('p', 'org', 'INTEGRA', 'Fundadxr'), { ...v('p', 'org', 'INTEGRA', 'Producción'), hasta: '2023' },
+      { ...v('q', 'org', 'INTEGRA', 'Fundadxr'), hasta: '2023' }],
   })
   // p: un INTEGRA vigente y uno terminado = una fila vigente con los dos roles; q: Fundadxr y ex integrante es una sola fila pasada.
   assert.deepEqual(resumen(a, 'org', HOY), [['integrantes', ['p:Producción · Fundadxr']], ['ex-integrantes', ['q:Fundadxr · hasta 2023']]])

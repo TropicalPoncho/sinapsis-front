@@ -1,7 +1,7 @@
 {
   "secciones": [
     {"etiqueta":"Producción","roles":["Productora","Coproducción","Producción","Trabajó en Producción"]},
-    {"etiqueta":"Fundación","roles":["Fundador","Fundadora"],"chip":"Fundadxr"},
+    {"etiqueta":"Fundación","roles":["Fundador","Fundadora","Fundadxr"],"chip":"rol"},
     {"etiqueta":"Creadxrs convocades","roles":["Artista Convocade","Artistas Convocades"],"chip":"Convocade"},
     {"etiqueta":"Creadxrs invitades","roles":["Artista Invitade"],"chip":"Invitade"},
     {"etiqueta":"Creadxrs","roles":["Artista","Artistas","Creadxr","Creadxrs"],"chip":"Creadxr"},
