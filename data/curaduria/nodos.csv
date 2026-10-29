@@ -1,6 +1,6 @@
 id,descartar,node_type,subtipo,label,descripcion_breve,disciplina,is_stub,fecha,thumb,shape,color,ref_fuente,ref_sub,ref_grado_entrada,ref_grado_salida,ref_revisar
 6335d5e37636ed5b3529c543,si,EVENTO,festival,SOMA BETA,,,si,2022-09-29,,,,red,,1,10,"REVISAR: idem SOMA: es obra, no entidad | REVISAR: ""SOMA BETA"" aparece en las dos fuentes con ids distintos — reconciliar"
-6335d5fa7636ed5b3529c545,,ENTIDAD,productora,Tropical Poncho,Productora de Experiencias Artísticas,,,2022-09-29,entidades/tropical-poncho.png,,,red,Productora de Experiencias Artísticas,0,9,
+6335d5fa7636ed5b3529c545,,ENTIDAD,productora,Tropical Poncho,"Plataforma de creación transdisciplinaria dedicada al diseño y la producción de experiencias y contextos que promueven la expresión creativa, el encuentro y el desarrollo de iniciativas colectivas.",,,2022-09-29,entidades/tropical-poncho.png,,,red,Productora de Experiencias Artísticas,0,9,
 63365a05349709fa31e2a492,,ENTIDAD,centro_cultural,Cultura Del Sur,Centro Cultural en Temperley,,,2022-09-30,entidades/cultura-del-sur.png,,,red,Centro Cultural en Temperley,1,0,
 63365a24349709fa31e2a495,si,ENTIDAD,persona,Ana Hagen,VINYL SET,,,2022-09-30,,,,red,VINYL SET,1,1,
 63365a2f349709fa31e2a498,,ENTIDAD,persona,Rama Cerratto,"Gestorx Cultural, Curadorx, DJ",,,2022-09-30,,,,red,"Gestorx Cultural, Curadorx, DJ",1,8,"REVISAR: duplicado: 2 filas vivas con este label | REVISAR: ""Rama Cerratto"" aparece en las dos fuentes con ids distintos — reconciliar"
