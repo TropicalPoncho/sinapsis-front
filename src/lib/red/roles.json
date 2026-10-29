@@ -52,7 +52,8 @@
       {"etiqueta":"Ex integrantes","contraparte":"ENTIDAD:persona","vigente":false},
       {"etiqueta":"Obras","contraparte":"OBRA"},
       {"etiqueta":"Organizaciones","contraparte":"ENTIDAD"}
-    ]}
+    ],
+    "ocultar":{"6335d5fa7636ed5b3529c545":["Integrantes","Ex integrantes"]}}
   ],
   "sinRol": {"PRODUJO":"Producción","INTEGRA:entra":"Integrantes","INTEGRA:sale":"Integra","INTEGRA:entra:pasado":"Ex integrantes","INTEGRA:sale:pasado":"Integró"}
 }

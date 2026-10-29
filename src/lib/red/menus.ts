@@ -5,12 +5,12 @@ import { esFuturo, finDe, periodo, vigente } from './fechas.ts'
 
 const porLabel = (a: { label: string }, b: { label: string }) => a.label.localeCompare(b.label, 'es')
 
-// Cronológico (más viejo primero); sin fecha, al final y por nombre. Es el orden de la lista lateral:
-// las ediciones de un evento tienen que leerse en el orden en que pasaron.
+// Cronológico (más viejo primero); sin fecha, al final y por nombre. Hoy lo usan los próximos (el más cercano antes) y obrasDe.
 const porFecha = (a: { fecha?: string; label: string }, b: { fecha?: string; label: string }) =>
   a.fecha && b.fecha ? a.fecha.localeCompare(b.fecha) || porLabel(a, b) : a.fecha ? -1 : b.fecha ? 1 : porLabel(a, b)
 
-// D-46: lo más reciente primero; sin fecha, al final y por nombre.
+// D-46 / 261029-hui: lo más reciente primero; sin fecha, al final y por nombre. Es el orden de toda lista de nodos, del dueño que sea
+// (antes las ediciones PRECEDE se leían cronológico en las listas por rol; el dueño pidió lo reciente arriba en todas).
 const porReciente = (a: { fecha?: string; label: string }, b: { fecha?: string; label: string }) =>
   a.fecha && b.fecha ? b.fecha.localeCompare(a.fecha) || porLabel(a, b) : a.fecha ? -1 : b.fecha ? 1 : porLabel(a, b)
 
@@ -48,15 +48,17 @@ export function padreDe(ady: Adyacencia, nodoId: string, tipo: NodeType = 'AGRUP
 }
 
 // Lista lateral: los miembros del área o serie en la que se está. Las áreas van en el menú superior,
-// así que no se listan acá (la dueña del área ya no entra a la Vista: ver vistaDe).
-export function nodosDeLaRed(sub: Subgrafo, redId: string) {
-  return sub.nodos
-    .filter((n) => n.id !== redId && !(n.nodeType === 'AGRUPACION' && n.subtipo === 'area'))
-    .sort(porFecha)
-    .map((n) => ({ id: n.id, label: n.label, subtipo: n.subtipo }))
+// así que no se listan acá (la dueña del área ya no entra a la Vista: ver vistaDe). Con `hoy`: los eventos de hoy en adelante
+// primero (el más cercano antes, `proximo`), después lo más reciente primero y lo que no tiene fecha al final.
+export function nodosDeLaRed(sub: Subgrafo, redId: string, hoy?: string) {
+  const resto = sub.nodos.filter((n) => n.id !== redId && !(n.nodeType === 'AGRUPACION' && n.subtipo === 'area'))
+  const esProximo = (n: NodoGrafo) => !!hoy && n.nodeType === 'EVENTO' && esFuturo(n.fecha, hoy)
+  return [...resto.filter(esProximo).sort(porFecha), ...resto.filter((n) => !esProximo(n)).sort(porReciente)]
+    .map((n) => ({ id: n.id, label: n.label, subtipo: n.subtipo, ...(esProximo(n) && { proximo: true as const }) }))
 }
 
-// Obras y eventos vecinos de una entidad (ambos sentidos), más viejos primero: lo que "Sumar sus obras" agrega.
+// Obras y eventos vecinos de una entidad (ambos sentidos), más viejos primero. Sin uso en la app desde que se sacó "Sumar sus obras"
+// (261029-hui); los tests de neuronas lo usan como oráculo de qué debería ver una entidad.
 export function obrasDe(ady: Adyacencia, entidadId: string): string[] {
   const vistos = new Map<string, NodoGrafo>()
   for (const { nodo } of vecinos(ady, entidadId)) {
@@ -90,7 +92,8 @@ export interface VocabularioRoles {
   // D-46: portfolio por tipo de dueño. Gana el primero que incluye el dueño; el `id` es para el override por nodo futuro.
   // contraparte: "NODETYPE" o "NODETYPE:subtipo"; `con`: el nodo solo entra si alguna de sus etiquetas está en la lista.
   // D-49, `vigente`: true = solo filas vigentes, false = solo pasadas (sin `hoy` no hay pasadas); ausente = las dos.
-  portfolios?: { id: string; duenos: string[]; secciones: { etiqueta: string; contraparte: string; con?: string[]; vigente?: boolean }[] }[]
+  // 261029-hui, `ocultar`: id del nodo dueño -> etiquetas de sección que su portfolio no muestra (sus filas no pasan a otra sección).
+  portfolios?: { id: string; duenos: string[]; secciones: { etiqueta: string; contraparte: string; con?: string[]; vigente?: boolean }[]; ocultar?: Record<string, string[]> }[]
 }
 
 // Solo compara, nunca se muestra: sin tildes ni mayúsculas, y en cada palabra de 3+ letras sin plural ni `e` final
@@ -189,15 +192,18 @@ export function seccionesDe(ady: Adyacencia, nodoId: string, vocabulario: Vocabu
 
   // Modo por rol: vocabulario, después las etiquetas de `sinRol` fuera de la lista por nombre, "Otros" al final. Portfolio: su orden.
   const lugar = puesto(portfolio ? portfolio.secciones.map((s) => s.etiqueta) : vocab)
-  const entre = dueno.nodeType === 'ENTIDAD' ? porReciente : porFecha
   // D-49: vigentes antes (por nombre); después las pasadas, de la que terminó más tarde a la que terminó antes. Cadenas por código.
   const porHasta = (a: { nodo: NodoGrafo; hasta?: string }, b: { nodo: NodoGrafo; hasta?: string }) =>
     (a.hasta ?? '') === (b.hasta ?? '') ? porLabel(a.nodo, b.nodo) : !a.hasta ? -1 : !b.hasta ? 1 : a.hasta < b.hasta ? 1 : -1
+  // ponytail: las secciones ocultas son fijas por nodo, en roles.json (hoy Tropical Poncho sin Integrantes ni Ex integrantes: "después
+  // pensamos cómo configurarlo por cada unx"); salida: una preferencia por entidad servida con la topología (M2), sin tocar la firma.
+  const ocultas = portfolio?.ocultar?.[nodoId] ?? []
   return [...grupos.keys()]
+    .filter((etiqueta) => !ocultas.includes(etiqueta))
     .sort((a, b) => lugar(a) - lugar(b) || a.localeCompare(b, 'es'))
     .map((etiqueta) => {
       const filas = [...grupos.get(etiqueta)!.values()]
-        .sort((a, b) => (esObra(a.nodo) !== esObra(b.nodo) ? (esObra(a.nodo) ? -1 : 1) : esObra(a.nodo) ? entre(a.nodo, b.nodo) : porHasta(a, b)))
+        .sort((a, b) => (esObra(a.nodo) !== esObra(b.nodo) ? (esObra(a.nodo) ? -1 : 1) : esObra(a.nodo) ? porReciente(a.nodo, b.nodo) : porHasta(a, b)))
       // D-47: los eventos de hoy en adelante van primero, el más cercano antes.
       const proximos = hoy ? filas.filter((f) => f.nodo.nodeType === 'EVENTO' && esFuturo(f.nodo.fecha, hoy)).sort((a, b) => porFecha(a.nodo, b.nodo)) : []
       return {

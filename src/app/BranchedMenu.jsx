@@ -3,7 +3,8 @@
 // Copiado de https://reactbits.dev/c/micro/branched-menu (JS + CSS), con un solo cambio propio:
 // `active` puede llegar controlado desde afuera (además de `defaultActive`), porque acá el nodo
 // enfocado lo decide la URL/el motor 3D, no solo un click adentro de este menú. Sin eso, tocar un
-// nodo en el canvas no movía el marcador. Todo lo demás —geometría, curvas, fold— es el original.
+// nodo en el canvas no movía el marcador. Segundo cambio propio (261029-hui): un item `{ titulo }` es un subtítulo sin acción
+// (Próximos / Pasados). Todo lo demás —geometría, curvas, fold— es el original.
 import { isValidElement, useLayoutEffect, useRef, useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import './BranchedMenu.css'
@@ -132,6 +133,13 @@ export default function BranchedMenu({
     >
       <span ref={markerRef} className="branched-menu__marker" aria-hidden="true" />
       {items.map((item, i) => {
+        if (item.titulo) {
+          return (
+            <div key={item.label} className="branched-menu__titulo" data-proximos={item.proximos ? '' : undefined}>
+              {item.label}
+            </div>
+          )
+        }
         const kids = item.children
         const isOpen = kids ? open.has(i) : false
         const leafValue = item.value ?? item.label

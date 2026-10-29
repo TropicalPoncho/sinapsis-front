@@ -9,7 +9,7 @@ import type { Fase } from './Overlay'
 import { cargarAdyacencia, olvidarTopologia } from '../lib/vista/topologia.ts'
 import type { Adyacencia } from '../lib/vista/adyacencia.ts'
 import { indexarSlugs, rutaDe } from '../lib/red/slugs.ts'
-import { estadoDesdeUrl, subgrafoDe, sumarIds, urlDe } from '../lib/red/url.ts'
+import { estadoDesdeUrl, subgrafoDe, urlDe } from '../lib/red/url.ts'
 import { LIMITE_HOME, semillaDeVisita } from '../lib/red/home.ts'
 import type { EstadoRed } from '../lib/red/url.ts'
 import { alPop, entradaValida } from '../lib/red/navegacion.ts'
@@ -35,7 +35,8 @@ export default function Shell() {
   const [mostrado, setMostrado] = useState<EstadoRed>(HOME)
   // Nodos sumados al recorrer (D-22), atados a la red en la que se sumaron. No viajan en la URL.
   // ponytail: un solo conjunto para la red actual; volver a una red anterior no restaura el suyo. El
-  // feed futuro suma y saca nodos por este mismo estado (sumarIds, limpiar al dejar la red), sin historial.
+  // feed futuro suma y saca nodos por este mismo estado (sumarIds, limpiar al dejar la red), sin historial. Hoy solo suma el recorrido
+  // (aditivo): el botón "Sumar sus obras" se sacó en 261029-hui.
   const [sumados, setSumados] = useState<{ red: string | null; ids: string[] }>({ red: null, ids: SIN_GUARDAR })
   const pathname = usePathname()
   const search = useSearchParams().toString()
@@ -64,7 +65,6 @@ export default function Shell() {
   if (escena && (sumados.red !== estado.red || escena.sumados.length !== guardados.length || escena.sumados.some((id, i) => id !== guardados[i]))) {
     setSumados({ red: estado.red, ids: escena.sumados })
   }
-  const sumar = (ids: string[]) => { if (escena) setSumados({ red: estado.red, ids: sumarIds(escena.sumados, ids) }) }
 
   const cargar = useCallback(() => { cargarAdyacencia().then(setAdy).catch(() => setErrTopo(true)) }, [])
   useEffect(() => { cargar() }, [cargar])
@@ -106,7 +106,7 @@ export default function Shell() {
       <CanvasSinapsis ady={ady} idx={idx} estado={estado} escena={escena} llegadaRef={llegadaRef} panelRef={panelRef} tituloRef={tituloRef}
         onFase={setFase} onMostrar={setMostrado} onNodoClick={enfocar} onEngineReady={setEngine} />
       <Overlay estado={estado} mostrado={mostrado} ady={ady} idx={idx} escena={escena} fase={fase} error={error} panelRef={panelRef} tituloRef={tituloRef}
-        navegar={navegar} volver={volver} reintentar={reintentar} sumar={sumar} />
+        navegar={navegar} volver={volver} reintentar={reintentar} />
       {process.env.NODE_ENV !== 'production' && engine && <DebugPanel engine={engine} />}
     </>
   )

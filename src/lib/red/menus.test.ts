@@ -367,3 +367,33 @@ test('censo de data/curaduria/vinculos.csv: todo rol real da sección y los del 
     for (const x of enDatos) assert.ok(secciones.get(x.origen)!.some((s) => s.id !== 'otros' && s.nodos.some((q) => q.id === x.destino)), `"${rol}" cae en Otros`)
   }
 })
+
+// --- 261029-hui: orden reciente en toda lista, Próximos / Pasados en la lista lateral, `ocultar` por nodo ---
+test('nodosDeLaRed (261029-hui): más reciente primero; sin fecha al final y por nombre; sin hoy no hay próximos', () => {
+  const s = { nodos: [n('r', 'ENTIDAD'), nf('viejo', 'EVENTO', 'Viejo', '2024-01-01'), nf('sin', 'OBRA', 'Sin fecha'), nf('nuevo', 'EVENTO', 'Nuevo', '2025-06-01'), nf('mid', 'OBRA', 'Medio', '2025-01-01')], vinculos: [] }
+  assert.deepEqual(nodosDeLaRed(s, 'r').map((x) => x.id), ['nuevo', 'mid', 'viejo', 'sin'])
+  assert.ok(nodosDeLaRed(s, 'r').every((x) => !('proximo' in x)))
+})
+test('nodosDeLaRed (261029-hui): con hoy, los eventos de hoy en adelante primero (el más cercano antes) y marcados; las obras futuras no', () => {
+  const s = { nodos: [n('r', 'ENTIDAD'), nf('viejo', 'EVENTO', 'Viejo', '2024-01-01'), nf('lejos', 'EVENTO', 'Lejos', '2026-12-01'), nf('hoy', 'EVENTO', 'Hoy', '2026-10-24'),
+    nf('obraF', 'OBRA', 'ObraF', '2027-01-01'), nf('sin', 'EVENTO', 'Sin')], vinculos: [] }
+  const r = nodosDeLaRed(s, 'r', '2026-10-24')
+  assert.deepEqual(r.map((x) => x.id), ['hoy', 'lejos', 'obraF', 'viejo', 'sin'])
+  assert.deepEqual(r.filter((x) => 'proximo' in x).map((x) => x.id), ['hoy', 'lejos'])
+})
+test('seccionesDe (261029-hui): obras y eventos de una lista por rol van del más reciente al más viejo, también si el dueño es una OBRA (antes: cronológico)', () => {
+  const a = construirAdyacencia({
+    nodos: [sub('ob', 'OBRA', 's', 'Obra'), nf('e1', 'EVENTO', 'E1', '2024-01-01'), nf('e2', 'EVENTO', 'E2', '2026-01-01'), nf('e3', 'EVENTO', 'E3', '2025-01-01')],
+    vinculos: ['e1', 'e2', 'e3'].map((id) => v(id, 'ob', 'COLABORO_EN', 'DJ')),
+  })
+  assert.deepEqual(resumen(a, 'ob').map(([, ns]) => ns), [['e2', 'e3', 'e1']])
+})
+test('seccionesDe (261029-hui): `ocultar` saca esas secciones solo del nodo nombrado; las filas no pasan a otra', () => {
+  const a = construirAdyacencia({
+    nodos: [sub('org', 'ENTIDAD', 'productora'), sub('otra', 'ENTIDAD', 'productora'), sub('i1', 'ENTIDAD', 'persona'), nf('e', 'EVENTO', 'E', '2025-01-01')],
+    vinculos: [v('i1', 'org', 'INTEGRA'), v('i1', 'otra', 'INTEGRA'), v('e', 'org', 'COLABORO_EN', 'DJ'), v('e', 'otra', 'COLABORO_EN', 'DJ')],
+  })
+  const ocultando = { ...vocab, portfolios: vocab.portfolios!.map((p) => (p.id === 'organizacion' ? { ...p, ocultar: { org: ['Integrantes', 'Ex integrantes'] } } : p)) }
+  assert.deepEqual(seccionesDe(a, 'org', ocultando).map((s) => s.label), ['Participaciones'])
+  assert.deepEqual(seccionesDe(a, 'otra', ocultando).map((s) => s.label), ['Participaciones', 'Integrantes'])
+})

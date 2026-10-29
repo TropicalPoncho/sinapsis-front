@@ -264,12 +264,11 @@ test('D-46: un PRODUJO y un COLABORO_EN "Artista" de la misma persona son UNA fi
   assert.deepEqual(filasDe('malvon-di-ritta', 'Kutral'), ['Creadxr'])
 })
 
-test('D-46: una organización lee Eventos producidos, Participaciones e Integrantes', () => {
+test('D-46: una organización lee Eventos producidos, Participaciones e Integrantes (Tropical no: 261029-hui)', () => {
   assert.deepEqual(portafolio('club-weyba'), ['Eventos producidos: Alterego | Luca Zisa en Ave Fenix', 'Integrantes: Luca Zisa — Fundador'])
   assert.deepEqual(portafolio('in-session'), ['Eventos producidos: SOMA', 'Integrantes: Fede Fragas | Luciano Rodriguez'])
-  assert.equal(secciones('tropical-poncho').map((s) => `${s.label}(${s.nodos.length})`).join(', '), 'Eventos producidos(15), Participaciones(2), Integrantes(5)')
-  // Sin `hoy` no hay vigencia (D-49): los cinco INTEGRA son Integrantes. Con HOY, solo Rama; los otros cuatro son Ex integrantes (test de abajo). El PRODUJO al revés Tropical -> Malvon está descartado.
-  assert.deepEqual(portafolio('tropical-poncho').at(-1), 'Integrantes: La Er | Laura Trotta — Comunicación | Malvon Di Ritta | Mechi Botta — Producción | Rama Cerratto — Fundadxr')
+  // 261029-hui: roles.json `ocultar` saca Integrantes y Ex integrantes de Tropical (sus cinco INTEGRA siguen en el grafo). El PRODUJO al revés Tropical -> Malvon está descartado.
+  assert.equal(secciones('tropical-poncho').map((s) => `${s.label}(${s.nodos.length})`).join(', '), 'Eventos producidos(15), Participaciones(2)')
   assert.deepEqual(portafolio('malvon-di-ritta').at(-1), 'Organizaciones: Post.xno — Fundador | Tropical Poncho — Integra')
   // Los dos COLABORO_EN sin rol de Tropical no se leen como producidos.
   const part = secciones('tropical-poncho').find((s) => s.id === 'participaciones')!.nodos.map((q) => ady.nodos.get(q.id)!.label).sort()
@@ -279,12 +278,13 @@ test('D-46: una organización lee Eventos producidos, Participaciones e Integran
   assert.equal(agrupadoresDe(ady, id('tropical-poncho')).length, 5)
 })
 
-test('D-49: con HOY, Tropical lee Integrantes y Ex integrantes, y cada ex integrante ve su organización pasada', () => {
+test('D-49: cada ex integrante ve su organización pasada; Tropical no muestra Integrantes ni Ex integrantes (261029-hui) y las otras sí', () => {
   const resumen = (slug: string) => seccionesDe(ady, id(slug), vocab, HOY).map((s) => `${s.label}(${s.nodos.length})`).join(', ')
-  assert.equal(resumen('tropical-poncho'), 'Eventos producidos(15), Participaciones(2), Integrantes(1), Ex integrantes(4)')
-  assert.equal(portafolio('tropical-poncho', HOY).at(-2), 'Integrantes: Rama Cerratto — Fundadxr')
-  assert.equal(portafolio('tropical-poncho', HOY).at(-1),
-    'Ex integrantes: La Er — 2023–2024 | Malvon Di Ritta — 2022–2024 | Laura Trotta — Comunicación · hasta 2023 | Mechi Botta — Producción · 2021–2023')
+  assert.equal(resumen('tropical-poncho'), 'Eventos producidos(15), Participaciones(2)')
+  // Sin `ocultar` seguirían ahí: el dato está en el grafo, solo se esconde del portfolio.
+  const sinOcultar = { ...vocab, portfolios: vocab.portfolios!.map((q) => ({ ...q, ocultar: undefined })) }
+  assert.equal(seccionesDe(ady, id('tropical-poncho'), sinOcultar, HOY).map((s) => s.label).slice(2).join(', '), 'Integrantes, Ex integrantes')
+  for (const slug of ['club-weyba', 'in-session', 'post-xno']) assert.ok(portafolio(slug, HOY).some((l) => l.startsWith('Integrantes')), slug)
   assert.equal(portafolio('mechi-botta', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Tropical Poncho — Producción · 2021–2023')
   assert.equal(portafolio('laura-trotta', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Post.xno — Integra | Tropical Poncho — Comunicación · hasta 2023')
   assert.equal(portafolio('la-er', HOY).find((l) => l.startsWith('Organizaciones')), 'Organizaciones: Tropical Poncho — Integró · 2023–2024')
@@ -305,7 +305,9 @@ test('censo D-46: en toda entidad con portfolio ningún nodo se repite y ninguna
   let con = 0
   for (const hoy of [undefined, HOY]) for (const n of nodos.filter((x) => x.nodeType === 'ENTIDAD' && ['persona', 'productora', 'colectivo', 'sello'].includes(x.subtipo))) {
     const ids = seccionesDe(ady, n.id, vocab, hoy).flatMap((s) => s.nodos.map((q) => q.id))
-    const contrapartes = new Set(vinculos.filter((v) => PART.includes(v.tipoVinculo) && (v.origen === n.id || v.destino === n.id)).map((v) => (v.origen === n.id ? v.destino : v.origen)))
+    // Tropical oculta Integrantes y Ex integrantes (261029-hui): todas sus contrapartes persona.
+    const contrapartes = new Set(vinculos.filter((v) => PART.includes(v.tipoVinculo) && (v.origen === n.id || v.destino === n.id)).map((v) => (v.origen === n.id ? v.destino : v.origen))
+      .filter((x) => n.id !== id('tropical-poncho') || ady.nodos.get(x)!.subtipo !== 'persona'))
     assert.equal(new Set(ids).size, ids.length, `${n.label}: nodo repetido`)
     assert.deepEqual([...new Set(ids)].sort(), [...contrapartes].sort(), `${n.label}: contraparte perdida`)
     con++

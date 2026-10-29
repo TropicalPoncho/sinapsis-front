@@ -85,6 +85,8 @@ export function Ficha({ nodo, secciones, futuro, espacio, nodos, hrefDe, onMiemb
   const fecha = (nodo.nodeType === 'OBRA' || nodo.nodeType === 'EVENTO') ? fechaLarga(nodo.fecha) : ''
   const entidad = nodo.nodeType === 'ENTIDAD'
   const titulo = entidad ? 'Portfolio' : 'Créditos'
+  // 261029-hui: una ENTIDAD sin About (sin `ficha`) y sin bloques muestra solo el Portfolio: sin columna izquierda vacía, el portfolio ocupa su lugar.
+  const soloPortfolio = entidad && !nodo.ficha && cuantos === 0
   // D-42: `--i` escalona la entrada de cada elemento, numerados en el orden en que aparecen (portada, bloques, grupos de créditos).
   const item = (s: Seccion, m: Seccion['nodos'][number]) => {
     const n = nodos.get(m.id)
@@ -141,7 +143,7 @@ export function Ficha({ nodo, secciones, futuro, espacio, nodos, hrefDe, onMiemb
 
       <div className="expandido__bloque">
         <div className="expandido__cuerpo">
-          <div className="expandido__columna">
+          {!soloPortfolio && <div className="expandido__columna">
             {bloques.map((b) => (
               <section key={b.id} id={'bloque-' + b.id} className="expandido__contenido" aria-labelledby={'bloque-' + b.id + '-t'} style={i()}>
                 <h3 id={'bloque-' + b.id + '-t'} className="expandido__titulo">{b.nombre}</h3>
@@ -171,17 +173,19 @@ export function Ficha({ nodo, secciones, futuro, espacio, nodos, hrefDe, onMiemb
                 )}
               </section>
             ))}
-          </div>
+          </div>}
           {/* D-39: los créditos son la misma agrupación por rol de siempre (seccionesDe), en su columna. Cada nombre entra a esa sección (D-37). */}
           {secciones.length > 0 && (
-            <aside className="expandido__creditos" aria-label={titulo + ' de ' + nodo.label}>
+            <aside className={'expandido__creditos' + (soloPortfolio ? ' expandido__creditos--solo' : '')} aria-label={titulo + ' de ' + nodo.label}>
               <h3 className="expandido__titulo">{titulo}</h3>
               {secciones.map((s) => (
                 <section key={s.id} className="expandido__grupo" aria-labelledby={'credito-' + s.id} style={i()}>
                   <h4 id={'credito-' + s.id} className="expandido__grupo-titulo" style={HEX.test(s.color) ? { color: s.color } : undefined}>{s.label}</h4>
-                  {/* D-47: los primeros `proximos` son eventos de hoy en adelante, bajo su propio rótulo. */}
-                  {s.proximos && <p className="expandido__proximo">Próximo</p>}
+                  {/* D-47 / 261029-hui: los primeros `proximos` son eventos de hoy en adelante, bajo "Próximos"; el resto, bajo "Pasados"
+                      (que solo existe si hay próximos: sin ninguno, lista plana). */}
+                  {s.proximos && <p className="expandido__sub expandido__sub--proximos">Próximos</p>}
                   {s.proximos && <ul className="expandido__nodos">{s.nodos.slice(0, s.proximos).map((m) => item(s, m))}</ul>}
+                  {s.proximos && s.nodos.length > s.proximos && <p className="expandido__sub">Pasados</p>}
                   {s.nodos.length > (s.proximos ?? 0) && <ul className="expandido__nodos">{s.nodos.slice(s.proximos ?? 0).map((m) => item(s, m))}</ul>}
                 </section>
               ))}

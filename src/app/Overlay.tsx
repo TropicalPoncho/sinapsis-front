@@ -1,6 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowRight02FreeIcons, UnfoldMoreFreeIcons } from '@hugeicons/core-free-icons'
 import type { RefObject } from 'react'
 import type { Adyacencia } from '../lib/vista/adyacencia.ts'
 import type { IndiceSlugs } from '../lib/red/slugs.ts'
@@ -10,7 +12,7 @@ import { claveEstado, urlDe } from '../lib/red/url.ts'
 import { botonesDe } from '../lib/red/botones.ts'
 import type { Boton } from '../lib/red/botones.ts'
 import type { Transicion } from '../types/vista.ts'
-import { agrupadoresDe, nodosDeLaRed, obrasDe, padreDe, seccionesDe } from '../lib/red/menus.ts'
+import { agrupadoresDe, nodosDeLaRed, padreDe, seccionesDe } from '../lib/red/menus.ts'
 import type { Seccion, VocabularioRoles } from '../lib/red/menus.ts'
 import rolesJson from '../lib/red/roles.json'
 import { esFuturo, fechaLarga, hoyLocal } from '../lib/red/fechas.ts'
@@ -38,11 +40,10 @@ export interface OverlayProps {
   navegar: (url: string, t: Transicion) => void
   volver: () => void
   reintentar: () => void
-  sumar: (ids: string[]) => void
 }
 
 // El panel siempre está maquetado (nunca display:none): la cámara mide su rect antes de que aparezca.
-export default function Overlay({ estado, mostrado, ady, idx, escena, fase, error, panelRef, tituloRef, navegar, volver, reintentar, sumar }: OverlayProps) {
+export default function Overlay({ estado, mostrado, ady, idx, escena, fase, error, panelRef, tituloRef, navegar, volver, reintentar }: OverlayProps) {
   const h2Ref = useRef<HTMLHeadingElement>(null)
   // D-34: la ficha expandida es estado de UI, no Vista. Se guarda la clave de la URL en la que se abrió: cualquier
   // cambio de URL (Atrás, un nodo de una sección, el menú) la cierra en ese mismo render.
@@ -225,12 +226,8 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
   const espacio = seccionLugar?.nodos[0] ? { id: seccionLugar.nodos[0].id, seccion: seccionLugar.id } : undefined
   // D-26: el nodo compone algo si le sale un COMPONE.
   const compone = nodo && ady ? (ady.sale.get(nodo.id) ?? []).some((v) => v.tipoVinculo === 'COMPONE') : false
-  // Las obras/eventos de la entidad enfocada que todavía no están en escena (D-22: se suman sin navegar).
-  const porSumar = nodo && ady && escena && nodo.nodeType === 'ENTIDAD'
-    ? obrasDe(ady, nodo.id).filter((id) => !escena.sub.nodos.some((n) => n.id === id))
-    : []
   const botones = nodo
-    ? botonesDe(nodo, { compone, secciones: secciones.length, obrasPorSumar: porSumar.length }).filter((b) => !((b.accion === 'entrar' || b.accion === 'sumar') && mostrado.red === mostrado.enfocado))
+    ? botonesDe(nodo, { compone, secciones: secciones.length }).filter((b) => !(b.accion === 'entrar' && mostrado.red === mostrado.enfocado))
     : []
 
   const ejecutar = (b: Boton) => {
@@ -246,9 +243,6 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
         navegar(urlDe(rutaDe(nodo, idx), { enfocado: slug, red: slug, prof: estado.prof, semilla: null, raiz: null, puentes: null }), 'reemplazo')
         break
       }
-      case 'sumar':
-        sumar(porSumar)
-        break
       case 'enlace':
         break
     }
@@ -259,10 +253,10 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     [el, el.parentElement!].forEach((e) => e.style.setProperty('--panel-alpha', String(Math.min(0.9, 0.55 + el.scrollTop / 400))))
 
   // Los nodos de una sección como lista lateral; cada uno con `rol` lleva " — rol" (en "Otros" y los chips de un portfolio, D-46) y los
-  // primeros `proximos` llevan la marca "Próximo" (D-47).
+  // primeros `proximos` van marcados: el menú los pone bajo el subtítulo "Próximos" y el resto bajo "Pasados" (D-47, 261029-hui).
   const itemsDe = (s: Seccion) => s.nodos.flatMap(({ id, rol }, i) => {
     const n = ady?.nodos.get(id)
-    return n ? [{ id, label: `${i < (s.proximos ?? 0) ? 'Próximo · ' : ''}${rol ? `${n.label} — ${rol}` : n.label}`, subtipo: n.subtipo }] : []
+    return n ? [{ id, label: rol ? `${n.label} — ${rol}` : n.label, subtipo: n.subtipo, ...(i < (s.proximos ?? 0) && { proximo: true as const }) }] : []
   })
 
   const volverBtn = puedeVolver && <button className="accion accion--volver" onClick={volverDelPanel}>Volver</button>
@@ -300,7 +294,7 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
       <div className={'izquierda' + (visible ? ' izquierda--visible' : '')}>
       {lateral && ady && redId && (seccionActiva || sub) && (
         <MenuLateral
-          nodos={seccionActiva ? itemsDe(seccionActiva) : nodosDeLaRed(sub!, redId)}
+          nodos={seccionActiva ? itemsDe(seccionActiva) : nodosDeLaRed(sub!, redId, hoy)}
           enfocadoId={enfocadoId}
           abierto={lateralAbierto}
           onElegir={(id) => irA(id, false)}
@@ -350,8 +344,10 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
                 b.accion === 'enlace' ? (
                   <a key={b.etiqueta} className="accion" href={b.destino} target="_blank" rel="noopener noreferrer">{b.etiqueta}</a>
                 ) : (
-                  <button key={b.etiqueta} className="accion" disabled={fase !== 'listo'} aria-busy={fase !== 'listo'} onClick={() => ejecutar(b)}>
-                    {b.accion === 'entrar' && !b.etiqueta ? 'Entrar' : b.etiqueta}
+                  // Entrar es la primaria (llena, flecha); Expandir, la secundaria (borde, ícono de despliegue): se leen distintas.
+                  <button key={b.etiqueta} className={'accion accion--' + b.accion} disabled={fase !== 'listo'} aria-busy={fase !== 'listo'} onClick={() => ejecutar(b)}>
+                    {b.etiqueta}
+                    <HugeiconsIcon icon={b.accion === 'entrar' ? ArrowRight02FreeIcons : UnfoldMoreFreeIcons} size={16} strokeWidth={1.8} aria-hidden="true" />
                   </button>
                 ),
               )}

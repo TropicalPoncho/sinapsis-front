@@ -1,4 +1,4 @@
-/* Copiado tal cual de https://reactbits.dev/c/micro/branched-menu — sin cambios. */
+/* Copiado de https://reactbits.dev/c/micro/branched-menu; lo único propio es __titulo (subtítulos Próximos / Pasados, 261029-hui). */
 .branched-menu {
   --bm-w: 240px;
   --bm-ink: #f5f5f5;
@@ -86,6 +86,20 @@
   .branched-menu__head:hover {
     color: var(--bm-ink);
   }
+}
+
+/* Subtítulo de la lista: chico, espaciado y apagado; "Próximos" con el acento. No es un botón. */
+.branched-menu__titulo {
+  padding: 14px 0 2px;
+  color: var(--bm-muted);
+  font-size: calc(var(--bm-font) - 2px);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+}
+
+.branched-menu__titulo[data-proximos] {
+  color: var(--bm-accent);
 }
 
 .branched-menu__body {
