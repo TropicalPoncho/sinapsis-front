@@ -102,8 +102,14 @@ export default function DebugPanel({ engine }: Props) {
 
       <label>
         chargeStrength: {cfg.chargeStrength}
-        <input type="range" min={-100} max={0} step={1} value={cfg.chargeStrength}
+        <input type="range" min={-1500} max={0} step={10} value={cfg.chargeStrength}
           onChange={(e) => set('chargeStrength', Number(e.target.value))} />
+      </label>
+
+      <label>
+        gravedad: {cfg.gravedad}
+        <input type="range" min={0} max={0.5} step={0.01} value={cfg.gravedad}
+          onChange={(e) => set('gravedad', Number(e.target.value))} />
       </label>
 
       <label>

@@ -85,6 +85,7 @@ export default function CanvasSinapsis({ ady, idx, estado, escena, llegadaRef, p
             : { ...sin, top: tituloRef.current?.getBoundingClientRect().bottom ?? 0, bottom: Math.max(0, window.innerHeight - r.top) };
         },
         charge: num('charge'),
+        gravedad: num('gravedad'),
         escalaNodos: num('escala'),
         forceEngine: params.get('engine') ?? undefined,
       });

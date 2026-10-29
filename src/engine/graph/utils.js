@@ -85,3 +85,22 @@ export function filterSynapsesByNodeIds(synapses, nodeIds) {
         return nodeIds.includes(sourceId.toString()) || nodeIds.includes(targetId.toString());
     });
 }
+/**
+ * Fuerza d3 de gravedad lineal hacia el origen (k * posición, escalada por alpha). Sin ella la única
+ * fuerza entre componentes sin vínculo es la repulsión, y un nodo que quedó solo en la Vista se va
+ * flotando cada vez más lejos mientras corre la simulación: el encuadre lo incluye y la red real se ve
+ * chica. 0 la apaga. Se registra con `graph.d3Force('gravedad', fuerzaGravedad(k))`.
+ * @param {number} k intensidad (0 = sin gravedad)
+ */
+export function fuerzaGravedad(k) {
+    let nodos = [];
+    const fuerza = alpha => {
+        for (const n of nodos) {
+            n.vx -= n.x * k * alpha;
+            n.vy -= n.y * k * alpha;
+            if (n.vz !== undefined) n.vz -= n.z * k * alpha;
+        }
+    };
+    fuerza.initialize = ns => { nodos = ns; };
+    return fuerza;
+}

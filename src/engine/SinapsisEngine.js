@@ -13,6 +13,7 @@ import { AnimationManager } from './graph/animationManager.js';
 import { Background } from './graph/background.js';
 import { GLOBAL_DEFAULT_SETTINGS, ANIMATION_SETTINGS } from './graph/constants.js';
 import { adaptarSubgrafo } from './adaptador.js';
+import { fuerzaGravedad } from './graph/utils.js';
 import { clasificarCambio, pinear, fusionar, desvanecerYQuitar, sembrarJuntoAVecinos } from './graph/transiciones.js';
 
 export class SinapsisEngine {
@@ -67,8 +68,9 @@ export class SinapsisEngine {
             });
         }
         // Perillas de tuning visual (llegan por query params desde el puente, ver CanvasSinapsis):
-        // charge = fuerza de repulsión; sin valor, queda el default de la librería.
-        if (opciones.charge !== undefined) this.graph.d3Force('charge').strength(opciones.charge);
+        // charge = fuerza de repulsión, gravedad = tirón al origen. Sin valor, el default de fuerzas.ts.
+        this.graph.d3Force('charge').strength(opciones.charge ?? GLOBAL_DEFAULT_SETTINGS.chargeStrength);
+        this.graph.d3Force('gravedad', fuerzaGravedad(opciones.gravedad ?? GLOBAL_DEFAULT_SETTINGS.gravedad));
         // Distancia por link: `link.distance` si viene; si no, el default crece con el grado de
         // los extremos, así los hubs con muchos vínculos tienen más espacio (ver _distanciaPorGrado).
         this.graph.d3Force('link').distance(link => link.distance ?? this._distanciaPorGrado(link));
@@ -281,6 +283,7 @@ export class SinapsisEngine {
             g.d3Force('link').distance(link => link.distance ?? this._distanciaPorGrado(link));
         }
         if (cfg.chargeStrength !== undefined) g.d3Force('charge').strength(cfg.chargeStrength);
+        if (cfg.gravedad !== undefined) g.d3Force('gravedad', fuerzaGravedad(cfg.gravedad));
         g.d3ReheatSimulation();
     }
 
