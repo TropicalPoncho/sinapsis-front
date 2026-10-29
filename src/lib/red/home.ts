@@ -29,17 +29,22 @@ function hash(s: string): number {
   return h
 }
 
-// Sólo ENTIDAD: el home es la puerta de entrada a quién hace las cosas, no a las obras sueltas
-// (que se ven al entrar a la red de su autor/a). Antes incluía OBRA también y una obra recién
-// cargada, sin nada más alrededor, aparecía suelta en el home el mismo día que se curaba.
-const esCandidato = (n: NodoGrafo) => n.nodeType === 'ENTIDAD'
+// Criterio del home, único lugar: lo colectivo. Entidades que producen o albergan (productora, sello,
+// centro cultural, colectivo, plataforma) y las áreas (AGRUPACION). Sin personas, dúos, bandas ni proyectos,
+// ni las obras sueltas (esas se ven al entrar a la red de su autor/a): el home es la puerta a quién hace
+// las cosas, y con ~140 personas era un bardo de neuronas. Los subtipos son los códigos de `subtipos`.
+// ponytail: criterio fijo en código; el dueño quiere que cada unx configure qué mostrar. Salida: leerlo de una
+// Vista guardada por creadxr (la Vista es configuración, nunca un campo del nodo) cuando exista el alta de Vistas.
+const SUBTIPOS_COLECTIVOS: ReadonlySet<string> = new Set(['productora', 'sello', 'centro_cultural', 'colectivo', 'plataforma'])
+export const esDelHome = (n: NodoGrafo): boolean =>
+  n.nodeType === 'AGRUPACION' || (n.nodeType === 'ENTIDAD' && SUBTIPOS_COLECTIVOS.has(n.subtipo))
 
 export function fraccionHome(
   ady: Adyacencia,
   { semilla, limite }: { semilla: string; limite: number },
 ): Subgrafo {
   const rnd = prng(hash(semilla))
-  const candidatos = [...ady.nodos.values()].filter(esCandidato)
+  const candidatos = [...ady.nodos.values()].filter(esDelHome)
   const elegidos = new Map<string, NodoGrafo>()
   const elegir = (xs: NodoGrafo[]) => xs[Math.floor(rnd() * xs.length)]
 
@@ -48,7 +53,7 @@ export function fraccionHome(
     for (const id of elegidos.keys()) {
       for (const v of [...(ady.sale.get(id) ?? []), ...(ady.entra.get(id) ?? [])]) {
         const otro = ady.nodos.get(v.origen === id ? v.destino : v.origen)
-        if (otro && esCandidato(otro) && !elegidos.has(otro.id)) out.set(otro.id, otro)
+        if (otro && esDelHome(otro) && !elegidos.has(otro.id)) out.set(otro.id, otro)
       }
     }
     return [...out.values()]
