@@ -82,8 +82,8 @@ for (const [slug, antes, ahora, tipos, precede] of entrar) {
 
 test('neuronas: la home son las entidades colectivas y las áreas (quick 261029-hdu), sin personas ni dúos ni integrantes', () => {
   const r = escena(E(null, null))
-  assert.deepEqual(tiposDe(r.sub), { ENTIDAD: 17, AGRUPACION: 5 })
-  assert.deepEqual(new Set(r.sub.nodos.filter((n) => n.nodeType === 'ENTIDAD').map((n) => n.subtipo)), new Set(['productora', 'centro_cultural', 'sello', 'colectivo', 'plataforma']))
+  assert.deepEqual(tiposDe(r.sub), { ENTIDAD: 26, AGRUPACION: 5 })
+  assert.deepEqual(new Set(r.sub.nodos.filter((n) => n.nodeType === 'ENTIDAD').map((n) => n.subtipo)), new Set(['productora', 'centro_cultural', 'sello', 'colectivo', 'plataforma', 'banda', 'proyecto']))
   assert.ok(r.sub.nodos.length < LIMITE_HOME) // cabe entera: no hay muestra al azar, la semilla no cambia nada
   assert.deepEqual(escena(E(null, null)).sub.nodos.map((n) => n.id), r.sub.nodos.map((n) => n.id))
 })

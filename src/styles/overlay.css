@@ -173,7 +173,7 @@
   letter-spacing: .06em; text-transform: uppercase; cursor: pointer; transition: color 150ms ease;
 }
 .expandido__item:hover, .expandido__item[aria-current] { color: #fff; }
-.expandido__volver { margin-left: auto; flex: none; }
+.expandido__volver { position: sticky; bottom: 24px; z-index: 2; display: block; width: fit-content; margin: 0 0 24px var(--panel-margen); background: rgba(10,10,10,.72); }
 .expandido__portada { min-height: 55vh; padding: 30px 48px 0; box-sizing: border-box; }
 .expandido__bloque {
   background: linear-gradient(rgba(10,10,10,0), rgba(10,10,10,.82) 140px, #0a0a0a 260px);

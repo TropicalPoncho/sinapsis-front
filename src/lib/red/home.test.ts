@@ -38,8 +38,8 @@ test('solo colectivas y áreas: sin personas, obras ni eventos', () => {
 })
 test('criterio por subtipo real de ENTIDAD', () => {
   const e = (subtipo: string) => esDelHome(nodo('z', 'ENTIDAD', subtipo))
-  for (const ok of ['productora', 'sello', 'centro_cultural', 'colectivo', 'plataforma']) assert.ok(e(ok), ok)
-  for (const no of ['persona', 'duo', 'banda', 'proyecto']) assert.ok(!e(no), no)
+  for (const ok of ['productora', 'sello', 'centro_cultural', 'colectivo', 'plataforma', 'banda', 'proyecto']) assert.ok(e(ok), ok)
+  for (const no of ['persona', 'duo']) assert.ok(!e(no), no)
   assert.ok(esDelHome(nodo('z', 'AGRUPACION', 'area')))
   assert.ok(!esDelHome(nodo('z', 'OBRA', 'disco')) && !esDelHome(nodo('z', 'EVENTO', 'festival')))
 })

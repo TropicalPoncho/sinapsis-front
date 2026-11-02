@@ -119,7 +119,6 @@ export function Ficha({ nodo, secciones, futuro, espacio, nodos, hrefDe, onMiemb
             ))}
           </nav>
         )}
-        <button type="button" className="accion accion--volver expandido__volver" onClick={onCerrar}>Volver</button>
       </header>
 
       <div className="expandido__portada">
@@ -193,6 +192,8 @@ export function Ficha({ nodo, secciones, futuro, espacio, nodos, hrefDe, onMiemb
           )}
         </div>
       </div>
+      {/* Volver abajo de todo, como en la lista lateral; pegado al borde inferior para alcanzarlo sin scrollear hasta el final. */}
+      <button type="button" className="accion accion--volver expandido__volver" onClick={onCerrar}>Volver</button>
     </section>
   )
 }
