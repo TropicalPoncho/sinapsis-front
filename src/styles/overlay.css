@@ -80,10 +80,13 @@
   border-color: transparent; background: none; color: rgba(255,255,255,.6); padding-left: 8px; padding-right: 8px;
 }
 .accion--volver:hover { background: none; border-color: transparent; color: #fff; }
-/* 261029-hui: Entrar y Expandir se leen distintas. Entrar es la primaria: llena con el acento; Expandir, la secundaria: solo borde
-   (más marcado que el .accion base) y fondo transparente. Cada una lleva su ícono (flecha / despliegue). */
-.accion--entrar { background: #FF0080; border-color: #FF0080; color: #fff; font-weight: 600; }
-.accion--entrar:hover { background: #ff2b99; border-color: #ff2b99; }
+/* Entrar y Expandir se leen distintas (261029-hui; Entrar suavizado en 261117-nav1). Entrar es la primaria: contorno fino con el
+   acento, un tinte apenas rosado y la flecha en el acento (el texto queda blanco: contraste). Expandir, la secundaria: borde blanco y
+   fondo transparente. Variantes descartadas (lleno #FF0080, tinte fuerte, gris con acento solo en la flecha): ver el SUMMARY. */
+.accion--entrar { background: rgba(255,0,128,.1); border-color: rgba(255,0,128,.8); color: #fff; }
+.accion--entrar svg { color: #FF0080; transition: transform 150ms ease; }
+.accion--entrar:hover { background: rgba(255,0,128,.2); border-color: #FF0080; }
+.accion--entrar:hover svg { transform: translateX(3px); }
 .accion--expandir { background: none; border-color: rgba(255,255,255,.7); }
 .accion--expandir:hover { background: rgba(255,255,255,.12); border-color: #fff; }
 
