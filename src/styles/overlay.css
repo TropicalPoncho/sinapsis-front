@@ -2,14 +2,10 @@
   position: fixed; inset: 0; pointer-events: none;
   /* D-28 / UI-11: ancho de la columna de texto (620-680) y su alineación. 0 = contra el borde izquierdo; auto = contra la neurona. */
   --columna-texto: 660px; --panel-margen: 0;
+  /* 261117-nav1: cuánto sobresale el velo de la expansión a cada lado de la columna de texto (a la izquierda cabe en el padding del panel; a la derecha se
+     desvanece en un tramo largo, así no hay un borde recto donde termina el desenfoque). */
+  --velo: 20px; --velo-der: 120px;
 }
-/* D-34: con la ficha abierta el overlay base queda inert y oculto. visibility (no display, no transform): el rect del panel
-   es lo que mide el puente, y tiene que quedar igual para que la cámara no se mueva. El panel visible declara visibility:
-   visible, así que hace falta pisarlo explícito. */
-.overlay__base { display: contents; }
-.overlay__base[inert] > *, .overlay__base[inert] .panel, .overlay__base[inert] .lateralFloatingMenu { animation: salir .3s both; }
-/* D-42: se funde y recién ahí queda visibility: hidden. Solo keyframe final: lo que ya estaba oculto (el panel sin nodo) no parpadea. */
-@keyframes salir { to { opacity: 0; visibility: hidden; } }
 .overlay button, .overlay a, .overlay .panel__contenido { pointer-events: auto; }
 
 .panel {
@@ -19,7 +15,7 @@
   opacity: 0; visibility: hidden; transform: translateX(-16px);
   /* sale en .3s (la pausa del puente cubre esto) y entra en .6s: ver .panel--visible */
   transition: opacity .3s, transform .3s, visibility 0s .3s;
-  text-align: left; overflow-y: auto; overscroll-behavior: contain;
+  text-align: left; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
   padding: 110px 24px 24px;
   pointer-events: none;
 }
@@ -44,7 +40,14 @@
     background: linear-gradient(to top, rgba(0,0,0,var(--panel-alpha)) 0%, rgba(0,0,0,var(--panel-alpha)) 70%, rgba(0,0,0,0) 100%);
     transform: translateY(16px); touch-action: pan-y;
   }
-  .panel--visible { transform: none; }
+  /* el cajón crece hacia arriba al expandir (D-50); el puente no lo relee: la cámara no se mueve */
+  .panel { --velo: 16px; --velo-der: 16px; }
+  /* sin blur en mobile: el borde superior del cajón (donde el velo scrollea fuera) queda suave en vez de un corte de desenfoque */
+  .desplegable::before { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .panel--visible { transform: none; transition: opacity .6s, transform .6s, max-height .5s cubic-bezier(.22, 1, .36, 1), visibility 0s; }
+  /* el borde superior del cajón se desvanece: el contenido que scrollea fuera no deja un corte recto sobre la escena (no hay blur adentro, ver abajo) */
+  .panel--expandido { max-height: 78dvh; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 28px); mask-image: linear-gradient(to bottom, transparent, #000 28px); }
+  .panel__cerrar { width: 44px; height: 44px; margin: -12px -12px 0 8px; }
   .panel__botones { flex-direction: column; gap: 8px; }
   .panel__botones .accion { width: 100%; min-height: 44px; justify-content: center; }
 }
@@ -65,9 +68,7 @@
   .panel__contenido, .cargando__marca, .cargando__barra { animation: none; }
 }
 
-/* Acción de panel/lateral: minimalista, sin pill ni glow. Dos variantes con estilos siempre
-   distintos y una al lado de la otra — .accion es la primaria (Entrar, Ver más, enlaces),
-   .accion--volver es la de volver/salir, más callada. */
+/* Acción de panel/lateral: minimalista, sin pill ni glow. .accion es la base (enlaces); Entrar y Expandir la especializan, siempre distintas. */
 .accion {
   display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; margin: 0;
   border: 1px solid rgba(255,255,255,.3); border-radius: 6px; background: rgba(255,255,255,.06);
@@ -76,10 +77,6 @@
 }
 .accion:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.5); }
 .accion:disabled { opacity: .5; cursor: default; }
-.accion--volver {
-  border-color: transparent; background: none; color: rgba(255,255,255,.6); padding-left: 8px; padding-right: 8px;
-}
-.accion--volver:hover { background: none; border-color: transparent; color: #fff; }
 /* Entrar y Expandir se leen distintas (261029-hui; Entrar suavizado en 261117-nav1). Entrar es la primaria: contorno fino con el
    acento, un tinte apenas rosado y la flecha en el acento (el texto queda blanco: contraste). Expandir, la secundaria: borde blanco y
    fondo transparente. Variantes descartadas (lleno #FF0080, tinte fuerte, gris con acento solo en la flecha): ver el SUMMARY. */
@@ -140,117 +137,86 @@
   .lateralFloatingMenu .close-lateral { display: block; align-self: flex-end; min-width: 48px; min-height: 48px; background: none; border: 0; color: #fff; font-size: 26px; }
 }
 
-/* Ficha expandida (variante A, D-27): capa por encima de todo el canvas, bloque que sube con el scroll y se funde
-   con la escena, cabecera fija con el nombre, las secciones y Volver. Debajo del loader (200). */
-.expandido {
-  position: fixed; inset: 0; z-index: 150; overflow-y: auto; overscroll-behavior: contain; pointer-events: auto;
-  scroll-behavior: smooth; text-align: left; font-family: Gotham, sans-serif;
+/* D-50 (261117-nav1): la ficha ya no es una capa. Expandir despliega el contenido (bloques, entradas, créditos o portfolio) hacia abajo, en el
+   mismo panel: el título, el tipo/fecha, la bajada y los botones se quedan donde están y el panel scrollea por dentro. Solo CSS:
+   grid-template-rows 0fr -> 1fr anima la altura sin medirla. Cerrado: visibility hidden (con retardo, así la animación de cierre se ve) más
+   `inert` desde Overlay, no queda nada tabulable. La escena 3D no se mueve: el ancho del panel no cambia (escritorio) y el puente solo lee el
+   rect cuando la cámara se mueve. Fondo: un velo translúcido con blur leve (se intuye la escena) que se desvanece arriba, abajo y a los lados,
+   sin bordes duros ni un corte negro al final del scroll.
+   ponytail: sin menú de secciones ni scroll-spy (eran de la capa con cabecera fija); salida: un índice de anclas dentro del velo. */
+.desplegable { --ease: cubic-bezier(.22, 1, .36, 1); position: relative; isolation: isolate; display: grid; grid-template-rows: 0fr; visibility: hidden;
+  transition: grid-template-rows .5s var(--ease), visibility 0s .5s; }
+.desplegable--abierto { grid-template-rows: 1fr; visibility: visible; transition: grid-template-rows .5s var(--ease), visibility 0s; }
+.desplegable::before {
+  content: ''; position: absolute; z-index: -1; inset: 0 calc(-1 * var(--velo-der)) 0 calc(-1 * var(--velo)); pointer-events: none;
+  background: rgba(10,10,10,.3); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 104px), transparent), linear-gradient(to right, transparent, #000 var(--velo), #000 calc(100% - var(--velo-der)), transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 104px), transparent), linear-gradient(to right, transparent, #000 var(--velo), #000 calc(100% - var(--velo-der)), transparent);
+  mask-composite: intersect;
 }
-@media (prefers-reduced-motion: reduce) { .expandido { scroll-behavior: auto; } }
-.expandido__nombre:focus { outline: none; }
-/* D-42, Expandir no es abrupto: el contenido sube desde abajo, la escena se atenúa con un velo, el overlay base se funde y cada elemento
-   entra escalonado (`--i` lo pone Ficha). Solo CSS: la cámara y el rect del panel no se tocan (D-27, D-34). `.expandido` no lleva
-   `transform`: es el contenedor de scroll y su `sticky` tiene que seguir funcionando.
-   ponytail: se escalona solo al abrir (los bloques fuera de pantalla ya están quietos cuando se llega); salida, `animation-timeline: view()`
-   dentro de `@supports`, o un IntersectionObserver que agregue una clase.
-   ponytail: sin animación de cierre, D-34 cierra en el mismo render; salida, un estado `saliendo` con `onAnimationEnd`. */
-@keyframes subir { from { opacity: 0; transform: translateY(min(30vh, 240px)); } }
-@keyframes aparecer { from { opacity: 0; transform: translateY(16px); } }
-@keyframes velo { from { background-color: rgba(10,10,10,0); } to { background-color: rgba(10,10,10,.5); } }
-@keyframes fundir { from { opacity: 0; } }
-.expandido { animation: velo .7s ease-out both; }
-.expandido__cabecera { animation: fundir .4s ease-out both; }
-.expandido__portada, .expandido__cuerpo { animation: subir .7s cubic-bezier(.22, 1, .36, 1) both; }
-.expandido__portada .expandido__columna > *, .expandido__contenido, .expandido__grupo {
-  animation: aparecer .5s cubic-bezier(.22, 1, .36, 1) calc(250ms + min(var(--i, 0), 8) * 70ms) both;
+.desplegable__interior { min-height: 0; overflow: hidden; }
+.desplegable__cuerpo {
+  display: flex; flex-direction: column; gap: 44px; padding: 44px 0 120px; font-family: Gotham, sans-serif; text-align: left;
+  opacity: 0; transform: translateY(12px); transition: opacity .3s ease, transform .5s var(--ease);
 }
+.desplegable--abierto .desplegable__cuerpo { opacity: 1; transform: none; transition: opacity .45s ease .12s, transform .5s var(--ease) .08s; }
 @media (prefers-reduced-motion: reduce) {
-  .expandido, .expandido__cabecera { animation-duration: .2s; }
-  .expandido__portada, .expandido__cuerpo, .expandido__portada .expandido__columna > *, .expandido__contenido, .expandido__grupo { animation: none; }
-  .overlay__base[inert] > *, .overlay__base[inert] .panel, .overlay__base[inert] .lateralFloatingMenu { animation: none; opacity: 0; visibility: hidden; }
+  .desplegable, .desplegable--abierto { transition-duration: .01s; }
+  .desplegable__cuerpo, .desplegable--abierto .desplegable__cuerpo { transform: none; transition: opacity .2s ease; }
 }
-.expandido__cabecera {
-  position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 56px; min-height: 100px; padding: 0 48px; box-sizing: border-box;
-  background: linear-gradient(#0a0a0a 55%, rgba(10,10,10,0));
+.desplegable__titulo { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: .14em; margin: 0 0 14px; color: rgba(255,255,255,.7); }
+.desplegable__texto { white-space: pre-line; font-size: 16px; font-weight: 400; line-height: 1.6; margin: 0; max-width: 65ch; }
+.desplegable__bloque { scroll-margin-top: 48px; }
+.desplegable__entradas { border: 1px solid rgba(255,255,255,.2); border-radius: 6px; padding: 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.desplegable__entradas .desplegable__titulo, .desplegable__entradas .desplegable__texto { margin: 0; }
+.desplegable__creditos { display: flex; flex-direction: column; gap: 28px; }
+.desplegable__creditos > .desplegable__titulo { margin: 0; }
+.desplegable__grupo-titulo { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: .14em; margin: 0 0 10px; color: rgba(255,255,255,.7); }
+/* Próximos / Pasados: más chicos y callados que el título del grupo, con la misma letra espaciada del BranchedMenu. "Próximos" lleva el acento
+   y un punto, así se distingue de los pasados a simple vista. */
+.desplegable__sub { font-size: 12px; font-weight: 500; letter-spacing: .14em; margin: 0 0 8px; color: rgba(255,255,255,.55); }
+.desplegable__sub--proximos { color: #FF0080; }
+.desplegable__sub--proximos::before { content: '• '; }
+.desplegable__nodos + .desplegable__sub { margin-top: 20px; }
+.desplegable__nodos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 16px; line-height: 1.4; }
+.desplegable__nodos a { color: #fff; text-decoration: none; }
+.desplegable__nodos a:hover { text-decoration: underline; }
+/* El rol/chips, aparte del nombre (sin guion largo pegado): segunda línea, más chica y tenue. */
+.desplegable__rol { display: block; font-size: 12px; font-weight: 400; letter-spacing: .02em; color: rgba(255,255,255,.5); }
+.desplegable__galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.desplegable__galeria img { width: 100%; height: auto; display: block; }
+.desplegable__enlaces { display: flex; flex-wrap: wrap; gap: 12px; }
+.desplegable__video { width: 100%; aspect-ratio: 16 / 9; border: 0; }
+
+/* X de cierre (261117-nav1): reemplaza al Volver de abajo a la izquierda. Arriba a la derecha de la columna del panel; sticky, así sigue
+   a la vista al scrollear la expansión. */
+.panel__cerrar {
+  position: sticky; top: 0; float: right; z-index: 2; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+  margin: -6px -8px 0 8px; padding: 0; border: 0; border-radius: 50%; background: none; color: rgba(255,255,255,.7); cursor: pointer;
+  transition: color 150ms ease, background 150ms ease;
 }
-.expandido__nombre { font-family: 'Briller', Gotham, sans-serif; font-size: 26px; font-weight: 400; line-height: 1.2; margin: 0; letter-spacing: .02em; flex: none; }
-.expandido__menu { display: flex; gap: 30px; min-width: 0; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
-.expandido__menu::-webkit-scrollbar { display: none; }
-.expandido__item {
-  padding: 6px 0; margin: 0; border: 0; background: none; color: rgba(255,255,255,.6); font: inherit; font-size: 14px; font-weight: 500;
-  letter-spacing: .06em; text-transform: uppercase; cursor: pointer; transition: color 150ms ease;
-}
-.expandido__item:hover, .expandido__item[aria-current] { color: #fff; }
-.expandido__volver { margin-left: auto; flex: none; }
-.expandido__portada { min-height: 55vh; padding: 30px 48px 0; box-sizing: border-box; }
-.expandido__bloque {
-  background: linear-gradient(rgba(10,10,10,0), rgba(10,10,10,.82) 140px, #0a0a0a 260px);
-  /* abajo, lo que falta para que la última sección también pueda subir hasta la cabecera: sin esto el menú nunca la marca */
-  padding: 240px 48px max(64px, calc(100dvh - 160px)); box-sizing: border-box; min-height: 60vh;
-}
-.expandido__columna { width: min(100%, var(--columna-texto)); margin-inline-start: var(--panel-margen); display: flex; flex-direction: column; gap: 56px; }
-/* D-39: el cuerpo son dos columnas. Los bloques a la izquierda (620-680, se angosta primero en pantallas medianas) y los créditos a la derecha. */
-.expandido__cuerpo { display: flex; align-items: flex-start; gap: 64px; }
-.expandido__cuerpo > .expandido__columna { flex: 0 1 var(--columna-texto); width: auto; min-width: 0; }
-.expandido__creditos {
-  flex: none; margin-inline-start: auto; width: clamp(240px, 26vw, 340px); box-sizing: border-box;
-  position: sticky; top: 120px; max-height: calc(100dvh - 140px); overflow-y: auto; scrollbar-width: none;
-  display: flex; flex-direction: column; gap: 28px;
-}
-.expandido__creditos::-webkit-scrollbar { display: none; }
-.expandido__creditos .expandido__titulo { margin: 0; }
-/* Sin bloques (entidad sin About): el portfolio se alinea con la columna de texto y la ocupa, sin sticky ni hueco a la izquierda. */
-.expandido__creditos--solo { width: min(100%, var(--columna-texto)); margin-inline-start: var(--panel-margen); position: static; max-height: none; overflow: visible; }
-.expandido__portada .expandido__columna { gap: 14px; }
-.expandido__tipo { font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: .14em; color: rgba(255,255,255,.7); margin: 0; }
-.expandido__cuando { font-size: 34px; font-weight: 500; line-height: 1.2; margin: 0; }
-.expandido__lugar { font-size: 24px; font-weight: 500; line-height: 1.2; margin: 0; }
-.expandido__lugar a { color: #fff; text-decoration: none; }
-.expandido__lugar a:hover { text-decoration: underline; }
-.expandido__entradas { border: 1px solid rgba(255,255,255,.2); border-radius: 6px; padding: 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
-.expandido__entradas .expandido__titulo, .expandido__entradas .expandido__texto { margin: 0; }
-.expandido__entradas .expandido__texto { font-size: 16px; }
-.expandido__bajada { font-size: 26px; font-weight: 400; line-height: 1.3; margin: 0; }
-.expandido__texto { white-space: pre-line; font-size: 18px; font-weight: 400; line-height: 1.6; margin: 0; }
-.expandido__contenido { scroll-margin-top: 120px; }
-.expandido__titulo { font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: .14em; margin: 0 0 14px; color: rgba(255,255,255,.7); }
-.expandido__grupo-titulo { font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: .14em; margin: 0 0 10px; color: rgba(255,255,255,.7); }
-/* Subtítulos Próximos / Pasados: más chicos y callados que el título del grupo (mayúsculas, 14px), con la misma letra espaciada del
-   BranchedMenu. "Próximos" lleva el acento y un punto, así se distingue de los pasados a simple vista. */
-.expandido__sub { font-size: 12px; font-weight: 500; letter-spacing: .14em; margin: 0 0 8px; color: rgba(255,255,255,.55); }
-.expandido__sub--proximos { color: #FF0080; }
-.expandido__sub--proximos::before { content: '• '; }
-.expandido__nodos + .expandido__sub { margin-top: 20px; }
-.expandido__nodos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-size: 18px; line-height: 1.6; }
-.expandido__nodos a { color: #fff; text-decoration: none; }
-.expandido__nodos a:hover { text-decoration: underline; }
-.expandido__rol { font-size: 14px; font-weight: 500; text-transform: uppercase; color: rgba(255,255,255,.7); }
-.expandido__galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
-.expandido__galeria img { width: 100%; height: auto; display: block; }
-.expandido__enlaces { display: flex; flex-wrap: wrap; gap: 16px; }
-.expandido__video { width: 100%; aspect-ratio: 16 / 9; border: 0; }
-@media (max-width: 800px) {
-  .expandido { touch-action: pan-y; }
-  /* cabecera de 64px: nombre chico y el menú en una franja que scrollea en horizontal */
-  .expandido__cabecera { height: 64px; min-height: 64px; padding: 0 16px; gap: 16px; }
-  .expandido__nombre { font-size: 18px; max-width: 40vw; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-  .expandido__menu { flex: 1 1 auto; gap: 24px; }
-  .expandido__cuando { font-size: 24px; }
-  .expandido__lugar { font-size: 18px; }
-  .expandido__portada { min-height: 40dvh; padding: 16px 16px 0; }
-  .expandido__bloque { padding: 160px 16px max(64px, calc(100dvh - 160px)); }
-  .expandido__contenido { scroll-margin-top: 84px; }
-  /* una sola columna: primero los bloques, después los créditos, sin sticky */
-  .expandido__cuerpo { flex-direction: column; align-items: stretch; gap: 56px; }
-  .expandido__cuerpo > .expandido__columna { flex: none; width: 100%; margin-inline-start: 0; }
-  .expandido__creditos { position: static; width: auto; max-height: none; overflow: visible; margin-inline-start: 0; }
-}
+.panel__cerrar:hover { color: #fff; background: rgba(255,255,255,.12); }
+/* lugar para la X: el nombre largo no pasa por debajo */
+.panel__contenido > .panel__nombre { padding-right: 40px; }
+/* La raíz abierta no repite su nombre (ya está en el título fijo): queda solo para lectores de pantalla. */
+.panel__nombre--oculto { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Título de la red en la que se entró; "Sinápsis" pasa a marca chica arriba a la derecha */
 .tituloRed__red { display: none; }
+/* Chevron del título (D-50): despliega la expansión de la raíz. Sutil; gira al abrir. */
+.tituloRed__desplegar { flex: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%;
+  background: none; color: rgba(255,255,255,.7); cursor: pointer; transition: color 150ms ease, background 150ms ease; }
+.tituloRed__desplegar svg { transition: transform .35s cubic-bezier(.22, 1, .36, 1); }
+.tituloRed__desplegar[aria-expanded='true'] svg { transform: rotate(180deg); }
+.tituloRed__desplegar:hover { color: #fff; background: rgba(255,255,255,.12); }
+.tituloRed__desplegar:disabled { opacity: .4; cursor: default; }
+@media (prefers-reduced-motion: reduce) { .tituloRed__desplegar svg { transition: none; } }
 .tituloRed__h1 { margin: 0; min-width: 0; font: inherit; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tituloRed { position: fixed; z-index: 40; top: 20px; left: 24px; margin: 0; font-family: 'Briller', Gotham, sans-serif; font-size: 32px; font-weight: 400; color: #fff; }
-.marca { position: fixed; z-index: 40; top: 24px; right: 24px; font-family: 'Briller', Gotham, sans-serif; font-size: 16px; color: rgba(255,255,255,.7); text-decoration: none; }
+/* con la expansión abierta el texto scrollea por todo el alto: la marca de abajo no se superpone */
+.marca--expandido { opacity: 0; pointer-events: none; }
+.marca { position: fixed; z-index: 40; top: 24px; right: 24px; font-family: 'Briller', Gotham, sans-serif; font-size: 16px; color: rgba(255,255,255,.7); text-decoration: none; transition: opacity .3s; }
 @media (max-width: 800px) {
   /* D-28/D-35 (rehecho en 261117-nav1): el nombre de la red va en una franja propia arriba, de 60px (la altura de la hamburguesa), en UNA
      línea con elipsis. Z-index por debajo del menú de áreas (40) y del cajón (100): al abrir el menú nunca queda tapado. El puente
@@ -258,6 +224,7 @@
   .tituloRed { left: 16px; right: 16px; top: 0; height: 60px; z-index: 35; max-width: none; display: flex; align-items: center; gap: 4px;
     font-size: clamp(18px, 5.2vw, 24px); line-height: 1.1; }
   .tituloRed--con-menu { left: 64px; }
+  .tituloRed__desplegar { width: 44px; height: 44px; }
   /* Mobile no cambia de layout: el título es el nombre de la red (adentro de un área, el área). */
   .tituloRed__entidad { display: none; }
   .tituloRed__red { display: inline; }
@@ -294,7 +261,7 @@
   /* flex-basis fijo: sin esto el contenedor se encoge al hijo más angosto (VOLVER) y la rama
      hereda ese mismo ancho chico en vez de uno útil para truncar títulos largos. */
   .izquierda .lateralFloatingMenu { position: static; flex: 0 0 260px; max-height: none; }
-  .izquierda .panel { position: static; flex: 1; min-width: 0; height: auto; background: none; padding: 0 0 24px; }
+  .izquierda .panel { position: static; flex: 1; min-width: 0; height: auto; background: none; padding: 0 0 24px var(--velo); margin-left: calc(-1 * var(--velo)); }
   .panel__nombre { font-size: 34px; }
   .panel__subtipo { font-size: 16px; }
   .panel__desc { font-size: 18px; }

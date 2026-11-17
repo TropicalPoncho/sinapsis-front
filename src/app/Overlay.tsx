@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowRight02FreeIcons, UnfoldMoreFreeIcons } from '@hugeicons/core-free-icons'
+import { ArrowDown01FreeIcons, ArrowRight02FreeIcons, Cancel01FreeIcons, UnfoldLessFreeIcons, UnfoldMoreFreeIcons } from '@hugeicons/core-free-icons'
 import type { RefObject } from 'react'
 import type { Adyacencia } from '../lib/vista/adyacencia.ts'
 import type { IndiceSlugs } from '../lib/red/slugs.ts'
@@ -45,10 +45,9 @@ export interface OverlayProps {
 // El panel siempre está maquetado (nunca display:none): la cámara mide su rect antes de que aparezca.
 export default function Overlay({ estado, mostrado, ady, idx, escena, fase, error, panelRef, tituloRef, navegar, volver, reintentar }: OverlayProps) {
   const h2Ref = useRef<HTMLHeadingElement>(null)
-  // D-34: la ficha expandida es estado de UI, no Vista. Se guarda la clave de la URL en la que se abrió: cualquier
-  // cambio de URL (Atrás, un nodo de una sección, el menú) la cierra en ese mismo render.
+  // D-34/D-50: la expansión inline es estado de UI, no Vista. Se guarda la clave de la URL en la que se abrió: cualquier
+  // cambio de URL (Atrás, un nodo de una sección, el menú) la pliega en ese mismo render.
   const [expandidoEn, setExpandidoEn] = useState<string | null>(null)
-  const [puedeVolver, setPuedeVolver] = useState(false)
 
   const nodoDe = (e: EstadoRed) => ady && idx && e.enfocado
     ? ady.nodos.get(idx.idPorSlug.get(e.enfocado) ?? '')
@@ -59,6 +58,8 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
   const claveUrl = claveEstado(estado)
   if (expandidoEn !== null && expandidoEn !== claveUrl) setExpandidoEn(null)
   const expandido = expandidoEn === claveUrl
+  // El contenido (y su fetch del detalle) se monta al expandir por primera vez ese nodo y queda montado al plegar: la animación de cierre lo necesita.
+  const [montadoId, setMontadoId] = useState<string | null>(null)
 
   const redId = ady && idx && estado.red ? idx.idPorSlug.get(estado.red) ?? null : null
   const enfocadoId = nodoUrl?.id ?? null
@@ -178,7 +179,7 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     setLateralAbierto(true)
   }
 
-  // Volver del panel (y Esc). Al previsualizar un área en la red de su entidad, sube al "home" de la entidad
+  // X del panel (y Esc). Al previsualizar un área en la red de su entidad, sube al "home" de la entidad
   // (sin foco en el área) en vez de deshacer el historial: Atrás volvería a entrar al área, que es lo contrario.
   const volverDelPanel = useCallback(() => {
     const slugEntidad = idx && entidadId ? idx.slugPorId.get(entidadId) : undefined
@@ -193,29 +194,24 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
   // Adentro de una red sin nada más que ella misma (un área sin miembros). Espera a `coincide`: si no, el
   // texto cambiaría mientras el panel todavía está saliendo con el contenido viejo.
   const vacia = entrado && coincide && sub !== null && sub.nodos.every((n) => n.id === redId)
-  const visible = fase === 'listo' && ((nodo !== undefined && !entrado && coincide) || error !== null || vacia)
+  // D-50: con el foco en la raíz de la red (enfocado === red) el panel repetiría el título fijo de arriba: no se muestra. Solo aparece
+  // abierto (la expansión de la raíz, desde el chevron del título); `entrado` es un caso de `raiz`.
+  const raiz = estado.enfocado !== null && estado.enfocado === estado.red
+  const visible = fase === 'listo' && ((nodo !== undefined && coincide && (!raiz || expandido)) || error !== null || vacia)
 
-  // Sigue a `mostrado`, no a la URL: si el botón desaparece apenas cambia la URL, el panel (en mobile,
-  // de alto automático) se achica mientras sale y el encuadre salta antes de que la cámara se mueva.
-  useEffect(() => {
-    setPuedeVolver(((history.state as { sinapsis?: { idx?: number } } | null)?.sinapsis?.idx ?? 0) > 0)
-  }, [mostrado])
-  // Cierra la ficha y devuelve el foco al título del panel; en el cuadro siguiente, porque mientras el overlay base
-  // siga `inert` el foco no puede entrar.
-  const cerrarFicha = useCallback(() => {
-    setExpandidoEn(null)
-    requestAnimationFrame(() => h2Ref.current?.focus({ preventScroll: true }))
-  }, [])
-  // Esc en dos niveles: con la ficha abierta la cierra; si no, hace lo del Volver del panel.
+  const nodoId = nodo?.id ?? null
+  if (expandido && nodoId !== null && montadoId !== nodoId) setMontadoId(nodoId)
+  // Esc en dos niveles: con la expansión abierta la pliega; si no, hace lo de la X del panel.
   useEffect(() => {
     if (!nodo) return
-    const f = (e: KeyboardEvent) => { if (e.key === 'Escape') { if (expandido) cerrarFicha(); else volverDelPanel() } }
+    const f = (e: KeyboardEvent) => { if (e.key === 'Escape') { if (expandido) setExpandidoEn(null); else volverDelPanel() } }
     window.addEventListener('keydown', f)
     return () => window.removeEventListener('keydown', f)
-  }, [nodo, expandido, cerrarFicha, volverDelPanel])
+  }, [nodo, expandido, volverDelPanel])
   useEffect(() => {
-    if (visible) h2Ref.current?.focus({ preventScroll: true })
-  }, [visible, nodo?.id, error])
+    // La raíz abierta se abre desde el chevron del título: el foco se queda ahí, no salta a un h2 que no se ve.
+    if (visible && !raiz) h2Ref.current?.focus({ preventScroll: true })
+  }, [visible, raiz, nodo?.id, error])
 
   // Las secciones del nodo del panel se calculan una vez: la misma lista decide el botón Expandir y llena la ficha.
   const secciones = nodo && ady ? seccionesDe(ady, nodo.id, roles, hoy) : []
@@ -229,12 +225,20 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
   const botones = nodo
     ? botonesDe(nodo, { compone, secciones: secciones.length }).filter((b) => !(b.accion === 'entrar' && mostrado.red === mostrado.enfocado))
     : []
+  // D-50: la raíz no muestra panel, así que su Expandir vive en el chevron del título. La regla sigue en un solo lugar, `botonesDe`:
+  // la raíz expande si el panel de la raíz tendría el botón Expandir (mismo contexto de compone/secciones).
+  const raizExpande = raiz && redNodo && ady && redId ? botonesDe(redNodo, {
+    compone: (ady.sale.get(redId) ?? []).some((v) => v.tipoVinculo === 'COMPONE'),
+    secciones: seccionesDe(ady, redId, roles, hoy).length,
+  }).some((b) => b.accion === 'expandir') : false
+  // D-48: la fecha de una ENTIDAD es la de alta en el sitio viejo, no un dato para el visitante: solo obras y eventos la muestran.
+  const fecha = nodo && (nodo.nodeType === 'OBRA' || nodo.nodeType === 'EVENTO') ? fechaLarga(nodo.fecha) : ''
 
   const ejecutar = (b: Boton) => {
     if (!nodo || !idx) return
     switch (b.accion) {
       case 'expandir':
-        setExpandidoEn(claveUrl)
+        setExpandidoEn(expandido ? null : claveUrl)
         break
       case 'entrar': {
         const slug = idx.slugPorId.get(nodo.id) ?? ''
@@ -250,7 +254,7 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
 
   const alPanelScroll = (el: HTMLElement) =>
     // ponytail: escala 400px reajustable
-    [el, el.parentElement!].forEach((e) => e.style.setProperty('--panel-alpha', String(Math.min(0.9, 0.55 + el.scrollTop / 400))))
+    [el, el.parentElement!].forEach((e) => e.style.setProperty('--panel-alpha', String(Math.min(0.62, 0.55 + el.scrollTop / 400))))
 
   // Los nodos de una sección como lista lateral; cada uno con `rol` lo lleva aparte (`rol`: en "Otros" y los chips de un portfolio, D-46; el menú lo
   // dibuja en una segunda línea, 261117-nav1) y los
@@ -260,7 +264,13 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     return n ? [{ id, label: n.label, subtipo: n.subtipo, ...(rol && { rol }), ...(i < (s.proximos ?? 0) && { proximo: true as const }) }] : []
   })
 
-  const volverBtn = puedeVolver && <button className="accion accion--volver" onClick={volverDelPanel}>Volver</button>
+  // D-50 / 261117-nav1: Volver pasa a ser una X arriba a la derecha del panel (sticky: sigue a la vista al scrollear la expansión). Con la
+  // expansión de la raíz abierta no hay a dónde volver: cierra el panel.
+  const cerrarBtn = (
+    <button type="button" className="panel__cerrar" aria-label="Cerrar" onClick={raiz ? () => setExpandidoEn(null) : volverDelPanel}>
+      <HugeiconsIcon icon={Cancel01FreeIcons} size={20} strokeWidth={1.8} aria-hidden="true" />
+    </button>
+  )
 
   return (
     <div className="overlay">
@@ -269,20 +279,33 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
         <div className="cargando__barra" />
       </div>
 
-      {/* D-34: con la ficha abierta el resto del overlay queda inert (nativo) y oculto; el panel sigue maquetado, así el rect que lee el puente no cambia. */}
-      <div className="overlay__base" inert={expandido}>
+      {/* El panel siempre está maquetado, así el rect que lee el puente no cambia al expandir en escritorio. */}
       {redNodo
         // Escritorio muestra la entidad de contexto; mobile, el nombre de la red (el área adentro de un área): el CSS elige.
         ? (
-          // Franja propia arriba (mobile: debajo del cajón y del menú, truncada); `con-menu` deja lugar a la hamburguesa.
+          // Franja propia arriba (mobile: debajo del cajón y del menú, truncada); `con-menu` deja lugar a la hamburguesa. El chevron (D-50)
+          // despliega la expansión de la raíz, que no tiene panel propio.
           <header className={'tituloRed' + (hayMenu ? ' tituloRed--con-menu' : '')} ref={tituloRef}>
             <h1 className="tituloRed__h1"><span className="tituloRed__entidad">{(entidadId && ady?.nodos.get(entidadId)?.label) || redNodo.label}</span><span className="tituloRed__red">{redNodo.label}</span></h1>
+            {raizExpande && (
+              <button
+                type="button"
+                className="tituloRed__desplegar"
+                aria-expanded={expandido}
+                aria-controls="panel-desplegable"
+                aria-label={(expandido ? 'Plegar ' : 'Desplegar ') + redNodo.label}
+                disabled={fase !== 'listo'}
+                onClick={() => setExpandidoEn(expandido ? null : claveUrl)}
+              >
+                <HugeiconsIcon icon={ArrowDown01FreeIcons} size={20} strokeWidth={1.8} aria-hidden="true" />
+              </button>
+            )}
           </header>
         )
         : <h1 className={'floatingTitle' + (estado.enfocado ? ' title-hidden' : '')}>Sinápsis</h1>}
       {/* <a> a propósito: la navegación la coreografía Shell vía navegar(); next/link la saltearía. */}
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-      {redNodo && <a className={'marca' + (visible ? ' marca--oculta' : '')} href="/" onClick={(e) => { e.preventDefault(); navegar('/', 'reemplazo') }}>Sinápsis</a>}
+      {redNodo && <a className={'marca' + (visible ? ' marca--oculta' : '') + (visible && expandido ? ' marca--expandido' : '')} href="/" onClick={(e) => { e.preventDefault(); navegar('/', 'reemplazo') }}>Sinápsis</a>}
 
       {hayMenu && (
         <button id="hamburger" aria-label="Abrir menú" aria-expanded={menuAbierto || lateralAbierto} onClick={alHamburguesa}>
@@ -311,7 +334,7 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
 
       <aside
         ref={panelRef}
-        className={'panel' + (lateral ? ' panel--con-lateral' : '') + (visible ? ' panel--visible' : '')}
+        className={'panel' + (lateral ? ' panel--con-lateral' : '') + (visible ? ' panel--visible' : '') + (expandido ? ' panel--expandido' : '')}
         role="region"
         aria-labelledby="panel-nombre"
         aria-live="polite"
@@ -334,14 +357,16 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
           </div>
         ) : vacia ? (
           <div className="panel__contenido">
+            {cerrarBtn}
             <h2 id="panel-nombre" tabIndex={-1} className="panel__nombre" ref={h2Ref}>Todavía no hay nada acá</h2>
             <p className="panel__desc">Esta red no tiene nodos cargados. Volvé y explorá otro camino.</p>
-            <div className="panel__botones">{volverBtn}</div>
           </div>
         ) : nodo ? (
           <div className="panel__contenido" key={nodo.id}>
-            <h2 id="panel-nombre" tabIndex={-1} className="panel__nombre" ref={h2Ref}>{nodo.label}</h2>
-            <p className="panel__subtipo">{nodo.subtipo}</p>
+            {cerrarBtn}
+            {/* Raíz abierta: el nombre ya está en el título fijo; acá queda para lectores de pantalla y como etiqueta de la región. */}
+            <h2 id="panel-nombre" tabIndex={-1} className={'panel__nombre' + (raiz ? ' panel__nombre--oculto' : '')} ref={h2Ref}>{nodo.label}</h2>
+            <p className="panel__subtipo">{nodo.subtipo}{expandido && !futuro && fecha && ` · ${fecha}`}</p>
             {futuro && <p className="panel__cuando">{fechaLarga(nodo.fecha, true)}{nodo.horario && ` · ${nodo.horario}`}</p>}
             {espacio && <button type="button" className="panel__lugar" onClick={() => irA(espacio.id, false)}>{ady?.nodos.get(espacio.id)?.label}</button>}
             {nodo.descripcionBreve && <p className="panel__desc">{nodo.descripcionBreve}</p>}
@@ -350,34 +375,47 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
                 b.accion === 'enlace' ? (
                   <a key={b.etiqueta} className="accion" href={b.destino} target="_blank" rel="noopener noreferrer">{b.etiqueta}</a>
                 ) : (
-                  // Entrar es la primaria (llena, flecha); Expandir, la secundaria (borde, ícono de despliegue): se leen distintas.
-                  <button key={b.etiqueta} className={'accion accion--' + b.accion} disabled={fase !== 'listo'} aria-busy={fase !== 'listo'} onClick={() => ejecutar(b)}>
-                    {b.etiqueta}
-                    <HugeiconsIcon icon={b.accion === 'entrar' ? ArrowRight02FreeIcons : UnfoldMoreFreeIcons} size={16} strokeWidth={1.8} aria-hidden="true" />
+                  // Entrar es la primaria (contorno con el acento, flecha); Expandir, la secundaria (borde blanco, ícono de despliegue): se leen
+                  // distintas. Expandir alterna con Plegar (D-50).
+                  <button
+                    key={b.etiqueta}
+                    className={'accion accion--' + b.accion}
+                    disabled={fase !== 'listo'}
+                    aria-busy={fase !== 'listo'}
+                    aria-expanded={b.accion === 'expandir' ? expandido : undefined}
+                    aria-controls={b.accion === 'expandir' ? 'panel-desplegable' : undefined}
+                    onClick={() => ejecutar(b)}
+                  >
+                    {b.accion === 'expandir' && expandido ? 'Plegar' : b.etiqueta}
+                    <HugeiconsIcon icon={b.accion === 'entrar' ? ArrowRight02FreeIcons : expandido ? UnfoldLessFreeIcons : UnfoldMoreFreeIcons} size={16} strokeWidth={1.8} aria-hidden="true" />
                   </button>
                 ),
               )}
-              {volverBtn}
             </div>
+            {/* D-50: la expansión inline. Cerrada queda en 0fr, invisible y `inert`; el contenido se monta la primera vez que se abre. */}
+            {botones.some((b) => b.accion === 'expandir') && (
+              <div id="panel-desplegable" className={'desplegable' + (expandido ? ' desplegable--abierto' : '')} inert={!expandido} aria-live="off">
+                <div className="desplegable__interior">
+                  <div className="desplegable__cuerpo">
+                    {montadoId === nodo.id && ady && idx && (
+                      <Ficha
+                        key={nodo.id}
+                        nodo={nodo}
+                        secciones={secciones}
+                        futuro={futuro}
+                        nodos={ady.nodos}
+                        hrefDe={(id) => rutaDe(ady.nodos.get(id)!, idx)}
+                        onMiembro={entrarASeccion}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         ) : null}
       </aside>
       </div>
-      </div>
-
-      {expandido && nodo && ady && idx && (
-        <Ficha
-          key={nodo.id}
-          nodo={nodo}
-          secciones={secciones}
-          futuro={futuro}
-          espacio={espacio}
-          nodos={ady.nodos}
-          hrefDe={(id) => rutaDe(ady.nodos.get(id)!, idx)}
-          onMiembro={entrarASeccion}
-          onCerrar={cerrarFicha}
-        />
-      )}
     </div>
   )
 }
