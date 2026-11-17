@@ -41,7 +41,7 @@ export default function Shell() {
   const pathname = usePathname()
   const search = useSearchParams().toString()
   const panelRef = useRef<HTMLElement | null>(null)
-  const tituloRef = useRef<HTMLHeadingElement | null>(null)
+  const tituloRef = useRef<HTMLElement | null>(null)
   const entradaRef = useRef<Entrada | null>(null)
   const llegadaRef = useRef<{ t: Transicion }>({ t: 'reemplazo' })
 

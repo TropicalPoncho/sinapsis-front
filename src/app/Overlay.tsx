@@ -36,7 +36,7 @@ export interface OverlayProps {
   error: 'topologia' | 'no-encontrado' | null
   panelRef: RefObject<HTMLElement | null>
   // El título de la red: en mobile es grande y tapa arriba, así que el puente lo mide (área segura `top`).
-  tituloRef: RefObject<HTMLHeadingElement | null>
+  tituloRef: RefObject<HTMLElement | null>
   navegar: (url: string, t: Transicion) => void
   volver: () => void
   reintentar: () => void
@@ -273,7 +273,12 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
       <div className="overlay__base" inert={expandido}>
       {redNodo
         // Escritorio muestra la entidad de contexto; mobile, el nombre de la red (el área adentro de un área): el CSS elige.
-        ? <h1 className="tituloRed" ref={tituloRef}><span className="tituloRed__entidad">{(entidadId && ady?.nodos.get(entidadId)?.label) || redNodo.label}</span><span className="tituloRed__red">{redNodo.label}</span></h1>
+        ? (
+          // Franja propia arriba (mobile: debajo del cajón y del menú, truncada); `con-menu` deja lugar a la hamburguesa.
+          <header className={'tituloRed' + (hayMenu ? ' tituloRed--con-menu' : '')} ref={tituloRef}>
+            <h1 className="tituloRed__h1"><span className="tituloRed__entidad">{(entidadId && ady?.nodos.get(entidadId)?.label) || redNodo.label}</span><span className="tituloRed__red">{redNodo.label}</span></h1>
+          </header>
+        )
         : <h1 className={'floatingTitle' + (estado.enfocado ? ' title-hidden' : '')}>Sinápsis</h1>}
       {/* <a> a propósito: la navegación la coreografía Shell vía navegar(); next/link la saltearía. */}
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}

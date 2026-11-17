@@ -19,7 +19,7 @@ interface Props {
   escena: ReturnType<typeof subgrafoDe> | null;
   llegadaRef: RefObject<{ t: Transicion }>;
   panelRef: RefObject<HTMLElement | null>;
-  tituloRef: RefObject<HTMLHeadingElement | null>;
+  tituloRef: RefObject<HTMLElement | null>;
   onFase: (f: Fase) => void;
   onMostrar: (e: EstadoRed) => void;
   onNodoClick: (id: string) => void;
