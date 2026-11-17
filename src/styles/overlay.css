@@ -40,7 +40,8 @@
     background: linear-gradient(to top, rgba(0,0,0,var(--panel-alpha)) 0%, rgba(0,0,0,var(--panel-alpha)) 70%, rgba(0,0,0,0) 100%);
     transform: translateY(16px); touch-action: pan-y;
   }
-  /* el cajón crece hacia arriba al expandir (D-50); el puente no lo relee: la cámara no se mueve */
+  /* el cajón crece hacia arriba al expandir (D-50); el puente no lo relee: la cámara no se mueve.
+     ponytail: anima max-height (layout) en un solo elemento fijo; salida, el mismo truco de grid del .desplegable si se nota en gama baja. */
   .panel { --velo: 16px; --velo-der: 16px; }
   /* sin blur en mobile: el borde superior del cajón (donde el velo scrollea fuera) queda suave en vez de un corte de desenfoque */
   .desplegable::before { backdrop-filter: none; -webkit-backdrop-filter: none; }
