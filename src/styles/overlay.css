@@ -105,7 +105,12 @@
 /* 261029-hui: la lista scrollea dentro del lateral y VOLVER (al final) queda fija debajo de ella. */
 .lateral__lista { flex: 0 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: none; }
 .lateral__lista::-webkit-scrollbar { display: none; }
-.accion--lateral { text-transform: uppercase; margin-top: 8px; align-self: flex-start; }
+/* Volver de la lista: fila tenue del mismo registro que BranchedMenu (minúscula, chica), alineada con el riel; no un botón con borde. */
+.lateral__volver {
+  display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; margin: 6px 0 0; padding: 8px 0 8px 14px; border: 0; background: none;
+  color: rgba(255,255,255,.45); font: inherit; font-size: 13px; letter-spacing: .02em; cursor: pointer; transition: color 150ms ease;
+}
+.lateral__volver:hover { color: #fff; }
 
 /* Nav del menú superior: texto plano, sin pill ni borde — un nav como cualquier otro, en una
    sola línea. El activo se marca con el color del área (dato en el borde) o, si no hay, con blanco
@@ -272,7 +277,7 @@
   .floatingMenu { top: 24px; left: auto; right: 24px; transform: none; justify-content: flex-end; }
   /* align-items: stretch (no flex-start): la rama necesita heredar el 100% del ancho del
      contenedor para que sus filas absolutas y el truncado de texto midan contra algo real.
-     VOLVER, que sí debe quedar compacto, lo pide aparte con align-self (.accion--lateral). */
+     VOLVER, que sí debe quedar compacto, lo pide aparte con align-self (.lateral__volver). */
   .lateralFloatingMenu { top: 100px; left: 24px; transform: none; min-width: 0; padding: 0; border-radius: 0; background: none; backdrop-filter: none; align-items: stretch; gap: 2px; }
 }
 
@@ -287,7 +292,6 @@
      hereda ese mismo ancho chico en vez de uno útil para truncar títulos largos. */
   .izquierda .lateralFloatingMenu { position: static; flex: 0 0 260px; max-height: none; }
   .izquierda .panel { position: static; flex: 1; min-width: 0; height: auto; background: none; padding: 0 0 24px; }
-  .accion--lateral { font-size: 15px; }
   .panel__nombre { font-size: 34px; }
   .panel__subtipo { font-size: 16px; }
   .panel__desc { font-size: 18px; }

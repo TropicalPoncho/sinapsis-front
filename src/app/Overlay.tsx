@@ -252,11 +252,12 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     // ponytail: escala 400px reajustable
     [el, el.parentElement!].forEach((e) => e.style.setProperty('--panel-alpha', String(Math.min(0.9, 0.55 + el.scrollTop / 400))))
 
-  // Los nodos de una sección como lista lateral; cada uno con `rol` lleva " — rol" (en "Otros" y los chips de un portfolio, D-46) y los
+  // Los nodos de una sección como lista lateral; cada uno con `rol` lo lleva aparte (`rol`: en "Otros" y los chips de un portfolio, D-46; el menú lo
+  // dibuja en una segunda línea, 261117-nav1) y los
   // primeros `proximos` van marcados: el menú los pone bajo el subtítulo "Próximos" y el resto bajo "Pasados" (D-47, 261029-hui).
   const itemsDe = (s: Seccion) => s.nodos.flatMap(({ id, rol }, i) => {
     const n = ady?.nodos.get(id)
-    return n ? [{ id, label: rol ? `${n.label} — ${rol}` : n.label, subtipo: n.subtipo, ...(i < (s.proximos ?? 0) && { proximo: true as const }) }] : []
+    return n ? [{ id, label: n.label, subtipo: n.subtipo, ...(rol && { rol }), ...(i < (s.proximos ?? 0) && { proximo: true as const }) }] : []
   })
 
   const volverBtn = puedeVolver && <button className="accion accion--volver" onClick={volverDelPanel}>Volver</button>

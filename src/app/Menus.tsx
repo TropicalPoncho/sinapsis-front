@@ -1,5 +1,7 @@
 'use client'
 
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowLeft01FreeIcons } from '@hugeicons/core-free-icons'
 import BranchedMenu from './BranchedMenu.jsx'
 
 export interface ItemMenu { id: string; label: string; color: string }
@@ -8,6 +10,8 @@ interface BranchedMenuItem {
   value?: string
   label: string
   children?: { value: string; label: string }[]
+  // Rol o chips del nodo en esta lista: segunda línea, más tenue (sin guion largo pegado al nombre).
+  sub?: string
   // Subtítulo sin acción (Próximos / Pasados); `proximos` lo marca con el acento.
   titulo?: true
   proximos?: true
@@ -50,7 +54,7 @@ export function MenuSuperior({ items, activoId, padreId, abierto, enArea, onEleg
 }
 
 // `proximo`: evento de hoy en adelante. Vienen primero; si hay alguno, la lista se parte en "Próximos" y "Pasados".
-export interface ItemLateral { id: string; label: string; subtipo: string; hijos?: ItemLateral[]; proximo?: true }
+export interface ItemLateral { id: string; label: string; subtipo: string; rol?: string; hijos?: ItemLateral[]; proximo?: true }
 
 // BranchedMenu solo entiende {value,label} (hoja, sin rama) o {label,children} (sección
 // plegable, con rama). Un ItemLateral con hijos es lo segundo; sin hijos —el caso de hoy,
@@ -62,7 +66,7 @@ const aItemsDeMenu = (nodos: ItemLateral[]): BranchedMenuItem[] => {
     ...(hayProximos && !n.proximo && (i === 0 || nodos[i - 1].proximo) ? [{ label: 'Pasados', titulo: true as const }] : []),
     n.hijos?.length
       ? { label: n.label, children: n.hijos.map((h) => ({ value: h.id, label: h.label })) }
-      : { value: n.id, label: n.label },
+      : { value: n.id, label: n.label, ...(n.rol && { sub: n.rol }) },
   ])
 }
 
@@ -92,8 +96,11 @@ export function MenuLateral({ nodos, enfocadoId, abierto, onElegir, onVolver, on
           />
         </div>
       )}
-      {/* Volver va al final de la lista, nunca arriba (261029-hui). */}
-      <button className="accion accion--volver accion--lateral" onClick={onVolver}>VOLVER</button>
+      {/* Volver va al final de la lista, nunca arriba (261029-hui). La tarea de historial (261117-nav2) lo reemplaza. */}
+      <button className="lateral__volver" onClick={onVolver}>
+        <HugeiconsIcon icon={ArrowLeft01FreeIcons} size={14} strokeWidth={1.8} aria-hidden="true" />
+        volver
+      </button>
     </nav>
   )
 }

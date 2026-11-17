@@ -4,7 +4,8 @@
 // `active` puede llegar controlado desde afuera (además de `defaultActive`), porque acá el nodo
 // enfocado lo decide la URL/el motor 3D, no solo un click adentro de este menú. Sin eso, tocar un
 // nodo en el canvas no movía el marcador. Segundo cambio propio (261029-hui): un item `{ titulo }` es un subtítulo sin acción
-// (Próximos / Pasados). Todo lo demás —geometría, curvas, fold— es el original.
+// (Próximos / Pasados). Tercero (261117-nav1): una hoja puede traer `sub` (rol/chips), que se dibuja en una segunda línea más chica
+// y tenue, y el marcador toma el alto de la fila. Todo lo demás —geometría, curvas, fold— es el original.
 import { isValidElement, useLayoutEffect, useRef, useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
 import './BranchedMenu.css'
@@ -63,7 +64,11 @@ export default function BranchedMenu({
       if (!m) return
       const on = markerShown && el
       if (!glide) m.style.transition = 'none'
-      if (on) m.style.top = `${el.offsetTop + (el.offsetHeight - MARK) / 2}px`
+      if (on) {
+        const alto = Math.max(MARK, el.offsetHeight)
+        m.style.height = `${alto}px`
+        m.style.top = `${el.offsetTop + (el.offsetHeight - alto) / 2}px`
+      }
       m.toggleAttribute('data-on', Boolean(on))
       if (!glide) {
         void m.offsetHeight
@@ -159,6 +164,7 @@ export default function BranchedMenu({
               onClick={() => (kids ? toggle(i) : select(leafValue, item))}
             >
               {item.label}
+              {item.sub && <span className="branched-menu__sub">{item.sub}</span>}
             </button>
             {kids ? (
               <div className="branched-menu__body">

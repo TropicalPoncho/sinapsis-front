@@ -1,4 +1,4 @@
-/* Copiado de https://reactbits.dev/c/micro/branched-menu; lo único propio es __titulo (subtítulos Próximos / Pasados, 261029-hui). */
+/* Copiado de https://reactbits.dev/c/micro/branched-menu; lo único propio es __titulo (subtítulos Próximos / Pasados, 261029-hui) y __sub (rol bajo el nombre, 261117-nav1). */
 .branched-menu {
   --bm-w: 240px;
   --bm-ink: #f5f5f5;
@@ -86,6 +86,29 @@
   .branched-menu__head:hover {
     color: var(--bm-ink);
   }
+}
+
+/* Rol / chips de una hoja: segunda línea, más chica y tenue que el nombre; sube al activo. Una sola línea con elipsis. */
+.branched-menu__sub {
+  display: block;
+  margin-top: 2px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--bm-ink) 42%, transparent);
+  font-size: calc(var(--bm-font) - 3px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  transition: color 200ms ease;
+}
+
+.branched-menu__head[data-active] {
+  font-weight: 600;
+}
+
+.branched-menu__head[data-active] .branched-menu__sub {
+  color: color-mix(in srgb, var(--bm-ink) 70%, transparent);
 }
 
 /* Subtítulo de la lista: chico, espaciado y apagado; "Próximos" con el acento. No es un botón. */
