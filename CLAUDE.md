@@ -109,6 +109,12 @@ Estas no son preferencias de estilo. Cada una existe por una decisión registrad
   hace más tiempo; la URL sigue llevando el ancla (red y foco) y es lo único que se comparte o sobrevive
   a una recarga. Ese conjunto no guarda Vistas pasadas ni se restaura al volver a otra red: si alguna
   vez hace falta historial de lo sumado, se discute antes del código.
+  Segunda excepción acotada (D-51, quick 261117-nav2): el historial desplegable del título (chevron hacia
+  atrás) es solo presentación de lo que el navegador ya guarda, no un stack propio. Con la Navigation API
+  se lee de `navigation.entries()`; sin ella, de una lista en memoria del Shell (URLs indexadas por el
+  `idx` de `history.state`). Tope `TOPE_HISTORIAL` (20), descarta lo más viejo; elegir un paso es
+  `history.go(delta)` y la URL sigue siendo la única fuente de la Vista: no se guardan Vistas, snapshots ni
+  topología. Persistirlo por usuario (cuentas) o guardar algo más que URLs se discute antes del código.
 - **`CUSTOM` no entra en el enum de `tipo_vinculo`.** El escape hatch es el campo `rol`.
 - **`nodeType` tiene cuatro valores y no se agregan más.** ENTIDAD, OBRA, EVENTO, AGRUPACION. Si
   aparece la necesidad de "un tipo nuevo" —banda, sello, podcast, área— es un `subtipo`, que es
