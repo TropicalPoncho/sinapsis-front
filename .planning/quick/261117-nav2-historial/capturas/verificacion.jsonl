@@ -1,0 +1,36 @@
+{"escena":"desktop 1 deep link sin historial","hayBoton":false,"tituloLeft":24,"tieneNavigation":true}
+{"escena":"desktop 2 tras recorrer","url":"/obra/alterego?red=obras","hayBoton":true,"exp":"false","filas":["Obras","Tropical Poncho › Obras","Tropical Poncho"],"inert":true,"vis":"hidden","foco":"panel__nombre:Alterego","tituloLeft":64,"entradas":4,"titulo":"Tropical PonchoObras"}
+{"escena":"desktop 3 abierto","url":"/obra/alterego?red=obras","hayBoton":true,"exp":"true","filas":["Obras","Tropical Poncho › Obras","Tropical Poncho"],"inert":false,"vis":"visible","foco":"historial__fila:Obras","tituloLeft":64,"entradas":4,"titulo":"Tropical PonchoObras","muestrasClip":[[7,"inset(0px 0px 100%","0"],[147,"inset(0px 0px 100%","0"],[228,"inset(0px 0px 19.4991%","0.705911"],[539,"inset(0px","1"]]}
+{"escena":"desktop 4 flechas","inicial":"historial__fila:Obras","abajo":"historial__fila:Tropical Poncho › Obras","arriba":"historial__fila:Obras","end":"historial__fila:Tropical Poncho"}
+{"escena":"desktop 5 Esc","exp":"false","inert":true,"vis":"hidden","urlIgual":true,"foco":"historial__boton:"}
+{"escena":"desktop 6 afuera","exp":"false"}
+{"escena":"desktop 7 elegir el mas viejo","antes":{"url":"/obra/alterego?red=obras","entradas":4,"filas":["Obras","Tropical Poncho › Obras","Tropical Poncho"]},"despues":{"url":"/entidad/tropical-poncho?red=tropical-poncho&perf=1&semilla=nav2","entradas":4,"filas":[],"hayBoton":false,"titulo":"Tropical PonchoTropical Poncho","tituloLeft":24},"cam":[0,0,350]}
+{"escena":"desktop 8 adelante x3","url":"/obra/alterego?red=obras","filas":["Obras","Tropical Poncho › Obras","Tropical Poncho"]}
+{"escena":"desktop 9 recarga","url":"/obra/alterego?red=obras","filas":["Obras","Tropical Poncho › Obras","Tropical Poncho"]}
+{"escena":"desktop 10 sin Navigation API","tieneNavigation":false,"hayBoton":false}
+{"escena":"desktop 10b abierto sin API","filas":["Obras","Tropical Poncho › Obras","Tropical Poncho"]}
+{"escena":"desktop 10c elegir el 2do sin API","url":"/entidad/obras?red=tropical-poncho&semilla=nav2","filas":["Tropical Poncho"],"entradas":5}
+{"escena":"desktop 10d recarga sin API (la lista en memoria se pierde)","filas":[],"hayBoton":false}
+{"escena":"desktop 11 Esc con raiz expandida","chevronesDelTitulo":1,"historialCerrado":true,"raizSigueAbierta":"true","filas":["Tropical Poncho › Obras"],"tituloLeft":64}
+{"escena":"desktop 12 reduced-motion","transitionDuration":"0s"}
+{"escena":"desktop 13 lateral con seccion","cerrar":["cerrar sección"],"dice_volver":false}
+{"escena":"desktop 13b cerrar seccion","lateral":0,"url":"http://localhost:3003/entidad/rama-cerratto?red=rama-cerratto&perf=1&semilla=nav2"}
+{"escena":"desktop 14 area-lista","cerrar":0,"dice_volver":false}
+{"escena":"mobile 1 deep link sin historial","hayBoton":false,"tituloLeft":64,"tieneNavigation":true}
+{"escena":"mobile 2 tras recorrer","url":"/obra/alterego?red=obras","hayBoton":true,"exp":"false","filas":["Obras","Tropical Poncho › Obras","Tropical Poncho"],"inert":true,"vis":"hidden","foco":"panel__nombre:Alterego","tituloLeft":104,"entradas":4,"titulo":"Tropical PonchoObras"}
+{"escena":"mobile 3 abierto","url":"/obra/alterego?red=obras","hayBoton":true,"exp":"true","filas":["Obras","Tropical Poncho › Obras","Tropical Poncho"],"inert":false,"vis":"visible","foco":"historial__fila:Obras","tituloLeft":104,"entradas":4,"titulo":"Tropical PonchoObras","muestrasClip":[[1,"inset(0px 0px 100%","0"],[168,"inset(0px 0px 13.3312%","0.802354"],[335,"inset(0px 0px 0.0222929%","1"],[501,"inset(0px","1"]]}
+{"escena":"mobile 4 flechas","inicial":"historial__fila:Obras","abajo":"historial__fila:Tropical Poncho › Obras","arriba":"historial__fila:Obras","end":"historial__fila:Tropical Poncho"}
+{"escena":"mobile 5 Esc","exp":"false","inert":true,"vis":"hidden","urlIgual":true,"foco":"historial__boton:"}
+{"escena":"mobile 6 afuera","exp":"false"}
+{"escena":"mobile 7 elegir el mas viejo","antes":{"url":"/obra/alterego?red=obras","entradas":4,"filas":["Obras","Tropical Poncho › Obras","Tropical Poncho"]},"despues":{"url":"/entidad/tropical-poncho?red=tropical-poncho&perf=1&semilla=nav2","entradas":4,"filas":[],"hayBoton":false,"titulo":"Tropical PonchoTropical Poncho","tituloLeft":64},"cam":[0,0,350]}
+{"escena":"mobile 8 adelante x3","url":"/obra/alterego?red=obras","filas":["Obras","Tropical Poncho › Obras","Tropical Poncho"]}
+{"escena":"mobile 9 recarga","url":"/obra/alterego?red=obras","filas":["Obras","Tropical Poncho › Obras","Tropical Poncho"]}
+{"escena":"mobile 10 sin Navigation API","tieneNavigation":false,"hayBoton":false}
+{"escena":"mobile 10b abierto sin API","filas":["Obras","Tropical Poncho › Obras","Tropical Poncho"]}
+{"escena":"mobile 10c elegir el 2do sin API","url":"/entidad/obras?red=tropical-poncho&semilla=nav2","filas":["Tropical Poncho"],"entradas":5}
+{"escena":"mobile 10d recarga sin API (la lista en memoria se pierde)","filas":[],"hayBoton":false}
+{"escena":"mobile 11 Esc con raiz expandida","chevronesDelTitulo":1,"historialCerrado":true,"raizSigueAbierta":"true","filas":["Tropical Poncho › Obras"],"tituloLeft":104}
+{"escena":"mobile 12 reduced-motion","transitionDuration":"0s"}
+{"escena":"mobile 13 lateral con seccion","cerrar":["cerrar sección"],"dice_volver":false}
+{"escena":"mobile 13b cerrar seccion","lateral":0,"url":"http://localhost:3003/entidad/rama-cerratto?red=rama-cerratto&perf=1&semilla=nav2"}
+{"escena":"mobile 14 area-lista","cerrar":0,"dice_volver":false}
