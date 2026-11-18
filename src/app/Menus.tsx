@@ -1,7 +1,5 @@
 'use client'
 
-import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowLeft01FreeIcons } from '@hugeicons/core-free-icons'
 import BranchedMenu from './BranchedMenu.jsx'
 
 export interface ItemMenu { id: string; label: string; color: string }
@@ -70,18 +68,19 @@ const aItemsDeMenu = (nodos: ItemLateral[]): BranchedMenuItem[] => {
   ])
 }
 
-export function MenuLateral({ nodos, enfocadoId, abierto, onElegir, onVolver, onCerrar }: {
+export function MenuLateral({ nodos, enfocadoId, abierto, onElegir, onCerrarSeccion, onCerrar }: {
   nodos: ItemLateral[]
   enfocadoId: string | null
   abierto: boolean
   onElegir: (id: string) => void
-  onVolver: () => void
+  // Solo con una sección abierta: la sección no vive en la URL, así que el historial no la cierra.
+  onCerrarSeccion?: () => void
   onCerrar: () => void
 }) {
   return (
     <nav className={'lateralFloatingMenu' + (abierto ? ' lateral--abierto' : '')} aria-label="Nodos de la red">
       <button className="close-lateral" aria-label="Cerrar lista" onClick={onCerrar}>×</button>
-      {/* La lista scrollea sola: así Volver, al final, queda siempre a la vista debajo de ella aunque la lista sea larga. */}
+      {/* La lista scrollea sola: así el cierre de la sección, al final, queda siempre a la vista aunque la lista sea larga. */}
       {nodos.length > 0 && (
         <div className="lateral__lista">
           <BranchedMenu
@@ -96,11 +95,8 @@ export function MenuLateral({ nodos, enfocadoId, abierto, onElegir, onVolver, on
           />
         </div>
       )}
-      {/* Volver va al final de la lista, nunca arriba (261029-hui). La tarea de historial (261117-nav2) lo reemplaza. */}
-      <button className="lateral__volver" onClick={onVolver}>
-        <HugeiconsIcon icon={ArrowLeft01FreeIcons} size={14} strokeWidth={1.8} aria-hidden="true" />
-        volver
-      </button>
+      {/* Volver atrás ya no vive acá: es el historial del título (D-51, 261117-nav2). */}
+      {onCerrarSeccion && <button className="lateral__cerrar" onClick={onCerrarSeccion}>cerrar sección</button>}
     </nav>
   )
 }

@@ -14,6 +14,7 @@ import { LIMITE_HOME, semillaDeVisita } from '../lib/red/home.ts'
 import type { EstadoRed } from '../lib/red/url.ts'
 import { alPop, entradaValida } from '../lib/red/navegacion.ts'
 import type { Entrada } from '../lib/red/navegacion.ts'
+import { pasosAtras, registrar } from '../lib/red/historial.ts'
 import type { Transicion } from '../types/vista.ts'
 
 const HOME: EstadoRed = { enfocado: null, red: null, prof: null, semilla: null, raiz: null, puentes: null }
@@ -44,6 +45,8 @@ export default function Shell() {
   const tituloRef = useRef<HTMLElement | null>(null)
   const entradaRef = useRef<Entrada | null>(null)
   const llegadaRef = useRef<{ t: Transicion }>({ t: 'reemplazo' })
+  // Respaldo del historial sin Navigation API (D-51): URLs por `idx` de history.state. Con la API no se usa.
+  const urlsRef = useRef<(string | undefined)[]>([])
 
   const estadoUrl = useMemo(() => estadoDesdeUrl(pathname, search), [pathname, search])
   const idx = useMemo(() => (ady ? indexarSlugs([...ady.nodos.values()]) : null), [ady])
@@ -70,13 +73,15 @@ export default function Shell() {
   useEffect(() => { cargar() }, [cargar])
   const reintentar = () => { olvidarTopologia(); setErrTopo(false); cargar() }
 
-  // ponytail: sin Navigation API; history.state propio alcanza para saber adelante/atrás.
+  // ponytail: para saber adelante/atrás alcanza history.state propio; la Navigation API solo se lee para el historial (D-51).
   useEffect(() => {
     entradaRef.current = entradaValida(history.state)
+    urlsRef.current[entradaRef.current?.idx ?? 0] = location.pathname + location.search
     const onPop = () => {
       const nuevo = entradaValida(history.state)
       llegadaRef.current = { t: alPop(entradaRef.current, nuevo).t }
       entradaRef.current = nuevo
+      urlsRef.current[nuevo?.idx ?? 0] = location.pathname + location.search
     }
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
@@ -89,9 +94,23 @@ export default function Shell() {
     const i = (entradaRef.current?.idx ?? 0) + 1
     llegadaRef.current = { t }
     entradaRef.current = { idx: i, t }
+    urlsRef.current = registrar(urlsRef.current, i, url)
     history.pushState({ sinapsis: { idx: i, t } }, '', url)
   }
   const volver = () => ((entradaRef.current?.idx ?? 0) > 0 ? history.back() : navegar('/', 'reemplazo'))
+
+  // Historial (D-51): los pasos hacia atrás de la pila del navegador, solo para mostrarlos. Con Navigation API se lee de ahí (sobrevive
+  // a una recarga); sin ella, de `urlsRef`. Se lee en cada render: el Shell ya se renderiza en cada cambio de URL, y `ady` evita leerlo
+  // antes de montar (el servidor no tiene pila).
+  const pasos = (() => {
+    if (!ady) return []
+    const nav = (window as { navigation?: { entries(): { url: string | null }[]; currentEntry: { index: number } } }).navigation
+    if (!nav) return pasosAtras(urlsRef.current, entradaRef.current?.idx ?? 0)
+    const rel = (u: string | null) => { if (!u) return undefined; const { origin, pathname, search } = new URL(u); return origin === location.origin ? pathname + search : undefined }
+    return pasosAtras(nav.entries().map((e) => rel(e.url)), nav.currentEntry.index)
+  })()
+  // Elegir un paso es retroceder esos pasos: la misma salida que el botón Atrás (popstate -> coreografía), sin apilar entradas nuevas.
+  const irAPaso = (delta: number) => history.go(delta)
 
   // enfocar = misma Vista: red/prof/semilla se conservan.
   const enfocar = (id: string) => {
@@ -106,7 +125,7 @@ export default function Shell() {
       <CanvasSinapsis ady={ady} idx={idx} estado={estado} escena={escena} llegadaRef={llegadaRef} panelRef={panelRef} tituloRef={tituloRef}
         onFase={setFase} onMostrar={setMostrado} onNodoClick={enfocar} onEngineReady={setEngine} />
       <Overlay estado={estado} mostrado={mostrado} ady={ady} idx={idx} escena={escena} fase={fase} error={error} panelRef={panelRef} tituloRef={tituloRef}
-        navegar={navegar} volver={volver} reintentar={reintentar} />
+        navegar={navegar} volver={volver} pasos={pasos} irAPaso={irAPaso} reintentar={reintentar} />
       {process.env.NODE_ENV !== 'production' && engine && <DebugPanel engine={engine} />}
     </>
   )

@@ -16,7 +16,10 @@ import { agrupadoresDe, nodosDeLaRed, padreDe, seccionesDe } from '../lib/red/me
 import type { Seccion, VocabularioRoles } from '../lib/red/menus.ts'
 import rolesJson from '../lib/red/roles.json'
 import { esFuturo, fechaLarga, hoyLocal } from '../lib/red/fechas.ts'
+import { etiquetaDe } from '../lib/red/historial.ts'
+import type { Paso } from '../lib/red/historial.ts'
 import { Ficha } from './Ficha.tsx'
+import { Historial } from './Historial.tsx'
 import { MenuLateral, MenuSuperior } from './Menus.tsx'
 
 // Único lector del vocabulario de roles (D-32): un solo cast del JSON.
@@ -39,11 +42,14 @@ export interface OverlayProps {
   tituloRef: RefObject<HTMLElement | null>
   navegar: (url: string, t: Transicion) => void
   volver: () => void
+  // Historial (D-51): los pasos hacia atrás de la pila del navegador y cómo ir a uno (retroceder `delta` pasos).
+  pasos: Paso[]
+  irAPaso: (delta: number) => void
   reintentar: () => void
 }
 
 // El panel siempre está maquetado (nunca display:none): la cámara mide su rect antes de que aparezca.
-export default function Overlay({ estado, mostrado, ady, idx, escena, fase, error, panelRef, tituloRef, navegar, volver, reintentar }: OverlayProps) {
+export default function Overlay({ estado, mostrado, ady, idx, escena, fase, error, panelRef, tituloRef, navegar, volver, pasos, irAPaso, reintentar }: OverlayProps) {
   const h2Ref = useRef<HTMLHeadingElement>(null)
   // D-34/D-50: la expansión inline es estado de UI, no Vista. Se guarda la clave de la URL en la que se abrió: cualquier
   // cambio de URL (Atrás, un nodo de una sección, el menú) la pliega en ese mismo render.
@@ -141,16 +147,8 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     else aLaDuena(id)
   }
 
-  // VOLVER de la lista lateral sube un nivel; no es "atrás" en el historial (podría salir del área
-  // entera si hubo varios focos en el medio). Con otro nodo enfocado, suelta el foco y vuelve al
-  // panorama del área; en el panorama, sube a la red de la dueña con el área enfocada (G-09, D-25).
-  const volverAlArea = () => {
-    if (!redId) return
-    if (enfocadoId !== redId) irA(redId, true)
-    else aLaDuena(redId)
-  }
-
-  // VOLVER de una sección la cierra y, si el foco era otro nodo, vuelve a enfocar la raíz (misma Vista: el puente usa aditivo).
+  // Cerrar la sección abierta: si el foco era otro nodo, vuelve a enfocar la raíz (misma Vista: el puente usa aditivo). Es lo único que
+  // quedó de VOLVER en la lista lateral; volver atrás es el historial (D-51).
   const cerrarSeccion = () => {
     setSeccion(null)
     if (redId && enfocadoId !== redId) irA(redId, true)
@@ -272,8 +270,12 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
     </button>
   )
 
+  // D-51: las etiquetas salen de los datos de la Vista (nombre de la red y del foco); un paso cuyo nodo no existe (más) no se ofrece.
+  const nombreDe = (slug: string) => { const id = idx?.idPorSlug.get(slug); return id ? ady?.nodos.get(id)?.label : undefined }
+  const itemsHistorial = pasos.flatMap((p) => { const label = etiquetaDe(p.url, nombreDe); return label ? [{ label, delta: p.delta }] : [] })
+
   return (
-    <div className="overlay">
+    <div className={'overlay' + (itemsHistorial.length > 0 ? ' overlay--historial' : '')}>
       <div className={'cargando' + (fase === 'cargando' ? '' : ' cargando--fuera')} aria-hidden={fase !== 'cargando'} role="status">
         <span className="cargando__marca">Sinápsis</span>
         <div className="cargando__barra" />
@@ -307,6 +309,8 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       {redNodo && <a className={'marca' + (visible ? ' marca--oculta' : '') + (visible && expandido ? ' marca--expandido' : '')} href="/" onClick={(e) => { e.preventDefault(); navegar('/', 'reemplazo') }}>Sinápsis</a>}
 
+      {itemsHistorial.length > 0 && <Historial items={itemsHistorial} conMenu={hayMenu} onElegir={irAPaso} />}
+
       {hayMenu && (
         <button id="hamburger" aria-label="Abrir menú" aria-expanded={menuAbierto || lateralAbierto} onClick={alHamburguesa}>
           <span /><span /><span />
@@ -327,7 +331,7 @@ export default function Overlay({ estado, mostrado, ady, idx, escena, fase, erro
           enfocadoId={enfocadoId}
           abierto={lateralAbierto}
           onElegir={(id) => irA(id, false)}
-          onVolver={seccionActiva ? cerrarSeccion : volverAlArea}
+          onCerrarSeccion={seccionActiva ? cerrarSeccion : undefined}
           onCerrar={() => setLateralAbierto(false)}
         />
       )}
