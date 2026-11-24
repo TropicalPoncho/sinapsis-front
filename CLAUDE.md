@@ -133,4 +133,7 @@ Estas no son preferencias de estilo. Cada una existe por una decisión registrad
   es cambiar una constante de base en un solo lugar en vez de reescribir todas las filas.
   Los nombres de archivo van en minúscula: el deploy corre en Linux y el desarrollo en Windows.
 - **Una sola base.** Postgres es la fuente de verdad; el `metadata jsonb` es la "data profunda".
+- **La estructura que crece es función pura del tiempo y su algoritmo está congelado por versión (D-52).** `estructura = f(semilla, versión, pasos(t))`, 
+  sin proceso en background ni estado persistido; en la base solo vive la config escalar. Tocar `src/lib/crecimiento/dendrita.ts` cambia la trayectoria de todos: un 
+  ajuste es una versión nueva (`dendrita-v2`), nunca una edición de la publicada; el test de oro rompe si se olvida. Sin `Math.random` ni trigonometría en la decisión.
 - **`collectiveConscience` se lee, no se toca.** Sigue en producción como sitio de la productora.
