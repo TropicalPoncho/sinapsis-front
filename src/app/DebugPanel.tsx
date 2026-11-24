@@ -21,6 +21,8 @@ export default function DebugPanel({ engine }: Props) {
   const [abierto, setAbierto] = useState(false)
   const [cfg, setCfg] = useState({ ...FUERZAS_DEFAULT, dagMode: '' })
   const [velocidadAnimacion, setVelocidadAnimacion] = useState(1)
+  // D-52: null = el reloj real; un número = momento fijo en 0..1 del recorrido de la estructura que crece (de la concepción al evento).
+  const [crecimiento, setCrecimiento] = useState<number | null>(null)
 
   const set = <K extends keyof typeof cfg>(k: K, v: (typeof cfg)[K]) => {
     setCfg((c) => ({ ...c, [k]: v }))
@@ -120,6 +122,14 @@ export default function DebugPanel({ engine }: Props) {
             setVelocidadAnimacion(v)
             engine?.configurarAnimacion({ velocidad: v })
           }} />
+      </label>
+
+      <label>
+        <input type="checkbox" checked={crecimiento !== null}
+          onChange={(e) => { const v = e.target.checked ? 0.5 : null; setCrecimiento(v); engine?.configurarCrecimiento({ fraccion: v ?? undefined }) }} />
+        {' '}crecimiento (estructura de Ryzomatica): {crecimiento === null ? 'reloj real' : `${Math.round(crecimiento * 100)}% del recorrido`}
+        <input type="range" min={0} max={1} step={0.005} value={crecimiento ?? 0} disabled={crecimiento === null}
+          onChange={(e) => { const v = Number(e.target.value); setCrecimiento(v); engine?.configurarCrecimiento({ fraccion: v }) }} />
       </label>
 
       <div className="debugPanel__leyenda">

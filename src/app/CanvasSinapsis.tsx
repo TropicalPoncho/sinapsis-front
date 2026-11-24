@@ -8,6 +8,8 @@ import type { Fase } from './Overlay';
 import type { Adyacencia } from '../lib/vista/adyacencia.ts';
 import type { IndiceSlugs } from '../lib/red/slugs.ts';
 import { claveEstado, claveVista } from '../lib/red/url.ts';
+import { ahoraServidor } from '../lib/vista/topologia.ts';
+import { perillasDe } from '../lib/crecimiento/tiempo.ts';
 import type { EstadoRed, subgrafoDe } from '../lib/red/url.ts';
 import type { Subgrafo, Transicion } from '../types/vista.ts';
 
@@ -88,6 +90,9 @@ export default function CanvasSinapsis({ ady, idx, estado, escena, llegadaRef, p
         gravedad: num('gravedad'),
         escalaNodos: num('escala'),
         forceEngine: params.get('engine') ?? undefined,
+        // D-52: la hora de la estructura que crece es la del servidor, no la del visitante; ?t= y ?dia= son perillas de desarrollo.
+        ahora: ahoraServidor,
+        perillasCrecimiento: perillasDe(window.location.search),
       });
       engineRef.current = engine;
       resolverMotor.current(engine);

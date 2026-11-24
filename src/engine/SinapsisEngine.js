@@ -15,6 +15,8 @@ import { GLOBAL_DEFAULT_SETTINGS, ANIMATION_SETTINGS } from './graph/constants.j
 import { adaptarSubgrafo } from './adaptador.js';
 import { fuerzaGravedad } from './graph/utils.js';
 import { clasificarCambio, pinear, fusionar, desvanecerYQuitar, sembrarJuntoAVecinos } from './graph/transiciones.js';
+import { CrecimientoObject } from './threeObjects/crecimientoThreeObject.js';
+import { pasosEn, tiempoDe } from '../lib/crecimiento/tiempo.ts';
 
 export class SinapsisEngine {
     constructor(elemento, opciones = {}) {
@@ -23,6 +25,9 @@ export class SinapsisEngine {
         this._subgrafo = null;
         this._areaSegura = undefined;
         this._nodoEnfocado = null;
+        // D-52: la estructura que crece, si la Vista tiene a los dos nodos de los que nace. Perillas de desarrollo (?t=, ?dia=, slider).
+        this._crec = null;
+        this._perillasCrec = { ...opciones.perillasCrecimiento };
         this._fps = 0;
         this._fpsFrames = 0;
         this._fpsVentanaInicio = performance.now();
@@ -158,6 +163,7 @@ export class SinapsisEngine {
         // loop (incluido tweenGroup.update()) y hacerlo de nuevo duplicaría los draw calls
         // que PERF-01 va a medir — ése era el bug de doble render de mundo.js.
         this.animationManager.animate(); // uniforms de shaders + links
+        if (this._crec) this._actualizarCrecimiento();
         this.background?.seguirCamara(this.camera);
         this._emitirFocoSiSeMovio();
         this._actualizarFps();
@@ -248,6 +254,9 @@ export class SinapsisEngine {
             triangulos: info.render.triangles,
             geometrias: info.memory.geometries,
             texturas: info.memory.textures,
+            crecimientoPasos: this._crec ? this._crec.obj.pasos : null,
+            crecimientoSegmentos: this._crec ? this._crec.obj.total : null,
+            crecimientoMs: this._crec ? Math.round(this._crec.obj.msGeneracion) : null,
             ...this._censoEscena(),
         };
     }
@@ -285,6 +294,43 @@ export class SinapsisEngine {
         if (cfg.chargeStrength !== undefined) g.d3Force('charge').strength(cfg.chargeStrength);
         if (cfg.gravedad !== undefined) g.d3Force('gravedad', fuerzaGravedad(cfg.gravedad));
         g.d3ReheatSimulation();
+    }
+
+    // D-52: la escena tiene la estructura si algún nodo trae `crecimiento` y están sus dos raíces. Se llama después de cada graphData():
+    // la Vista es la que manda, así que en cualquier otra red no existe (ni cuesta un draw call).
+    _sincronizarCrecimiento(subgrafo) {
+        const porId = new Map(subgrafo.nodos.map(n => [n.id, n]));
+        const config = subgrafo.nodos.find(n => n.crecimiento)?.crecimiento;
+        const ra = config && porId.get(config.raices[0]), rb = config && porId.get(config.raices[1]);
+        if (!ra || !rb) { this._quitarCrecimiento(); return; }
+        const clave = JSON.stringify(config) + ra.vizParams?.color + rb.vizParams?.color;
+        if (this._crec?.clave === clave) return;
+        this._quitarCrecimiento();
+        // ponytail: se genera acá, en el hilo principal (~0.3 s a n=5000 en escritorio, medido). Si en celulares pesa, a un Worker.
+        const t0 = performance.now();
+        const obj = new CrecimientoObject(config, ra.vizParams?.color ?? '#ffffff', rb.vizParams?.color ?? '#ffffff');
+        obj.msGeneracion = performance.now() - t0; // se lee en _perf()
+        this.scene.add(obj.lineas);
+        this._crec = { clave, config, obj };
+    }
+
+    _quitarCrecimiento() {
+        this._crec?.obj.dispose();
+        this._crec = null;
+    }
+
+    // Por cuadro: coloca la estructura entre los dos nodos reales (el layout se mueve) y la revela hasta el paso del reloj.
+    _actualizarCrecimiento() {
+        const { config, obj } = this._crec;
+        const nodos = this.graph.graphData().nodes; // ponytail: dos find por cuadro sobre <= 200 nodos, solo con la estructura activa
+        const A = nodos.find(n => n.id === config.raices[0]), B = nodos.find(n => n.id === config.raices[1]);
+        if (!A || !B || ![A.x, A.y, A.z, B.x, B.y, B.z].every(Number.isFinite)) { obj.lineas.visible = false; return; }
+        obj.actualizar(pasosEn(config, tiempoDe(config, this._perillasCrec, this.opciones.ahora?.() ?? Date.now())), A, B);
+    }
+
+    // Debug (slider del DebugPanel): { fraccion } fija el momento en 0..1 del recorrido de inicio a fin; undefined vuelve al reloj.
+    configurarCrecimiento({ fraccion } = {}) {
+        this._perillasCrec = { ...this._perillasCrec, fraccion };
     }
 
     // Debug: multiplicador global de la animación interna de cada forma (shader/time, no la
@@ -339,6 +385,7 @@ export class SinapsisEngine {
                 this._idsEntrando = new Set(entran.map(n => n.id));
                 await desvanecerYQuitar(this.threeObjectManager, salen.map(n => n.id), ANIMATION_SETTINGS.NODE_FADE_DURATION);
                 this.graph.graphData({ nodes: fusionar(quedan, entran), links: datos.links });
+                this._sincronizarCrecimiento(subgrafo);
                 await this._liberarTrasDigest(datos.nodes.map(n => n.id)); // MOTR-07
                 // ponytail: los nodos filtrados quedan pineados (no se llama soltarPin); si una
                 // Vista futura los necesita libres para volver a responder a fuerzas, ahí se
@@ -360,6 +407,7 @@ export class SinapsisEngine {
                 for (const l of this.graph.graphData().links) linksPorId.set(l.id, l);
                 for (const l of datos.links) linksPorId.set(l.id, l);
                 this.graph.graphData({ nodes: [...actuales, ...entran], links: [...linksPorId.values()] });
+                this._sincronizarCrecimiento(subgrafo);
                 // Sin animación de entrada propia en esta fase: la promesa resuelve apenas
                 // graphData() termina de aplicarse — no hay fundido para 'aditivo' (CONTEXT.md).
                 // Mientras crecen desde 0 la física los acomoda (los presentes están pineados): el
@@ -376,6 +424,7 @@ export class SinapsisEngine {
                 performance.mark('sinapsis:graphData:inicio'); // PERF-01: dónde se va el tiempo de carga
                 this.graph.graphData(datos);
                 performance.mark('sinapsis:graphData:fin');
+                this._sincronizarCrecimiento(subgrafo);
                 // El objeto del enfocado ya no existe en la escena. Sin foco nuevo se suelta y el
                 // área segura vuelve a 0 acá, bajo el negro: si no, la red interna aparece corrida
                 // hacia el área libre y se desliza al centro cuando el foco se suelta después.
@@ -429,6 +478,7 @@ export class SinapsisEngine {
         cancelAnimationFrame(this._raf);
         window.removeEventListener('resize', this._onResize);
         this.animationManager.clearState();
+        this._quitarCrecimiento();
         this.threeObjectManager.disposeAll();
         this.background?.destruir();
         this.graph._destructor?.();
