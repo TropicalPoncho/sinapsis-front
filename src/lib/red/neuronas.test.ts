@@ -82,7 +82,7 @@ for (const [slug, antes, ahora, tipos, precede] of entrar) {
 
 test('neuronas: la home son las entidades colectivas y las áreas (quick 261029-hdu), sin personas ni dúos ni integrantes', () => {
   const r = escena(E(null, null))
-  assert.deepEqual(tiposDe(r.sub), { ENTIDAD: 17, AGRUPACION: 5 })
+  assert.deepEqual(tiposDe(r.sub), { ENTIDAD: 18, AGRUPACION: 5 })
   assert.deepEqual(new Set(r.sub.nodos.filter((n) => n.nodeType === 'ENTIDAD').map((n) => n.subtipo)), new Set(['productora', 'centro_cultural', 'sello', 'colectivo', 'plataforma']))
   assert.ok(r.sub.nodos.length < LIMITE_HOME) // cabe entera: no hay muestra al azar, la semilla no cambia nada
   assert.deepEqual(escena(E(null, null)).sub.nodos.map((n) => n.id), r.sub.nodos.map((n) => n.id))
@@ -116,12 +116,12 @@ test('D-45: una entidad sin áreas ve su raíz y sus eventos y obras, sin otras 
 test('D-45: las entidades sin obras ni eventos entran a la Vista general; con ?prof=2 la tienen todas', () => {
   const sinAreas = nodos.filter((n) => n.nodeType === 'ENTIDAD' && agrupadoresDe(ady, n.id).length === 0)
   const sinObras = sinAreas.filter((n) => obrasDe(ady, n.id).length === 0)
-  assert.equal(sinAreas.length, 165); assert.equal(sinObras.length, 11)
+  assert.equal(sinAreas.length, 166); assert.equal(sinObras.length, 11)
   assert.equal(Math.max(...sinAreas.map((n) => obrasDe(ady, n.id).length)), 16) // Rama: el tope de 40 no se toca
   const e = E('federico-urdinez', 'federico-urdinez')
   assert.deepEqual(escena(e).sub.nodos.map((n) => n.id), baseDe('federico-urdinez', false).nodos.map((n) => n.id))
   assert.equal(escena(E('rama-cerratto', 'rama-cerratto', 2)).sub.nodos.length, 40)
-  assert.deepEqual(tiposDe(escena(E('rama-cerratto', 'rama-cerratto', 2)).sub), { ENTIDAD: 39, AGRUPACION: 1 })
+  assert.deepEqual(tiposDe(escena(E('rama-cerratto', 'rama-cerratto', 2)).sub), { ENTIDAD: 38, AGRUPACION: 2 }) // 261124-ryz: Laboratorios (antes sin vínculos, ahora COMPONE Ryzomatica) entra por la red de Tropical y, con el tope de 40, deja afuera a Sello Rojo
   // Sin tope serían 153: lo que queda afuera de la Vista general de Rama.
   assert.equal(baseDe('rama-cerratto', false, 1e9).nodos.length, 153)
 })
@@ -268,7 +268,7 @@ test('D-46: una organización lee Eventos producidos, Participaciones e Integran
   assert.deepEqual(portafolio('club-weyba'), ['Eventos producidos: Alterego | Luca Zisa en Ave Fenix', 'Integrantes: Luca Zisa — Fundador'])
   assert.deepEqual(portafolio('in-session'), ['Eventos producidos: SOMA', 'Integrantes: Fede Fragas | Luciano Rodriguez'])
   // 261029-hui: roles.json `ocultar` saca Integrantes y Ex integrantes de Tropical (sus cinco INTEGRA siguen en el grafo). El PRODUJO al revés Tropical -> Malvon está descartado.
-  assert.equal(secciones('tropical-poncho').map((s) => `${s.label}(${s.nodos.length})`).join(', '), 'Eventos producidos(15), Participaciones(2)')
+  assert.equal(secciones('tropical-poncho').map((s) => `${s.label}(${s.nodos.length})`).join(', '), 'Eventos producidos(16), Participaciones(2)')
   assert.deepEqual(portafolio('malvon-di-ritta').at(-1), 'Organizaciones: Post.xno — Fundador | Tropical Poncho — Integra')
   // Los dos COLABORO_EN sin rol de Tropical no se leen como producidos.
   const part = secciones('tropical-poncho').find((s) => s.id === 'participaciones')!.nodos.map((q) => ady.nodos.get(q.id)!.label).sort()
@@ -280,7 +280,7 @@ test('D-46: una organización lee Eventos producidos, Participaciones e Integran
 
 test('D-49: cada ex integrante ve su organización pasada; Tropical no muestra Integrantes ni Ex integrantes (261029-hui) y las otras sí', () => {
   const resumen = (slug: string) => seccionesDe(ady, id(slug), vocab, HOY).map((s) => `${s.label}(${s.nodos.length})`).join(', ')
-  assert.equal(resumen('tropical-poncho'), 'Eventos producidos(15), Participaciones(2)')
+  assert.equal(resumen('tropical-poncho'), 'Eventos producidos(16), Participaciones(2)')
   // Sin `ocultar` seguirían ahí: el dato está en el grafo, solo se esconde del portfolio.
   const sinOcultar = { ...vocab, portfolios: vocab.portfolios!.map((q) => ({ ...q, ocultar: undefined })) }
   assert.equal(seccionesDe(ady, id('tropical-poncho'), sinOcultar, HOY).map((s) => s.label).slice(2).join(', '), 'Integrantes, Ex integrantes')
@@ -312,5 +312,5 @@ test('censo D-46: en toda entidad con portfolio ningún nodo se repite y ninguna
     assert.deepEqual([...new Set(ids)].sort(), [...contrapartes].sort(), `${n.label}: contraparte perdida`)
     con++
   }
-  assert.equal(con, 300) // 150 entidades, sin `hoy` y con HOY (D-49)
+  assert.equal(con, 302) // 151 entidades, sin `hoy` y con HOY (D-49)
 })
