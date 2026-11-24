@@ -7,8 +7,12 @@
 import { construirAdyacencia } from './adyacencia.ts'
 import type { Adyacencia } from './adyacencia.ts'
 import type { Subgrafo } from '@/types/vista'
+import { offsetDeCabeceras } from '../crecimiento/tiempo.ts'
 
 let pendiente: Promise<Adyacencia> | undefined
+// Reloj del servidor menos el del cliente (D-52): la estructura que crece depende de la hora y la del visitante puede estar mal.
+let offsetServidor = 0
+export const ahoraServidor = (): number => Date.now() + offsetServidor
 
 export function cargarAdyacencia(): Promise<Adyacencia> {
   if (!pendiente) {
@@ -17,6 +21,7 @@ export function cargarAdyacencia(): Promise<Adyacencia> {
         if (!res.ok) {
           throw new Error(`topología: HTTP ${res.status}`)
         }
+        offsetServidor = offsetDeCabeceras(res.headers.get('date'), res.headers.get('age'), Date.now())
         return res.json() as Promise<Subgrafo>
       })
       .then(construirAdyacencia)

@@ -141,6 +141,20 @@ test('datos reales: fichas.json con bloques.json pasa el borde sin tocar el text
   assert.equal(_nodo, 'Alterego')
 })
 
+test('D-52: la ficha de Ryzomatica trae crecimiento válido, con raíces que son nodos vivos, y no suma contenido al detalle', () => {
+  const fichas = JSON.parse(fs.readFileSync('data/curaduria/fichas.json', 'utf8')) as Record<string, { _nodo: string; crecimiento: unknown }>
+  const { _nodo, ...ficha } = fichas['e03f3acc438d77dd312a67d6']
+  assert.equal(_nodo, 'Ryzomatica')
+  const descartes: string[] = []
+  assert.deepEqual(validarDetalle({ ficha }, [], descartes), { bloques: [] })
+  assert.deepEqual(descartes, [])
+  const roto = { ...(ficha.crecimiento as object), algoritmo: 'otro' }
+  validarDetalle({ ficha: { crecimiento: roto } }, [], descartes)
+  assert.match(descartes[0], /algoritmo/)
+  const nodos = fs.readFileSync('data/curaduria/nodos.csv', 'utf8')
+  for (const r of (ficha.crecimiento as { raices: string[] }).raices) assert.ok(nodos.includes(r + ','), r)
+})
+
 // D-48: la ficha de una ENTIDAD es el mismo mecanismo de bloques, con el bloques.json real.
 const real = JSON.parse(fs.readFileSync('src/lib/red/bloques.json', 'utf8')) as Record<string, BloqueDef[]>
 

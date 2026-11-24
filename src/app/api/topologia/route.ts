@@ -8,6 +8,7 @@ import { join } from 'node:path'
 import { Pool } from 'pg'
 import type { Subgrafo, NodoGrafo, VinculoGrafo } from '@/types/vista'
 import { horarioOk } from '../../../lib/red/detalle'
+import { validarCrecimiento } from '../../../lib/crecimiento/config'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -28,6 +29,7 @@ interface FilaNodo {
   location_id: string | null
   horario: string | null
   ficha: boolean
+  crecimiento: unknown
 }
 
 interface FilaVinculo {
@@ -41,6 +43,7 @@ interface FilaVinculo {
 }
 
 function aNodoGrafo(f: FilaNodo): NodoGrafo {
+  const crecimiento = f.crecimiento == null ? null : validarCrecimiento(f.crecimiento)
   return {
     id: f.id,
     nodeType: f.node_type,
@@ -55,6 +58,7 @@ function aNodoGrafo(f: FilaNodo): NodoGrafo {
     ...(f.location_id !== null && { locationId: f.location_id }),
     ...(horarioOk(f.horario) && { horario: f.horario }),
     ...(f.ficha && { ficha: true as const }),
+    ...(crecimiento && { crecimiento }),
   }
 }
 
@@ -81,12 +85,15 @@ export async function GET() {
       // metadata queda afuera: es la data profunda (DATA-02), se pide al abrir el nodo. Excepción, dos derivados: D-44, `ficha.horario`
       // ("22–04hs", tope 40 en el import y en horarioOk), porque el preview de un evento futuro no pide nada al servidor; y D-48, si
       // hay `ficha.contenido` (un booleano, no el texto), porque Expandir se decide en el preview sin pedir el detalle.
-      // ponytail: dos derivados de metadata en la topología; si viajan más, columna propia en una migración. `ficha` dice "hay
+      // D-52: `ficha.crecimiento` (config escalar de la estructura que crece, ~150 bytes y solo en Ryzomatica) es un tercer derivado: el
+      // motor la necesita al armar la escena, sin pedir el detalle. Se valida acá (validarCrecimiento): una config rota se esconde.
+      // ponytail: tres derivados de metadata en la topología; si viajan más, columna propia en una migración. `ficha` dice "hay
       // contenido", no "es válido": lo garantiza el import, que valida todo antes de escribir.
       pool.query<FilaNodo>(
         `SELECT id, node_type, subtipo, label, descripcion_breve, thumb, viz_params,
                 is_stub, fecha, disciplina, location_id, metadata #>> '{ficha,horario}' AS horario,
-                COALESCE(metadata #> '{ficha,contenido}' <> '{}'::jsonb, false) AS ficha
+                COALESCE(metadata #> '{ficha,contenido}' <> '{}'::jsonb, false) AS ficha,
+                metadata #> '{ficha,crecimiento}' AS crecimiento
          FROM nodos`,
       ),
       // descripcion queda afuera: es prosa no filtrable (DATA-04), se pide al abrir el vínculo. `desde, hasta` (D-49) viajan: el

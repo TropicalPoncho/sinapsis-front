@@ -188,6 +188,9 @@ for (const [id, { _nodo, ...ficha }] of Object.entries(fichas)) {
   const descartes: string[] = []
   validarDetalle({ ficha }, esquemaDe(bloquesPorDefecto, fila.node_type, fila.subtipo.trim()), descartes)
   for (const dsc of descartes) errores.push(`${donde}: ${dsc}`)
+  // D-52: las dos raíces de la estructura que crece tienen que ser nodos vivos, si no el motor no la puede colocar.
+  const raices = (ficha.crecimiento as { raices?: unknown } | undefined)?.raices
+  if (Array.isArray(raices)) for (const r of raices) if (!nodosVivos.has(String(r))) errores.push(`${donde}: crecimiento.raices "${String(r)}" no es un nodo vivo de nodos.csv`)
 }
 
 if (errores.length > 0) {

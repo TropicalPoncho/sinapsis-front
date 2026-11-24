@@ -20,5 +20,16 @@
     "contenido": {
       "about": "Artista transdisciplinarie, curadorx, gestxr cultural, ingenierx en informática y ente abstracto en constante transformación. Geminianx, fluidx tanto en género como en expresión creativa.\n\nInvestigo y experimento en los cruces entre el arte, la ciencia, la filosofía, la metafísica y la tecnología. Me encuentro más bien en el plano conceptual, aunque disfruto especialmente de llevar las ideas a la materia. Me interesa explorar los límites de lo conocido, desdibujar las fronteras entre disciplinas y encontrar nuevas formas de percibir, interpretar y habitar la realidad.\n\nMe gusta pensar la creación como un ejercicio de integración: conectar ideas, sensibilidades y saberes aparentemente distantes para descubrir aquello que puede surgir de su encuentro. Encuentro en el arte un lenguaje para expresar lo que todavía no tiene nombre y en la creación de contextos una forma de abrir portales hacia otras realidades posibles.\n\nMe declaro excéntrique, curiosx incurable y una suerte de científique locx de la experimentación. Entre sonidos, imágenes, código, conceptos y encuentros, busco generar experiencias que movilicen la percepción, despierten preguntas y habiliten nuevas conexiones.\n\nVivo principalmente para hacer arte y otro poquito para todo lo demás."
     }
+  },
+  "e03f3acc438d77dd312a67d6": {
+    "_nodo": "Ryzomatica",
+    "crecimiento": {
+      "semilla": 20261205,
+      "algoritmo": "dendrita-v1",
+      "inicio": "2026-11-25T00:00:00-03:00",
+      "fin": "2026-12-05T00:00:00-03:00",
+      "n": 5000,
+      "raices": ["6335d5fa7636ed5b3529c545", "d4ad9c37a5ed06230cbd80d0"]
+    }
   }
 }

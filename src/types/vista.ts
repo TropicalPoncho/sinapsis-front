@@ -7,6 +7,8 @@
 // entre sí en el grafo público es una decisión aparte de quien las controla —
 // hay quien mantiene sus alias deliberadamente separados.
 
+import type { ConfigCrecimiento } from '../lib/crecimiento/config.ts'
+
 // Cuatro tipos, y solo cuatro. `nodeType` es lo ESTRUCTURAL: define cómo se
 // recorre y cómo se comporta el nodo. El nombre de la cosa —banda, dúo,
 // colectivo, productora, centro cultural, sello— es `subtipo`, vocabulario
@@ -99,6 +101,9 @@ export interface NodoGrafo {
   // El nodo tiene contenido de ficha cargado (`metadata.ficha.contenido` no vacío). Decide Expandir sin pedir el detalle
   // (D-12, D-48). No es filtrable.
   ficha?: true
+  // Configuración de una estructura que crece con el tiempo y nace de dos nodos (D-52, `metadata.ficha.crecimiento`, validada en la API).
+  // Solo escalares y ids: la forma no se guarda, el motor la recalcula. Hoy solo Ryzomatica la tiene; en cualquier otra red no existe.
+  crecimiento?: ConfigCrecimiento
 }
 
 // Escalares únicamente. Si esto pudiera contener GLSL, instancing queda

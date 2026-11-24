@@ -1,7 +1,8 @@
 // Borde de confianza (D-13, D-43): el metadata de la base es "data profunda" y arrastra basura del sitio legado
 // (mongoId, bio, info, HTML). Solo sale lo que proyecta `metadata.ficha`, validado: bloques de contenido y Entradas.
 // Es el único validador, para la API (lectura) y para el import (escritura, con `descartes`). Nunca lanza;
-// el texto se renderiza siempre como texto plano. Sin imports: `importar.ts` lo carga con strip-types.
+// el texto se renderiza siempre como texto plano. Solo importa un módulo puro: `importar.ts` lo carga con strip-types.
+import { validarCrecimiento } from '../crecimiento/config.ts'
 
 export type TipoBloque = 'texto' | 'galeria' | 'video' | 'enlaces'
 export interface BloqueDef { id: string; nombre: string; tipo: TipoBloque }
@@ -50,7 +51,9 @@ export function validarDetalle(metadata: unknown, porDefecto: BloqueDef[], desca
   const ficha = esObj(metadata) && esObj(metadata.ficha) ? metadata.ficha : null
   if (!ficha) return out
   const d = (motivo: string) => { descartes?.push(motivo) }
-  for (const k of Object.keys(ficha)) if (!['bloques', 'contenido', 'horario', 'entradas'].includes(k)) d(`ficha.${k}: clave desconocida`)
+  for (const k of Object.keys(ficha)) if (!['bloques', 'contenido', 'horario', 'entradas', 'crecimiento'].includes(k)) d(`ficha.${k}: clave desconocida`)
+  // D-52: no es contenido del detalle (viaja en la topología, ver /api/topologia); acá solo se valida para que el import falle entero.
+  if (ficha.crecimiento !== undefined) validarCrecimiento(ficha.crecimiento, descartes)
 
   // texto plano de 1..max; sobre el tope se corta y se avisa, con HTML se descarta
   const texto = (v: unknown, max: number, donde: string): string | undefined => {
