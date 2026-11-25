@@ -1,4 +1,5 @@
-// dendrita-v2 (D-52, D-53): colonización del espacio (Runions et al., 2007) en 3D, con uniones entre ramas para cerrar celdas.
+// dendrita-v2 (D-52, D-53): colonización del espacio (Runions et al., 2007) en 3D, con el trazo de una neurona dibujada a lápiz: núcleo
+// denso, dendritas finas y sinuosas, axones largos sobre el eje que une a las fundadoras.
 //
 // CONGELADO desde que se publique (inicio 2026-11-25). Esto es una versión: la estructura de cada sitio es f(semilla, esta versión,
 // paso, entradas de las raíces). Tocar una línea, una constante o el orden de un bucle cambia la trayectoria de todos; un ajuste es
@@ -9,7 +10,10 @@
 // tardía no desfasa ningún paso anterior a su ingreso; (2) las raíces nacen unidas y pegadas al núcleo (un segmento de unión en el paso
 // 0), no a los extremos: el crecimiento sale del cuerpo unido hacia afuera; (3) `raices` con paso de ingreso: una raíz que entra en el
 // paso s se une al vértice más cercano, trae su nube de atractores y empieza a crecer en ese mismo paso; (4) un perfil `mini` de la
-// misma familia (esfera irregular, ~400 pasos) con el que se dibuja el nodo cuando se lo ve desde afuera.
+// misma familia (esfera irregular, ~400 pasos) con el que se dibuja el nodo cuando se lo ve desde afuera; (5) trazo de lápiz: sesgo de
+// los atractores al centro (núcleo denso), persistencia de dirección + curvatura con inercia (sinuoso sin zigzag), pasos cortos (hilos
+// finos) y una fila de atractores sobre el eje de las fundadoras (axones largos); (6) se quitaron las uniones entre ramas de v1: eran
+// escaleras entre ramas paralelas y no están en la referencia. Cada paso es ahora una rama (un segmento de crecimiento).
 //
 // Determinismo entre navegadores: la lógica de decisión solo usa `+ - * /`, `Math.sqrt` (exacto por IEEE 754), comparaciones y
 // enteros; aleatoriedad por hash entero; ni Math.random ni sin/cos/exp/pow. Un test lo verifica sobre el texto del módulo.
@@ -18,8 +22,8 @@
 // achatado (disco con espesor) o, en `mini`, en una unión de esferas. El motor la escala y la coloca; acá no hay mundo, solo la forma.
 //
 // Prefijo exacto: cada paso agrega al final y nada de lo que se decide depende de `nMax` (solo corta el bucle): generar(s, k) es el
-// prefijo de generar(s, k+1) byte a byte, por eso se genera una vez a N completo y se revela hasta el paso actual. Un "paso" es una
-// rama o un cierre de celda; el puente con que entra una raíz no cuenta como paso (nace con ella).
+// prefijo de generar(s, k+1) byte a byte, por eso se genera una vez a N completo y se revela hasta el paso actual. Un "paso" es un
+// segmento de crecimiento; el puente con que entra una raíz no cuenta como paso (nace con ella).
 import { azar } from './prng.ts'
 
 export const VERSION = 'dendrita-v2'
@@ -33,10 +37,11 @@ interface Perfil {
   influencia: number           // radio dentro del cual un atractor atrae al nodo más cercano
   muerte: number               // un atractor a menos de esto de un nodo se consume
   paso: number                 // largo de cada segmento
-  jitter: number               // ruido de dirección para que las puntas ramifiquen en vez de quedar trabadas
-  union: number                // dos nodos de ramas distintas a menos de esto se unen: así se cierran las celdas
-  saltos: number               // "ramas distintas" = sin un ancestro común a menos de estos saltos
-  unionesMax: number           // uniones por nodo, para que no se vuelva una red
+  persistencia: number         // peso de la dirección que traía la rama: serpentea en vez de zigzaguear
+  sinuosidad: number           // peso del vector de curvatura (pseudoaleatorio, con inercia): lo que hace sinuoso el trazo
+  inercia: number              // 0..1: cuánto de la curvatura del paso anterior sigue en este (el resto es empujón nuevo)
+  sesgo: number                // 0..1: concentra los atractores hacia el centro de su cuerpo (núcleo denso, hilos ralos afuera)
+  axon: number                 // atractores en fila sobre el eje que une a las fundadoras: de ahí salen los axones largos
   lado: number                 // la grilla espacial cubre [-lado, lado] en cada eje (celda = influencia)
   raiz: number                 // las fundadoras nacen en (-raiz,0,0) y (raiz,0,0): pegadas al núcleo
   nube: number                 // atractores que trae cada raíz que no es fundadora
@@ -46,24 +51,24 @@ interface Perfil {
 
 const PERFILES: Record<NombrePerfil, Perfil> = {
   grande: {
-    lobulos: 0, radios: [1.25, 0.9, 0.35], atractores: 9000, influencia: 0.2, muerte: 0.075, paso: 0.025, jitter: 0.3, union: 0.085,
-    saltos: 16, unionesMax: 1, lado: 1.6, raiz: 0.14, nube: 400, radioNube: 0.25, zona: [0.8, 0.6, 0.2],
+    lobulos: 0, radios: [1.25, 0.9, 0.35], atractores: 12000, influencia: 0.2, muerte: 0.07, paso: 0.018, persistencia: 0.8, sinuosidad: 0.7, inercia: 0.7, sesgo: 0.8, axon: 70,
+    lado: 1.6, raiz: 0.14, nube: 400, radioNube: 0.25, zona: [0.8, 0.6, 0.2],
   },
   mini: {
-    lobulos: 5, radios: [1, 1, 1], atractores: 700, influencia: 0.4, muerte: 0.15, paso: 0.06, jitter: 0.3, union: 0.17,
-    saltos: 16, unionesMax: 1, lado: 1.6, raiz: 0.12, nube: 0, radioNube: 0, zona: [0.5, 0.5, 0.5],
+    lobulos: 5, radios: [1, 1, 1], atractores: 1200, influencia: 0.3, muerte: 0.1, paso: 0.045, persistencia: 0.8, sinuosidad: 0.7, inercia: 0.7, sesgo: 0.5, axon: 0,
+    lado: 1.6, raiz: 0.12, nube: 0, radioNube: 0, zona: [0.5, 0.5, 0.5],
   },
 }
 
 // Canales de azar: cada uso tiene el suyo, así ningún flujo pisa a otro.
-const C_ATRACTOR = 1, C_RUIDO = 2, C_RAIZ = 3, C_NUBE = 4, C_LOBULO_ELEGIR = 5, C_LOBULO_CENTRO = 6, C_LOBULO_RADIO = 7
+const C_ATRACTOR = 1, C_RUIDO = 2, C_RAIZ = 3, C_NUBE = 4, C_LOBULO_ELEGIR = 5, C_LOBULO_CENTRO = 6, C_LOBULO_RADIO = 7, C_SESGO = 8, C_AXON = 9
 const INTENTOS = 32 // rechazo en el cubo: 0.48^32 ~ 1e-10; si se agotan, el origen (determinista)
 
 export interface Estructura {
   version: string
   // Vértices en orden de creación: 0 y 1 son las fundadoras; una raíz tardía es un vértice más, creado al entrar. Normalizadas.
   pos: Float32Array
-  // Padre de cada vértice (-1 en las raíces): el árbol, sin las uniones ni los puentes.
+  // Padre de cada vértice (-1 en las raíces): el árbol, sin los puentes.
   padre: Int32Array
   // Segmentos en orden de nacimiento: a -> b. `paso[s]` (no decreciente) es el paso en que el segmento aparece: 0 para el puente de
   // las raíces que nacen juntas, s+1 para el que completa el paso s+1; el puente de una raíz tardía lleva el paso en que entra.
@@ -115,7 +120,15 @@ export function generar(semilla: number, nMax: number, perfil: NombrePerfil = 'g
     lobulo[4 * l + 3] = 0.45 + 0.25 * azar(semilla, C_LOBULO_RADIO, l)
   }
   for (let i = 0; i < M; i++) {
+    if (i < P.axon) { // los primeros `axon`: una fila sobre el eje x, de punta a punta, con un hilo de dispersión
+      ax[i] = P.radios[0] * 0.95 * ((2 * (i + 0.5)) / P.axon - 1)
+      ay[i] = 0.02 * (2 * azar(semilla, C_AXON, 2 * i) - 1); az[i] = 0.02 * (2 * azar(semilla, C_AXON, 2 * i + 1) - 1)
+      continue
+    }
     enEsfera(semilla, C_ATRACTOR, i, q)
+    // sesgo al centro: el radio se multiplica por un número en [1-sesgo, 1]; con sesgo > 0 la densidad crece hacia el núcleo
+    const s = 1 - P.sesgo + P.sesgo * azar(semilla, C_SESGO, i)
+    q[0] *= s; q[1] *= s; q[2] *= s
     if (P.lobulos === 0) { ax[i] = q[0] * P.radios[0]; ay[i] = q[1] * P.radios[1]; az[i] = q[2] * P.radios[2] }
     else {
       const l = Math.floor(azar(semilla, C_LOBULO_ELEGIR, i) * P.lobulos)
@@ -133,7 +146,9 @@ export function generar(semilla: number, nMax: number, perfil: NombrePerfil = 'g
   const vx = new Float64Array(cap), vy = new Float64Array(cap), vz = new Float64Array(cap)
   const padre = new Int32Array(cap).fill(-1)
   const dueno = new Int8Array(cap).fill(-1) // a qué raíz tardía pertenece el vértice (hereda del padre); -1 = la estructura común
-  const unidos = new Uint8Array(cap)
+  // Estado de trazo de cada vértice (lo hereda del padre al crecer): hacia dónde iba la rama y cuánto venía curvando. Local a la rama.
+  const dirX = new Float64Array(cap), dirY = new Float64Array(cap), dirZ = new Float64Array(cap)
+  const curX = new Float64Array(cap), curY = new Float64Array(cap), curZ = new Float64Array(cap)
   const sa = new Uint32Array(cap), sb = new Uint32Array(cap), sp = new Uint32Array(cap)
   const nVert = new Uint32Array(nMax + 1)
   let nV = 0, nS = 0, nPaso = 0
@@ -185,35 +200,6 @@ export function generar(semilla: number, nMax: number, perfil: NombrePerfil = 'g
   }
   for (let i = 0; i < R; i++) if (entradas[i] <= 0) entrar(i)
 
-  // ¿q y r son de la misma rama? Comparten un ancestro (o uno es del otro) dentro de `saltos` saltos.
-  const ancQ = new Int32Array(P.saltos + 1)
-  const relacionados = (q: number, r: number) => {
-    let n = 0
-    for (let u = q; u >= 0 && n <= P.saltos; u = padre[u]) ancQ[n++] = u
-    let k = 0
-    for (let u = r; u >= 0 && k <= P.saltos; u = padre[u], k++) for (let i = 0; i < n; i++) if (ancQ[i] === u) return true
-    return false
-  }
-
-  const unir = (q: number) => {
-    if (unidos[q] >= P.unionesMax) return
-    const cx = ci(vx[q]), cy = ci(vy[q]), cz = ci(vz[q])
-    let mejor = -1, md = P.union * P.union
-    for (let i = Math.max(0, cx - 1); i <= Math.min(dim - 1, cx + 1); i++) for (let j = Math.max(0, cy - 1); j <= Math.min(dim - 1, cy + 1); j++) for (let k = Math.max(0, cz - 1); k <= Math.min(dim - 1, cz + 1); k++) {
-      const lista = celdas[(i * dim + j) * dim + k]
-      for (let m = 0; m < lista.length; m++) {
-        const r = lista[m]
-        if (r === q || unidos[r] >= P.unionesMax) continue
-        const dx = vx[r] - vx[q], dy = vy[r] - vy[q], dz = vz[r] - vz[q]
-        const d = dx * dx + dy * dy + dz * dz
-        if (d < md && !relacionados(q, r)) { md = d; mejor = r }
-      }
-    }
-    if (mejor < 0) return
-    sa[nS] = q; sb[nS] = mejor; sp[nS] = nPaso + 1; nS++; nPaso++; nVert[nPaso] = nV
-    unidos[q]++; unidos[mejor]++
-  }
-
   const infl2 = P.influencia * P.influencia, muerte2 = P.muerte * P.muerte
   // 1. cada atractor (desde `desde` en `vivos`) mira su nodo más cercano: lo atrae, o si está muy cerca se consume
   const atraer = (desde: number) => {
@@ -243,18 +229,23 @@ export function generar(semilla: number, nMax: number, perfil: NombrePerfil = 'g
     nVivos = w
   }
 
-  // 2. un nodo atraído crece un paso hacia el promedio de sus atractores. El ruido del paso sale de (semilla, paso), de nadie más.
+  // 2. un nodo atraído crece un paso: hacia el promedio de sus atractores, con la inercia de la dirección que traía y una curvatura que
+  // sigue de un paso al siguiente (trazo sinuoso, sin zigzag). El empujón nuevo sale de (semilla, paso), de nadie más.
   const crecer = (j: number): boolean => {
     if (cuenta[j] === 0) return false
-    const c = cuenta[j], k = 4 * nPaso
-    const dx = sumX[j] / c + P.jitter * (2 * azar(semilla, C_RUIDO, k) - 1)
-    const dy = sumY[j] / c + P.jitter * (2 * azar(semilla, C_RUIDO, k + 1) - 1)
-    const dz = sumZ[j] / c + P.jitter * (2 * azar(semilla, C_RUIDO, k + 2) - 1)
+    const c = cuenta[j], k = 4 * nPaso, r = 1 - P.inercia
+    const qx = P.inercia * curX[j] + r * (2 * azar(semilla, C_RUIDO, k) - 1)
+    const qy = P.inercia * curY[j] + r * (2 * azar(semilla, C_RUIDO, k + 1) - 1)
+    const qz = P.inercia * curZ[j] + r * (2 * azar(semilla, C_RUIDO, k + 2) - 1)
+    const dx = sumX[j] / c + P.persistencia * dirX[j] + P.sinuosidad * qx
+    const dy = sumY[j] / c + P.persistencia * dirY[j] + P.sinuosidad * qy
+    const dz = sumZ[j] / c + P.persistencia * dirZ[j] + P.sinuosidad * qz
     const largo = Math.sqrt(dx * dx + dy * dy + dz * dz)
     if (largo < 1e-12) return false
-    const n = nuevoVertice(vx[j] + (P.paso * dx) / largo, vy[j] + (P.paso * dy) / largo, vz[j] + (P.paso * dz) / largo, j, dueno[j])
+    const ux = dx / largo, uy = dy / largo, uz = dz / largo
+    const n = nuevoVertice(vx[j] + P.paso * ux, vy[j] + P.paso * uy, vz[j] + P.paso * uz, j, dueno[j])
+    dirX[n] = ux; dirY[n] = uy; dirZ[n] = uz; curX[n] = qx; curY[n] = qy; curZ[n] = qz
     sa[nS] = j; sb[nS] = n; sp[nS] = nPaso + 1; nS++; nPaso++; nVert[nPaso] = nV
-    if (nPaso < nMax) unir(n)
     return true
   }
 

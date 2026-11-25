@@ -29,6 +29,18 @@ export function estructuraDe(c: Entrada, perfil: NombrePerfil = 'grande'): Estru
   return e
 }
 
+// Opacidad por vértice, solo para el dibujo (no decide nada de la forma): con líneas de 1 px no hay grosor, así que el afinado hacia las
+// puntas se hace con alfa. Un vértice con muchos descendientes es tronco (pleno); una punta, casi invisible. `padre[v] < v`: una pasada
+// hacia atrás cuenta el subárbol. `pleno` = tamaño de subárbol a partir del cual es opaco; `punta` = opacidad de una hoja.
+export function opacidades(padre: Int32Array, punta = 0.1, pleno = 60): Float32Array {
+  const n = padre.length
+  const sub = new Uint32Array(n).fill(1)
+  for (let v = n - 1; v > 0; v--) if (padre[v] >= 0) sub[padre[v]] += sub[v]
+  const o = new Float32Array(n)
+  for (let v = 0; v < n; v++) o[v] = punta + (1 - punta) * Math.min(1, Math.sqrt(sub[v] / pleno))
+  return o
+}
+
 // Cuántos segmentos tienen paso <= k (paso[] no decrece): búsqueda binaria.
 export function segmentosHasta(e: Pick<Estructura, 'paso'>, k: number): number {
   let lo = 0, hi = e.paso.length

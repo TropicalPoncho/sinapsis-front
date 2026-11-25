@@ -16,12 +16,13 @@ import { resolveTHREE } from './threeGlobal.js';
 const THREE = resolveTHREE();
 import { ThreeObject } from './ThreeObject.js';
 import { CRECIMIENTO_SETTINGS } from '../graph/constants.js';
-import { estructuraDe, segmentosHasta, PASOS_MINI } from '../../lib/crecimiento/estructura.ts';
+import { estructuraDe, opacidades, segmentosHasta, PASOS_MINI } from '../../lib/crecimiento/estructura.ts';
 
-// ponytail: opacidad a ojo contra el fondo negro; aditivo porque nunca hay fondo claro. Si el fondo cambia, esta línea.
-const OPACIDAD = { completo: 0.6, mini: 0.85 };
-// radio mayor de la estructura completa en unidades normalizadas (semieje x del elipsoide): para colorear y para el blanco del raycast
-const RADIO_NORMALIZADO = 1.25;
+// ponytail: opacidad a ojo contra el fondo negro; aditivo porque nunca hay fondo claro. Si el fondo cambia, esta línea. Se multiplica
+// por el alfa de cada vértice (opacidades): el afinado hacia las puntas, ya que con líneas de 1 px no hay grosor que variar.
+const OPACIDAD = { completo: 1, mini: 1 };
+// la estructura completa llega a ~0.96 en x (n=5000): el degradé entre los colores de las raíces va de -1 a 1
+const RADIO_COLOR = 1;
 
 export class CrecimientoThreeObject extends ThreeObject {
     static type = 'Crecimiento';
@@ -37,22 +38,22 @@ export class CrecimientoThreeObject extends ThreeObject {
         const escala = this.completo ? CRECIMIENTO_SETTINGS.escalaCompleta : CRECIMIENTO_SETTINGS.escalaMini;
 
         const pos = new Float32Array(6 * this.total);
-        const col = new Float32Array(6 * this.total);
+        const col = new Float32Array(8 * this.total); // RGBA por vértice: el alfa es el afinado (tronco fuerte, punta casi invisible)
+        const alfa = opacidades(e.padre);
         const [colorA, colorB] = node.coloresRaices ?? [node.color ?? '#ffffff', node.color ?? '#ffffff'];
         const cA = new THREE.Color(colorA), cB = new THREE.Color(colorB), c = new THREE.Color();
         for (let s = 0; s < this.total; s++) {
             for (const [k, v] of [[0, e.a[s]], [1, e.b[s]]]) {
-                const o = 6 * s + 3 * k;
-                pos.set(e.pos.subarray(3 * v, 3 * v + 3), o);
+                pos.set(e.pos.subarray(3 * v, 3 * v + 3), 6 * s + 3 * k);
                 // degradé a lo largo del eje entre las raíces: la de x<0 con el color de la primera, la de x>0 con el de la segunda
-                c.copy(cA).lerp(cB, Math.min(1, Math.max(0, (e.pos[3 * v] / RADIO_NORMALIZADO + 1) / 2)));
-                col.set([c.r, c.g, c.b], o);
+                c.copy(cA).lerp(cB, Math.min(1, Math.max(0, (e.pos[3 * v] / RADIO_COLOR + 1) / 2)));
+                col.set([c.r, c.g, c.b, alfa[v]], 8 * s + 4 * k);
             }
         }
         this.geometria = new THREE.BufferGeometry();
         this._pos = new THREE.BufferAttribute(pos, 3);
         this.geometria.setAttribute('position', this._pos);
-        this.geometria.setAttribute('color', new THREE.BufferAttribute(col, 3));
+        this.geometria.setAttribute('color', new THREE.BufferAttribute(col, 4));
         this.geometria.setDrawRange(0, 0);
         this.material = new THREE.LineBasicMaterial({
             vertexColors: true, transparent: true, opacity: OPACIDAD[this.completo ? 'completo' : 'mini'], blending: THREE.AdditiveBlending, depthWrite: false,
@@ -67,7 +68,7 @@ export class CrecimientoThreeObject extends ThreeObject {
         const esfera = ThreeObject.getSharedGeometry('hitbox-crecimiento', () => new THREE.SphereGeometry(1, 16, 12));
         const hit = new THREE.Mesh(esfera, new THREE.MeshBasicMaterial({ side: THREE.BackSide }));
         hit.visible = false;
-        hit.scale.setScalar((this.completo ? RADIO_NORMALIZADO + 0.1 : 1.3) * escala);
+        hit.scale.setScalar((this.completo ? CRECIMIENTO_SETTINGS.radioNormalizado : 0.75) * escala); // la mini llega a ~0.58
         this.mesh.add(hit);
 
         this._crece = -1; // índice del segmento cuyo extremo está a medio camino, o -1

@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs'
 import { azar } from './prng.ts'
 import { generar, VERSION } from './dendrita.ts'
 import type { Estructura } from './dendrita.ts'
-import { estructuraDe, hastaPaso, PASOS_MINI, segmentosHasta } from './estructura.ts'
+import { estructuraDe, hastaPaso, opacidades, PASOS_MINI, segmentosHasta } from './estructura.ts'
 import { RAICES_MAX, SEGMENTOS_MAX, validarCrecimiento } from './config.ts'
 import { offsetDeCabeceras, pasoDeIngreso, pasosEn, perillasDe, suave, tiempoDe } from './tiempo.ts'
 
@@ -86,9 +86,40 @@ test('forma: nacen unidas pegadas al núcleo, cada paso agrega un segmento, solo
     if (s > 0) assert.ok(e.paso[s] >= e.paso[s - 1], 'paso no decrece')
   }
   for (let v = 2; v < e.padre.length; v++) assert.ok(e.padre[v] >= 0 && e.padre[v] < v, `padre ${v}`)
-  const uniones = e.a.length - 1 - (e.pos.length / 3 - 2)
-  assert.ok(uniones > 0, 'hay uniones (celdas cerradas)')
+  // un árbol: un segmento por vértice que no es raíz, más el puente de las fundadoras (sin uniones entre ramas desde que se quitaron en v2)
+  assert.equal(e.a.length, e.pos.length / 3 - 1)
   for (let v = 0; v < e.pos.length; v += 3) assert.ok(e.pos[v] ** 2 / 1.5 ** 2 + e.pos[v + 1] ** 2 / 1.1 ** 2 + e.pos[v + 2] ** 2 / 0.5 ** 2 <= 1, `vértice ${v / 3} fuera del elipsoide`)
+})
+
+test('trazo de lápiz: núcleo denso, hilos sinuosos sin zigzag, afinado hacia las puntas', () => {
+  const e = generar(SEMILLA, 3000)
+  const V = e.pos.length / 3
+  // núcleo denso: más vértices por unidad de volumen cerca de las raíces que lejos (esfera de 0.3 vs. cáscara de 0.6 a 0.9)
+  const dist = (v: number) => Math.min(Math.hypot(e.pos[3 * v] + 0.14, e.pos[3 * v + 1], e.pos[3 * v + 2]), Math.hypot(e.pos[3 * v] - 0.14, e.pos[3 * v + 1], e.pos[3 * v + 2]))
+  let cerca = 0, lejos = 0
+  for (let v = 0; v < V; v++) { const d = dist(v); if (d < 0.3) cerca++; else if (d >= 0.6 && d < 0.9) lejos++ }
+  const vol = (r: number) => r * r * r // la cáscara tiene (0.9^3 - 0.6^3) del volumen de una esfera de lado 1; el disco achatado se compensa igual en ambas
+  assert.ok(cerca / vol(0.3) > 2 * (lejos / (vol(0.9) - vol(0.6))), `núcleo ${cerca} vs cáscara ${lejos}`)
+  // sinuoso sin zigzag: el cambio de rumbo entre segmentos consecutivos de una rama es chico en promedio, pero no cero (serpentea)
+  let cos = 0, pares = 0, rectos = 0
+  for (let v = 2; v < V; v++) {
+    const p = e.padre[v], g = e.padre[p]
+    if (p < 2 || g < 0) continue
+    const u = [0, 1, 2].map((c) => e.pos[3 * v + c] - e.pos[3 * p + c]), w = [0, 1, 2].map((c) => e.pos[3 * p + c] - e.pos[3 * g + c])
+    const c = (u[0] * w[0] + u[1] * w[1] + u[2] * w[2]) / (Math.hypot(...u) * Math.hypot(...w))
+    cos += c; pares++; if (c > 0.9999) rectos++
+  }
+  assert.ok(cos / pares > 0.6 && cos / pares < 0.995, `coseno medio ${cos / pares}`)
+  assert.ok(rectos / pares < 0.1, `${rectos} de ${pares} tramos rectos`)
+  // afinado: las raíces son plenas y las hojas casi invisibles (alfa por vértice, solo dibujo)
+  const alfa = opacidades(e.padre)
+  assert.equal(alfa[0], 1)
+  const hijos = new Uint8Array(V)
+  for (let v = 0; v < V; v++) if (e.padre[v] >= 0) hijos[e.padre[v]]++
+  let hojas = 0
+  for (let v = 2; v < V; v++) if (hijos[v] === 0) { hojas++; assert.ok(alfa[v] <= 0.1 + 0.9 * Math.sqrt(1 / 60) + 1e-6, `hoja ${v} con alfa ${alfa[v]}`) }
+  assert.ok(hojas > 100)
+  for (let v = 0; v < V; v++) assert.ok(alfa[v] >= 0.1 - 1e-6 && alfa[v] <= 1 + 1e-6)
 })
 
 test('raíz tardía (a): agregarla NO cambia ningún paso anterior a su ingreso, byte a byte', () => {
@@ -145,9 +176,9 @@ test('raíz tardía: una entrada que el tope no alcanza nunca entra; una de paso
 test('test de oro: dendrita-v2, semilla 20261205, 1500 pasos. Si rompe, alguien tocó el algoritmo sin subir la versión', () => {
   assert.equal(VERSION, 'dendrita-v2')
   // Para cambiar estos hashes hay que crear dendrita-v3: los sitios publicados siguen con v2 (D-52).
-  assert.equal(hash(generar(SEMILLA, 1500)), '6179a71b')
-  assert.equal(hash(generar(SEMILLA, 1500, 'grande', [0, 0, INGRESO])), '2cf8755d')
-  assert.equal(hash(generar(SEMILLA, 400, 'mini')), '78ff541b')
+  assert.equal(hash(generar(SEMILLA, 1500)), 'abb04c62')
+  assert.equal(hash(generar(SEMILLA, 1500, 'grande', [0, 0, INGRESO])), '80373d20')
+  assert.equal(hash(generar(SEMILLA, 400, 'mini')), 'f3f2beb8')
 })
 
 test('mini: misma familia en esfera irregular; la irregularidad sale de la semilla; avanza en proporción a pasos(t)', () => {

@@ -23,11 +23,13 @@ export const GLOBAL_DEFAULT_SETTINGS = {
 // D-53: la estructura que crece (Ryzomatica). Escalas del mundo en unidades por unidad normalizada de la estructura, y escala visual de
 // las raíces. ponytail: a ojo; perillas para el UAT del dueño, no configuración de producto.
 export const CRECIMIENTO_SETTINGS = {
-    // Estructura completa (la red de Ryzomatica): el elipsoide mide 1.25 de radio mayor en unidades normalizadas, así que ~112 de radio
-    // en el mundo; las fundadoras nacen a +-0.14 del núcleo = +-12.6, dos nodos de escala 0.5 (radio ~7.5) con 10.2 de aire entre ellos.
+    // Estructura completa (la red de Ryzomatica): llega a ~1 de radio mayor en unidades normalizadas (con n=5000, medido 0.96 en x) y
+    // `radioNormalizado` (1.1) es el radio que se encuadra y se raycastea; en el mundo ~100. Las fundadoras nacen a +-0.14 del núcleo =
+    // +-12.6, dos nodos de escala 0.5 (radio ~7.5) con 10.2 de aire entre ellos.
     escalaCompleta: 90,
-    // Nodo visto desde afuera (versión mini, esfera irregular de ~1 de radio): del tamaño de una neurona normal (radio 15).
-    escalaMini: 18,
+    radioNormalizado: 1.1,
+    // Nodo visto desde afuera (versión mini, esfera irregular de ~0.55 de radio): del tamaño de una neurona normal (radio ~15).
+    escalaMini: 28,
     // Tropical y Bosque Gracias en la escena donde el crecimiento está activo: más chicos, de la misma familia que el resto (0.4-0.6).
     escalaRaices: 0.5,
 };

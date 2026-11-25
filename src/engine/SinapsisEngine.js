@@ -356,7 +356,7 @@ export class SinapsisEngine {
         this._subgrafo = subgrafo;
         const ctx = contextoCrecimiento(subgrafo, raiz, {
             escalaRaices: this.opciones.escalaRaices ?? CRECIMIENTO_SETTINGS.escalaRaices,
-            radioEncuadre: CRECIMIENTO_SETTINGS.escalaCompleta * 1.35, // el elipsoide llega a 1.25 del radio mayor + aire
+            radioEncuadre: CRECIMIENTO_SETTINGS.escalaCompleta * CRECIMIENTO_SETTINGS.radioNormalizado * 1.1, // la estructura + aire
         });
         // Entrar al modo completo (o salir de él) cambia el renderer del evento y la forma de sus dos raíces: eso solo lo hace una escena
         // nueva. Las instancias que 'filtrado' y 'aditivo' conservan no se pueden convertir. ponytail: se pide 'reemplazo'; si hiciera
