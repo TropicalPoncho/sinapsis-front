@@ -145,9 +145,9 @@ test('raíz tardía: una entrada que el tope no alcanza nunca entra; una de paso
 test('test de oro: dendrita-v2, semilla 20261205, 1500 pasos. Si rompe, alguien tocó el algoritmo sin subir la versión', () => {
   assert.equal(VERSION, 'dendrita-v2')
   // Para cambiar estos hashes hay que crear dendrita-v3: los sitios publicados siguen con v2 (D-52).
-  assert.equal(hash(generar(SEMILLA, 1500)), 'HASH_GRANDE')
-  assert.equal(hash(generar(SEMILLA, 1500, 'grande', [0, 0, INGRESO])), 'HASH_TARDIA')
-  assert.equal(hash(generar(SEMILLA, 400, 'mini')), 'HASH_MINI')
+  assert.equal(hash(generar(SEMILLA, 1500)), '6179a71b')
+  assert.equal(hash(generar(SEMILLA, 1500, 'grande', [0, 0, INGRESO])), '2cf8755d')
+  assert.equal(hash(generar(SEMILLA, 400, 'mini')), '78ff541b')
 })
 
 test('mini: misma familia en esfera irregular; la irregularidad sale de la semilla; avanza en proporción a pasos(t)', () => {

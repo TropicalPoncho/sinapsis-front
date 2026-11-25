@@ -1,7 +1,8 @@
 // D-53: + modo 'tardia'. (copia de 261117-nav1/herramientas/build-fixture.mts + flag `crecimiento` desde fichas.json (D-52). Antes: copia de 261029-hdu/build-topo.mts + flag ficha/horario y detalles.json desde fichas.json) Topología "real" desde los CSV vivos (mismo mapeo viz_params que scripts/migracion/importar.ts). NO es la base viva.
 import { readFileSync, writeFileSync } from 'node:fs'
-import { leerCsv } from 'file:///C:/Users/ramac/source/TropicalPoncho/sinapsis/sinapsis_front/scripts/migracion/csv.ts'
-const R = 'C:/Users/ramac/source/TropicalPoncho/sinapsis/sinapsis_front/'
+import { fileURLToPath } from 'node:url'
+import { leerCsv } from '../../../../scripts/migracion/csv.ts'
+const R = fileURLToPath(new URL('../../../../', import.meta.url)) // raíz del repo donde viva este archivo
 const out = process.argv[2]
 const outDet = process.argv[3]
 const tardia = process.argv[4] === 'tardia' // D-53: raiz tardia de ejemplo, SOLO en esta fixture: una persona vinculada al evento que entra a mitad del recorrido
