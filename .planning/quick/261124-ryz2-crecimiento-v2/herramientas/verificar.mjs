@@ -89,5 +89,14 @@ const enPantalla = (p, nombre) => p.evaluate((nombre) => {
   log({ caso: 'clic en la raíz Bosque Gracias', urlDespues: p.url(), titulo: await p.locator('h1').first().innerText().catch(() => null) })
   await ctx.close()
 }
+{ // la versión mini (desde afuera) también es seleccionable: hover y clic sobre ella enfocan a Ryzomatica
+  const { p, ctx } = await abrir('/', '&red=laboratorios&dia=10')
+  const c = await p.evaluate(() => { const e = window.__sinapsis, n = e.graph.graphData().nodes[0], v = e.camera.position.clone().set(n.x, n.y, n.z).project(e.camera); return { x: Math.round(((v.x + 1) / 2) * innerWidth), y: Math.round(((1 - v.y) / 2) * innerHeight) } })
+  await p.evaluate(() => { const e = window.__sinapsis; window.__ev = []; const o = e._emitir.bind(e); e._emitir = (n, ...a) => { window.__ev.push(n + ':' + (a[0]?.name ?? '')); return o(n, ...a) } })
+  await p.mouse.move(c.x, c.y); await p.waitForTimeout(400); await p.mouse.move(c.x + 1, c.y); await p.waitForTimeout(400)
+  await p.mouse.click(c.x + 1, c.y); await p.waitForTimeout(2500)
+  log({ caso: 'clic en la mini', eventos: (await p.evaluate(() => window.__ev)).filter((x) => !x.startsWith('nodeFocus')).slice(0, 6), url: p.url() })
+  await ctx.close()
+}
 writeFileSync(process.argv[2], salida.map((o) => JSON.stringify(o)).join('\n') + '\n')
 await b.close()

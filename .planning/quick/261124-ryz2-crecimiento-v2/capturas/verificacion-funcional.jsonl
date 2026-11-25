@@ -1,0 +1,9 @@
+{"caso":"?t=2026-11-30 (50 %)","esperado":2500,"modo":"completo","pasos":2500,"total":5001,"dibujados":2501}
+{"caso":"?dia=7.5 (75 %)","esperado":4218.75,"modo":"completo","pasos":4218.75,"total":5001,"dibujados":4220}
+{"caso":"cliente +6 dias, sin perillas","modo":"completo","pasos":65.78567874825681,"total":5001,"dibujados":67,"offsetMs":-518400665,"nota":"pasos esperados = pasosEn(hora del servidor), no la del cliente"}
+{"caso":"slider 75 %","esperado":4218.75,"modo":"completo","pasos":4218.75,"total":5001,"dibujados":4220}
+{"caso":"slider 100 %","esperado":5000,"modo":"completo","pasos":5000,"total":5001,"dibujados":5001}
+{"caso":"vida al cambiar de red","escenas":[{"ryzomatica":{"modo":"completo","pasos":2500,"total":5001,"dibujados":2501}},{"laboratorios":{"modo":"mini","pasos":200,"total":401,"dibujados":201}},{"tropical":null},{"ryzomaticaDeNuevo":{"modo":"completo","pasos":2500,"total":5001,"dibujados":2501}}],"esperado":"completo, mini, null, completo (mismo paso)"}
+{"caso":"clic en la estructura","urlAntes":"http://localhost:3003/?perf=1&semilla=ryz2&red=ryzomatica&dia=10","urlDespues":"http://localhost:3003/obra/ryzomatica?semilla=ryz2","titulo":"RYZOMATICA"}
+{"caso":"clic en la raíz Bosque Gracias","urlDespues":"http://localhost:3003/entidad/bosque-gracias?red=ryzomatica&semilla=ryz2","titulo":"RYZOMATICA"}
+{"caso":"clic en la mini","eventos":["nodeHover:Ryzomatica","nodeClick:Ryzomatica","vistaLista:","nodeHover:","nodeHover:Ryzomatica","nodeHover:"],"url":"http://localhost:3003/obra/ryzomatica?red=laboratorios&semilla=ryz2"}

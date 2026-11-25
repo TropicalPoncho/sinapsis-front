@@ -15,6 +15,7 @@ const log = (o) => { salida.push(o); console.log(JSON.stringify(o)) }
 const VPS = [['desktop', { width: 1280, height: 800 }], ['mobile', { width: 390, height: 844 }]]
 const ESCENAS = [
   ['ryz-dia0', '/?red=ryzomatica&dia=0'], ['ryz-50', '/?red=ryzomatica&dia=5'], ['ryz-100', '/?red=ryzomatica&dia=10'],
+  ['ryz-foco', '/obra/ryzomatica?red=ryzomatica&enfocado=ryzomatica&dia=10'],
   ['lab-dia0', '/?red=laboratorios&dia=0'], ['lab-100', '/?red=laboratorios&dia=10'],
   ['bosque-dia0', '/?red=bosque-gracias&dia=0'], ['bosque-100', '/?red=bosque-gracias&dia=10'],
 ]
