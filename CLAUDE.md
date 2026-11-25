@@ -135,5 +135,8 @@ Estas no son preferencias de estilo. Cada una existe por una decisión registrad
 - **Una sola base.** Postgres es la fuente de verdad; el `metadata jsonb` es la "data profunda".
 - **La estructura que crece es función pura del tiempo y su algoritmo está congelado por versión (D-52).** `estructura = f(semilla, versión, pasos(t))`, 
   sin proceso en background ni estado persistido; en la base solo vive la config escalar. Tocar `src/lib/crecimiento/dendrita.ts` cambia la trayectoria de todos: un 
-  ajuste es una versión nueva (`dendrita-v2`), nunca una edición de la publicada; el test de oro rompe si se olvida. Sin `Math.random` ni trigonometría en la decisión.
+  ajuste es una versión nueva (`dendrita-v3`; v2 es la vigente desde el 2026-11-25), nunca una edición de la publicada; el test de oro rompe si se olvida. Sin `Math.random` ni trigonometría
+  en la decisión. Cada decisión saca su azar de `azar(semilla, canal, k)` (hash sin estado, D-53): agregar una raíz tardía no cambia ningún paso anterior a su ingreso. En la red del evento el
+  crecimiento ES la neurona (sin esfera, blanco de raycast invisible); desde afuera se dibuja el perfil `mini`. La señal sale de `nodo.crecimiento` (datos), nunca de ids ni nombres.
+  Un participante real será una ENTIDAD (persona) pública vinculada al evento; el Usuario no es un nodo.
 - **`collectiveConscience` se lee, no se toca.** Sigue en producción como sitio de la productora.

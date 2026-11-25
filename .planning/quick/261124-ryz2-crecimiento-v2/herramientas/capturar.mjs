@@ -1,6 +1,6 @@
 // Capturas y medidas de 261124-ryz2 contra un `next dev -p 3003` aislado (copia de src fuera del repo, TOPOLOGIA_FIXTURE=1, fixture de los CSV
 // con build-fixture.mts). uso: node capturar.mjs <dirCapturas> <salida.jsonl> [filtro]
-// Escenas: la red de Ryzomatica (donde el crecimiento ES la neurona) al día 0, 50 % y 100 %; Laboratorios y Tropical vistos desde afuera
+// Escenas: la red de Ryzomatica (donde el crecimiento ES la neurona) al día 0, 50 % y 100 %; Laboratorios y Bosque Gracias vistos desde afuera (la red por defecto de Tropical lista sus areas y no trae a Ryzomatica)
 // (Ryzomatica como versión pequeña) al día 0 y 100 %. Desktop 1280 y mobile 390. `filtro` = subcadena del nombre de la captura.
 import { createRequire } from 'node:module'
 import { mkdirSync, writeFileSync } from 'node:fs'
@@ -16,7 +16,7 @@ const VPS = [['desktop', { width: 1280, height: 800 }], ['mobile', { width: 390,
 const ESCENAS = [
   ['ryz-dia0', '/?red=ryzomatica&dia=0'], ['ryz-50', '/?red=ryzomatica&dia=5'], ['ryz-100', '/?red=ryzomatica&dia=10'],
   ['lab-dia0', '/?red=laboratorios&dia=0'], ['lab-100', '/?red=laboratorios&dia=10'],
-  ['tropical-dia0', '/?red=tropical-poncho&dia=0'], ['tropical-100', '/?red=tropical-poncho&dia=10'],
+  ['bosque-dia0', '/?red=bosque-gracias&dia=0'], ['bosque-100', '/?red=bosque-gracias&dia=10'],
 ]
 const SUFIJO = '&perf=1&semilla=ryz'
 

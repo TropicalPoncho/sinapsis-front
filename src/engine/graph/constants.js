@@ -28,8 +28,9 @@ export const CRECIMIENTO_SETTINGS = {
     // +-12.6, dos nodos de escala 0.5 (radio ~7.5) con 10.2 de aire entre ellos.
     escalaCompleta: 90,
     radioNormalizado: 1.1,
-    // Nodo visto desde afuera (versión mini, esfera irregular de ~0.55 de radio): del tamaño de una neurona normal (radio ~15).
-    escalaMini: 28,
+    // Nodo visto desde afuera (versión mini, esfera irregular de ~0.55 de radio, ~22 en el mundo): son líneas finas, así que se la hace
+    // un poco más grande que una neurona normal (radio 15) para que tenga presencia al lado de ellas. Medido a ojo en capturas.
+    escalaMini: 40,
     // Tropical y Bosque Gracias en la escena donde el crecimiento está activo: más chicos, de la misma familia que el resto (0.4-0.6).
     escalaRaices: 0.5,
 };

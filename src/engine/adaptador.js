@@ -20,6 +20,8 @@ function tieneShape(tiposValidos, shape) {
 //   'mini'      cualquier otra red que contenga el nodo: se ve como una versión pequeña del crecimiento, esférica e irregular.
 // Devuelve null si ningún nodo de la escena trae config. `ajustes` (escalaRaices, radioEncuadre) los pone el motor, que conoce el mundo.
 export function contextoCrecimiento(subgrafo, raizId, ajustes = {}) {
+    // ponytail: tope = 1 nodo que crece por escena (el primero con config) y un LineSegments por nodo (~0.4k segmentos la mini, 1 draw call).
+    // Si aparecen decenas de eventos que crecen: un Set de ids + geometría compartida o instancing, y el tope pasa a constante.
     const nodo = subgrafo.nodos.find((n) => n.crecimiento);
     if (!nodo) return null;
     const porId = new Map(subgrafo.nodos.map((n) => [n.id, n]));
