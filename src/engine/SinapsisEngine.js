@@ -7,15 +7,15 @@ import { resolveTHREE } from './threeObjects/threeGlobal.js';
 const THREE = resolveTHREE();
 import { ThreeObjectManager } from './threeObjects/ThreeObjectManager.js';
 import { ThreeObject } from './threeObjects/ThreeObject.js';
-import './threeObjects/registerTypes.js';        // efecto: registra los 15 tipos
+import './threeObjects/registerTypes.js';        // efecto: registra los 16 tipos
 import { CameraController } from './graph/cameraController.js';
 import { AnimationManager } from './graph/animationManager.js';
 import { Background } from './graph/background.js';
-import { GLOBAL_DEFAULT_SETTINGS, ANIMATION_SETTINGS } from './graph/constants.js';
-import { adaptarSubgrafo } from './adaptador.js';
+import { GLOBAL_DEFAULT_SETTINGS, ANIMATION_SETTINGS, CRECIMIENTO_SETTINGS } from './graph/constants.js';
+import { adaptarSubgrafo, contextoCrecimiento } from './adaptador.js';
 import { fuerzaGravedad } from './graph/utils.js';
 import { clasificarCambio, pinear, fusionar, desvanecerYQuitar, sembrarJuntoAVecinos } from './graph/transiciones.js';
-import { CrecimientoObject } from './threeObjects/crecimientoThreeObject.js';
+import { estructuraDe } from '../lib/crecimiento/estructura.ts';
 import { pasosEn, tiempoDe } from '../lib/crecimiento/tiempo.ts';
 
 export class SinapsisEngine {
@@ -25,8 +25,10 @@ export class SinapsisEngine {
         this._subgrafo = null;
         this._areaSegura = undefined;
         this._nodoEnfocado = null;
-        // D-52: la estructura que crece, si la Vista tiene a los dos nodos de los que nace. Perillas de desarrollo (?t=, ?dia=, slider).
+        // D-52/D-53: el nodo que se dibuja como estructura que crece, si la escena lo trae ({ nodoId, config }); y en qué modo quedó la
+        // última escena ('completo' | 'mini' | null). Perillas de desarrollo (?t=, ?dia=, slider).
         this._crec = null;
+        this._modoCrec = null;
         this._perillasCrec = { ...opciones.perillasCrecimiento };
         this._fps = 0;
         this._fpsFrames = 0;
@@ -76,6 +78,7 @@ export class SinapsisEngine {
         // charge = fuerza de repulsión, gravedad = tirón al origen. Sin valor, el default de fuerzas.ts.
         this.graph.d3Force('charge').strength(opciones.charge ?? GLOBAL_DEFAULT_SETTINGS.chargeStrength);
         this.graph.d3Force('gravedad', fuerzaGravedad(opciones.gravedad ?? GLOBAL_DEFAULT_SETTINGS.gravedad));
+        this._fuerzaCentro = this.graph.d3Force('center'); // la de three-forcegraph; _anclarCrecimiento la saca de la red de Ryzomatica
         // Distancia por link: `link.distance` si viene; si no, el default crece con el grado de
         // los extremos, así los hubs con muchos vínculos tienen más espacio (ver _distanciaPorGrado).
         this.graph.d3Force('link').distance(link => link.distance ?? this._distanciaPorGrado(link));
@@ -102,7 +105,8 @@ export class SinapsisEngine {
             .nodeThreeObject(node => {
                 const mesh = this.threeObjectManager.createObject(node);
                 // Escala visual del nodo: las fuerzas no la ven (no cambia el layout), sólo el tamaño en pantalla.
-                const escala = this.opciones.escalaNodos ?? 1;
+                // Las raíces de la estructura que crece (Tropical y Bosque Gracias en la red de Ryzomatica) van más chicas.
+                const escala = (this.opciones.escalaNodos ?? 1) * (node.escalaCrecimiento ?? 1);
                 if (mesh) mesh.scale.setScalar(escala);
                 // Nodos que entran por filtrado/aditivo: aparecen creciendo desde 0 (la creación
                 // ocurre en el digest diferido de la librería, por eso se engancha acá).
@@ -254,9 +258,10 @@ export class SinapsisEngine {
             triangulos: info.render.triangles,
             geometrias: info.memory.geometries,
             texturas: info.memory.textures,
-            crecimientoPasos: this._crec ? this._crec.obj.pasos : null,
-            crecimientoSegmentos: this._crec ? this._crec.obj.total : null,
-            crecimientoMs: this._crec ? Math.round(this._crec.obj.msGeneracion) : null,
+            crecimientoModo: this._modoCrec,
+            crecimientoPasos: this._instCrec()?.pasos ?? null,
+            crecimientoSegmentos: this._instCrec()?.total ?? null,
+            crecimientoMs: this._crec ? Math.round(this._msGenCrec ?? 0) : null,
             ...this._censoEscena(),
         };
     }
@@ -296,36 +301,31 @@ export class SinapsisEngine {
         g.d3ReheatSimulation();
     }
 
-    // D-52: la escena tiene la estructura si algún nodo trae `crecimiento` y están sus dos raíces. Se llama después de cada graphData():
-    // la Vista es la que manda, así que en cualquier otra red no existe (ni cuesta un draw call).
-    _sincronizarCrecimiento(subgrafo) {
-        const porId = new Map(subgrafo.nodos.map(n => [n.id, n]));
-        const config = subgrafo.nodos.find(n => n.crecimiento)?.crecimiento;
-        const ra = config && porId.get(config.raices[0]), rb = config && porId.get(config.raices[1]);
-        if (!ra || !rb) { this._quitarCrecimiento(); return; }
-        const clave = JSON.stringify(config) + ra.vizParams?.color + rb.vizParams?.color;
-        if (this._crec?.clave === clave) return;
-        this._quitarCrecimiento();
-        // ponytail: se genera acá, en el hilo principal (~0.3 s a n=5000 en escritorio, medido). Si en celulares pesa, a un Worker.
+    // D-53: cómo se dibuja el nodo con config de crecimiento en esta escena. Una instancia por escena: es la del renderer 'Crecimiento'.
+    _instCrec() {
+        return this._crec ? this.threeObjectManager._objectInstances[this._crec.nodoId] : undefined;
+    }
+
+    // Modo 'completo': el nodo del evento ES la estructura y sus raíces son nodos reales pegados al núcleo. El layout no lo logra solo
+    // (un link tiene fuerza 1/grado y la repulsión lo estira), así que se anclan: el núcleo en el origen y cada raíz donde la estructura
+    // la nace (posRaices * escala). Fijar fx/fy/fz es el mismo mecanismo de transiciones.js (pinear) y sobrevive al reheat.
+    // ponytail: 3 nodos anclados en la red de ese evento; el resto (Laboratorios, participantes sin raíz) sigue libre por fuerzas.
+    _anclarCrecimiento(nodos, ctx) {
+        if (ctx?.modo !== 'completo') return;
         const t0 = performance.now();
-        const obj = new CrecimientoObject(config, ra.vizParams?.color ?? '#ffffff', rb.vizParams?.color ?? '#ffffff');
-        obj.msGeneracion = performance.now() - t0; // se lee en _perf()
-        this.scene.add(obj.lineas);
-        this._crec = { clave, config, obj };
+        // ponytail: se genera acá, en el hilo principal (~0.2 s a n=5000 en escritorio, medido). Si en celulares pesa, a un Worker.
+        const e = estructuraDe(ctx.config, 'grande');
+        this._msGenCrec = performance.now() - t0;
+        const S = CRECIMIENTO_SETTINGS.escalaCompleta;
+        const fijar = (id, x, y, z) => { const n = nodos.find(m => m.id === id); if (n) { n.fx = x; n.fy = y; n.fz = z; } };
+        fijar(ctx.nodoId, 0, 0, 0);
+        ctx.config.raices.forEach((r, i) => fijar(r.id, e.posRaices[3 * i] * S, e.posRaices[3 * i + 1] * S, e.posRaices[3 * i + 2] * S));
     }
 
-    _quitarCrecimiento() {
-        this._crec?.obj.dispose();
-        this._crec = null;
-    }
-
-    // Por cuadro: coloca la estructura entre los dos nodos reales (el layout se mueve) y la revela hasta el paso del reloj.
+    // Por cuadro: revela la estructura hasta el paso del reloj. La forma no se rehace (prefijo exacto): solo cambia el drawRange.
     _actualizarCrecimiento() {
-        const { config, obj } = this._crec;
-        const nodos = this.graph.graphData().nodes; // ponytail: dos find por cuadro sobre <= 200 nodos, solo con la estructura activa
-        const A = nodos.find(n => n.id === config.raices[0]), B = nodos.find(n => n.id === config.raices[1]);
-        if (!A || !B || ![A.x, A.y, A.z, B.x, B.y, B.z].every(Number.isFinite)) { obj.lineas.visible = false; return; }
-        obj.actualizar(pasosEn(config, tiempoDe(config, this._perillasCrec, this.opciones.ahora?.() ?? Date.now())), A, B);
+        const { config } = this._crec;
+        this._instCrec()?.actualizar?.(pasosEn(config, tiempoDe(config, this._perillasCrec, this.opciones.ahora?.() ?? Date.now())));
     }
 
     // Debug (slider del DebugPanel): { fraccion } fija el momento en 0..1 del recorrido de inicio a fin; undefined vuelve al reloj.
@@ -351,8 +351,22 @@ export class SinapsisEngine {
 
     // nodoEnfocado: undefined no toca el foco, null desenfoca, un id enfoca.
     // NO es reentrante: el puente serializa las llamadas (UI-10).
-    async setVista(subgrafo, { transicion = 'reemplazo', areaSegura, nodoEnfocado } = {}) {
+    // `raiz`: id de la red (la raíz de la Vista), de la URL. Solo la usa D-53 para saber si la escena es la red del evento que crece.
+    async setVista(subgrafo, { transicion: pedida = 'reemplazo', areaSegura, nodoEnfocado, raiz } = {}) {
         this._subgrafo = subgrafo;
+        const ctx = contextoCrecimiento(subgrafo, raiz, {
+            escalaRaices: this.opciones.escalaRaices ?? CRECIMIENTO_SETTINGS.escalaRaices,
+            radioEncuadre: CRECIMIENTO_SETTINGS.escalaCompleta * 1.35, // el elipsoide llega a 1.25 del radio mayor + aire
+        });
+        // Entrar al modo completo (o salir de él) cambia el renderer del evento y la forma de sus dos raíces: eso solo lo hace una escena
+        // nueva. Las instancias que 'filtrado' y 'aditivo' conservan no se pueden convertir. ponytail: se pide 'reemplazo'; si hiciera
+        // falta animarlo como filtrado, hay que recrear solo esos tres nodos.
+        const transicion = (this._modoCrec === 'completo') !== (ctx?.modo === 'completo') ? 'reemplazo' : pedida;
+        this._modoCrec = ctx?.modo ?? null;
+        // forceCenter mueve TODOS los nodos por la media de las posiciones: con tres anclados cerca del origen arrastra al resto hacia ahí
+        // (medido: Laboratorios colapsaba sobre el núcleo). Con la gravedad (tirón al origen) ya hay centrado, así que en esta red se saca.
+        this.graph.d3Force('center', this._modoCrec === 'completo' ? null : this._fuerzaCentro);
+        this._crec = ctx ? { nodoId: ctx.nodoId, config: ctx.config } : null;
         this._areaSegura = areaSegura ?? this._areaSegura;
 
         // MOTR-09/12: el encuadre corre después de la transición, nunca en paralelo — la
@@ -379,13 +393,13 @@ export class SinapsisEngine {
                 // libera lo que sale. La transición sale sólo de `transicion`: no se mira
                 // el Subgrafo (raíz, profundidad) para decidir la rama (MOTR-06).
                 const actuales = this.graph.graphData().nodes;
-                const datos = adaptarSubgrafo(subgrafo);
+                const datos = adaptarSubgrafo(subgrafo, undefined, ctx);
+                this._anclarCrecimiento(datos.nodes, ctx);
                 const { quedan, salen, entran } = clasificarCambio(actuales, datos.nodes);
                 pinear(quedan); // sobreviven al reheat de graphData()
                 this._idsEntrando = new Set(entran.map(n => n.id));
                 await desvanecerYQuitar(this.threeObjectManager, salen.map(n => n.id), ANIMATION_SETTINGS.NODE_FADE_DURATION);
                 this.graph.graphData({ nodes: fusionar(quedan, entran), links: datos.links });
-                this._sincronizarCrecimiento(subgrafo);
                 await this._liberarTrasDigest(datos.nodes.map(n => n.id)); // MOTR-07
                 // ponytail: los nodos filtrados quedan pineados (no se llama soltarPin); si una
                 // Vista futura los necesita libres para volver a responder a fuerzas, ahí se
@@ -396,7 +410,8 @@ export class SinapsisEngine {
             case 'aditivo': {
                 // Suma nodos nuevos sin tocar lo existente: nada sale de escena, no hay dispose.
                 const actuales = this.graph.graphData().nodes;
-                const datos = adaptarSubgrafo(subgrafo);
+                const datos = adaptarSubgrafo(subgrafo, undefined, ctx);
+                this._anclarCrecimiento(datos.nodes, ctx);
                 const { entran } = clasificarCambio(actuales, datos.nodes);
                 pinear(actuales); // el esqueleto existente no se mueve
                 // ponytail: siembra junto al primer vecino presente; sin vecino cae al origen como antes
@@ -407,7 +422,6 @@ export class SinapsisEngine {
                 for (const l of this.graph.graphData().links) linksPorId.set(l.id, l);
                 for (const l of datos.links) linksPorId.set(l.id, l);
                 this.graph.graphData({ nodes: [...actuales, ...entran], links: [...linksPorId.values()] });
-                this._sincronizarCrecimiento(subgrafo);
                 // Sin animación de entrada propia en esta fase: la promesa resuelve apenas
                 // graphData() termina de aplicarse — no hay fundido para 'aditivo' (CONTEXT.md).
                 // Mientras crecen desde 0 la física los acomoda (los presentes están pineados): el
@@ -420,11 +434,11 @@ export class SinapsisEngine {
             default: {
                 // Primera carga: no hay red que ocultar, el fundido de salida sólo agrega negro.
                 if (this.graph.graphData().nodes.length) await this.animationManager.fadeOutCanvasToBlack(this._nodoEnfocado ?? null, ANIMATION_SETTINGS.FADE_DURATION);
-                const datos = adaptarSubgrafo(subgrafo);
+                const datos = adaptarSubgrafo(subgrafo, undefined, ctx);
+                this._anclarCrecimiento(datos.nodes, ctx);
                 performance.mark('sinapsis:graphData:inicio'); // PERF-01: dónde se va el tiempo de carga
                 this.graph.graphData(datos);
                 performance.mark('sinapsis:graphData:fin');
-                this._sincronizarCrecimiento(subgrafo);
                 // El objeto del enfocado ya no existe en la escena. Sin foco nuevo se suelta y el
                 // área segura vuelve a 0 acá, bajo el negro: si no, la red interna aparece corrida
                 // hacia el área libre y se desliza al centro cuando el foco se suelta después.
@@ -478,7 +492,6 @@ export class SinapsisEngine {
         cancelAnimationFrame(this._raf);
         window.removeEventListener('resize', this._onResize);
         this.animationManager.clearState();
-        this._quitarCrecimiento();
         this.threeObjectManager.disposeAll();
         this.background?.destruir();
         this.graph._destructor?.();

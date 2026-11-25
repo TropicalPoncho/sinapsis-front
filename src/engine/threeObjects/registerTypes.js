@@ -3,6 +3,7 @@
 // El ThreeObject "Like Fire" queda fuera a propósito: declara `type` de instancia, no `static type`,
 // así que tampoco se registraba en collectiveConscience, y su valor colisionaría con PerlinThreeObject.
 import { ThreeObjectManager } from './ThreeObjectManager.js';
+import { CrecimientoThreeObject } from './crecimientoThreeObject.js';
 import { CrossedLinesThreeObject } from './crossedLinesThreeObject.js';
 import { FireThreeObject } from './fireThreeObject.js';
 import { ImageThreeObject } from './imageThreeObject.js';
@@ -20,7 +21,7 @@ import { TwistThreeObject } from './twistThreeObject.js';
 import { WaveLineThreeObject } from './waveLineThreeObject.js';
 
 const types = [
-    CrossedLinesThreeObject, FireThreeObject, ImageThreeObject, LightsThreeObject,
+    CrecimientoThreeObject, CrossedLinesThreeObject, FireThreeObject, ImageThreeObject, LightsThreeObject,
     LinesThreeObject, LinkThreeObject, MarbleThreeObject, NoiseThreeObject,
     ParticlesThreeObject, PerlinNoiseThreeObject, PerlinThreeObject,
     SimpleTextThreeObject, TextThreeObject, TwistThreeObject, WaveLineThreeObject,

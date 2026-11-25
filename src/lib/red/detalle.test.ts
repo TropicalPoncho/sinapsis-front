@@ -152,7 +152,7 @@ test('D-52: la ficha de Ryzomatica trae crecimiento válido, con raíces que son
   validarDetalle({ ficha: { crecimiento: roto } }, [], descartes)
   assert.match(descartes[0], /algoritmo/)
   const nodos = fs.readFileSync('data/curaduria/nodos.csv', 'utf8')
-  for (const r of (ficha.crecimiento as { raices: string[] }).raices) assert.ok(nodos.includes(r + ','), r)
+  for (const r of (ficha.crecimiento as { raices: { id: string }[] }).raices) assert.ok(nodos.includes(r.id + ','), r.id)
 })
 
 // D-48: la ficha de una ENTIDAD es el mismo mecanismo de bloques, con el bloques.json real.

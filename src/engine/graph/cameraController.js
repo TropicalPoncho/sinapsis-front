@@ -97,7 +97,10 @@ export class CameraController {
         // El encuadre lo decide `shape` (dato curado), nunca `nodeType`. `esImagen` ya lo derivó
         // el adaptador. Radio del sprite tomado de constants, no medido del mesh: la textura
         // carga async y `Box3.setFromObject` sale vacío contra ella.
-        const distancia = nodo.esImagen
+        // `radioEncuadre`: nodos que miden más que una neurona (la estructura que crece de Ryzomatica, D-53) se encuadran enteros.
+        const distancia = nodo.radioEncuadre
+            ? distanciaParaEncuadrar(nodo.radioEncuadre, rectW, rectH, H, this.camera.fov)
+            : nodo.esImagen
             ? distanciaParaEncuadrar(GLOBAL_DEFAULT_SETTINGS.nodeSize * 2.1 / 2, rectW, rectH, H, this.camera.fov)
             // hypot(50, 90) con este azimut reproduce la posición calibrada (±50, 0, 90) del
             // encuadre viejo — las constantes no se tocaron a ciegas.

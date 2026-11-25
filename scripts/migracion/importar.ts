@@ -190,7 +190,7 @@ for (const [id, { _nodo, ...ficha }] of Object.entries(fichas)) {
   for (const dsc of descartes) errores.push(`${donde}: ${dsc}`)
   // D-52: las dos raíces de la estructura que crece tienen que ser nodos vivos, si no el motor no la puede colocar.
   const raices = (ficha.crecimiento as { raices?: unknown } | undefined)?.raices
-  if (Array.isArray(raices)) for (const r of raices) if (!nodosVivos.has(String(r))) errores.push(`${donde}: crecimiento.raices "${String(r)}" no es un nodo vivo de nodos.csv`)
+  if (Array.isArray(raices)) for (const r of raices) { const id = String((r as { id?: unknown } | null)?.id); if (!nodosVivos.has(id)) errores.push(`${donde}: crecimiento.raices "${id}" no es un nodo vivo de nodos.csv`) }
 }
 
 if (errores.length > 0) {

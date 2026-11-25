@@ -89,6 +89,7 @@ export default function CanvasSinapsis({ ady, idx, estado, escena, llegadaRef, p
         charge: num('charge'),
         gravedad: num('gravedad'),
         escalaNodos: num('escala'),
+        escalaRaices: num('escalaraiz'), // D-53: tamaño de las raíces de la estructura que crece (perilla, default en constants.js)
         forceEngine: params.get('engine') ?? undefined,
         // D-52: la hora de la estructura que crece es la del servidor, no la del visitante; ?t= y ?dia= son perillas de desarrollo.
         ahora: ahoraServidor,
@@ -173,7 +174,9 @@ export default function CanvasSinapsis({ ady, idx, estado, escena, llegadaRef, p
           await frame(); await frame();
         }
         const engine = await motorListo.current;
-        await engine.setVista(p.sub, { transicion, nodoEnfocado: soloSuma ? undefined : p.enfocadoId });
+        // `raiz` = la red (de la URL): el motor dibuja el evento que crece como estructura completa solo en su propia red (D-53)
+        const raiz = p.estado.red ? idx.idPorSlug.get(p.estado.red) ?? null : null;
+        await engine.setVista(p.sub, { transicion, nodoEnfocado: soloSuma ? undefined : p.enfocadoId, raiz });
       } catch (e) {
         console.error(e);
       }

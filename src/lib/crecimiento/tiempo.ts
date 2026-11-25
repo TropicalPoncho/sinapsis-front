@@ -14,6 +14,11 @@ export function pasosEn(c: Pick<ConfigCrecimiento, 'inicio' | 'fin' | 'n'>, ms: 
   return c.n * suave((ms - i) / (msDe(c.fin) - i))
 }
 
+// Paso en que entra una raíz con `desde` (ISO): el paso entero del recorrido en ese instante. Sin `desde`, o antes del inicio, entra en el
+// paso 0. Es el mismo reloj de pasosEn: una raíz que entra "el 1/12" entra en el paso en que está la estructura el 1/12.
+export const pasoDeIngreso = (c: Pick<ConfigCrecimiento, 'inicio' | 'fin' | 'n'>, desde?: string): number =>
+  desde === undefined ? 0 : Math.floor(pasosEn(c, msDe(desde)))
+
 // Perillas de desarrollo (no son estado ni se comparten): ver cualquier momento sin esperar.
 //   ?t=2026-12-01T12:00:00-03:00  un instante ISO     ?dia=3.5  días desde el inicio
 // `fraccion` (0..1 del recorrido) es la del slider del panel de debug. Gana fraccion, después t, después dia.
