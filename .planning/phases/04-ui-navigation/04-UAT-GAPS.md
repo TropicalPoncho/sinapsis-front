@@ -48,3 +48,12 @@ Hueco de datos (curaduría 02-05, no código): 5 de las 6 áreas reales de Tropi
 
 - **Dos formas de moverse.** "Ingresar" (a una entidad, un área o una obra: zoom in, reemplazo) y "ir scrolleando por la red" (movimiento lateral: de un evento ver sus artistas ocultando el resto; de un artista sumar sus últimas obras; aditivo/filtrado, estilo feed con nodos precargados que aparecen y se van). El dueño: "Vayamos por esto por ahora": se prioriza la vista de entrada de la entidad y la maqueta de entrada a un área (G-08..G-10). "Tenemos que pensar bien todo esto." Conecta con el estado efímero de D-22.
 - **Nosotrxs como área siempre presente** para todo perfil: sin decidir (ver hueco de datos).
+
+## Estado tras 04-12/04-13 (UAT de cierre, 2026-11-26)
+
+| Gap | Estado | Evidencia |
+|---|---|---|
+| G-06 | cerrado por el dueño | punto 22 del UAT de cierre (celular), OK en bloque |
+| G-08 | cerrado por el dueño, con pedido nuevo | re-smoke tras 04-12 y punto 3; el pedido nuevo (áreas internas, red de Tropical sin raíz) va como todo, no reabre G-08 |
+| G-09 | cerrado por el dueño | re-smoke tras 04-12 y punto 6 (el VOLVER del lateral lo reemplazó el historial, D-51) |
+| G-10 | cerrado por el dueño | re-smoke tras 04-12 y puntos 4-5 |

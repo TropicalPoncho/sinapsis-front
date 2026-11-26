@@ -157,3 +157,14 @@ Notas:
 - La marca "Sinápsis" de escritorio (abajo a la derecha, rect `1145-1256 x 752-776` a 1280x800) queda parcialmente tapada por el botón del panel de debug (`.debugPanel__abrir`, rect `1169-1268 x 756-788`): se superponen. El panel de debug es solo de desarrollo (`DebugPanel.tsx`, "no forma parte del diseño final"). No se corrige en este plan; va al UAT del dueño para saber si le molesta.
 
 Sin filas GAP.
+
+## UAT del dueño 3 (UAT de cierre unificado, 2026-11-26)
+
+Guion: `04.1-UAT-CIERRE.md` (26 puntos, reemplaza la Task 3 de 04-13). Escritorio y celular contra el build del 2026-11-26 con la base local (195 nodos).
+Respuesta del dueño, **textual**: "bastante mejor. Hay cosas del menu historico para volver a tocar pero por ahora queda aprobado." … "EL UAT Y LO DEMAS OK".
+
+| Punto | Resultado |
+|---|---|
+| 1-7, 22-23, 26 | OK en bloque del dueño |
+| 6, 26 (historial, D-51) | Aprobado; el dueño quiere volver a tocarlo más adelante (todo `2026-11-26-historial-retoque.md`) |
+| 3 (D-24) | Aprobado, con pedido nuevo: áreas internas fuera de la red general; adentro de Tropical, áreas conectadas entre sí y sin la raíz (todo `2026-11-26-areas-internas-de-tropical.md`) |

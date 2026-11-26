@@ -26,8 +26,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Repo Cleanup** (2026-08-06) - Remove the failed react-force-graph-3d attempt, update dependencies, land the engine source from collectiveConscience, carve out `strapi/`, define the shared `Vista` contract
 - [x] **Phase 2: Data & Vista Backend** (2026-10-01) - Postgres schema owned by SQL migrations, CSV-curated data import, and the topology endpoint plus `resolverVista`
 - [x] **Phase 3: 3D Engine** - SinapsisEngine with its three transitions, React-free, measured for its render ceiling
-- [ ] **Phase 4: UI & Navigation** - Persistent canvas above the router, Next.js routes as overlays (home, ENTIDAD, OBRA), URL-driven navigation choreographed with camera moves, data-driven menu
-- [ ] **Phase 4.1: Expandir nodo y secciones derivadas** (INSERTED) - Ficha expandida sobre el canvas, acciones derivadas de los datos, secciones por rol, portfolio por tipo de nodo y vigencia de los vínculos
+- [x] **Phase 4: UI & Navigation** (2026-11-26) - Persistent canvas above the router, Next.js routes as overlays (home, ENTIDAD, OBRA), URL-driven navigation choreographed with camera moves, data-driven menu
+- [x] **Phase 4.1: Expandir nodo y secciones derivadas** (INSERTED) (2026-11-26) - Ficha expandida sobre el canvas, acciones derivadas de los datos, secciones por rol, portfolio por tipo de nodo y vigencia de los vínculos
 - [ ] **Phase 5: Tropical Poncho Launch** - tropicalponcho.art live as the ENTIDAD profile page, on real migrated data, no special-cased code
 
 ## Phase Details
@@ -127,7 +127,7 @@ Plans:
 - [x] 04-10-PLAN.md — Gaps: D-22 (lo sumado al recorrer vive en memoria del Shell, la URL lleva el ancla; excepción al invariante escrita); crédito suma al colaborador, "Sumar sus obras", criterio G-05, estado vacío de área (G-04, G-05) (gap wave 3)
 - [x] 04-11-PLAN.md — Gaps: auditoría ponytail, D-23 y CONTEXT/UI-SPEC enmendados, re-smoke de gaps y reglas de D-22, UAT del dueño con base real (D-16, menú en preview) (gap wave 4)
 - [x] 04-12-PLAN.md — Gaps del UAT 2: VOLVER del área reproducido con la base real, sube un nivel, y navegar no apila la URL actual (G-09); la entrada a una entidad con áreas es la raíz y sus áreas, con vínculos virtuales derivados de sus miembros (G-08, D-24); adentro de un área, la entidad queda fija, el menú marca el área activa y el lateral sigue la captura del dueño (G-10, D-25) (gap wave 1)
-- [ ] 04-13-PLAN.md — Gaps del UAT 2: auditoría ponytail de 04-12, D-24/D-25 y sus enmiendas en CONTEXT/UI-SPEC, re-smoke de G-08..G-10 y UAT del dueño 3 contra la captura (gap wave 2)
+- [x] 04-13-PLAN.md — Gaps del UAT 2: auditoría ponytail de 04-12, D-24/D-25 y sus enmiendas en CONTEXT/UI-SPEC, re-smoke de G-08..G-10 y UAT del dueño 3 contra la captura (gap wave 2)
 
 **UI hint**: yes
 
@@ -145,7 +145,7 @@ Plans:
 - [x] 04.1-04-PLAN.md — Auditoría ponytail, D-32..D-37 en CONTEXT y enmiendas de la Fase 4 (CONTEXT y UI-SPEC), re-smoke headless y UAT del dueño (wave 4)
 - [x] 04.1-05-PLAN.md — Gaps/pedido del dueño 2026-10-18: ficha por bloques de contenido configurables en datos (`bloques.json` + override en `metadata.ficha`), créditos por rol en una columna a la derecha, carga de curaduría `fichas.json` → `importar.ts` → `metadata.ficha` validada en el borde (Alterego de punta a punta), evento futuro con fecha/horario/espacio en preview y ficha más Entradas, animación de expandir sin mover la cámara (D-38, D-39, D-42..D-44) (gap wave 1)
 - [x] 04.1-06-PLAN.md — Gaps G41-01 y G41-02: etiquetas de sección por contexto en `roles.json` → `contextos` (un espacio lee "Eventos", una banda "Conciertos"); la subred de una entidad sin áreas muestra sus eventos y obras en lugar de personas (decisión del dueño, `vistaDe`); tabla y test de neuronas por contexto (D-40, D-41, D-45) (gap wave 2)
-- [ ] 04.1-07-PLAN.md — Cierre (corre al final): auditoría ponytail de 04.1-05/06 (hecha, `600109a`) y de 04.1-08/09/10; D-38..D-45 en CONTEXT, D-12/D-13/D-24 y UI-SPEC (hechos, `599a982`), más D-40 reemplazada en parte, D-46..D-49 y las enmiendas de D-26/D-32/D-33/D-39/D-44/D-46 y D-02/D-14; re-smoke headless de los cinco planes y UAT del dueño (Alterego, el portfolio de Rama con SOMA una vez, "Próximo", el About de una entidad, Ex integrantes de Tropical y los roles normalizados, las áreas de Tropical sin cambio), con 002 en su base local antes de importar (gap wave 7)
+- [x] 04.1-07-PLAN.md — Cierre (corre al final): auditoría ponytail de 04.1-05/06 (hecha, `600109a`) y de 04.1-08/09/10; D-38..D-45 en CONTEXT, D-12/D-13/D-24 y UI-SPEC (hechos, `599a982`), más D-40 reemplazada en parte, D-46..D-49 y las enmiendas de D-26/D-32/D-33/D-39/D-44/D-46 y D-02/D-14; re-smoke headless de los cinco planes y UAT del dueño (Alterego, el portfolio de Rama con SOMA una vez, "Próximo", el About de una entidad, Ex integrantes de Tropical y los roles normalizados, las áreas de Tropical sin cambio), con 002 en su base local antes de importar (gap wave 7)
 - [x] 04.1-08-PLAN.md — Pedido del dueño 2026-10-20: portfolio por tipo de nodo en `roles.json` → `portfolios` (persona: Participaciones, Obras, Organizaciones; productora/colectivo/sello: Eventos producidos, Integrantes, Obras), una fila por nodo con sus roles como chips, lo más reciente primero y "Próximo" arriba; reemplaza D-40 para personas y organizaciones (D-46, D-47) (gap wave 4)
 - [x] 04.1-09-PLAN.md — Pedido del dueño 2026-10-20: About de las entidades como bloque de texto en `metadata.ficha` (`bloques.json` → `ENTIDAD`), el import acepta ENTIDAD, Expandir sale del flag `ficha` de la topología, la ficha de una entidad con su About y su portfolio; las áreas de Tropical sin cambio (D-48) (gap wave 5)
 - [x] 04.1-10-PLAN.md — Decisión del dueño 2026-10-24: vigencia de los vínculos con `desde`/`hasta` (fecha parcial en texto, migración aditiva `002_vigencia_vinculos.sql` con CHECK de forma y de orden, escrita y no corrida: la corre el dueño, local y después Neon, antes de desplegar), columnas opcionales en `vinculos.csv` validadas en el import y solo en INTEGRA, el período en el dump; Integrantes vigentes y Ex integrantes con su período en una organización, "Integró · hasta 2024" en una persona; los cuatro ex integrantes de Tropical y los roles "Trabajó en …" normalizados (D-49) (gap wave 6)
@@ -174,6 +174,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 4.1 → 5 (2 and 3 can 
 | 1. Repo Cleanup | 4/4 | Complete | 2026-08-06 |
 | 2. Data & Vista Backend | 5/5 | Complete | 2026-10-01 |
 | 3. 3D Engine | 6/6 | Complete | 2026-09-20 |
-| 4. UI & Navigation | 12/13 | In Progress|  |
-| 4.1 Expandir nodo y secciones derivadas (INSERTED) | 9/10 | In Progress|  |
+| 4. UI & Navigation | 13/13 | Complete | 2026-11-26 |
+| 4.1 Expandir nodo y secciones derivadas (INSERTED) | 10/10 | Complete | 2026-11-26 |
 | 5. Tropical Poncho Launch | 0/? | Not started | - |

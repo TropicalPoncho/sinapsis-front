@@ -256,7 +256,7 @@ de Overlay; no hay migraciones, datos nuevos ni gramática de URL nueva.
     dato: una creadxr que suma un área pasa a la vista limpia; (3) lxs colaboradorxs de Tropical dejan de
     verse al entrar: se llega por un área, por créditos o con `?prof=2`. Reversible: nada queda en datos ni
     en links.
-  - **Estado:** decidida en 04-12 dentro del pedido del dueño; **pendiente de confirmación en el UAT 3**.
+  - **Estado:** decidida en 04-12 dentro del pedido del dueño; **confirmada en el UAT de cierre (2026-11-26, aprobación en bloque del dueño)**. D-24 queda enmendada por un pedido nuevo del mismo UAT: adentro de Tropical, las áreas conectadas entre sí y sin la raíz visible; y las áreas internas fuera de la red general (todo `.planning/todos/pending/2026-11-26-areas-internas-de-tropical.md`).
     ADR en Notion pendiente (campo nuevo del contrato de la Vista y vínculos derivados en el traversal).
 
 - **D-25 (registro de decisión): adentro de un área, el contexto es la entidad dueña; VOLVER sube un nivel
@@ -293,7 +293,7 @@ de Overlay; no hay migraciones, datos nuevos ni gramática de URL nueva.
     envuelve (a 1280x800 queda en dos filas). La captura usa una fuente condensada, por eso allí entra en
     una fila; para una sola fila, achicar los ítems o dejar el activo en 18 px. Reversible: todo vive en
     Overlay, Shell y CSS.
-  - **Estado:** decidida en 04-12 dentro del pedido del dueño; **pendiente de confirmación en el UAT 3**.
+  - **Estado:** decidida en 04-12 dentro del pedido del dueño; **confirmada en el UAT de cierre (2026-11-26, aprobación en bloque del dueño)**. D-24 queda enmendada por un pedido nuevo del mismo UAT: adentro de Tropical, las áreas conectadas entre sí y sin la raíz visible; y las áreas internas fuera de la red general (todo `.planning/todos/pending/2026-11-26-areas-internas-de-tropical.md`).
 
 ### Claude's Discretion
 - Menú de arriba en la home social (contexto general, sin entidad en foco).

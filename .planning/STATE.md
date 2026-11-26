@@ -1,19 +1,19 @@
 ---
 gsd_state_version: "1.0"
 milestone: v1.0
-current_phase: "04.1"
-current_phase_name: Expandir nodo y secciones derivadas
-status: "Sitio publicado en https://sinapsis.tropicalponcho.art (Vercel + Neon). Fase 4 abierta: UAT 3 (04-13) y G-06 (celular). Fase 4.1: ficha por bloques, créditos por rol, evento futuro y animación hechos; portfolio por tipo de nodo y Próximo (04.1-08), ficha de entidad (04.1-09) y vigencia de vínculos con Ex integrantes (04.1-10, D-49) hechos; falta el cierre con UAT (04.1-07). Migración 002 sin correr: el dueño la corre en su base local y en Neon ANTES de desplegar."
-stopped_at: Completed 04.1-10-PLAN.md
-last_updated: "2026-10-24T15:14:14.515Z"
-last_activity: 2026-10-20
-last_activity_desc: 04.1-08 completo (D-46 portfolio, D-47 Próximo; Rama produjo SOMA)
+current_phase: "05"
+current_phase_name: Tropical Poncho Launch
+status: "Fases 4 y 4.1 cerradas el 2026-11-26 (UAT de cierre aprobado). Siguiente: Fase 5 y los todos del UAT (áreas internas de Tropical, Ryzomatica). Ryzomatica y la migración 003 todavía no están en Neon."
+stopped_at: Completed 04.1-07-PLAN.md (cierre de las fases 4 y 4.1)
+last_updated: "2026-11-26T20:30:00.000Z"
+last_activity: 2026-11-26
+last_activity_desc: UAT de cierre de las fases 4 y 4.1 aprobado; deploy a main
 state_head: c27442f7996a0d50d5cc4c801ae3c18778b4e104
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 5
   total_plans: 38
-  completed_plans: 36
+  completed_plans: 38
 milestone_name: milestone
 ---
 
@@ -24,15 +24,14 @@ milestone_name: milestone
 See: .planning/PROJECT.md (updated 2026-08-06)
 
 **Core value:** Que la red se pueda mirar desde cualquier punto de vista sin cambiar el modelo de datos.
-**Current focus:** Phase 04.1 — Expandir nodo y secciones derivadas (la Fase 04 sigue abierta: UAT 3 del plan 04-13 y G-06)
+**Current focus:** Phase 05 — Tropical Poncho Launch (fases 4 y 4.1 cerradas el 2026-11-26)
 
 ## Current Position
 
-Phase: 04.1 (Expandir nodo y secciones derivadas) — EXECUTING
-Plan: 6 de 7 planes ejecutados; 04.1-06 se rehace con el modelo de portfolio (personas: Participaciones/Obras/Organizaciones) y 04.1-07 quedó a medio camino (auditoría y documentación commiteadas, UAT sin correr)
-Status: Sitio publicado en https://sinapsis.tropicalponcho.art (Vercel + Neon). Fase 4 abierta: UAT 3 (04-13) y G-06 (celular). Fase 4.1: ficha por bloques, créditos por rol, evento futuro y animación hechos; falta el portfolio por tipo de nodo y el UAT.
-Fase 4.1 (INSERTED): 5 de 7 planes ejecutados (04.1-05 completo: ficha por bloques, créditos a la derecha, Alterego de punta a punta, evento futuro con Entradas y animación de expandir; medido sobre la topología de los CSV, no la base viva; el SELECT del horario contra Postgres queda para el UAT del dueño con su base local); **la fase sigue abierta** por G41-01 (UI-14) y G41-02 (UI-15); siguiente: 04.1-06 y 04.1-07
-Last activity: 2026-10-20 — replanificación de 04.1-06 (portfolio), corrección de estado
+Phase: 05 (Tropical Poncho Launch) — not started
+Plan: —
+Status: Fases 4 y 4.1 cerradas el 2026-11-26 con el UAT de cierre unificado (`04.1-UAT-CIERRE.md`). Pendientes del UAT en `.planning/todos/pending/` (4). Ryzomatica y la migración 003 no están en Neon: importarlas congela `dendrita-v2`.
+Last activity: 2026-11-26 — cierre de las fases 4 y 4.1
 
 Phase 02 (data-vista-backend) closed 2026-10-01 — see 02-05-SUMMARY.md.
 
