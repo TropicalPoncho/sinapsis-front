@@ -5,10 +5,10 @@ current_phase: 05
 current_phase_name: Tropical Poncho Launch
 status: "Fases 4 y 4.1 cerradas el 2026-11-26 (UAT de cierre aprobado). Siguiente: Fase 5 y los todos del UAT (áreas internas de Tropical, Ryzomatica). Ryzomatica y la migración 003 todavía no están en Neon."
 stopped_at: Completed 04.1-07-PLAN.md (cierre de las fases 4 y 4.1)
-last_updated: "2026-11-26T22:25:05.141Z"
+last_updated: "2026-11-26T23:53:08.283Z"
 last_activity: 2026-11-26
 last_activity_desc: UAT de cierre de las fases 4 y 4.1 aprobado; deploy a main
-state_head: 035c0a405bce68ae4d2e0d1bd7bc9206ff56b5cf
+state_head: db8e3de2378d049347c230463dcd3f3e6491ec68
 progress:
   total_phases: 6
   completed_phases: 5
@@ -190,6 +190,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 261126-owv | Ryzomatica v2 ajustada antes de publicar: sin recta entre raíces, raíces con su forma, caminos dominantes, grosor al centro, mini de un soma | 2026-11-26 | 035c0a4 | [261126-owv-ryz3-ryzomatica-v2-ajustada-antes-de-pub](./quick/261126-owv-ryz3-ryzomatica-v2-ajustada-antes-de-pub/) |
+| 2 | fast: la red de una obra o un evento no muestra el área que la contiene (Obras, Laboratorios) | 2026-11-26 | db8e3de | — |
 
 ### Roadmap Evolution
 
