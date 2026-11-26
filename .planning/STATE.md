@@ -31,7 +31,7 @@ See: .planning/PROJECT.md (updated 2026-08-06)
 Phase: 05 (Tropical Poncho Launch) — not started
 Plan: —
 Status: Fases 4 y 4.1 cerradas el 2026-11-26 con el UAT de cierre unificado (`04.1-UAT-CIERRE.md`). Pendientes del UAT en `.planning/todos/pending/` (4). Ryzomatica y la migración 003 no están en Neon: importarlas congela `dendrita-v2`.
-Last activity: 2026-11-26 — cierre de las fases 4 y 4.1
+Last activity: 2026-11-26 - Completed quick task 261126-owv: Ryzomatica v2 ajustada antes de publicar (no importada a Neon)
 
 Phase 02 (data-vista-backend) closed 2026-10-01 — see 02-05-SUMMARY.md.
 
