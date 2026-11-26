@@ -19,7 +19,7 @@ const hash = (e: Estructura) => {
   return (h >>> 0).toString(16)
 }
 
-const BUENA = { semilla: SEMILLA, algoritmo: 'dendrita-v2', inicio: '2026-11-25T00:00:00-03:00', fin: '2026-12-05T00:00:00-03:00', n: 5000, raices: [{ id: 'tp' }, { id: 'bg' }] }
+const BUENA = { semilla: SEMILLA, algoritmo: 'dendrita-v2' as const, inicio: '2026-11-25T00:00:00-03:00', fin: '2026-12-05T00:00:00-03:00', n: 5000, raices: [{ id: 'tp' }, { id: 'bg' }] }
 const INGRESO = 600
 
 test('azar: sin estado, misma (semilla, canal, k) mismo número; cualquier cambio de entrada, otro; en [0,1)', () => {
@@ -172,9 +172,9 @@ test('raíz tardía: una entrada que el tope no alcanza nunca entra; una de paso
 test('test de oro: dendrita-v2, semilla 20261205, 1500 pasos. Si rompe, alguien tocó el algoritmo sin subir la versión', () => {
   assert.equal(VERSION, 'dendrita-v2')
   // v2 editada el 2026-11-26 antes de publicarse; desde el import a Neon, un cambio es v3 (D-52): los sitios publicados siguen con v2.
-  assert.equal(hash(generar(SEMILLA, 1500)), 'd514c347')
-  assert.equal(hash(generar(SEMILLA, 1500, 'grande', [0, 0, INGRESO])), 'c5a3f576')
-  assert.equal(hash(generar(SEMILLA, 400, 'mini', [0])), '88cd0105')
+  assert.equal(hash(generar(SEMILLA, 1500)), '5fb85ccb')
+  assert.equal(hash(generar(SEMILLA, 1500, 'grande', [0, 0, INGRESO])), '288025b4')
+  assert.equal(hash(generar(SEMILLA, 400, 'mini', [0])), 'e8235b01')
 })
 
 // Ramas (como en medir.mts): una empieza en una raíz o en un vértice que no es el primer hijo de su padre y sigue por primeros hijos; su
