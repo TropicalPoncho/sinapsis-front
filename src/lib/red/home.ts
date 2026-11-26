@@ -35,7 +35,7 @@ function hash(s: string): number {
 // las cosas, y con ~140 personas era un bardo de neuronas. Los subtipos son los códigos de `subtipos`.
 // ponytail: criterio fijo en código; el dueño quiere que cada unx configure qué mostrar. Salida: leerlo de una
 // Vista guardada por creadxr (la Vista es configuración, nunca un campo del nodo) cuando exista el alta de Vistas.
-const SUBTIPOS_COLECTIVOS: ReadonlySet<string> = new Set(['productora', 'sello', 'centro_cultural', 'colectivo', 'plataforma'])
+const SUBTIPOS_COLECTIVOS: ReadonlySet<string> = new Set(['productora', 'sello', 'centro_cultural', 'colectivo', 'plataforma', 'banda', 'proyecto'])
 export const esDelHome = (n: NodoGrafo): boolean =>
   n.nodeType === 'AGRUPACION' || (n.nodeType === 'ENTIDAD' && SUBTIPOS_COLECTIVOS.has(n.subtipo))
 
