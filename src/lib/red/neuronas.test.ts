@@ -48,9 +48,9 @@ const HOY = '2026-10-24'
 const entrar: [string, number, number, Record<string, number>, number][] = [
   ['tropical-poncho', 6, 6, { ENTIDAD: 1, AGRUPACION: 5 }, 0],
   ['obras', 17, 17, { EVENTO: 17 }, 18],
-  ['soma', 19, 19, { EVENTO: 3, ENTIDAD: 14, OBRA: 1, AGRUPACION: 1 }, 2],
-  ['tempistica-i', 40, 40, { EVENTO: 3, ENTIDAD: 36, AGRUPACION: 1 }, 2],
-  ['alterego', 8, 8, { EVENTO: 2, ENTIDAD: 5, AGRUPACION: 1 }, 1],
+  ['soma', 18, 18, { EVENTO: 3, ENTIDAD: 14, OBRA: 1 }, 2],
+  ['tempistica-i', 40, 40, { EVENTO: 3, ENTIDAD: 37 }, 2],
+  ['alterego', 7, 7, { EVENTO: 2, ENTIDAD: 5 }, 1],
   ['entropia-mapping', 3, 3, { OBRA: 1, ENTIDAD: 1, EVENTO: 1 }, 0],
   ['keuken-aonikenk', 16, 5, { ENTIDAD: 1, EVENTO: 4 }, 1],
   ['espacio-ave-fenix', 30, 5, { ENTIDAD: 1, EVENTO: 4 }, 1],
@@ -75,8 +75,8 @@ for (const [slug, antes, ahora, tipos, precede] of entrar) {
     assert.equal(baseDe(slug, false).nodos.length, antes)
     assert.equal(r.sub.nodos.length, ahora); assert.deepEqual(tiposDe(r.sub), tipos); assert.deepEqual(r.sumados, [])
     assert.equal(r.sub.vinculos.filter((v) => v.tipoVinculo === 'PRECEDE').length, precede)
-    // Lo que alcanzaría sin tope: solo Tempistica I se pasa (por 2).
-    assert.equal(baseDe(slug, obrasDe(ady, id(slug)).length > 0, 1e9).nodos.length, slug === 'tempistica-i' ? 42 : ahora)
+    // Lo que alcanzaría sin tope: solo Tempistica I se pasa (por 1). Sin el área que contiene la obra (UAT de cierre 2026-11-26), una menos.
+    assert.equal(baseDe(slug, obrasDe(ady, id(slug)).length > 0, 1e9).nodos.length, slug === 'tempistica-i' ? 41 : ahora)
   })
 }
 
@@ -137,12 +137,12 @@ test('D-45: ninguna entidad sin áreas con obras o eventos pasa del tope ni qued
 
 test('D-36: entrar a una obra o un evento muestra solo su red (SOMA, Alterego, Entropía (Mapping))', () => {
   assert.ok(labels(escena(E('soma', 'soma')).sub, 'ENTIDAD').includes('Rama Cerratto'))
-  assert.equal(escena(E('alterego', 'alterego')).sub.nodos.length, 8)
+  assert.equal(escena(E('alterego', 'alterego')).sub.nodos.length, 7) // sin Obras, el área que la contiene
   assert.deepEqual(labels(escena(E('entropia-mapping', 'entropia-mapping')).sub), ['Entropía', 'Entropía (Mapping)', 'Rama Cerratto'])
 })
 
-test('tope: Tempistica I alcanza 42 nodos y entran 40; lo que queda afuera sigue en sus secciones', () => {
-  assert.equal(baseDe('tempistica-i', false, 1e9).nodos.length, 42)
+test('tope: Tempistica I alcanza 41 nodos y entran 40; lo que queda afuera sigue en sus secciones', () => {
+  assert.equal(baseDe('tempistica-i', false, 1e9).nodos.length, 41)
   assert.equal(escena(E('tempistica-i', 'tempistica-i')).sub.nodos.length, LIMITE_VISTA)
 })
 
@@ -168,7 +168,7 @@ test('tocar un nodo de la lista que no está en la base suma uno (Organizaciones
 
 test('desde la ficha de SOMA, Rama Cerratto entra a la red de SOMA con Rama enfocada y sin sumar', () => {
   const r = escena(E('soma', 'rama-cerratto'))
-  assert.equal(r.sub.nodos.length, 19); assert.deepEqual(r.sumados, [])
+  assert.equal(r.sub.nodos.length, 18); assert.deepEqual(r.sumados, [])
   assert.ok(r.sub.nodos.some((n) => n.id === id('rama-cerratto')))
 })
 
@@ -179,7 +179,7 @@ test('"Sumar sus obras" de Rama en otra red: lo que falta, con tope de LIMITE_SU
   }
   const tempistica = escena(E('tempistica-i', 'rama-cerratto'), faltan('tempistica-i'))
   assert.equal(tempistica.sumados.length, LIMITE_SUMA); assert.equal(tempistica.sub.nodos.length, LIMITE_VISTA + LIMITE_SUMA) // faltan 13, entran 12
-  assert.deepEqual(tiposDe(tempistica.sub), { EVENTO: 14, ENTIDAD: 36, AGRUPACION: 1, OBRA: 1 })
+  assert.deepEqual(tiposDe(tempistica.sub), { EVENTO: 14, ENTIDAD: 37, OBRA: 1 })
   const keuken = escena(E('keuken-aonikenk', 'rama-cerratto'), faltan('keuken-aonikenk'))
   assert.equal(keuken.sumados.length, LIMITE_SUMA); assert.equal(keuken.sub.nodos.length, 17) // faltan 12 más Rama: 13, entran 12
   // Con más de LIMITE_SUMA guardados gana lo último y el total no pasa de 40 + 12.

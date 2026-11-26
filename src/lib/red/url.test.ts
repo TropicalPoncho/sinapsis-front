@@ -75,6 +75,8 @@ test('vistaDe', () => {
   const ag = vistaDe(E(), 'r', 'AGRUPACION')
   assert.deepEqual(ag.filtroNodeTypes, []); assert.deepEqual(ag.filtroVinculos, ['COMPONE', 'PRECEDE']); assert.equal(ag.profundidad, 1)
   assert.deepEqual(vistaDe(E(), 'r', 'OBRA').filtroVinculos, [])
+  // La red de una obra o un evento no muestra el área que la contiene (UAT de cierre 2026-11-26).
+  for (const t of ['OBRA', 'EVENTO'] as const) assert.ok(!vistaDe(E(), 'r', t).filtroNodeTypes.includes('AGRUPACION'))
   assert.equal(vistaDe(E({ prof: 4 }), 'r', 'OBRA').profundidad, 4)
   assert.equal(profDefecto('ENTIDAD'), 2); assert.equal(profDefecto('AGRUPACION'), 1); assert.equal(profDefecto(), 1)
   // Una AGRUPACION no se muestra a sí misma por defecto (estás "adentro"); una ENTIDAD sí. `raiz`

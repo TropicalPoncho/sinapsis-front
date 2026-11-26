@@ -49,6 +49,11 @@ export const profDefecto = (tipo?: NodeType): number => (tipo === 'ENTIDAD' ? 2 
 const VINCULOS_AL_ENTRAR: TipoVinculo[] = ['COMPONE', 'PRECEDE']
 const soloComponeAlEntrar = (tipo: NodeType | undefined) => tipo === 'AGRUPACION'
 const TIPOS_AL_ENTRAR_ENTIDAD: NodeType[] = ['ENTIDAD', 'AGRUPACION']
+// La red de una obra o un evento no muestra el área que la contiene (Obras en SOMA, Laboratorios en Ryzomatica): el área es
+// interna de la entidad, como el `raiz: false` de entrar a un área (pedido del dueño, UAT de cierre 2026-11-26).
+// ponytail: saca toda AGRUPACION, porque hoy todas son áreas de Tropical. Si aparece una serie o un ciclo que sí deba verse
+// desde su obra, la regla pasa a ser por estructura (AGRUPACION con COMPONE entrante desde una ENTIDAD) en `subgrafoDe`.
+const TIPOS_EN_RED_DE_OBRA: NodeType[] = ['ENTIDAD', 'OBRA', 'EVENTO']
 
 export function estadoDesdeUrl(pathname: string, search: string): EstadoRed {
   const [, seg, slug] = pathname.split('/')
@@ -97,7 +102,7 @@ export const vistaDe = (e: EstadoRed, redId: string | null, tipoRed?: NodeType, 
   const vista: Vista = {
     raiz: redId,
     profundidad: e.prof ?? profDefecto(tipoRed),
-    filtroNodeTypes: tipoRed === 'ENTIDAD' ? TIPOS_AL_ENTRAR_ENTIDAD : [],
+    filtroNodeTypes: tipoRed === 'ENTIDAD' ? TIPOS_AL_ENTRAR_ENTIDAD : tipoRed === 'OBRA' || tipoRed === 'EVENTO' ? TIPOS_EN_RED_DE_OBRA : [],
     filtroVinculos: soloComponeAlEntrar(tipoRed) ? VINCULOS_AL_ENTRAR : [],
     direccion: soloComponeAlEntrar(tipoRed) ? 'sale' : 'ambas',
     incluirRaiz: e.raiz ?? incluirRaizDefecto(tipoRed),
