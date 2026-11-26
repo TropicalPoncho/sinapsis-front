@@ -105,7 +105,7 @@ describe('crecimiento (D-53)', () => {
     const evento = mk('ev', { nodeType: 'EVENTO', crecimiento: cfg }, { color: '#111' });
     const r1 = mk('r1', {}, { shape: 'Image', color: '#f00' }), r2 = mk('r2', {}, { color: '#0f0' });
 
-    test('en la red del propio nodo: el evento es la estructura completa y las dos raíces van chicas y orgánicas', () => {
+    test('en la red del propio nodo: el evento es la estructura completa y las dos raíces van chicas con su forma de siempre', () => {
         const sub = { nodos: [evento, r1, r2, mk('otro')], vinculos: [] };
         const ctx = contextoCrecimiento(sub, 'ev', { escalaRaices: 0.5, radioEncuadre: 120 });
         assert.equal(ctx.modo, 'completo');
@@ -115,13 +115,22 @@ describe('crecimiento (D-53)', () => {
         assert.equal(por.ev.type, 'Crecimiento');
         assert.equal(por.ev.crecimientoModo, 'completo');
         assert.equal(por.ev.radioEncuadre, 120);
-        assert.equal(por.r1.type, 'Perlin'); // una imagen no es una neurona orgánica: se cambia por una forma del conjunto cerrado de renderers
-        assert.equal(por.r1.esImagen, false);
+        assert.equal(por.r1.type, 'Image'); // su forma curada (el logo de Tropical), solo más chica
+        assert.equal(por.r1.esImagen, true);
         assert.equal(por.r1.escalaCrecimiento, 0.5);
-        assert.equal(por.r2.type, 'Marble'); // una forma orgánica queda como está, solo más chica
+        assert.equal(por.r2.type, 'Marble');
         assert.equal(por.r2.escalaCrecimiento, 0.5);
         assert.equal(por.otro.escalaCrecimiento, undefined);
         assert.equal(por.otro.type, 'Marble');
+    });
+
+    test('en la red del propio nodo, un vínculo entre el nodo y sus raíces ancladas no se dibuja (sería una recta de raíz a raíz); los demás sí', () => {
+        const v = (id, origen, destino) => ({ id, origen, destino, tipoVinculo: 'PRODUJO' });
+        const sub = { nodos: [evento, r1, r2, mk('otro')], vinculos: [v('a', 'r1', 'ev'), v('b', 'ev', 'r2'), v('c', 'otro', 'ev'), v('d', 'r1', 'r2')] };
+        const { links } = adaptarSubgrafo(sub, tiposC, contextoCrecimiento(sub, 'ev'));
+        assert.deepEqual(links.map((l) => [l.id, !!l.dentroDelCrecimiento]), [['a', true], ['b', true], ['c', false], ['d', true]]);
+        const fuera = adaptarSubgrafo(sub, tiposC, contextoCrecimiento(sub, 'otra-red')).links;
+        assert.ok(fuera.every((l) => !l.dentroDelCrecimiento)); // vista desde afuera, todos se dibujan
     });
 
     test('en cualquier otra red que lo contenga: versión mini del nodo y las demás formas intactas', () => {

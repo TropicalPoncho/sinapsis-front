@@ -70,15 +70,14 @@ test('prefijo: la estructura en el paso k es el prefijo exacto, byte a byte, de 
   }
 })
 
-test('forma: nacen unidas pegadas al núcleo, cada paso agrega un segmento, solo conecta lo que ya existe, y todo queda en el elipsoide', () => {
+test('forma: nacen pegadas al núcleo y sin segmento recto entre ellas, cada paso agrega un segmento, solo conecta lo que ya existe, y todo queda en el elipsoide', () => {
   const e = generar(SEMILLA, 1500)
   assert.deepEqual([...e.pos.subarray(0, 6)], [-0.14000000059604645, 0, 0, 0.14000000059604645, 0, 0]) // float32 de ±0.14: pegadas al núcleo
   assert.deepEqual([e.padre[0], e.padre[1]], [-1, -1])
-  // la unión ya dibujada: un segmento en el paso 0 que une las dos raíces; después uno por paso
-  assert.deepEqual([e.a[0], e.b[0], e.paso[0]], [1, 0, 0])
-  assert.equal(segmentosHasta(e, 0), 1)
-  assert.deepEqual([...e.paso.subarray(0, 4)], [0, 1, 2, 3])
-  assert.equal(e.a.length, e.pasos + 1)
+  // sin puente: al paso 0 no hay ningún segmento; después, uno por paso (las raíces se unen solo por crecimiento)
+  assert.equal(segmentosHasta(e, 0), 0)
+  assert.deepEqual([...e.paso.subarray(0, 4)], [1, 2, 3, 4])
+  assert.equal(e.a.length, e.pasos)
   for (let s = 0; s < e.a.length; s++) {
     const existen = e.vertices[e.paso[s]] // vértices al completarse el paso en que aparece el segmento
     assert.ok(e.a[s] < existen && e.b[s] < existen, `segmento ${s}`)
@@ -86,8 +85,8 @@ test('forma: nacen unidas pegadas al núcleo, cada paso agrega un segmento, solo
     if (s > 0) assert.ok(e.paso[s] >= e.paso[s - 1], 'paso no decrece')
   }
   for (let v = 2; v < e.padre.length; v++) assert.ok(e.padre[v] >= 0 && e.padre[v] < v, `padre ${v}`)
-  // un árbol: un segmento por vértice que no es raíz, más el puente de las fundadoras (sin uniones entre ramas desde que se quitaron en v2)
-  assert.equal(e.a.length, e.pos.length / 3 - 1)
+  // un bosque de dos árboles: un segmento por vértice que no es raíz, nada más (ni puente ni uniones entre ramas)
+  assert.equal(e.a.length, e.pos.length / 3 - 2)
   for (let v = 0; v < e.pos.length; v += 3) assert.ok(e.pos[v] ** 2 / 1.5 ** 2 + e.pos[v + 1] ** 2 / 1.1 ** 2 + e.pos[v + 2] ** 2 / 0.5 ** 2 <= 1, `vértice ${v / 3} fuera del elipsoide`)
 })
 
@@ -129,10 +128,10 @@ test('raíz tardía (a): agregarla NO cambia ningún paso anterior a su ingreso,
     for (const c of ['a', 'b', 'paso', 'pos', 'padre'] as const) assert.ok(iguales(x[c], y[c]), `${c} @${k}`)
     assert.equal(sin.vertices[k], con.vertices[k], `vertices @${k}`)
   }
-  // en el paso de ingreso los segmentos de crecimiento son los mismos; con la raíz hay un vértice y su puente de más
+  // en el paso de ingreso los segmentos son los mismos; con la raíz hay un vértice de más (suelto, sin segmento)
   const a = hastaPaso(sin, INGRESO), b = hastaPaso(con, INGRESO)
-  assert.ok(iguales(a.a, b.a.subarray(0, a.a.length)) && iguales(a.b, b.b.subarray(0, a.b.length)))
-  assert.equal(b.segmentos, a.segmentos + 1)
+  assert.ok(iguales(a.a, b.a) && iguales(a.b, b.b))
+  assert.equal(b.segmentos, a.segmentos)
   assert.equal(con.vertices[INGRESO], sin.vertices[INGRESO] + 1)
   // y con tope: generar solo hasta el paso previo al ingreso da lo mismo (nada depende de la raíz tardía ni del tope)
   const corta = generar(SEMILLA, INGRESO - 1, 'grande', [0, 0, INGRESO])
@@ -142,18 +141,15 @@ test('raíz tardía (a): agregarla NO cambia ningún paso anterior a su ingreso,
   assert.ok(iguales(hastaPaso(otra, 1199).pos, hastaPaso(sin, 1199).pos) && iguales(hastaPaso(otra, 1199).a, hastaPaso(sin, 1199).a))
 })
 
-test('raíz tardía (b): crece desde su ingreso, de su propio punto, unida a la estructura', () => {
+test('raíz tardía (b): crece desde su ingreso, de su propio punto, sin segmento recto', () => {
   const con = generar(SEMILLA, 1500, 'grande', [0, 0, INGRESO])
   const sin = generar(SEMILLA, INGRESO, 'grande', [0, 0])
   const raiz = sin.vertices[INGRESO] // el vértice que se creó al entrar
   assert.deepEqual([...con.pos.subarray(3 * raiz, 3 * raiz + 3)], [...con.posRaices.subarray(6, 9)])
   assert.equal(con.padre[raiz], -1)
-  // el puente nace con ella, en el paso de ingreso, y no cuenta como paso
-  const puente = [...con.a].findIndex((v, s) => v === raiz && con.paso[s] === INGRESO)
-  assert.ok(puente > 0, 'tiene puente al vértice más cercano')
-  assert.ok(con.b[puente] < raiz)
-  // empieza a crecer en el primer paso después de entrar
-  const primero = [...con.a].findIndex((v, s) => v === raiz && s !== puente)
+  // ningún segmento la toca salvo los que crecen de ella: su primero sale de su propio vértice en el paso siguiente a entrar
+  assert.ok(![...con.b].includes(raiz), 'nada termina en la raíz tardía')
+  const primero = [...con.a].indexOf(raiz)
   assert.ok(primero > 0 && con.paso[primero] === INGRESO + 1, `crece en el paso ${INGRESO + 1}`)
   // y de ahí cuelga una rama de verdad, no un solo segmento
   const cuelga = (v: number) => { let u = v; while (u >= 0 && u !== raiz) u = con.padre[u]; return u === raiz }
@@ -170,15 +166,15 @@ test('raíz tardía: una entrada que el tope no alcanza nunca entra; una de paso
   assert.equal(tarde.vertices[300], hastaPaso(generar(SEMILLA, 300), 300).pos.length / 3) // ni un vértice de más
   const temprana = generar(SEMILLA, 300, 'grande', [0, 0, 0])
   assert.equal(temprana.vertices[0], 3)
-  assert.equal(segmentosHasta(temprana, 0), 2) // dos puentes, la segunda fundadora y la tercera raíz, cada una unida a lo que ya había
+  assert.equal(segmentosHasta(temprana, 0), 0) // tres vértices sueltos, ningún segmento recto entre ellos
 })
 
 test('test de oro: dendrita-v2, semilla 20261205, 1500 pasos. Si rompe, alguien tocó el algoritmo sin subir la versión', () => {
   assert.equal(VERSION, 'dendrita-v2')
-  // Para cambiar estos hashes hay que crear dendrita-v3: los sitios publicados siguen con v2 (D-52).
-  assert.equal(hash(generar(SEMILLA, 1500)), 'abb04c62')
-  assert.equal(hash(generar(SEMILLA, 1500, 'grande', [0, 0, INGRESO])), '80373d20')
-  assert.equal(hash(generar(SEMILLA, 400, 'mini')), 'f3f2beb8')
+  // v2 editada el 2026-11-26 antes de publicarse; desde el import a Neon, un cambio es v3 (D-52): los sitios publicados siguen con v2.
+  assert.equal(hash(generar(SEMILLA, 1500)), 'd514c347')
+  assert.equal(hash(generar(SEMILLA, 1500, 'grande', [0, 0, INGRESO])), 'c5a3f576')
+  assert.equal(hash(generar(SEMILLA, 400, 'mini')), '88cd0105')
 })
 
 test('mini: misma familia en esfera irregular; la irregularidad sale de la semilla; avanza en proporción a pasos(t)', () => {

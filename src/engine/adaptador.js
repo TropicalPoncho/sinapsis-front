@@ -16,8 +16,8 @@ function tieneShape(tiposValidos, shape) {
 // D-53: cómo se dibuja el nodo que trae una config de crecimiento (`nodo.crecimiento`, validada en la API) en ESTA escena. Función pura de
 // (Subgrafo, raíz de la red): la señal viene de los datos, no de ids ni nombres.
 //   'completo'  la red es la del propio nodo y están sus dos fundadoras: el crecimiento ES la neurona (no hay esfera) y las raíces se
-//               dibujan chicas y se anclan al núcleo.
-//   'mini'      cualquier otra red que contenga el nodo: se ve como una versión pequeña del crecimiento, esférica e irregular.
+//               dibujan chicas, con su forma curada de siempre, y se anclan al núcleo.
+//   'mini'      cualquier otra red que contenga el nodo: se ve como un crecimiento chico de un solo soma, del tamaño de un nodo.
 // Devuelve null si ningún nodo de la escena trae config. `ajustes` (escalaRaices, radioEncuadre) los pone el motor, que conoce el mundo.
 export function contextoCrecimiento(subgrafo, raizId, ajustes = {}) {
     // ponytail: tope = 1 nodo que crece por escena (el primero con config) y un LineSegments por nodo (~0.4k segmentos la mini, 1 draw call).
@@ -37,10 +37,6 @@ export function contextoCrecimiento(subgrafo, raizId, ajustes = {}) {
     };
 }
 
-// Forma de las raíces cuando su estructura está activa: de la misma familia orgánica que el resto de la red. Un sprite de imagen (el logo
-// de Tropical) no es una neurona orgánica; se reemplaza por una forma del conjunto cerrado de renderers del motor.
-const ORGANICA = 'Perlin';
-
 export function adaptarSubgrafo(subgrafo, tiposValidos = ThreeObjectManager.getTypes(), crec = null) {
     const nodes = subgrafo.nodos.map((nodo) => {
         const shape = nodo.vizParams?.shape;
@@ -48,7 +44,6 @@ export function adaptarSubgrafo(subgrafo, tiposValidos = ThreeObjectManager.getT
         const esCrecimiento = crec?.nodoId === nodo.id && tieneShape(tiposValidos, 'Crecimiento');
         const esRaiz = !esCrecimiento && crec?.raices.has(nodo.id);
         if (esCrecimiento) type = 'Crecimiento';
-        else if (esRaiz && type === 'Image' && tieneShape(tiposValidos, ORGANICA)) type = ORGANICA;
 
         const node = {
             id: nodo.id,
@@ -95,6 +90,10 @@ export function adaptarSubgrafo(subgrafo, tiposValidos = ThreeObjectManager.getT
             if (vinculo.rol !== undefined) link.rol = vinculo.rol;
             if (vinculo.distance !== undefined) link.distance = vinculo.distance;
             if (vinculo.virtual !== undefined) link.virtual = vinculo.virtual;
+            // D-53 (quick 261126-owv): en la red del propio nodo, el nodo que crece (en el núcleo) y sus raíces están anclados dentro de la
+            // estructura; un vínculo entre dos de ellos es una recta de raíz a raíz que pasa por el centro, y esa unión ya la dibuja el
+            // crecimiento. Sigue en los datos y en el layout; solo no se dibuja.
+            if (crec?.modo === 'completo' && [vinculo.origen, vinculo.destino].every((id) => id === crec.nodoId || crec.raices.has(id))) link.dentroDelCrecimiento = true;
             return link;
         });
 

@@ -122,6 +122,7 @@ export class SinapsisEngine {
             })
             // El retorno `true` le dice a la librería que la geometría ya está actualizada
             // (falsy => pisa el mesh con su línea recta de 2 puntos).
+            .linkVisibility(link => !link.dentroDelCrecimiento) // D-53: ver adaptarSubgrafo
             .linkPositionUpdate((line, { start, end }, link) => {
                 link._threeObj?.setPosition(start, end);
                 return true;

@@ -4,12 +4,13 @@
 // CONGELADO desde que se publique (inicio 2026-11-25). Esto es una versión: la estructura de cada sitio es f(semilla, esta versión,
 // paso, entradas de las raíces). Tocar una línea, una constante o el orden de un bucle cambia la trayectoria de todos; un ajuste es
 // dendrita-v3 y esta queda como está. El test de oro (crecimiento.test.ts) rompe si el resultado cambia sin subir la versión.
-// (v1 nunca se publicó: se reemplazó por esta antes del primer día, por eso no queda en el repo.)
+// (v1 nunca se publicó: se reemplazó por esta antes del primer día, por eso no queda en el repo.) v2 se editó el 2026-11-26 antes de
+// publicarse (Ryzomatica no estaba en Neon, quick 261126-owv); desde el import a Neon un cambio es dendrita-v3.
 //
 // Qué cambió respecto de v1: (1) cada decisión saca su aleatoriedad de azar(semilla, canal, k), sin estado compartido: agregar una raíz
-// tardía no desfasa ningún paso anterior a su ingreso; (2) las raíces nacen unidas y pegadas al núcleo (un segmento de unión en el paso
-// 0), no a los extremos: el crecimiento sale del cuerpo unido hacia afuera; (3) `raices` con paso de ingreso: una raíz que entra en el
-// paso s se une al vértice más cercano, trae su nube de atractores y empieza a crecer en ese mismo paso; (4) un perfil `mini` de la
+// tardía no desfasa ningún paso anterior a su ingreso; (2) las raíces nacen pegadas al núcleo, no a los extremos, y sin ningún segmento
+// recto entre ellas: se unen solo por crecimiento; (3) `raices` con paso de ingreso: una raíz que entra en el paso s es un vértice suelto
+// en su punto, trae su nube de atractores y empieza a crecer en ese mismo paso; (4) un perfil `mini` de la
 // misma familia (esfera irregular, ~400 pasos) con el que se dibuja el nodo cuando se lo ve desde afuera; (5) trazo de lápiz: sesgo de
 // los atractores al centro (núcleo denso), persistencia de dirección + curvatura con inercia (sinuoso sin zigzag), pasos cortos (hilos
 // finos) y una fila de atractores sobre el eje de las fundadoras (axones largos); (6) se quitaron las uniones entre ramas de v1: eran
@@ -23,7 +24,7 @@
 //
 // Prefijo exacto: cada paso agrega al final y nada de lo que se decide depende de `nMax` (solo corta el bucle): generar(s, k) es el
 // prefijo de generar(s, k+1) byte a byte, por eso se genera una vez a N completo y se revela hasta el paso actual. Un "paso" es un
-// segmento de crecimiento; el puente con que entra una raíz no cuenta como paso (nace con ella).
+// segmento de crecimiento, y todo segmento es un paso.
 import { azar } from './prng.ts'
 
 export const VERSION = 'dendrita-v2'
@@ -68,10 +69,9 @@ export interface Estructura {
   version: string
   // Vértices en orden de creación: 0 y 1 son las fundadoras; una raíz tardía es un vértice más, creado al entrar. Normalizadas.
   pos: Float32Array
-  // Padre de cada vértice (-1 en las raíces): el árbol, sin los puentes.
+  // Padre de cada vértice (-1 en las raíces): un bosque, un árbol por raíz; los segmentos son exactamente sus aristas.
   padre: Int32Array
-  // Segmentos en orden de nacimiento: a -> b. `paso[s]` (no decreciente) es el paso en que el segmento aparece: 0 para el puente de
-  // las raíces que nacen juntas, s+1 para el que completa el paso s+1; el puente de una raíz tardía lleva el paso en que entra.
+  // Segmentos en orden de nacimiento: a -> b. `paso[s] === s + 1`: el segmento s completa el paso s+1 (a.length === pasos).
   a: Uint32Array
   b: Uint32Array
   paso: Uint32Array
@@ -172,19 +172,12 @@ export function generar(semilla: number, nMax: number, perfil: NombrePerfil = 'g
   const posRaices = new Float32Array(3 * R)
   for (let i = 0; i < R; i++) { const p = posicionRaiz(semilla, i, P); posRaices[3 * i] = p[0]; posRaices[3 * i + 1] = p[1]; posRaices[3 * i + 2] = p[2] }
 
-  // Entra la raíz i: vértice nuevo, puente al vértice más cercano que ya exista (la unión del nacimiento: no cuenta como paso) y, si no
-  // es fundadora, su nube de atractores. Devuelve dónde empiezan sus atractores en `vivos`.
+  // Entra la raíz i: un vértice suelto en su punto (padre -1, sin segmento recto a nada: se une a la estructura solo por crecimiento) y,
+  // si no es fundadora, su nube de atractores. Devuelve dónde empiezan sus atractores en `vivos`.
   const entrar = (i: number): number => {
     entro[i] = 1
     const x = posRaices[3 * i], y = posRaices[3 * i + 1], z = posRaices[3 * i + 2]
-    let mejor = -1, md = Infinity
-    for (let j = 0; j < nV; j++) {
-      const dx = vx[j] - x, dy = vy[j] - y, dz = vz[j] - z, d = dx * dx + dy * dy + dz * dz
-      if (d < md) { md = d; mejor = j }
-    }
-    const v = nuevoVertice(x, y, z, -1, i >= 2 ? i : -1)
-    raizV[i] = v
-    if (mejor >= 0) { sa[nS] = v; sb[nS] = mejor; sp[nS] = nPaso; nS++ }
+    raizV[i] = nuevoVertice(x, y, z, -1, i >= 2 ? i : -1)
     nVert[nPaso] = nV
     const desde = nVivos
     if (i >= 2) {
