@@ -23,15 +23,16 @@ export const GLOBAL_DEFAULT_SETTINGS = {
 // D-53: la estructura que crece (Ryzomatica). Escalas del mundo en unidades por unidad normalizada de la estructura, y escala visual de
 // las raíces. ponytail: a ojo; perillas para el UAT del dueño, no configuración de producto.
 export const CRECIMIENTO_SETTINGS = {
-    // Estructura completa (la red de Ryzomatica): llega a ~1 de radio mayor en unidades normalizadas (con n=5000, medido 0.96 en x) y
-    // `radioNormalizado` (1.1) es el radio que se encuadra y se raycastea; en el mundo ~100. Las fundadoras nacen a +-0.14 del núcleo =
-    // +-12.6, dos nodos de escala 0.5 (radio ~7.5) con 10.2 de aire entre ellos.
+    // Estructura completa (la red de Ryzomatica): con n=5000 el vértice más lejano queda a 1.144 del núcleo en unidades normalizadas
+    // (medicion-final.json de 261126-owv); `radioNormalizado` (1.15) es el radio que se encuadra y se raycastea; en el mundo ~104. Las
+    // fundadoras nacen a +-0.14 del núcleo = +-12.6, dos nodos de escala 0.5 (radio ~7.5) con 10.2 de aire entre ellos.
     escalaCompleta: 90,
-    radioNormalizado: 1.1,
-    // Nodo visto desde afuera (versión mini, esfera irregular de ~0.55 de radio, ~22 en el mundo): son líneas finas, así que se la hace
-    // un poco más grande que una neurona normal (radio 15) para que tenga presencia al lado de ellas. Medido a ojo en capturas.
-    escalaMini: 40,
-    // Tropical y Bosque Gracias en la escena donde el crecimiento está activo: más chicos, de la misma familia que el resto (0.4-0.6).
+    radioNormalizado: 1.15,
+    // Nodo visto desde afuera (mini de un soma): el 95 % de sus vértices queda a 0.668 del centro y el más lejano a 0.781 (medido). Con
+    // escalaMini = 15 / 0.668 ~ 22 ese radio es el de un nodo común (15); `radioMini` es el del blanco de raycast (rmax hacia arriba a 0.05).
+    escalaMini: 22,
+    radioMini: 0.8,
+    // Tropical y Bosque Gracias en la escena donde el crecimiento está activo: más chicos, con su forma de siempre.
     escalaRaices: 0.5,
 };
 
