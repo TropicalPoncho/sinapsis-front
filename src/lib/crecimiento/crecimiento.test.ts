@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs'
 import { azar } from './prng.ts'
 import { generar, VERSION } from './dendrita.ts'
 import type { Estructura } from './dendrita.ts'
-import { estructuraDe, hastaPaso, opacidades, PASOS_MINI, segmentosHasta } from './estructura.ts'
+import { estructuraDe, grosores, hastaPaso, opacidades, PASOS_MINI, PISO_MINI, pasosMini, segmentosHasta } from './estructura.ts'
 import { RAICES_MAX, SEGMENTOS_MAX, validarCrecimiento } from './config.ts'
 import { offsetDeCabeceras, pasoDeIngreso, pasosEn, perillasDe, suave, tiempoDe } from './tiempo.ts'
 
@@ -38,7 +38,7 @@ test('determinismo: misma semilla y versión dan los mismos bytes; otra semilla 
   assert.notEqual(hash(e1), hash(e3))
   // con una raíz tardía y en la versión pequeña también
   assert.equal(hash(generar(SEMILLA, 800, 'grande', [0, 0, 300])), hash(generar(SEMILLA, 800, 'grande', [0, 0, 300])))
-  assert.equal(hash(generar(SEMILLA, 300, 'mini')), hash(generar(SEMILLA, 300, 'mini')))
+  assert.equal(hash(generar(SEMILLA, 300, 'mini', [0])), hash(generar(SEMILLA, 300, 'mini', [0])))
 })
 
 test('prefijo: la estructura en el paso k es el prefijo exacto, byte a byte, de la del paso k+1 (y de la de N completo)', () => {
@@ -63,9 +63,9 @@ test('prefijo: la estructura en el paso k es el prefijo exacto, byte a byte, de 
     assert.ok(iguales(a.pos, b.pos.subarray(0, a.pos.length)) && iguales(a.a, b.a.subarray(0, a.a.length)) && iguales(a.b, b.b.subarray(0, a.b.length)))
   }
   // lo mismo para la versión pequeña
-  const mini = generar(SEMILLA, 400, 'mini')
+  const mini = generar(SEMILLA, 400, 'mini', [0])
   for (const k of [1, 50, 399]) {
-    const parcial = generar(SEMILLA, k, 'mini'), p = hastaPaso(mini, k)
+    const parcial = generar(SEMILLA, k, 'mini', [0]), p = hastaPaso(mini, k)
     assert.ok(iguales(parcial.a, p.a) && iguales(parcial.b, p.b) && iguales(parcial.pos, p.pos), `mini @${k}`)
   }
 })
@@ -174,23 +174,80 @@ test('test de oro: dendrita-v2, semilla 20261205, 1500 pasos. Si rompe, alguien 
   // v2 editada el 2026-11-26 antes de publicarse; desde el import a Neon, un cambio es v3 (D-52): los sitios publicados siguen con v2.
   assert.equal(hash(generar(SEMILLA, 1500)), 'd514c347')
   assert.equal(hash(generar(SEMILLA, 1500, 'grande', [0, 0, INGRESO])), 'c5a3f576')
-  assert.equal(hash(generar(SEMILLA, 400, 'mini')), '88cd0105')
+  assert.equal(hash(generar(SEMILLA, 400, 'mini', [0])), '88cd0105')
 })
 
-test('mini: misma familia en esfera irregular; la irregularidad sale de la semilla; avanza en proporción a pasos(t)', () => {
-  const a = generar(SEMILLA, PASOS_MINI, 'mini'), b = generar(SEMILLA + 1, PASOS_MINI, 'mini')
+// Ramas (como en medir.mts): una empieza en una raíz o en un vértice que no es el primer hijo de su padre y sigue por primeros hijos; su
+// largo cuenta el segmento que la une al padre.
+const ramas = (padre: Int32Array) => {
+  const primer = new Int32Array(padre.length).fill(-1)
+  for (let v = 0; v < padre.length; v++) if (padre[v] >= 0 && primer[padre[v]] < 0) primer[padre[v]] = v
+  const largos: number[] = []
+  for (let v = 0; v < padre.length; v++) {
+    if (padre[v] >= 0 && primer[padre[v]] === v) continue
+    let largo = padre[v] >= 0 ? 1 : 0, u = v
+    while (primer[u] >= 0) { u = primer[u]; largo++ }
+    largos.push(largo)
+  }
+  return largos.sort((x, y) => y - x)
+}
+const rmax = (e: Estructura) => { let m = 0; for (let v = 0; v < e.pos.length; v += 3) m = Math.max(m, Math.hypot(e.pos[v], e.pos[v + 1], e.pos[v + 2])); return m }
+
+test('caminos: pocas ramas dominantes y laterales cortas (la v2 sin vigor medía profundidad 50, top-10 9.6 %, radio 0.667 a n=3000)', () => {
+  const e = generar(SEMILLA, 5000)
+  const prof = new Int32Array(e.padre.length)
+  let profMax = 0
+  for (let v = 0; v < e.padre.length; v++) if (e.padre[v] >= 0) { prof[v] = prof[e.padre[v]] + 1; profMax = Math.max(profMax, prof[v]) }
+  const rs = ramas(e.padre)
+  const top10 = rs.slice(0, 10).reduce((a, x) => a + x, 0) / e.a.length
+  assert.ok(profMax >= 80, `profundidad máxima ${profMax}`)
+  assert.ok(top10 >= 0.13, `top-10 ramas ${top10}`)
+  assert.ok(rs[Math.floor((rs.length - 1) / 2)] <= 4, `mediana de ramas ${rs[Math.floor((rs.length - 1) / 2)]}`)
+  assert.ok(rmax(generar(SEMILLA, 3000)) >= 0.8, 'a n=3000 ya llega lejos: los caminos avanzan en vez de rellenar')
+})
+
+test('mini: un solo soma en el origen, del que salen pocas dendritas primarias; la forma sale de la semilla', () => {
+  const a = estructuraDe(BUENA, 'mini'), b = estructuraDe({ ...BUENA, semilla: SEMILLA + 1 }, 'mini')
   assert.equal(a.pasos, PASOS_MINI)
-  assert.notEqual(hash(a), hash(b))
+  const raices = [...a.padre].flatMap((p, v) => (p === -1 ? [v] : []))
+  assert.deepEqual(raices, [0])
+  assert.ok(a.pos[0] === 0 && a.pos[1] === 0 && a.pos[2] === 0, 'el soma en el origen') // === : -0 y +0 son el mismo centro
+  const primarias = [...a.padre].filter((p) => p === 0).length
+  assert.ok(primarias >= 3 && primarias <= 8, `${primarias} dendritas primarias`)
   const caja = (e: Estructura) => {
     const mn = [9, 9, 9], mx = [-9, -9, -9]
     for (let v = 0; v < e.pos.length; v += 3) for (let c = 0; c < 3; c++) { mn[c] = Math.min(mn[c], e.pos[v + c]); mx[c] = Math.max(mx[c], e.pos[v + c]) }
     return mx.map((x, c) => x - mn[c])
   }
-  for (const e of [a, b]) { const [x, y, z] = caja(e); assert.ok(Math.max(x, y, z) < 3 && Math.min(x, y, z) > 0.6, `caja ${[x, y, z]}`) } // ~esférica: sin disco achatado
-  assert.notDeepEqual(caja(a).map((x) => x.toFixed(3)), caja(b).map((x) => x.toFixed(3))) // irregular y distinta por semilla
-  // mismo reloj: a la mitad del recorrido el nodo mini muestra la mitad de sus pasos, y el grande la mitad de los suyos
-  const mitad = pasosEn(BUENA, Date.parse('2026-11-30T00:00:00-03:00'))
-  assert.equal(PASOS_MINI * (mitad / BUENA.n), PASOS_MINI / 2)
+  for (const e of [a, b]) for (const x of caja(e)) assert.ok(x >= 0.6 && x <= 2, `caja ${caja(e)}`) // sin disco achatado
+  assert.notEqual(hash(a), hash(b))
+  assert.notDeepEqual(caja(a).map((x) => x.toFixed(3)), caja(b).map((x) => x.toFixed(3)))
+  const r = Array.from({ length: a.pos.length / 3 }, (_, v) => Math.hypot(a.pos[3 * v], a.pos[3 * v + 1], a.pos[3 * v + 2])).sort((x, y) => x - y)
+  const r95 = r[Math.floor(0.95 * (r.length - 1))]
+  assert.ok(r95 >= 0.5 && r95 <= 1, `r95 ${r95}`) // el motor la escala para que este radio sea el de un nodo común
+})
+
+test('pasosMini: avanza en proporción a pasos(t), con un piso de dibujo y sin pasarse', () => {
+  const n = BUENA.n
+  assert.equal(pasosMini(0, n), PISO_MINI)
+  assert.equal(pasosMini(n / 2, n), PASOS_MINI / 2)
+  assert.equal(pasosMini(n, n), PASOS_MINI)
+  assert.equal(pasosMini(2 * n, n), PASOS_MINI)
+  let previo = -1
+  for (let p = 0; p <= n; p += 37) { const m = pasosMini(p, n); assert.ok(m >= previo && m <= PASOS_MINI); previo = m }
+  // mismo reloj: a la mitad del recorrido, la mitad de los pasos del mini
+  assert.equal(pasosMini(pasosEn(BUENA, Date.parse('2026-11-30T00:00:00-03:00')), n), PASOS_MINI / 2)
+})
+
+test('grosores: por segmento, 2 cerca del núcleo, 1 en el medio, 0 afuera, según el vértice de donde sale (solo dibujo)', () => {
+  const e = generar(SEMILLA, 5000)
+  const g = grosores(e, 0.2, 0.4)
+  assert.equal(g.length, e.a.length)
+  for (let s = 0; s < e.a.length; s += 7) {
+    const v = e.a[s], d = Math.hypot(e.pos[3 * v], e.pos[3 * v + 1], e.pos[3 * v + 2])
+    assert.equal(g[s], d < 0.2 ? 2 : d < 0.4 ? 1 : 0, `segmento ${s} a ${d}`)
+  }
+  assert.deepEqual([0, 1, 2].map((k) => g.includes(k)), [true, true, true])
 })
 
 test('tope de segmentos: nunca más que n, y n no pasa de SEGMENTOS_MAX', () => {
