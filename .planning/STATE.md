@@ -1,14 +1,14 @@
 ---
 gsd_state_version: "1.0"
 milestone: v1.0
-current_phase: "05"
+current_phase: 05
 current_phase_name: Tropical Poncho Launch
 status: "Fases 4 y 4.1 cerradas el 2026-11-26 (UAT de cierre aprobado). Siguiente: Fase 5 y los todos del UAT (áreas internas de Tropical, Ryzomatica). Ryzomatica y la migración 003 todavía no están en Neon."
 stopped_at: Completed 04.1-07-PLAN.md (cierre de las fases 4 y 4.1)
-last_updated: "2026-11-26T20:30:00.000Z"
+last_updated: "2026-11-26T22:25:05.141Z"
 last_activity: 2026-11-26
 last_activity_desc: UAT de cierre de las fases 4 y 4.1 aprobado; deploy a main
-state_head: c27442f7996a0d50d5cc4c801ae3c18778b4e104
+state_head: 035c0a405bce68ae4d2e0d1bd7bc9206ff56b5cf
 progress:
   total_phases: 6
   completed_phases: 5
@@ -184,6 +184,12 @@ None yet.
     re-plan 02-05 (and possibly amend the migration `001_esquema_inicial.sql`) if `NodeType` changes.
     Do not resume Task 2 by guessing — the checkpoint explicitly requires the owner's answer.
 - Fase 4 abierta: G-08 (vista de entrada de la entidad: solo áreas + raíz, áreas conectadas por vínculos virtuales derivados), G-09 (Volver en Obras), G-10 (menú activo y título fijo al entrar a un área) -> plan 04-12; G-06 sin verificar en celular
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 261126-owv | Ryzomatica v2 ajustada antes de publicar: sin recta entre raíces, raíces con su forma, caminos dominantes, grosor al centro, mini de un soma | 2026-11-26 | 035c0a4 | [261126-owv-ryz3-ryzomatica-v2-ajustada-antes-de-pub](./quick/261126-owv-ryz3-ryzomatica-v2-ajustada-antes-de-pub/) |
 
 ### Roadmap Evolution
 
