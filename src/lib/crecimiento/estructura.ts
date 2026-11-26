@@ -14,8 +14,7 @@ export const PISO_MINI = 100
 // al día 0 no hay nada y el día 1 serían 11 segmentos); el techo es que muestra un cuarto aun antes del inicio. Si el dueño quiere que no
 // se vea antes del inicio, el piso pasa a 0.
 export function pasosMini(pasos: number, n: number): number {
-  const p = (PASOS_MINI * pasos) / n
-  return p < PISO_MINI ? PISO_MINI : p > PASOS_MINI ? PASOS_MINI : p
+  return Math.min(PASOS_MINI, Math.max(PISO_MINI, (PASOS_MINI * pasos) / n))
 }
 
 // algoritmo -> generador. Una versión nueva se agrega acá y la vieja no se toca.

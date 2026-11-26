@@ -15,7 +15,7 @@ export const SEGMENTOS_MAX = 6000
 export const RAICES_MAX = 12
 
 // Una raíz es un nodo del que nace la estructura. `desde` (ISO con zona) es cuándo entra; sin `desde` entra en el paso 0. Las dos primeras
-// son las fundadoras (nacen unidas, pegadas al núcleo) y no llevan `desde`. Hoy solo las fundadoras existen en los datos reales; un
+// son las fundadoras (nacen pegadas al núcleo, sin segmento entre ellas) y no llevan `desde`. Hoy solo las fundadoras existen en los datos reales; un
 // participante futuro será una ENTIDAD (persona) pública vinculada al evento, y de dónde sale su `desde` se decide en la fase de registro.
 export interface RaizConfig {
   id: string
