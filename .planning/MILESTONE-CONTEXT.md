@@ -8,7 +8,15 @@ carpetas de fases y reinicia STATE.
 eventos, vínculos, imágenes), empezando por el dueño como único usuario, y que las agrupaciones
 sumen integrantes por invitación y aceptación.
 
-## Decisiones que condicionan el milestone (van como ADRs en Notion antes de planificar)
+## Decisiones que condicionan el milestone
+
+ADRs en Notion (Documentos de Proyecto → Synapsis, estado Propuesto, 2026-11-26):
+[M2-1](https://app.notion.com/p/4243d6cb9a588172ac97fffbe66c2047) ·
+[M2-2](https://app.notion.com/p/4243d6cb9a5881e5b01fc51142d38414) ·
+[M2-3](https://app.notion.com/p/4243d6cb9a5881ecb4b5ff6641b40d4d) ·
+[M2-4](https://app.notion.com/p/4243d6cb9a5881c9b525d0fc832eccb4) ·
+[M2-5](https://app.notion.com/p/4243d6cb9a58811e9aeaf62ae8012c60) ·
+[M2-6](https://app.notion.com/p/4243d6cb9a588112a86fe21f220021e5)
 
 ### ADR-M2-1 · La invitación es un token para reclamar un nodo, no un email registrado
 - **Decisión:** el dueño (o quien administre un nodo) genera un link `/invitacion/<token>` atado a un
