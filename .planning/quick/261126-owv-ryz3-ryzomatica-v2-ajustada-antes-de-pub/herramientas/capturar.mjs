@@ -9,7 +9,8 @@ const { chromium } = require('playwright')
 const [, , dir, salidaArchivo, filtro] = process.argv
 mkdirSync(dir, { recursive: true })
 const base = 'http://localhost:3002'
-const b = await chromium.launch({ args: ['--enable-gpu', '--use-angle=d3d11', '--ignore-gpu-blocklist'] })
+// Un navegador por escena: Chrome bloquea WebGL en el proceso después de varias pérdidas de contexto seguidas (pasó en la escena 8 de 19).
+const lanzar = () => chromium.launch({ args: ['--enable-gpu', '--use-angle=d3d11', '--ignore-gpu-blocklist'] })
 const salida = [], fallas = []
 const log = (o) => { salida.push(o); console.log(JSON.stringify(o)) }
 const falla = (donde, que) => { fallas.push(`${donde}: ${que}`) }
@@ -66,6 +67,7 @@ function chequear(donde, escena, m) {
 
 // Generación con la CPU 4x más lenta (CDP): estimación de un celular de gama media, no una medida de uno.
 if (!filtro || 'cpu4x'.includes(filtro)) {
+  const b = await lanzar()
   const ctx = await b.newContext({ viewport: VPS[1][1], hasTouch: true, isMobile: true })
   const p = await ctx.newPage()
   const cdp = await ctx.newCDPSession(p)
@@ -77,21 +79,24 @@ if (!filtro || 'cpu4x'.includes(filtro)) {
   const m = await medir(p)
   log({ vp: 'mobile', escena: 'ryz-100-cpu-4x', ...m })
   chequear('mobile-ryz-100-cpu-4x', 'ryz-100', m)
-  await ctx.close()
+  await b.close()
 }
 for (const [vp, viewport] of VPS) {
   for (const [nombre, ruta] of ESCENAS) {
     if (filtro && !`${vp}-${nombre}`.includes(filtro)) continue
+    const b = await lanzar()
     const ctx = await b.newContext({ viewport, hasTouch: viewport.width < 800, isMobile: viewport.width < 800 })
     const p = await abrir(ctx, ruta)
-    await p.screenshot({ path: `${dir}/${vp}-${nombre}.png` })
+    // Medir ANTES de capturar: en la red de Laboratorios (un solo nodo) la captura de pantalla de Chrome headless hace perder el contexto
+    // WebGL aun con las líneas del crecimiento ocultas (medido en 261126-owv); eso es del arnés, no de la app, y se registra aparte.
     const m = await medir(p)
+    m.captura = await p.screenshot({ path: `${dir}/${vp}-${nombre}.png` }).then(() => true, () => false) // a veces Chrome no puede (mismo motivo)
+    m.ctxPerdidoTrasCaptura = await p.evaluate(() => window.__sinapsis.renderer.getContext().isContextLost())
     log({ vp, escena: nombre, ...m })
     chequear(`${vp}-${nombre}`, nombre, m)
-    await ctx.close()
+    await b.close()
   }
 }
 writeFileSync(salidaArchivo, salida.map((o) => JSON.stringify(o)).join('\n') + '\n')
-await b.close()
 console.log(JSON.stringify({ fallas }, null, 2))
 process.exit(fallas.length ? 1 : 0)

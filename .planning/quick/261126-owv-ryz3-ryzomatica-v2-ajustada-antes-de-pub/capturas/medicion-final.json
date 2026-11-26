@@ -1,0 +1,21 @@
+{
+  "grande": {
+    "ms": 244,
+    "pasos": 5000,
+    "segmentos": 5000,
+    "profMax": 91,
+    "top10frac": 0.144,
+    "medianaRamas": 3,
+    "rmax": 1.144
+  },
+  "grande3000": {
+    "rmax": 0.908
+  },
+  "mini": {
+    "pasos": 400,
+    "raices": 1,
+    "hijosRaiz": 4,
+    "r95": 0.668,
+    "rmax": 0.781
+  }
+}
