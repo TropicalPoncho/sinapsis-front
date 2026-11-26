@@ -23,7 +23,9 @@ export class PerlinThreeObject extends ThreeObject{
         const cubeMap = cubeMapCompartido();
 
         // <OBJECT>
-        const detail = this.segmentWidth ?? 70;
+        // ponytail: tope 16 (20*17² ≈ 5.8k triángulos) como las demás formas; con el 64 heredado eran 84.5k por nodo y ruido 4D
+        // por vértice, lo más caro de la escena en GPUs integradas (quick 261126-prl). Si se ve facetado de cerca, subir a 24.
+        const detail = Math.max(4, Math.min(16, this.segmentWidth || 16));
         const geometryKey = `perlin-core-1-${detail}`;
         const g = ThreeObject.getSharedGeometry(geometryKey, () => new THREE.IcosahedronGeometry(1, detail));
         // Antes fijo (#FF0074/#9900FF) para todos los nodos — ahora deriva del color curado.
